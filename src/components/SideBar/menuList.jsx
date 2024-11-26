@@ -50,11 +50,6 @@ const menuList = [
         menuTitle: "Approved Vehicles",
         menuLink: "/approved-vehicles",
       },
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "Rejected Vehicles",
-        menuLink: "/rejected-vehicles",
-      },
     ],
   },
   {
@@ -76,11 +71,6 @@ const menuList = [
         menuImg: <AdjustRoundedIcon />,
         menuTitle: "Approved Users",
         menuLink: "/approved-users",
-      },
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "Rejected Users",
-        menuLink: "/rejected-Users",
       },
     ],
   },

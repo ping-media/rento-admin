@@ -7,8 +7,8 @@ const SideBarDropDown = ({ item }) => {
     <div>
       <details
         className={`group capitalize ${
-          location.pathname == `${item?.menuLink}` ||
-          location.pathname == `${item?.moreLink}`
+          location.pathname.includes(item?.menuLink.toLowerCase()) ||
+          location.pathname.includes(item?.moreLink?.toLowerCase())
             ? "bg-theme text-gray-100"
             : ""
         } transition duration-300 ease-in-out mb-2 dark:text-gray-100`}
@@ -17,14 +17,18 @@ const SideBarDropDown = ({ item }) => {
           <div className="flex items-center gap-1">
             <div
               className={`w-7 h-7 group-hover:text-gray-100 text-lg ${
-                location.pathname == `${item?.menuLink}` ? "text-gray-100" : ""
+                location.pathname.includes(item?.menuLink.toLowerCase())
+                  ? "text-gray-100"
+                  : ""
               }`}
             >
               {item?.menuImg}
             </div>
             <span
               className={`${
-                location.pathname == `${item?.menuLink}` ? "text-gray-100" : ""
+                location.pathname.includes(item?.menuLink.toLowerCase())
+                  ? "text-gray-100"
+                  : ""
               } group-hover:text-gray-100`}
             >
               {item?.menuTitle}
@@ -51,8 +55,8 @@ const SideBarDropDown = ({ item }) => {
             <Link to={`${item?.menuLink}`} key={index}>
               <li
                 className={`px-4 py-2 group capitalize ${
-                  location.pathname == `${item?.menuLink}` ||
-                  location.pathname == `${item?.moreLink}`
+                  location.pathname.includes(item?.menuLink.toLowerCase()) ||
+                  location.pathname.includes(item?.moreLink?.toLowerCase())
                     ? "bg-theme text-gray-100"
                     : ""
                 } hover:bg-theme transition duration-300 ease-in-out rounded-lg flex items-center gap-2 mb-2 text-gray-700`}

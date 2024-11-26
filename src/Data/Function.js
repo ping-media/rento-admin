@@ -1,7 +1,8 @@
-import { getData, handleAdminLogin } from ".";
+import { getData, handleAdminLogin, postData } from ".";
 import {
   handleDashboardData,
   handleLoadingDashboardData,
+  resetDashboardData,
 } from "../Redux/DashboardSlice/DashboardSlice";
 import {
   handleLoadingUserData,
@@ -13,7 +14,9 @@ import {
   fetchVehicleMasterData,
   fetchVehicleStart,
 } from "../Redux/VehicleSlice/VehicleSlice";
+import { modifyUrl, removeAfterSecondSlash } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
+import { endPointBasedOnURL } from "./commonData";
 
 // for login
 const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
@@ -52,9 +55,11 @@ const fetchDashboardData = async (dispatch, token) => {
     if (response?.status == 200) {
       dispatch(handleDashboardData(response?.data));
     } else {
+      dispatch(resetDashboardData());
       handleAsyncError(dispatch, response?.message);
     }
   } catch (error) {
+    dispatch(resetDashboardData());
     handleAsyncError(dispatch, error?.message);
   }
 };
@@ -91,9 +96,44 @@ const fetchVehicleMasterById = async (dispatch, id, token, endpoint) => {
   }
 };
 
+const handleCreateAndUpdateVehicle = async (
+  event,
+  dispatch,
+  setFormLoading,
+  id,
+  token,
+  navigate
+) => {
+  event.preventDefault();
+  setFormLoading(true);
+  const response = new FormData(event.target);
+  let result = Object.fromEntries(response.entries());
+  // if there is id that means it we are updating the data and if there is not id than creating new data
+  if (id) {
+    result = Object.assign(result, { _id: id });
+  }
+  const endpoint = id
+    ? `${endPointBasedOnURL[modifyUrl(location?.pathname)]}?_id=${id}`
+    : `${endPointBasedOnURL[modifyUrl(location?.pathname)]}`;
+  // console.log(endpoint, result);
+  try {
+    const response = await postData(endpoint, result, token);
+    if (response?.status == 200) {
+      handleAsyncError(dispatch, response?.message, "success");
+      navigate(removeAfterSecondSlash(location?.pathname));
+    } else {
+      handleAsyncError(dispatch, response?.message);
+    }
+  } catch (error) {
+    handleAsyncError(dispatch, error?.message);
+  }
+  return setFormLoading(false);
+};
+
 export {
   handleOtpLogin,
   fetchDashboardData,
   fetchVehicleMaster,
   fetchVehicleMasterById,
+  handleCreateAndUpdateVehicle,
 };

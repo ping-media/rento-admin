@@ -19,9 +19,7 @@ const Layout = () => {
   const { is_open } = useSelector((state) => state.sideBar);
   const mainRef = useRef(null);
   const [visible, setVisible] = useState(false);
-  const { token, user, loading, currentUser } = useSelector(
-    (state) => state.user
-  );
+  const { token, user, loading } = useSelector((state) => state.user);
 
   //scrolltotop function
   const handleScrollToTop = () => {

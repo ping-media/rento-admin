@@ -29,11 +29,12 @@ const postData = async (url, data, token) => {
       Accept: "application/json",
     };
 
-    // if (data) {
-    //   headers = {
-    //     "Content-Type": "multipart/form-data",
-    //   };
-    // }
+    if (data?.isImage || data?.image) {
+      headers = {
+        "Content-Type": "multipart/form-data",
+      };
+    }
+
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
       headers["token"] = `${token}`;
@@ -50,6 +51,17 @@ const postData = async (url, data, token) => {
     } else {
       return response?.message;
     }
+  } catch (error) {
+    return `Error :${error?.message}`;
+  }
+};
+
+const deleteData = async (url) => {
+  try {
+    const response = await axios.delete(
+      `${import.meta.env.VITE_BASED_URL}${url}`
+    );
+    return response?.message;
   } catch (error) {
     return `Error :${error?.message}`;
   }

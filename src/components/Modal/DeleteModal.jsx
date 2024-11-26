@@ -17,23 +17,22 @@ const DeleteModal = () => {
   const { token } = useSelector((state) => state.user);
 
   const handleDelete = async () => {
+    // if there is form which is having image than we have to pass an extra flag so that we can add form/multipart header and for normal there data will be passed as raw
+    const isImageInclude = ["/location-master", "/vehicle-master"];
     let result;
+
     if (deletevehicleId) {
-      result = { _id: deletevehicleId, deleteRec: "true" };
+      if (isImageInclude.includes(location.pathname)) {
+        result = { _id: deletevehicleId, isImage: true, deleteRec: "true" };
+      } else {
+        result = { _id: deletevehicleId, deleteRec: "true" };
+      }
     }
-    // console.log(
-    //   result,
-    //   (location?.pathname).replace("/", "") + "/",
-    //   `${endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"]}`
-    // );
     try {
       const response = await postData(
-        // `${
-        //   endPointBasedOnURL[
-        //     removeAfterSecondSlash(location?.pathname).replace("/", "")
-        //   ]
-        // }?_id=${deletevehicleId}`,
-        `${endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"]}`,
+        `${
+          endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"]
+        }?_id=${deletevehicleId}`,
         result,
         token
       );

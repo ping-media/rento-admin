@@ -1,5 +1,4 @@
 import CustomTable from "../components/Table/CustomTable";
-// import Data from "../utils/data/MOCK_DATA.json";
 import { formatPathNameToTitle } from "../utils";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";

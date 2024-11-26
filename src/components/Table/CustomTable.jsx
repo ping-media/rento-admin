@@ -33,7 +33,7 @@ const CustomTable = ({ pageTitle, Data }) => {
   };
 
   useEffect(() => {
-    console.log(location.pathname);
+    // console.log(location.pathname);
     loadFiltersAndData();
   }, [currentPage, limitedData, sortedData]);
 
@@ -87,7 +87,7 @@ const CustomTable = ({ pageTitle, Data }) => {
   };
 
   const getTableHeaderAndTableValue = (Data) => {
-    console.log(Data);
+    // console.log(Data);
     if (Data.length == 0) return;
     // Extract keys from the first item (assuming all items have the same structure)
     const keys = Object.keys(Data[0]);
@@ -258,7 +258,8 @@ const CustomTable = ({ pageTitle, Data }) => {
                                       />
                                     </div>
                                   </td>
-                                ) : column.includes("tatus") ? (
+                                ) : column.includes("tatus") ||
+                                  column.includes("Active") ? (
                                   <td
                                     className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                     key={columnIndex}
@@ -299,14 +300,14 @@ const CustomTable = ({ pageTitle, Data }) => {
                                   </td>
                                 ) : (
                                   <td
-                                    className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize"
+                                    className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                     key={columnIndex}
                                   >
                                     {column.includes("Charges") ||
                                     column.includes("Price")
                                       ? `₹ ${item[column]}`
                                       : column.includes("Duration")
-                                      ? `${item[column]} minutes`
+                                      ? `${item[column]} Days`
                                       : item[column]}
                                   </td>
                                 )
@@ -383,7 +384,7 @@ const CustomTable = ({ pageTitle, Data }) => {
           </div>
         </div>
 
-        {newUpdatedData.length > 0 && (
+        {newUpdatedData.length > limitedData && (
           <div className="flex flex-wrap items-center justify-start lg:justify-end gap-4 lg:gap-2">
             <div className="flex items-center gap-2">
               <h2 className="capitalize">Rows per Page</h2>

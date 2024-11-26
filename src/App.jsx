@@ -3,9 +3,34 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PreLoader from "./components/Skeleton/PreLoader";
 import { lazy, Suspense } from "react";
 
-const CreateNewVehicle = lazy(() =>
+const CreateNewAndUpdateStationMaster = lazy(() =>
   import("./Pages/index").then((module) => ({
-    default: module.CreateNewVehicle,
+    default: module.CreateNewAndUpdateStationMaster,
+  }))
+);
+const CreateNewAndUpdateLocationMaster = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateLocationMaster,
+  }))
+);
+const CreateNewAndUpdateVehicleMaster = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateVehicleMaster,
+  }))
+);
+const CreateNewAndUpdateVehicle = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateVehicle,
+  }))
+);
+const CreateNewAndUpdateUser = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateUser,
+  }))
+);
+const CreateNewAndUpdatePlan = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdatePlan,
   }))
 );
 const Dashboard = lazy(() =>
@@ -40,12 +65,12 @@ const App = () => {
             <Route
               path="vehicle-master/add-new"
               exact
-              element={<CreateNewVehicle />}
+              element={<CreateNewAndUpdateVehicleMaster />}
             />
             <Route
               path="vehicle-master/:id"
               exact
-              element={<CreateNewVehicle />}
+              element={<CreateNewAndUpdateVehicleMaster />}
             />
             <Route path="all-vehicles" exact element={<VehicleMaster />} />
             <Route
@@ -56,36 +81,40 @@ const App = () => {
             <Route
               path="all-vehicles/add-new"
               exact
-              element={<CreateNewVehicle />}
+              element={<CreateNewAndUpdateVehicle />}
             />
             <Route
               path="all-vehicles/:id"
               exact
-              element={<CreateNewVehicle />}
+              element={<CreateNewAndUpdateVehicle />}
             />
             {/* station Routes */}
             <Route path="station-master" exact element={<VehicleMaster />} />
             <Route
               path="station-master/add-new"
               exact
-              element={<CreateNewVehicle />}
+              element={<CreateNewAndUpdateStationMaster />}
             />
             <Route
               path="station-master/:id"
               exact
-              element={<CreateNewVehicle />}
+              element={<CreateNewAndUpdateStationMaster />}
             />
             {/* plans Routes */}
             <Route path="all-plans" exact element={<VehicleMaster />} />
             <Route
               path="all-plans/add-new"
               exact
-              element={<CreateNewVehicle />}
+              element={<CreateNewAndUpdatePlan />}
             />
-            <Route path="all-plans/:id" exact element={<CreateNewVehicle />} />
+            <Route
+              path="all-plans/:id"
+              exact
+              element={<CreateNewAndUpdatePlan />}
+            />
             {/* coupons Routes */}
             <Route path="all-coupons" exact element={<VehicleMaster />} />
-            <Route
+            {/* <Route
               path="all-coupons/add-new"
               exact
               element={<CreateNewVehicle />}
@@ -94,21 +123,31 @@ const App = () => {
               path="all-coupons/:id"
               exact
               element={<CreateNewVehicle />}
-            />
+            /> */}
             {/* location Routes  */}
             <Route path="location-master" exact element={<VehicleMaster />} />
             <Route
               path="location-master/add-new"
               exact
-              element={<CreateNewVehicle />}
+              element={<CreateNewAndUpdateLocationMaster />}
             />
             <Route
               path="location-master/:id"
               exact
-              element={<CreateNewVehicle />}
+              element={<CreateNewAndUpdateLocationMaster />}
             />
             {/* users Routes  */}
             <Route path="all-users" exact element={<VehicleMaster />} />
+            <Route
+              path="all-users/add-new"
+              exact
+              element={<CreateNewAndUpdateUser />}
+            />
+            <Route
+              path="all-users/:id"
+              exact
+              element={<CreateNewAndUpdateUser />}
+            />
             {/* booking Routes  */}
             {/* <Route path="manage-bookings" exact element={<VehicleMaster />} /> */}
 

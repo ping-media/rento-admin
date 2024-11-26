@@ -1,21 +1,19 @@
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { handleAsyncError } from "../utils/Helper/handleAsyncError.js";
-import VehicleForm from "../components/Form/vehicleForm.jsx";
-import VehicleFormForCreate from "../components/Form/vehicleFormForCreate.jsx";
 import {
   formatPathNameToTitle,
   handlePreviousPage,
   modifyUrl,
-  removeAfterSecondSlash,
 } from "../utils/index.js";
 import { fetchVehicleMasterById } from "../Data/Function.js";
 import PreLoader from "../components/Skeleton/PreLoader.jsx";
-import { postData } from "../Data/index.js";
-import { endPointBasedOnURL, generateForm } from "../Data/commonData.js";
+import { endPointBasedOnURL } from "../Data/commonData.js";
+const VehicleMasterForm = lazy(() =>
+  import("../components/Form/VehicleMasterForm.jsx")
+);
 
-const CreateNewVehicle = () => {
+const CreateNewAndUpdateVehicle = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [formLoading, setFormLoading] = useState(false);
@@ -25,11 +23,6 @@ const CreateNewVehicle = () => {
 
   // fetch data based on id taking from url
   useEffect(() => {
-    // console.log(
-    //   location.pathname,
-    //   typeof endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")],
-    //   typeof generateForm[modifyUrl(location.pathname).replace("/", "")]
-    // );
     if (id) {
       fetchVehicleMasterById(
         dispatch,
@@ -49,27 +42,33 @@ const CreateNewVehicle = () => {
     if (id) {
       result = Object.assign(result, { _id: id });
     }
+
     const endpoint = `${
       endPointBasedOnURL[modifyUrl(location?.pathname)]
     }?_id=${id}`;
-    // console.log(
-    //   `${endPointBasedOnURL[modifyUrl(location?.pathname)]}?_id=${id}`,
-    //   result
-    // );
 
-    try {
-      const response = await postData(endpoint, result, token);
-      if (response?.status == 200) {
-        handleAsyncError(dispatch, response?.message, "success");
-        navigate(removeAfterSecondSlash(location?.pathname));
-      } else {
-        handleAsyncError(dispatch, response?.message);
-      }
-    } catch (error) {
-      handleAsyncError(dispatch, error?.message);
-    }
+    console.log(
+      `${endPointBasedOnURL[modifyUrl(location?.pathname)]}?_id=${id}`,
+      result
+    );
+
+    // try {
+    //   const response = await postData(endpoint, result, token);
+    //   if (response?.status == 200) {
+    //     handleAsyncError(dispatch, response?.message, "success");
+    //     navigate(removeAfterSecondSlash(location?.pathname));
+    //   } else {
+    //     handleAsyncError(dispatch, response?.message);
+    //   }
+    // } catch (error) {
+    //   handleAsyncError(dispatch, error?.message);
+    // }
     return setFormLoading(false);
   };
+
+  useEffect(() => {
+    console.log(location.pathname);
+  }, []);
 
   return !loading ? (
     <>
@@ -99,23 +98,12 @@ const CreateNewVehicle = () => {
       </div>
       <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-5 mx-auto bg-white">
         {/* if id not present than go to create new vehicle or any other thing  */}
-        {id ? (
-          <>
-            <VehicleForm
-              data={vehicleMaster}
-              handleFormSubmit={handleCreateAndUpdateVehicle}
-              loading={formLoading}
-            />
-          </>
-        ) : (
-          <>
-            <VehicleFormForCreate
-              data={generateForm[modifyUrl(location.pathname).replace("/", "")]}
-              handleFormSubmit={handleCreateAndUpdateVehicle}
-              loading={formLoading}
-            />
-          </>
-        )}
+        <>
+          <VehicleMasterForm
+            handleFormSubmit={handleCreateAndUpdateVehicle}
+            loading={formLoading}
+          />
+        </>
       </div>
     </>
   ) : (
@@ -123,4 +111,4 @@ const CreateNewVehicle = () => {
   );
 };
 
-export default CreateNewVehicle;
+export default CreateNewAndUpdateVehicle;

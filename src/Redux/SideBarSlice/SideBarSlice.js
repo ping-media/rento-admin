@@ -5,7 +5,6 @@ const initialState = {
   isModelActive: false,
   isRechargeModelActive: false,
   isVerifyUserModalActive: false,
-  isEditModalActive: false,
   isDeleteModalActive: false,
 };
 
@@ -27,10 +26,6 @@ const SideBarSlice = createSlice({
       state.isVerifyUserModalActive =
         state.isVerifyUserModalActive === false ? true : false;
     },
-    toggleEditModal: (state) => {
-      state.isEditModalActive =
-        state.isEditModalActive === false ? true : false;
-    },
     toggleDeleteModal: (state) => {
       state.isDeleteModalActive =
         state.isDeleteModalActive === false ? true : false;
@@ -44,7 +39,6 @@ export const {
   toggleModal,
   toggleRechargeModal,
   toggleVerifyUserModal,
-  toggleEditModal,
   toggleClearModals,
   toggleDeleteModal,
 } = SideBarSlice.actions;

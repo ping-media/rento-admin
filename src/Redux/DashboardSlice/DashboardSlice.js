@@ -5,7 +5,6 @@ const DashboardSlice = createSlice({
   initialState: {
     dasboardDataCount: null,
     loading: false,
-    error: null,
   },
   reducers: {
     handleLoadingDashboardData: (state) => {
@@ -15,7 +14,10 @@ const DashboardSlice = createSlice({
       state.dasboardDataCount = action.payload;
       state.loading = false;
     },
-    resetDashboardData: () => initialState,
+    resetDashboardData: (state) => {
+      state.dasboardDataCount = null;
+      state.loading = false;
+    },
   },
 });
 

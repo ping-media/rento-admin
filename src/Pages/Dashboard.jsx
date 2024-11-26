@@ -17,6 +17,7 @@ import {
   BookmarkBorderRounded,
   ArticleRounded,
 } from "@mui/icons-material";
+import NotFound from "./NotFound";
 
 const Dashboard = () => {
   // year chart
@@ -117,16 +118,17 @@ const Dashboard = () => {
   }, [dasboardDataCount]);
 
   return !loading ? (
-    <>
-      <h1 className="text-2xl uppercase font-bold text-theme mb-5">
-        Dashboard
-      </h1>
-      <div className="grid gird-cols-2 lg:grid-cols-3 gap-5 mb-5">
-        {dataCountResult?.map((item, index) => (
-          <InfoCard key={index} item={item} />
-        ))}
-      </div>
-      {/* <div className="flex items-center justify-between flex-wrap gap-6">
+    dataCountResult?.length > 0 ? (
+      <>
+        <h1 className="text-2xl uppercase font-bold text-theme mb-5">
+          Dashboard
+        </h1>
+        <div className="grid gird-cols-2 lg:grid-cols-3 gap-5 mb-5">
+          {dataCountResult?.map((item, index) => (
+            <InfoCard key={index} item={item} />
+          ))}
+        </div>
+        {/* <div className="flex items-center justify-between flex-wrap gap-6">
         <div className="flex-1 shadow-lg p-5 rounded-2xl bg-white">
           <h2 className="text-xl mb-3 font-semibold">Weekly Revenue</h2>
           <BarChart
@@ -144,7 +146,10 @@ const Dashboard = () => {
           />
         </div>
       </div> */}
-    </>
+      </>
+    ) : (
+      <NotFound />
+    )
   ) : (
     <PreLoader />
   );
