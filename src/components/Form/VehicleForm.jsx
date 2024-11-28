@@ -4,7 +4,7 @@ import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import { getData } from "../../Data";
-import { endPointBasedOnKey, States } from "../../Data/commonData";
+import { endPointBasedOnKey } from "../../Data/commonData";
 import PreLoader from "../Skeleton/PreLoader";
 import { useParams } from "react-router-dom";
 
