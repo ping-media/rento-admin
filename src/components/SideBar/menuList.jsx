@@ -84,7 +84,7 @@ const menuList = [
   {
     menuImg: <BookOnlineRoundedIcon />,
     menuTitle: "Manage Bookings",
-    menuLink: "/manage-bookings",
+    menuLink: "/all-bookings",
   },
   {
     menuImg: <LoyaltyRoundedIcon />,

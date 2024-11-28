@@ -1,6 +1,6 @@
 import { lazy, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   formatPathNameToTitle,
   handlePreviousPage,
@@ -12,10 +12,9 @@ import {
 } from "../Data/Function.js";
 import PreLoader from "../components/Skeleton/PreLoader.jsx";
 import { endPointBasedOnURL } from "../Data/commonData.js";
-//all form imports
-const VehicleForm = lazy(() => import("../components/Form/VehicleForm.jsx"));
+const CouponForm = lazy(() => import("../components/Form/CouponsForm.jsx"));
 
-const CreateNewAndUpdateVehicle = () => {
+const CreateNewAndUpdatePlan = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [formLoading, setFormLoading] = useState(false);
@@ -64,7 +63,7 @@ const CreateNewAndUpdateVehicle = () => {
       <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-5 mx-auto bg-white">
         {/* if id not present than go to create new vehicle or any other thing  */}
         <>
-          <VehicleForm
+          <CouponForm
             handleFormSubmit={(event) =>
               handleCreateAndUpdateVehicle(
                 event,
@@ -85,4 +84,4 @@ const CreateNewAndUpdateVehicle = () => {
   );
 };
 
-export default CreateNewAndUpdateVehicle;
+export default CreateNewAndUpdatePlan;

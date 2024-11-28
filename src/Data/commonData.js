@@ -16,7 +16,7 @@ const endPointBasedOnURL = {
   "all-vehicles/": "/createVehicle",
   "all-users": "/getAllUsers",
   "all-users/": "/signup",
-  "manage-bookings": "/getBookings",
+  "all-bookings": "/getBookings",
   "all-coupons": "/getCoupons",
   "all-coupons/": "/createCoupon",
 };

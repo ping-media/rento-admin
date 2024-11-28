@@ -315,6 +315,7 @@ const CustomTable = ({ pageTitle, Data }) => {
                                   className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                   key={columnIndex}
                                 >
+                                  {/* made some changes based on keys  */}
                                   {column.includes("Charges") ||
                                   column.includes("Cost") ||
                                   column.includes("Price")
@@ -329,7 +330,7 @@ const CustomTable = ({ pageTitle, Data }) => {
                           )}
                           <td className="flex p-5 items-center gap-0.5">
                             {(location.pathname == "/all-vehicles" ||
-                              location.pathname == "/manage-bookings") && (
+                              location.pathname == "/all-bookings") && (
                               <Link
                                 className="p-2 text-purple-500 hover:underline"
                                 to={`details/${item?._id}`}

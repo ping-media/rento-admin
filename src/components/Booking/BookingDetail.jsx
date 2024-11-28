@@ -1,12 +1,71 @@
+import { useDispatch, useSelector } from "react-redux";
 import VehicleInfo from "../VehicleDetails/VehicleInfo";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { fetchVehicleMasterById } from "../../Data/Function";
+import PreLoader from "../Skeleton/PreLoader";
+import { getData } from "../../Data";
 
 const BookingDetail = () => {
+  const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.user);
+  const [collectedData, setCollectedData] = useState(null);
+
+  const fetchCollectedData = async (userUrl) => {
+    const userResponse = await getData(userUrl, token);
+
+    if (userResponse) {
+      return setCollectedData({
+        userId: userResponse?.data,
+      });
+    }
+  };
+
+  // through this we are fetching single vehicle data
+  useEffect(() => {
+    if (id) {
+      fetchVehicleMasterById(dispatch, id, token, "/getBookings");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (vehicleMaster?.length == 1) {
+      fetchCollectedData(`/getAllUsers?_id=${vehicleMaster[0]?.userId}`);
+    }
+    console.log(vehicleMaster, collectedData);
+  }, [vehicleMaster]);
+
   const data = {
     user: [
-      { key: "Name", value: "Manjunath R" },
-      { key: "Mobile Number", value: "917406569307" },
-      { key: "Email", value: "manjushobha2630@gmail.com" },
-      { key: "Joined", value: "2024-10-28 02:45 PM" },
+      {
+        key: "First Name",
+        value:
+          (collectedData && collectedData["userId"][0]?.firstName) || "John",
+      },
+      {
+        key: "Last Name",
+        value: (collectedData && collectedData["userId"][0]?.lastName) || "deo",
+      },
+      {
+        key: "Mobile Number",
+        value:
+          (collectedData && collectedData["userId"][0]?.contact) ||
+          "xxxxxxxxxx",
+      },
+      {
+        key: "Email",
+        value:
+          (collectedData && collectedData["userId"][0]?.email) ||
+          "example@gmail.com",
+      },
+      {
+        key: "Joined",
+        value:
+          (collectedData && collectedData["userId"][0]?.createdAt) ||
+          "2024-10-28 02:45 PM",
+      },
     ],
     moreInfo: [
       { key: "Pick Up Location", value: "Hoodi, Bangalore" },
@@ -15,7 +74,8 @@ const BookingDetail = () => {
       { key: "End Date", value: "2024-10-30 09:30:00" },
     ],
   };
-  return (
+
+  return !loading ? (
     <>
       <div className="flex gap-4 flex-wrap">
         <div className="bg-white shadow-md rounded-xl flex-1 px-6 py-4">
@@ -60,13 +120,18 @@ const BookingDetail = () => {
             </div>
             <div>
               <h2 className="font-semibold uppercase">Rental Price</h2>
-              <p className="font-bold text-lg">₹100.00/DAY</p>
+              <p className="font-bold text-lg">
+                ₹{vehicleMaster && vehicleMaster[0]?.bookingPrice?.bookingPrice}
+                .00/DAY
+              </p>
             </div>
           </div>
           <VehicleInfo />
         </div>
       </div>
     </>
+  ) : (
+    <PreLoader />
   );
 };
 

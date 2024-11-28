@@ -33,6 +33,16 @@ const CreateNewAndUpdatePlan = lazy(() =>
     default: module.CreateNewAndUpdatePlan,
   }))
 );
+const CreateNewAndUpdateCoupon = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateCoupon,
+  }))
+);
+const CreateNewAndUpdateBooking = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateBooking,
+  }))
+);
 const Dashboard = lazy(() =>
   import("./Pages/index").then((module) => ({ default: module.Dashboard }))
 );
@@ -114,16 +124,16 @@ const App = () => {
             />
             {/* coupons Routes */}
             <Route path="all-coupons" exact element={<VehicleMaster />} />
-            {/* <Route
+            <Route
               path="all-coupons/add-new"
               exact
-              element={<CreateNewVehicle />}
+              element={<CreateNewAndUpdateCoupon />}
             />
             <Route
               path="all-coupons/:id"
               exact
-              element={<CreateNewVehicle />}
-            /> */}
+              element={<CreateNewAndUpdateCoupon />}
+            />
             {/* location Routes  */}
             <Route path="location-master" exact element={<VehicleMaster />} />
             <Route
@@ -149,9 +159,19 @@ const App = () => {
               element={<CreateNewAndUpdateUser />}
             />
             {/* booking Routes  */}
-            <Route path="manage-bookings" exact element={<VehicleMaster />} />
+            <Route path="all-bookings" exact element={<VehicleMaster />} />
             <Route
-              path="manage-bookings/details/:id"
+              path="all-bookings/add-new"
+              exact
+              element={<CreateNewAndUpdateBooking />}
+            />
+            <Route
+              path="all-bookings/:id"
+              exact
+              element={<CreateNewAndUpdateBooking />}
+            />
+            <Route
+              path="all-bookings/details/:id"
               exact
               element={<BookingDetails />}
             />

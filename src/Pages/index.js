@@ -5,6 +5,8 @@ import CreateNewAndUpdateVehicle from "./CreateNewAndUpdateVehicle";
 import CreateNewAndUpdateStationMaster from "./CreateNewAndUpdateStationMaster";
 import CreateNewAndUpdateUser from "./CreateNewAndUpdateUser";
 import CreateNewAndUpdatePlan from "./CreateNewAndUpdatePlan";
+import CreateNewAndUpdateCoupon from "./CreateNewAndUpdateCoupon";
+import CreateNewAndUpdateBooking from "./CreateNewAndUpdateBooking";
 import Dashboard from "./Dashboard";
 import CommingSoon from "./CommingSoon";
 import NotFound from "./NotFound";
@@ -20,6 +22,8 @@ export {
   CreateNewAndUpdateStationMaster,
   CreateNewAndUpdateUser,
   CreateNewAndUpdatePlan,
+  CreateNewAndUpdateCoupon,
+  CreateNewAndUpdateBooking,
   Dashboard,
   CommingSoon,
   NotFound,

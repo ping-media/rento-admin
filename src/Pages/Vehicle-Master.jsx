@@ -15,7 +15,7 @@ const VehicleMaster = () => {
   );
 
   useEffect(() => {
-    console.log(endPointBasedOnURL[location.pathname.replace("/", "")]);
+    // console.log(endPointBasedOnURL[location.pathname.replace("/", "")]);
     // fetch data based on url
     if (deletevehicleId == "") {
       fetchVehicleMaster(
@@ -28,16 +28,10 @@ const VehicleMaster = () => {
 
   return !loading ? (
     <>
-      {/* {vehicleMaster != null ? ( */}
       <CustomTable
         Data={vehicleMaster}
         pageTitle={formatPathNameToTitle(location.pathname)}
       />
-      {/* ) 
-      : (
-        <NotFound />
-      )
-      } */}
     </>
   ) : (
     <PreLoader />
