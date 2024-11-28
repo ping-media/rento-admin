@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import Spinner from "../spinner/Spinner";
+import Spinner from "../Spinner/Spinner.jsx";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import userImage from "../../assets/logo/user.png";
 
