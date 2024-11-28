@@ -113,16 +113,27 @@ const handleCreateAndUpdateVehicle = async (
     result = Object.assign(result, { _id: id });
   }
   const endpoint = id
-    ? `${endPointBasedOnURL[modifyUrl(location?.pathname)]}?_id=${id}`
+    ? `${
+        endPointBasedOnURL[
+          modifyUrl(location?.pathname) +
+            `${
+              modifyUrl(location.pathname) == "vehicle-master/" ||
+              modifyUrl(location.pathname) == "location-master/"
+                ? "update"
+                : ""
+            }`
+        ]
+      }?_id=${id}`
     : `${endPointBasedOnURL[modifyUrl(location?.pathname)]}`;
-  // console.log(endpoint, result);
+  console.log(endpoint, result);
   try {
     const response = await postData(endpoint, result, token);
-    if (response?.status == 200) {
+    console.log(response);
+    if (response?.status != 200) {
+      handleAsyncError(dispatch, response?.message);
+    } else {
       handleAsyncError(dispatch, response?.message, "success");
       navigate(removeAfterSecondSlash(location?.pathname));
-    } else {
-      handleAsyncError(dispatch, response?.message);
     }
   } catch (error) {
     handleAsyncError(dispatch, error?.message);

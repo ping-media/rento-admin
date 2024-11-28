@@ -7,6 +7,7 @@ const SelectDropDown = ({ item, options, value = "" }) => {
     stationId: "Station",
     locationId: "Location",
     userId: "User",
+    vehicleMasterId: "Vehicle",
   };
 
   return (
@@ -32,6 +33,7 @@ const SelectDropDown = ({ item, options, value = "" }) => {
               const isFirstName = items?.hasOwnProperty("firstName");
               const isLocationName = items?.hasOwnProperty("locationName");
               const isStationName = items?.hasOwnProperty("stationName");
+              const isVehicleName = items?.hasOwnProperty("vehicleName");
 
               if (isId && isFirstName) {
                 return (
@@ -46,7 +48,7 @@ const SelectDropDown = ({ item, options, value = "" }) => {
               } else if (isId && isStationName) {
                 return (
                   <option
-                    value={items?._id}
+                    value={items?.stationId}
                     key={items?._id}
                     className="capitalize"
                   >
@@ -61,6 +63,17 @@ const SelectDropDown = ({ item, options, value = "" }) => {
                     className="capitalize"
                   >
                     {items?.locationName}
+                  </option>
+                );
+              } else if (isId && isVehicleName) {
+                return (
+                  <option
+                    value={items?._id}
+                    key={items?._id}
+                    className="capitalize"
+                  >
+                    <span className="mr-2">{items?.vehicleBrand}</span>
+                    {items?.vehicleName}
                   </option>
                 );
               } else {

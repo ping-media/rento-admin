@@ -4,11 +4,13 @@ import Input from "../InputAndDropdown/Input";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import Spinner from "../Spinner/Spinner";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
+import { useParams } from "react-router-dom";
 
 const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
+  const { id } = useParams();
   const [imagesUrl, setImageUrl] = useState(
-    vehicleMaster.length === 1 && vehicleMaster[0]?.vehicleImage
+    id && vehicleMaster[0]?.vehicleImage
   );
   const [image, setImage] = useState(null);
 
@@ -20,33 +22,22 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
       <div className="flex flex-wrap gap-4">
         <div className="w-full lg:flex-1">
           {/* for updating the value of the existing one  */}
-          {vehicleMaster.length === 1 ? (
-            <div className="flex flex-wrap gap-2">
-              <Input
-                item={"vehicleName"}
-                value={vehicleMaster && vehicleMaster[0]?.vehicleName}
-              />
-              <SelectDropDown
-                item={"vehicleType"}
-                options={vehicleTypeOptions}
-                value={vehicleMaster && vehicleMaster[0]?.vehicleType}
-              />
-              <Input
-                item={"vehicleBrand"}
-                value={vehicleMaster && vehicleMaster[0]?.vehicleBrand}
-              />
-            </div>
-          ) : (
-            // for creating new one
-            <div className="flex flex-wrap gap-2">
-              <Input item={"vehicleName"} />
-              <SelectDropDown
-                item={"vehicleType"}
-                options={vehicleTypeOptions}
-              />
-              <Input item={"vehicleBrand"} />
-            </div>
-          )}
+
+          <div className="flex flex-wrap gap-2">
+            <Input
+              item={"vehicleName"}
+              value={id && vehicleMaster[0]?.vehicleName}
+            />
+            <SelectDropDown
+              item={"vehicleType"}
+              options={vehicleTypeOptions}
+              value={id && vehicleMaster[0]?.vehicleType}
+            />
+            <Input
+              item={"vehicleBrand"}
+              value={id && vehicleMaster[0]?.vehicleBrand}
+            />
+          </div>
         </div>
         <div className="w-full lg:flex-1">
           <ImageUploadAndPreview

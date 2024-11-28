@@ -6,12 +6,13 @@ import {
   handlePreviousPage,
   modifyUrl,
 } from "../utils/index.js";
-import { fetchVehicleMasterById } from "../Data/Function.js";
+import {
+  fetchVehicleMasterById,
+  handleCreateAndUpdateVehicle,
+} from "../Data/Function.js";
 import PreLoader from "../components/Skeleton/PreLoader.jsx";
 import { endPointBasedOnURL } from "../Data/commonData.js";
-const VehicleMasterForm = lazy(() =>
-  import("../components/Form/VehicleMasterForm.jsx")
-);
+const VehicleForm = lazy(() => import("../components/Form/VehicleForm.jsx"));
 
 const CreateNewAndUpdateVehicle = () => {
   const navigate = useNavigate();
@@ -33,38 +34,38 @@ const CreateNewAndUpdateVehicle = () => {
     }
   }, []);
 
-  const handleCreateAndUpdateVehicle = async (event) => {
-    event.preventDefault();
-    setFormLoading(true);
-    const response = new FormData(event.target);
-    let result = Object.fromEntries(response.entries());
-    // appending the id which is taken from url
-    if (id) {
-      result = Object.assign(result, { _id: id });
-    }
+  // const handleCreateAndUpdateVehicle = async (event) => {
+  //   event.preventDefault();
+  //   setFormLoading(true);
+  //   const response = new FormData(event.target);
+  //   let result = Object.fromEntries(response.entries());
+  //   // appending the id which is taken from url
+  //   if (id) {
+  //     result = Object.assign(result, { _id: id });
+  //   }
 
-    const endpoint = `${
-      endPointBasedOnURL[modifyUrl(location?.pathname)]
-    }?_id=${id}`;
+  //   const endpoint = `${
+  //     endPointBasedOnURL[modifyUrl(location?.pathname)]
+  //   }?_id=${id}`;
 
-    console.log(
-      `${endPointBasedOnURL[modifyUrl(location?.pathname)]}?_id=${id}`,
-      result
-    );
+  //   console.log(
+  //     `${endPointBasedOnURL[modifyUrl(location?.pathname)]}?_id=${id}`,
+  //     result
+  //   );
 
-    // try {
-    //   const response = await postData(endpoint, result, token);
-    //   if (response?.status == 200) {
-    //     handleAsyncError(dispatch, response?.message, "success");
-    //     navigate(removeAfterSecondSlash(location?.pathname));
-    //   } else {
-    //     handleAsyncError(dispatch, response?.message);
-    //   }
-    // } catch (error) {
-    //   handleAsyncError(dispatch, error?.message);
-    // }
-    return setFormLoading(false);
-  };
+  //   // try {
+  //   //   const response = await postData(endpoint, result, token);
+  //   //   if (response?.status == 200) {
+  //   //     handleAsyncError(dispatch, response?.message, "success");
+  //   //     navigate(removeAfterSecondSlash(location?.pathname));
+  //   //   } else {
+  //   //     handleAsyncError(dispatch, response?.message);
+  //   //   }
+  //   // } catch (error) {
+  //   //   handleAsyncError(dispatch, error?.message);
+  //   // }
+  //   return setFormLoading(false);
+  // };
 
   useEffect(() => {
     console.log(location.pathname);
@@ -99,8 +100,17 @@ const CreateNewAndUpdateVehicle = () => {
       <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-5 mx-auto bg-white">
         {/* if id not present than go to create new vehicle or any other thing  */}
         <>
-          <VehicleMasterForm
-            handleFormSubmit={handleCreateAndUpdateVehicle}
+          <VehicleForm
+            handleFormSubmit={(event) =>
+              handleCreateAndUpdateVehicle(
+                event,
+                dispatch,
+                setFormLoading,
+                id,
+                token,
+                navigate
+              )
+            }
             loading={formLoading}
           />
         </>

@@ -14,20 +14,25 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
 
-  const fetchCollectedData = async (stationUrl) => {
+  const fetchCollectedData = async (stationUrl, vehicleMasterUrl) => {
     const stationResponse = await getData(
       endPointBasedOnKey[stationUrl],
       token
     );
+    const vehicleResponse = await getData(
+      endPointBasedOnKey[vehicleMasterUrl],
+      token
+    );
 
-    if (stationResponse) {
+    if (stationResponse && vehicleResponse) {
       return setCollectedData({
         stationId: stationResponse?.data,
+        vehicleMasterId: vehicleResponse?.data,
       });
     }
   };
   useEffect(() => {
-    fetchCollectedData("stationId");
+    fetchCollectedData("stationId", "vehicleMasterId");
   }, []);
 
   return (
@@ -40,6 +45,13 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
               item={"stationId"}
               options={(collectedData && collectedData?.stationId) || []}
               value={id ? vehicleMaster[0]?.stationId : ""}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"vehicleMasterId"}
+              options={(collectedData && collectedData?.vehicleMasterId) || []}
+              value={id ? vehicleMaster[0]?.vehicleMasterId : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">

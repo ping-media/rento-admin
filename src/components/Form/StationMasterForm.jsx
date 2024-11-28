@@ -41,92 +41,53 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
     <form onSubmit={handleFormSubmit}>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
-        {/* {vehicleMaster?.length === 1 ? ( */}
-        {id ? (
-          <>
-            <div className="w-full lg:w-[48%]">
-              <SelectDropDown
-                item={"userId"}
-                value={vehicleMaster && vehicleMaster[0]?.userId}
-              />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <SelectDropDown
-                item={"locationId"}
-                value={vehicleMaster && vehicleMaster[0]?.locationId}
-              />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <SelectDropDown
-                item={"stationId"}
-                value={vehicleMaster && vehicleMaster[0]?.stationId}
-              />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <Input
-                item={"stationName"}
-                value={vehicleMaster && vehicleMaster[0]?.stationName}
-              />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <Input
-                item={"address"}
-                value={vehicleMaster && vehicleMaster[0]?.address}
-              />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <Input
-                item={"city"}
-                value={vehicleMaster && vehicleMaster[0]?.city}
-              />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <Input
-                item={"state"}
-                value={vehicleMaster && vehicleMaster[0]?.state}
-              />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <Input
-                item={"pinCode"}
-                value={vehicleMaster && vehicleMaster[0]?.pinCode}
-              />
-            </div>
-          </>
-        ) : // for creating new one
-        Object.keys(collectedData)?.length > 0 ? (
-          <>
-            <div className="w-full lg:w-[48%]">
-              <SelectDropDown
-                item={"userId"}
-                options={collectedData?.userId || []}
-              />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <SelectDropDown
-                item={"locationId"}
-                options={collectedData?.locationId || []}
-              />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <Input item={"stationName"} />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <Input item={"address"} />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <Input item={"city"} />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <SelectDropDown item={"state"} options={States} />
-            </div>
-            <div className="w-full lg:w-[48%]">
-              <Input item={"pinCode"} />
-            </div>
-          </>
-        ) : (
-          <PreLoader />
-        )}
+
+        <>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"userId"}
+              options={collectedData?.userId}
+              value={id && vehicleMaster[0]?.userId}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"locationId"}
+              options={collectedData?.locationId}
+              value={id && vehicleMaster[0]?.locationId}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"stationName"}
+              value={id && vehicleMaster[0]?.stationName}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input item={"address"} value={id && vehicleMaster[0]?.address} />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input item={"city"} value={id && vehicleMaster[0]?.city} />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"state"}
+              options={States}
+              value={id && vehicleMaster[0]?.state}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input item={"pinCode"} value={id && vehicleMaster[0]?.pinCode} />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"stationId"}
+              value={id && vehicleMaster[0]?.stationId}
+              disabled={id && vehicleMaster[0]?.stationId ? true : false}
+            />
+          </div>
+        </>
+
         <button
           className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
           type="submit"

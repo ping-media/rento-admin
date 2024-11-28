@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Input = ({ item, value = "", type = "text" }) => {
+const Input = ({ item, value = "", type = "text", disabled = false }) => {
   const [inputValue, setInputValue] = useState(value);
   return (
     <div className="w-full">
@@ -14,11 +14,14 @@ const Input = ({ item, value = "", type = "text" }) => {
         <input
           type={type}
           id={item}
-          className="block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize"
+          className={`block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none ${
+            item != "email" ? "capitalize" : ""
+          } disabled:bg-gray-400 disabled:bg-opacity-20`}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           name={item}
           placeholder={`${item}`}
+          disabled={disabled}
         />
       </div>
     </div>

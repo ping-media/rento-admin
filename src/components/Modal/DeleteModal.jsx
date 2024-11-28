@@ -2,13 +2,12 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   toggleClearModals,
   toggleDeleteModal,
-  // toggleClearModals,
 } from "../../Redux/SideBarSlice/SideBarSlice";
-import { postData } from "../../Data";
+import { deleteData, postData } from "../../Data";
 import { endPointBasedOnURL } from "../../Data/commonData";
-import { removeAfterSecondSlash } from "../../utils";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { restDeletevehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
+import { modifyUrl } from "../../utils";
 
 const DeleteModal = () => {
   const dispatch = useDispatch();
@@ -18,29 +17,46 @@ const DeleteModal = () => {
 
   const handleDelete = async () => {
     // if there is form which is having image than we have to pass an extra flag so that we can add form/multipart header and for normal there data will be passed as raw
-    const isImageInclude = ["/location-master", "/vehicle-master"];
     let result;
-
     if (deletevehicleId) {
-      if (isImageInclude.includes(location.pathname)) {
-        result = { _id: deletevehicleId, isImage: true, deleteRec: "true" };
-      } else {
-        result = { _id: deletevehicleId, deleteRec: "true" };
-      }
+      result = { _id: deletevehicleId, deleteRec: "true" };
     }
+    // console.log(
+    //   `${
+    //     endPointBasedOnURL[(location?.pathname).replace("/", "") + "/delete"]
+    //   }?_id=${deletevehicleId}`,
+    //   `${
+    //     endPointBasedOnURL[(location?.pathname).replace("/", "")]
+    //   }?_id=${deletevehicleId}`,
+    //   endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"]
+    // );
     try {
-      const response = await postData(
-        `${
-          endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"]
-        }?_id=${deletevehicleId}`,
-        result,
-        token
-      );
-      if (response?.status == 200) {
+      let response;
+      if (
+        location.pathname.replace("/", "") == "vehicle-master" ||
+        location.pathname.replace("/", "") == "location-master"
+      ) {
+        response = await deleteData(
+          `${
+            endPointBasedOnURL[
+              (location?.pathname).replace("/", "") + "/delete"
+            ]
+          }?_id=${deletevehicleId}`
+        );
+      } else {
+        response = await postData(
+          `${
+            endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"]
+          }?_id=${deletevehicleId}`,
+          result,
+          token
+        );
+      }
+      if (response?.status != 200) {
+        handleAsyncError(dispatch, response?.message);
+      } else {
         handleAsyncError(dispatch, response?.message, "success");
         dispatch(restDeletevehicleId());
-      } else {
-        handleAsyncError(dispatch, response?.message);
       }
     } catch (error) {
       handleAsyncError(dispatch, error?.message);

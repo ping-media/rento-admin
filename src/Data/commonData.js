@@ -2,13 +2,18 @@
 const endPointBasedOnURL = {
   "vehicle-master": "/getVehicleMasterData",
   "vehicle-master/": "/createVehicleMaster",
+  "vehicle-master/update": "/updateVehicleMaster",
+  "vehicle-master/delete": "/deleteVehicleMaster",
   "location-master": "/getLocationData",
   "location-master/": "/createLocation",
+  "location-master/update": "/updateLocation",
+  "location-master/delete": "/deleteLocation",
   "station-master": "/getStationData",
   "station-master/": "/createStation",
   "all-plans": "/getPlanData",
   "all-plans/": "/createPlan",
-  "all-vehicles": "/getVehicleTblData",
+  "all-vehicles": "/getAllVehiclesData",
+  "all-vehicles/": "/createVehicle",
   "all-users": "/getAllUsers",
   "all-users/": "/signup",
   "manage-bookings": "/getBookings",
@@ -21,6 +26,7 @@ const endPointBasedOnKey = {
   stationId: "/getStationData",
   locationId: "/getLocationData",
   userId: "/getAllUsers?userType=manager",
+  vehicleMasterId: "/getVehicleMasterData",
 };
 
 const States = [
@@ -30,6 +36,7 @@ const States = [
   "Bihar",
   "Chhattisgarh",
   "Goa",
+  "Delhi",
   "Gujarat",
   "Haryana",
   "Himachal Pradesh",

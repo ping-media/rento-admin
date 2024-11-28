@@ -8,6 +8,8 @@ import EmojiTransportationRoundedIcon from "@mui/icons-material/EmojiTransportat
 import BookOnlineRoundedIcon from "@mui/icons-material/BookOnlineRounded";
 import DescriptionRoundedIcon from "@mui/icons-material/DescriptionRounded";
 import LoyaltyRoundedIcon from "@mui/icons-material/LoyaltyRounded";
+import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
+import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 
 const menuList = [
   {
@@ -33,46 +35,46 @@ const menuList = [
   {
     menuImg: <DirectionsCarRoundedIcon />,
     menuTitle: "Manage Vehicles",
-    menuLink: "/manage-vehicles",
-    nestedLink: [
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "All Vehicles",
-        menuLink: "/all-vehicles",
-      },
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "Pending Vehicles",
-        menuLink: "/pending-vehicles",
-      },
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "Approved Vehicles",
-        menuLink: "/approved-vehicles",
-      },
-    ],
+    menuLink: "/all-vehicles",
+    // nestedLink: [
+    //   {
+    //     menuImg: <AdjustRoundedIcon />,
+    //     menuTitle: "All Vehicles",
+    //     menuLink: "/all-vehicles",
+    //   },
+    //   {
+    //     menuImg: <AdjustRoundedIcon />,
+    //     menuTitle: "Pending Vehicles",
+    //     menuLink: "/pending-vehicles",
+    //   },
+    //   {
+    //     menuImg: <AdjustRoundedIcon />,
+    //     menuTitle: "Approved Vehicles",
+    //     menuLink: "/approved-vehicles",
+    //   },
+    // ],
   },
   {
     menuImg: <PersonRoundedIcon />,
     menuTitle: "Manage Users",
-    menuLink: "/manage-users",
-    nestedLink: [
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "All Users",
-        menuLink: "/all-users",
-      },
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "Pending Users",
-        menuLink: "/pending-users",
-      },
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "Approved Users",
-        menuLink: "/approved-users",
-      },
-    ],
+    menuLink: "/all-users",
+    // nestedLink: [
+    //   {
+    //     menuImg: <AdjustRoundedIcon />,
+    //     menuTitle: "All Users",
+    //     menuLink: "/all-users",
+    //   },
+    //   {
+    //     menuImg: <AdjustRoundedIcon />,
+    //     menuTitle: "Pending Users",
+    //     menuLink: "/pending-users",
+    //   },
+    //   {
+    //     menuImg: <AdjustRoundedIcon />,
+    //     menuTitle: "Approved Users",
+    //     menuLink: "/approved-users",
+    //   },
+    // ],
   },
   {
     menuImg: <DescriptionRoundedIcon />,
@@ -93,6 +95,16 @@ const menuList = [
     menuImg: <PaymentRoundedIcon />,
     menuTitle: "Payments",
     menuLink: "/payments",
+  },
+  {
+    menuImg: <ReceiptRoundedIcon />,
+    menuTitle: "Invoices",
+    menuLink: "/all-invoices",
+  },
+  {
+    menuImg: <SettingsRoundedIcon />,
+    menuTitle: "Settings",
+    menuLink: "/settings",
   },
 ];
 

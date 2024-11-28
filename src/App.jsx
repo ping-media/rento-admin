@@ -149,7 +149,12 @@ const App = () => {
               element={<CreateNewAndUpdateUser />}
             />
             {/* booking Routes  */}
-            {/* <Route path="manage-bookings" exact element={<VehicleMaster />} /> */}
+            <Route path="manage-bookings" exact element={<VehicleMaster />} />
+            <Route
+              path="manage-bookings/details/:id"
+              exact
+              element={<BookingDetails />}
+            />
 
             {/* if there is any error or if goes to url which is not a route in that
             case this error page will be shown. */}

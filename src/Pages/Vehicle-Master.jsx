@@ -10,28 +10,34 @@ import NotFound from "./NotFound";
 const VehicleMaster = () => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
-  const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
+  const { vehicleMaster, loading, deletevehicleId } = useSelector(
+    (state) => state.vehicles
+  );
 
   useEffect(() => {
     console.log(endPointBasedOnURL[location.pathname.replace("/", "")]);
     // fetch data based on url
-    fetchVehicleMaster(
-      dispatch,
-      token,
-      endPointBasedOnURL[location.pathname.replace("/", "")]
-    );
-  }, [location.pathname]);
+    if (deletevehicleId == "") {
+      fetchVehicleMaster(
+        dispatch,
+        token,
+        endPointBasedOnURL[location.pathname.replace("/", "")]
+      );
+    }
+  }, [location.pathname, deletevehicleId]);
 
   return !loading ? (
     <>
-      {vehicleMaster != null ? (
-        <CustomTable
-          Data={vehicleMaster}
-          pageTitle={formatPathNameToTitle(location.pathname)}
-        />
-      ) : (
+      {/* {vehicleMaster != null ? ( */}
+      <CustomTable
+        Data={vehicleMaster}
+        pageTitle={formatPathNameToTitle(location.pathname)}
+      />
+      {/* ) 
+      : (
         <NotFound />
-      )}
+      )
+      } */}
     </>
   ) : (
     <PreLoader />

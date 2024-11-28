@@ -7,19 +7,6 @@ import {
 import { toggleClearVehicle } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { handleAsyncError } from "./Helper/handleAsyncError";
 
-const formatDateLikeApp = (inputDate) => {
-  // Create a new Date object from the input string
-  const date = new Date(inputDate);
-
-  // Extract the day, month, and year
-  const day = date.getUTCDate();
-  const month = date.toLocaleString("default", { month: "short" }); // Get the short month name
-  const year = date.getUTCFullYear();
-
-  // Format and return the new date string
-  return `${day} ${month}., ${year}`;
-};
-
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -163,9 +150,24 @@ const modifyUrl = (url) => {
   return url.endsWith("/") ? url : url + "/";
 };
 
+const formatFullDateAndTime = (dateString) => {
+  const date = new Date(dateString);
+
+  // Format the date to a readable format without time zone abbreviation
+  const formattedDate = date.toLocaleString("en-US", {
+    year: "numeric", // "2024"
+    month: "long", // "November"
+    day: "2-digit", // "29"
+    hour: "2-digit", // "10"
+    minute: "2-digit", // "00"
+    second: "2-digit", // "00"
+  });
+
+  return formattedDate;
+};
+
 export {
   formatDate,
-  formatDateLikeApp,
   useIsMobile,
   timeStampUserFormated,
   handleKeyDown,
@@ -178,4 +180,5 @@ export {
   handlePreviousPage,
   removeAfterSecondSlash,
   modifyUrl,
+  formatFullDateAndTime,
 };

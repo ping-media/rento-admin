@@ -39,18 +39,26 @@ const postData = async (url, data, token) => {
       headers["Authorization"] = `Bearer ${token}`;
       headers["token"] = `${token}`;
     }
-    const response = await axios.post(
-      `${import.meta.env.VITE_BASED_URL}${url}`,
-      data,
-      {
-        headers,
-      }
-    );
-    if (response?.status == 200) {
-      return response?.data;
+    let response;
+    if (data?._id && url.includes("update")) {
+      response = await axios.put(
+        `${import.meta.env.VITE_BASED_URL}${url}`,
+        data,
+        {
+          headers,
+        }
+      );
     } else {
-      return response?.message;
+      response = await axios.post(
+        `${import.meta.env.VITE_BASED_URL}${url}`,
+        data,
+        {
+          headers,
+        }
+      );
     }
+    console.log(response);
+    return response?.data;
   } catch (error) {
     return `Error :${error?.message}`;
   }
@@ -61,7 +69,7 @@ const deleteData = async (url) => {
     const response = await axios.delete(
       `${import.meta.env.VITE_BASED_URL}${url}`
     );
-    return response?.message;
+    return response;
   } catch (error) {
     return `Error :${error?.message}`;
   }
@@ -85,4 +93,4 @@ const handleAdminLogin = async (url, data) => {
   }
 };
 
-export { getData, postData, handleAdminLogin };
+export { getData, postData, handleAdminLogin, deleteData };
