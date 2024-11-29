@@ -54,18 +54,22 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
               value={id ? vehicleMaster[0]?.vehicleMasterId : ""}
             />
           </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"planName"}
-              value={id ? vehicleMaster[0]?.planName : ""}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"planDuration"}
-              value={id ? vehicleMaster[0]?.planDuration : ""}
-            />
-          </div>
+          {!id && (
+            <>
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  item={"planName"}
+                  value={id ? vehicleMaster[0]?.planName : ""}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  item={"planDuration"}
+                  value={id ? vehicleMaster[0]?.planDuration : ""}
+                />
+              </div>
+            </>
+          )}
           <div className="w-full lg:w-[48%]">
             <Input
               item={"planPrice"}

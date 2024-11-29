@@ -5,6 +5,7 @@ import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import Spinner from "../Spinner/Spinner";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
 import { useParams } from "react-router-dom";
+import { vehicleBrands } from "../../Data/commonData";
 
 const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -33,8 +34,9 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
               options={vehicleTypeOptions}
               value={id && vehicleMaster[0]?.vehicleType}
             />
-            <Input
+            <SelectDropDown
               item={"vehicleBrand"}
+              options={vehicleBrands}
               value={id && vehicleMaster[0]?.vehicleBrand}
             />
           </div>

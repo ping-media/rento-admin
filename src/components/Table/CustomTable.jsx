@@ -253,7 +253,7 @@ const CustomTable = ({ pageTitle, Data }) => {
                             (column, columnIndex) =>
                               column.includes("Image") ? (
                                 <td className=" px-5 py-3" key={columnIndex}>
-                                  <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-3 text-center">
                                     <img
                                       src={item[column]}
                                       className="w-28 h-20 object-cover"

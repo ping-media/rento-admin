@@ -3,7 +3,7 @@ import Input from "../InputAndDropdown/Input";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import Spinner from "../Spinner/Spinner";
 import { useParams } from "react-router-dom";
-import { activeStatus, options, userType } from "../../Data/commonData";
+import { userType } from "../../Data/commonData";
 
 const UserForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -54,28 +54,28 @@ const UserForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"KycApproved"}
-              options={options}
+              options={["yes", "no"]}
               value={id ? vehicleMaster[0]?.kycApproved : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"isContactVerified"}
-              options={options}
+              options={["yes", "no"]}
               value={id ? vehicleMaster[0]?.isContactVerified : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"isEmailVerified"}
-              options={options}
+              options={["yes", "no"]}
               value={id ? vehicleMaster[0]?.isEmailVerified : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"status"}
-              options={activeStatus}
+              options={["active", "inActive"]}
               value={id ? vehicleMaster[0]?.status : ""}
             />
           </div>

@@ -26,7 +26,9 @@ const endPointBasedOnKey = {
   stationId: "/getStationData",
   locationId: "/getLocationData",
   userId: "/getAllUsers?userType=manager",
+  userIdAll: "/getAllUsers",
   vehicleMasterId: "/getVehicleMasterData",
+  vehicleTableId: "/getVehicleTblData",
 };
 
 const States = [
@@ -63,61 +65,29 @@ const States = [
 
 const userType = ["customer", "manager", "admin"];
 
-const options = ["yes", "no"];
-
-const activeStatus = ["active", "not-active"];
-
-// for creating form fields
-// const generateForm = {
-//   "vehicle-master": [
-//     "vehicleName",
-//     "vehicleType",
-//     "vehicleBrand",
-//     "vehicleImage",
-//   ],
-//   "location-master": ["locationName", "locationImage"],
-//   "station-master": [
-//     "stationId",
-//     "locationId",
-//     "userId",
-//     "stationName",
-//     "address",
-//     "city",
-//     "state",
-//     "pinCode",
-//   ],
-//   "all-vehicles": [
-//     "vehicleMasterId",
-//     "stationId",
-//     "vehicleNumber",
-//     "freeKms",
-//     "extraKmsCharges",
-//     "vehicleModel",
-//     "vehicleColor",
-//     "perDayCost",
-//     "lastServiceDate",
-//     "kmsRun",
-//     "isBooked",
-//     "condition",
-//     "vehicleBookingStatus",
-//     "vehicleStatus",
-//     "vehiclePlan",
-//   ],
-//   "all-plans": [
-//     "vehicleMasterId",
-//     "planPrice",
-//     "stationId",
-//     "planName",
-//     "planDuration",
-//   ],
-//   "all-coupon": ["couponName", "discount", "discountType", "isCouponActive"],
-// };
+const vehicleBrands = [
+  "Vespa",
+  "Honda",
+  "Yamaha",
+  "Suzuki",
+  "KTM",
+  "BMW",
+  "TVS",
+  "Bajaj",
+  "Hero",
+  "Ather",
+  "Ola",
+  "Mahindra",
+  "Royal Enfield",
+  "Harley-Davidson",
+  "Kawasaki",
+  "Ducati",
+];
 
 export {
   endPointBasedOnURL,
   endPointBasedOnKey,
   States,
   userType,
-  options,
-  activeStatus,
+  vehicleBrands,
 };

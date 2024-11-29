@@ -1,6 +1,12 @@
 import { useState } from "react";
 
-const Input = ({ item, value = "", type = "text", disabled = false }) => {
+const Input = ({
+  item,
+  value = "",
+  type = "text",
+  disabled = false,
+  require = false,
+}) => {
   const [inputValue, setInputValue] = useState(value);
   return (
     <div className="w-full">
@@ -8,7 +14,7 @@ const Input = ({ item, value = "", type = "text", disabled = false }) => {
         htmlFor={item}
         className="block text-gray-800 font-semibold text-sm capitalize"
       >
-        Enter {item}
+        Enter {item} {require && <span className="text-red-500">*</span>}
       </label>
       <div className="mt-2">
         <input
@@ -22,6 +28,7 @@ const Input = ({ item, value = "", type = "text", disabled = false }) => {
           name={item}
           placeholder={`${item}`}
           disabled={disabled}
+          required={require}
         />
       </div>
     </div>

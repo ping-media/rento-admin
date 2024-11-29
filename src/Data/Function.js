@@ -112,6 +112,10 @@ const handleCreateAndUpdateVehicle = async (
   if (id) {
     result = Object.assign(result, { _id: id });
   }
+  // we want to pass pincode as stationId
+  else if (result?.pinCode) {
+    result = Object.assign(result, { stationId: result?.pinCode });
+  }
   const endpoint = id
     ? `${
         endPointBasedOnURL[

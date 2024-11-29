@@ -79,13 +79,6 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <Input item={"pinCode"} value={id && vehicleMaster[0]?.pinCode} />
           </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"stationId"}
-              value={id && vehicleMaster[0]?.stationId}
-              disabled={id && vehicleMaster[0]?.stationId ? true : false}
-            />
-          </div>
         </>
 
         <button

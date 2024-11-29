@@ -12,7 +12,7 @@ import {
 } from "../Data/Function.js";
 import PreLoader from "../components/Skeleton/PreLoader.jsx";
 import { endPointBasedOnURL } from "../Data/commonData.js";
-const CouponForm = lazy(() => import("../components/Form/CouponsForm.jsx"));
+const BookingForm = lazy(() => import("../components/Form/BookingForm.jsx"));
 
 const CreateNewAndUpdateBooking = () => {
   const navigate = useNavigate();
@@ -63,7 +63,7 @@ const CreateNewAndUpdateBooking = () => {
       <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-5 mx-auto bg-white">
         {/* if id not present than go to create new vehicle or any other thing  */}
         <>
-          <CouponForm
+          <BookingForm
             handleFormSubmit={(event) =>
               handleCreateAndUpdateVehicle(
                 event,
