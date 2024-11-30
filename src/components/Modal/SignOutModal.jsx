@@ -1,15 +1,17 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
-  // toggleClearModals,
+  toggleClearModals,
   toggleModal,
 } from "../../Redux/SideBarSlice/SideBarSlice";
-import { handleSignOutUser } from "../../utils";
-import { useNavigate } from "react-router-dom";
+import { handleSignOut } from "../../Redux/UserSlice/UserSlice";
 
 const SignOutModal = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { isModelActive } = useSelector((state) => state.sideBar);
+  const handleLogoutUser = () => {
+    dispatch(handleSignOut());
+    dispatch(toggleClearModals());
+  };
 
   return (
     <div
@@ -59,11 +61,7 @@ const SignOutModal = () => {
           </h3>
           <button
             className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2"
-            onClick={() => {
-              dispatch(toggleModal());
-              navigate("/")
-              localStorage.clear()
-            }}
+            onClick={handleLogoutUser}
           >
             Yes, I'm sure
           </button>

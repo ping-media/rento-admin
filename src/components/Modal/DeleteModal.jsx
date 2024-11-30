@@ -1,22 +1,73 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
-  toggleDeleteModal
+  toggleClearModals,
+  toggleDeleteModal,
 } from "../../Redux/SideBarSlice/SideBarSlice";
-import { handleSignOutUser } from "../../utils";
-import { useNavigate } from "react-router-dom";
-import { postApi } from "../../response/api";
-import { setError } from "../../Redux/ErrorSlice/ErrorSlice";
+import { deleteData, postData } from "../../Data";
+import { endPointBasedOnURL } from "../../Data/commonData";
+import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import { restDeletevehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
+import { modifyUrl } from "../../utils";
 
 const DeleteModal = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { isDeleteModelActive } = useSelector((state) => state.sideBar);
-  const { updateData } = useSelector((state) => state.vehicles);
+  const { isDeleteModalActive } = useSelector((state) => state.sideBar);
+  const { deletevehicleId } = useSelector((state) => state.vehicles);
+  const { token } = useSelector((state) => state.user);
+
+  const handleDelete = async () => {
+    // if there is form which is having image than we have to pass an extra flag so that we can add form/multipart header and for normal there data will be passed as raw
+    let result;
+    if (deletevehicleId) {
+      result = { _id: deletevehicleId, deleteRec: "true" };
+    }
+    // console.log(
+    //   `${
+    //     endPointBasedOnURL[(location?.pathname).replace("/", "") + "/delete"]
+    //   }?_id=${deletevehicleId}`,
+    //   `${
+    //     endPointBasedOnURL[(location?.pathname).replace("/", "")]
+    //   }?_id=${deletevehicleId}`,
+    //   endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"]
+    // );
+    try {
+      let response;
+      if (
+        location.pathname.replace("/", "") == "vehicle-master" ||
+        location.pathname.replace("/", "") == "location-master"
+      ) {
+        response = await deleteData(
+          `${
+            endPointBasedOnURL[
+              (location?.pathname).replace("/", "") + "/delete"
+            ]
+          }?_id=${deletevehicleId}`
+        );
+      } else {
+        response = await postData(
+          `${
+            endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"]
+          }?_id=${deletevehicleId}`,
+          result,
+          token
+        );
+      }
+      if (response?.status != 200) {
+        handleAsyncError(dispatch, response?.message);
+      } else {
+        handleAsyncError(dispatch, response?.message, "success");
+        dispatch(restDeletevehicleId());
+      }
+    } catch (error) {
+      handleAsyncError(dispatch, error?.message);
+    }
+    return dispatch(toggleClearModals());
+  };
 
   return (
     <div
       className={`fixed ${
-        !isDeleteModelActive ? "hidden" : ""
+        !isDeleteModalActive ? "hidden" : ""
       } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-40 mx-auto shadow-xl rounded-md bg-white max-w-md">
@@ -61,24 +112,7 @@ const DeleteModal = () => {
           </h3>
           <button
             className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2"
-            onClick={async () => {
-              if(Object.keys(updateData).length) {
-                debugger
-                let location = window.location.pathname
-                let ep = location.includes('vehicle') ? "/createVehicleMaster" : location.includes('user') ? "/signup" :
-                location.includes('plan') ? "/createPlan" : location.includes('vehicleTbl') ? "/createVehicle" :
-                location.includes('location') ? "/createLocation" : location.includes('station') ? "/createStation" : ""
-                if(ep){
-                  const res = await postApi(ep, {_id: updateData._id, deleteRec: true});
-                  if(res && res.status == 200){
-                    dispatch(setError({ type: "success", message: res.message }));
-                  } else {
-                    dispatch(setError({ type: "error", message: res.message }));
-                  }
-                }                
-              }
-              window.location.reload()
-            }}
+            onClick={handleDelete}
           >
             Yes, I'm sure
           </button>

@@ -1,77 +1,187 @@
-import Login from "./components/Auth/Login";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import {
-  CreateNewVehicle,
-  // CreateNewPlan,
-  Profile,
-  AllVehicles,
-  //AllPlans,
-  Dashboard,
-} from "./Pages/index";
-import Layout from "./components/layout/Layout";
-import AllVehiclesTbl from "./Pages/AllVehiclesTbl";
-import CreateNewVehicleTbl from "./Pages/CreateNewVehicleTbl";
-import CreateNewStation from "./Pages/CreateNewStation";
-import CreateNewPlan from "./Pages/CreateNewPlan";
-import AllUsers from "./Pages/AllUsers";
-import AllStations from "./Pages/AllStations";
-import AllPlans from "./Pages/AllPlans";
-import AllLocations from "./Pages/AllLocations";
-import CreateNewUser from "./Pages/CreateNewUser";
-import CreateNewLocation from "./Pages/CreateNewLocation";
-import AllStationManagers from "./Pages/AllStationManagers";
-import AllStationCustomers from "./Pages/AllCustomers";
-import AllKycApprovedUsers from "./Pages/AllKycApprovedUsers";
-import AllEmailApprovedUser from "./Pages/AllEmailApprovedUser";
-import AllContactApprovedUser from "./Pages/AllContactApprovedUser";
-import PendingVehicles from "./Pages/PendingVehicles";
-import ApprovedVehicles from "./Pages/ApprovedVehicles";
-import AllBookings from "./Pages/AllBookings";
-import ConfirmBookings from "./Pages/ConfirmBookings";
-import PendingBookings from "./Pages/PendingBookings";
+import PreLoader from "./components/Skeleton/PreLoader";
+import { lazy, Suspense } from "react";
 
+const CreateNewAndUpdateStationMaster = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateStationMaster,
+  }))
+);
+const CreateNewAndUpdateLocationMaster = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateLocationMaster,
+  }))
+);
+const CreateNewAndUpdateVehicleMaster = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateVehicleMaster,
+  }))
+);
+const CreateNewAndUpdateVehicle = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateVehicle,
+  }))
+);
+const CreateNewAndUpdateUser = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateUser,
+  }))
+);
+const CreateNewAndUpdatePlan = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdatePlan,
+  }))
+);
+const CreateNewAndUpdateCoupon = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateCoupon,
+  }))
+);
+const CreateNewAndUpdateBooking = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.CreateNewAndUpdateBooking,
+  }))
+);
+const Dashboard = lazy(() =>
+  import("./Pages/index").then((module) => ({ default: module.Dashboard }))
+);
+const NotFound = lazy(() =>
+  import("./Pages/index").then((module) => ({ default: module.NotFound }))
+);
+const VehicleDetails = lazy(() =>
+  import("./Pages/index").then((module) => ({ default: module.VehicleDetails }))
+);
+const BookingDetails = lazy(() =>
+  import("./Pages/index").then((module) => ({ default: module.BookingDetails }))
+);
+const VehicleMaster = lazy(() =>
+  import("./Pages/index").then((module) => ({ default: module.VehicleMaster }))
+);
+// for default exports
+const Layout = lazy(() => import("./components/layout/Layout"));
+const Login = lazy(() => import("./components/Auth/Login"));
 
 const App = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" exact element={<Login />} />
-        <Route path="/" element={<Layout />}>
-          <Route path="dashboard" exact element={<Dashboard />} />
+      <Suspense fallback={<PreLoader />}>
+        <Routes>
+          <Route path="/" exact element={<Login />} />
+          <Route path="/" element={<Layout />}>
+            <Route path="dashboard" exact element={<Dashboard />} />
+            {/* vehicles Routes start */}
+            <Route path="vehicle-master" exact element={<VehicleMaster />} />
+            <Route
+              path="vehicle-master/add-new"
+              exact
+              element={<CreateNewAndUpdateVehicleMaster />}
+            />
+            <Route
+              path="vehicle-master/:id"
+              exact
+              element={<CreateNewAndUpdateVehicleMaster />}
+            />
+            <Route path="all-vehicles" exact element={<VehicleMaster />} />
+            <Route
+              path="all-vehicles/details/:id"
+              exact
+              element={<VehicleDetails />}
+            />
+            <Route
+              path="all-vehicles/add-new"
+              exact
+              element={<CreateNewAndUpdateVehicle />}
+            />
+            <Route
+              path="all-vehicles/:id"
+              exact
+              element={<CreateNewAndUpdateVehicle />}
+            />
+            {/* station Routes */}
+            <Route path="station-master" exact element={<VehicleMaster />} />
+            <Route
+              path="station-master/add-new"
+              exact
+              element={<CreateNewAndUpdateStationMaster />}
+            />
+            <Route
+              path="station-master/:id"
+              exact
+              element={<CreateNewAndUpdateStationMaster />}
+            />
+            {/* plans Routes */}
+            <Route path="all-plans" exact element={<VehicleMaster />} />
+            <Route
+              path="all-plans/add-new"
+              exact
+              element={<CreateNewAndUpdatePlan />}
+            />
+            <Route
+              path="all-plans/:id"
+              exact
+              element={<CreateNewAndUpdatePlan />}
+            />
+            {/* coupons Routes */}
+            <Route path="all-coupons" exact element={<VehicleMaster />} />
+            <Route
+              path="all-coupons/add-new"
+              exact
+              element={<CreateNewAndUpdateCoupon />}
+            />
+            <Route
+              path="all-coupons/:id"
+              exact
+              element={<CreateNewAndUpdateCoupon />}
+            />
+            {/* location Routes  */}
+            <Route path="location-master" exact element={<VehicleMaster />} />
+            <Route
+              path="location-master/add-new"
+              exact
+              element={<CreateNewAndUpdateLocationMaster />}
+            />
+            <Route
+              path="location-master/:id"
+              exact
+              element={<CreateNewAndUpdateLocationMaster />}
+            />
+            {/* users Routes  */}
+            <Route path="all-users" exact element={<VehicleMaster />} />
+            <Route
+              path="all-users/add-new"
+              exact
+              element={<CreateNewAndUpdateUser />}
+            />
+            <Route
+              path="all-users/:id"
+              exact
+              element={<CreateNewAndUpdateUser />}
+            />
+            {/* booking Routes  */}
+            <Route path="all-bookings" exact element={<VehicleMaster />} />
+            <Route
+              path="all-bookings/add-new"
+              exact
+              element={<CreateNewAndUpdateBooking />}
+            />
+            <Route
+              path="all-bookings/:id"
+              exact
+              element={<CreateNewAndUpdateBooking />}
+            />
+            <Route
+              path="all-bookings/details/:id"
+              exact
+              element={<BookingDetails />}
+            />
 
-          <Route path="vehicle-master" exact element={<AllVehicles />} />
-          <Route path="manage-vehicles" exact element={<CreateNewVehicle />} />
-
-          <Route path="all-vehicles" exact element={<AllVehiclesTbl />} />
-          <Route path="pending-vehicles" exact element={<PendingVehicles />} />
-          <Route path="approved-vehicles" exact element={<ApprovedVehicles />} />
-          <Route path="manage-vehicleTbl" exact element={<CreateNewVehicleTbl />} />
-
-          <Route path="all-bookings" exact element={<AllBookings />} />
-          <Route path="confirmed-bookings" exact element={<ConfirmBookings />} />
-          <Route path="pending-bookings" exact element={<PendingBookings />} />
-          
-          <Route path="all-users" exact element={<AllUsers />} />
-          <Route path="manage-users" exact element={<CreateNewUser />} />
-          <Route path="station-managers" exact element={<AllStationManagers />} />
-          <Route path="customers" exact element={<AllStationCustomers />} />
-          <Route path="kyc-approved-users" exact element={<AllKycApprovedUsers />} />
-          <Route path="email-approved-users" exact element={<AllEmailApprovedUser />} />
-          <Route path="phone-approved-users" exact element={<AllContactApprovedUser />} />
-
-          <Route path="manage-station" exact element={<AllStations />} />
-          {/* <Route path="manage-stations" exact element={<CreateNewStation />} /> */}
-
-          <Route path="plans" exact element={<AllPlans />} />
-          <Route path="manage-plans" exact element={<AllPlans />} />
-
-          <Route path="location-master" exact element={<AllLocations />} />
-          <Route path="manage-locations" exact element={<CreateNewLocation />} />
-
-          <Route path="profile" exact element={<Profile />} />
-        </Route>
-      </Routes>
+            {/* if there is any error or if goes to url which is not a route in that
+            case this error page will be shown. */}
+            <Route path="*" exact element={<NotFound />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 };

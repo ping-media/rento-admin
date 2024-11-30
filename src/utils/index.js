@@ -1,76 +1,11 @@
 import { useEffect, useState } from "react";
-import { toggleClearModals } from "../Redux/SideBarSlice/SideBarSlice";
-import { toggleClearVehicle } from "../Redux/AdsSlice/VehicleSlice";
+import CryptoJS from "crypto-js";
+import {
+  toggleClearModals,
+  toggleDeleteModal,
+} from "../Redux/SideBarSlice/SideBarSlice";
+import { toggleClearVehicle } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { handleAsyncError } from "./Helper/handleAsyncError";
-// import CryptoJS from "crypto-js";
-
-const formatTimestamp = (timestamp) => {
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-
-  return `${year}_${month}_${day}_${hours}_${minutes}_${seconds}`;
-};
-
-const formatDate = (date) => {
-  const options = {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  };
-  const formatter = new Intl.DateTimeFormat("en-CA", options);
-  const parts = formatter.formatToParts(date);
-
-  const day = parts.find((part) => part.type === "day").value;
-  const month = parts.find((part) => part.type === "month").value;
-  const year = parts.find((part) => part.type === "year").value;
-
-  return `${day} ${month} ${year}`;
-};
-
-const formatTime = (date) => {
-  const options = {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  };
-  const timeString = new Intl.DateTimeFormat("en-CA", options).format(date);
-
-  // Extract hour and minute parts from the formatted time string
-  const [timePart, period] = timeString.split(" ");
-  const [hour, minute] = timePart.split(":");
-
-  let currentTime;
-  if (hour === "12") {
-    currentTime = `12:${minute} ${period}`;
-  } else {
-    currentTime = `${hour < 10 ? "0" + hour : hour}:${minute} ${period}`;
-  }
-
-  return currentTime;
-};
-
-const generateGeoHash = (latitude, longitude) => {
-  const geohash = geohashForLocation([latitude, longitude]);
-  return geohash;
-};
-
-const formatDateLikeApp = (inputDate) => {
-  // Create a new Date object from the input string
-  const date = new Date(inputDate);
-
-  // Extract the day, month, and year
-  const day = date.getUTCDate();
-  const month = date.toLocaleString("default", { month: "short" }); // Get the short month name
-  const year = date.getUTCFullYear();
-
-  // Format and return the new date string
-  return `${day} ${month}., ${year}`;
-};
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -126,55 +61,124 @@ const handleKeyDown = (event) => {
   }
 };
 
-// json web token function
-// const encodeUserData = (data) => {
-//   // Options can include expiration, algorithm, etc.
-//   try {
-//     return CryptoJS.AES.encrypt(
-//       data,
-//       import.meta.env.VITE_SECRET_KEY
-//     ).toString();
-//   } catch (error) {
-//     return { message: error.message, type: "error" };
-//   }
-// };
-
-// const decodeUserData = (token) => {
-//   try {
-//     const data = CryptoJS.AES.decrypt(token, import.meta.env.VITE_SECRET_KEY);
-//     return data.toString(CryptoJS.enc.Utf8);
-//   } catch (error) {
-//     return {
-//       message: `Token is invalid or expired:${error.message}`,
-//       type: "error",
-//     };
-//   }
-// };
-
 const isValidEmail = (email) => {
   // Regular expression for validating an email address
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
+const handleDelete = (dispatch, id) => {
+  dispatch(toggleDeleteModal());
+};
+
+const formatDate = (dateString) => {
+  // Parse the date string into a Date object
+  const date = new Date(dateString);
+
+  // Get the day, month, and year
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "short" });
+  const year = date.getFullYear();
+
+  // Return the formatted string
+  return `${day} ${month}, ${year}`;
+};
+
+const formatPathNameToTitle = (str) => {
+  return str
+    .replace(/^\/+/, "") // Remove leading slash if present
+    .replace(/\/.*$/, "") // Remove everything after the first slash, including the slash
+    .replace(/-/g, " ") // Replace hyphens with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
+};
+
 // signout User
 const handleSignOutUser = (dispatch) => {
   dispatch(toggleClearModals());
-  dispatch(toggleClearAds());
+  dispatch(toggleClearVehicle());
   handleAsyncError(dispatch, "signout successfull.", "success");
 };
 
+const encryptData = (data) => {
+  return CryptoJS.AES.encrypt(
+    JSON.stringify(data),
+    import.meta.env.VITE_SECRET_KEY
+  ).toString();
+};
+
+const decryptData = (encryptedData) => {
+  const bytes = CryptoJS.AES.decrypt(
+    encryptedData,
+    import.meta.env.VITE_SECRET_KEY
+  );
+  const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+  return JSON.parse(decryptedData);
+};
+
+const handlePreviousPage = (navigate) => {
+  return navigate(-1);
+};
+
+const removeAfterSecondSlash = (url) => {
+  // Find the position of the second slash
+  const secondSlashIndex = url.indexOf("/", url.indexOf("/") + 1);
+
+  // If there is a second slash, return the URL up to the second slash
+  if (secondSlashIndex !== -1) {
+    return url.slice(0, secondSlashIndex);
+  }
+
+  // If there's no second slash, return the original URL
+  return url;
+};
+
+const modifyUrl = (url) => {
+  // Find the index of the first slash
+  const firstSlashIndex = url.indexOf("/");
+
+  // Find the index of the second slash
+  const secondSlashIndex = url.indexOf("/", firstSlashIndex + 1);
+
+  // If the second slash is found, slice the URL to keep everything up to and including the second slash
+  if (firstSlashIndex !== -1 && secondSlashIndex !== -1) {
+    // Keep everything from after the first slash up to and including the second slash
+    const result = url.slice(firstSlashIndex + 1, secondSlashIndex + 1);
+    return result;
+  }
+
+  // If there is no second slash, return the original URL with a slash at the end
+  return url.endsWith("/") ? url : url + "/";
+};
+
+const formatFullDateAndTime = (dateString) => {
+  const date = new Date(dateString);
+
+  // Format the date to a readable format without time zone abbreviation
+  const formattedDate = date.toLocaleString("en-US", {
+    year: "numeric", // "2024"
+    month: "long", // "November"
+    day: "2-digit", // "29"
+    hour: "2-digit", // "10"
+    minute: "2-digit", // "00"
+    second: "2-digit", // "00"
+  });
+
+  return formattedDate;
+};
+
 export {
-  formatTimestamp,
   formatDate,
-  formatTime,
-  generateGeoHash,
-  formatDateLikeApp,
   useIsMobile,
   timeStampUserFormated,
   handleKeyDown,
   handleSignOutUser,
   isValidEmail,
-  // encodeUserData,
-  // decodeUserData,
+  handleDelete,
+  encryptData,
+  decryptData,
+  formatPathNameToTitle,
+  handlePreviousPage,
+  removeAfterSecondSlash,
+  modifyUrl,
+  formatFullDateAndTime,
 };

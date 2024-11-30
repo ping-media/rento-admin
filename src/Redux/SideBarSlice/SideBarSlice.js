@@ -3,11 +3,9 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   is_open: true,
   isModelActive: false,
-  isDeleteModelActive: false,
   isRechargeModelActive: false,
   isVerifyUserModalActive: false,
-  isEditLimitModalActive: false,
-  editLimit: { id: "", limit: "", totalDownload: "" },
+  isDeleteModalActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -20,9 +18,6 @@ const SideBarSlice = createSlice({
     toggleModal: (state) => {
       state.isModelActive = state.isModelActive === false ? true : false;
     },
-    toggleDeleteModal: (state, action) => {
-      state.isDeleteModelActive = state.isDeleteModelActive === false ? true : false;
-    },
     toggleRechargeModal: (state) => {
       state.isRechargeModelActive =
         state.isRechargeModelActive === false ? true : false;
@@ -31,12 +26,9 @@ const SideBarSlice = createSlice({
       state.isVerifyUserModalActive =
         state.isVerifyUserModalActive === false ? true : false;
     },
-    toggleEditLimitModal: (state) => {
-      state.isEditLimitModalActive =
-        state.isEditLimitModalActive === false ? true : false;
-    },
-    handleDataId: (state, action) => {
-      state.editLimit = action.payload;
+    toggleDeleteModal: (state) => {
+      state.isDeleteModalActive =
+        state.isDeleteModalActive === false ? true : false;
     },
     toggleClearModals: () => initialState,
   },
@@ -45,12 +37,10 @@ const SideBarSlice = createSlice({
 export const {
   toggleSideBar,
   toggleModal,
-  toggleDeleteModal,
   toggleRechargeModal,
   toggleVerifyUserModal,
-  toggleEditLimitModal,
-  handleDataId,
   toggleClearModals,
+  toggleDeleteModal,
 } = SideBarSlice.actions;
 
 export default SideBarSlice.reducer;

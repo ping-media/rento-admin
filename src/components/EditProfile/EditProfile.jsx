@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-//import Spinner from "../spinner/Spinner.jsx";
+import Spinner from "../Spinner/Spinner.jsx";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import userImage from "../../assets/logo/user.png";
 
@@ -102,7 +102,7 @@ const EditProfile = ({ isEditMode, setEditModeChanger }) => {
           className="w-full text-center text-gray-100 bg-theme-blue px-5 py-3 rounded-xl hover:bg-blue-400 transition duration-200 ease-in-out disabled:bg-gray-400"
           disabled={loading}
         >
-          {/* {loading ? <Spinner message={"updating.."} /> : "Update Profile"} */}
+          {loading ? <Spinner message={"updating.."} /> : "Update Profile"}
         </button>
       </form>
     </>

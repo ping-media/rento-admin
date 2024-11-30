@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-//import Spinner from "../spinner/Spinner";
+import Spinner from "../spinner/Spinner";
 
 const SearchForm = ({
   formSubmit,
@@ -55,7 +55,7 @@ const SearchForm = ({
           type="submit"
           disabled={loading}
         >
-          {/* {loading ? <Spinner message={"checking"} /> : "check"} */}
+          {loading ? <Spinner message={"checking"} /> : "check"}
         </button>
       </form>
     </>

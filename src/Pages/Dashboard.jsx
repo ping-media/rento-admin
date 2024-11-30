@@ -1,44 +1,25 @@
 import { useEffect, useState } from "react";
 import BarChart from "../components/charts/BarChart";
 import InfoCard from "../components/Dashboard/InfoCard";
-import { getApi } from "../response/api";
-import { CurrencyRupeeRounded, PointOfSaleRounded, AccountBalanceRounded, LeaderboardRounded, DirectionsCarRounded, GroupRounded } from "@mui/icons-material";
-import { Loader } from "../components/CommonComponents/commonComponents";
-import { setLoading } from "../Redux/ThemeSlice/ThemeSlice";
 import { useDispatch, useSelector } from "react-redux";
-const Dashboard = () => {
-  const dispatch = useDispatch();
-  const isLoading = useSelector((state) => state.theme.loading);
-  const [totalCounts, setTotalCounts] = useState([]);
-  useEffect(() => {
-    const checkoToken = localStorage.getItem("token");
-    if (!checkoToken) {
-      window.location.href = "/";
-    }
-    const getAllData = async () => {
-      dispatch(setLoading(true));
-      const res = await getApi("/getAllDataCount");
-      let dadada = Object.keys(res.data).map((key) => {
-        return {
-          count: res.data[key], title: "TOTAL " + key.substring(0, key.length - 5).toUpperCase(),
-          icon: key == "usersCount" ? <CurrencyRupeeRounded /> :
-            key == "bookingsCount" ? <PointOfSaleRounded /> :
-              key == "vehiclesCount" ? <AccountBalanceRounded /> :
-                key == "locationCount" ? <LeaderboardRounded /> :
-                  key == "stationsCount" ? <GroupRounded /> :
-                    key == "couponsCount" ? <DirectionsCarRounded /> :
-                      key == "invoicesCount" ? <AccountBalanceRounded /> :
-                        key == "plansCount" ? <CurrencyRupeeRounded /> :
-                          key == "ordersCount" ? <LeaderboardRounded /> :
-                            <GroupRounded />
-        };
-      })
-      dispatch(setLoading(false));
-      setTotalCounts(dadada);
-    };
-    getAllData();
+import { fetchDashboardData } from "../Data/Function";
+import PreLoader from "../components/Skeleton/PreLoader";
+import {
+  CurrencyRupeeRounded,
+  DirectionsCarRounded,
+  GroupRounded,
+  PersonRounded,
+  BookOnlineRounded,
+  LocationOnRounded,
+  DockRounded,
+  DiscountRounded,
+  ReceiptRounded,
+  BookmarkBorderRounded,
+  ArticleRounded,
+} from "@mui/icons-material";
+import NotFound from "./NotFound";
 
-  }, []);
+const Dashboard = () => {
   // year chart
   const yearChartOptions = {
     chart: {
@@ -85,26 +66,69 @@ const Dashboard = () => {
       data: [30, 40, 45, 50, 49, 60, 70],
     },
   ];
-  return (
-    <>
-      {
-        isLoading ? <Loader /> : ""
-      }
-      <h1 className="text-2xl uppercase font-bold text-theme mb-5">
-        Dashboard
-      </h1>
-      <div className="grid gird-cols-2 lg:grid-cols-3 gap-5 mb-5">
-        {
-          totalCounts.length ?
-            totalCounts.map((_, index) => (
-              <InfoCard key={index} totalCounts={totalCounts} index={index} />
-            )) : ""
-        }
-        {/* {new Array(9).fill(undefined).map((_, index) => (
-          <InfoCard key={index} index={index} />
-        ))} */}
-      </div>
-      <div className="flex items-center justify-between flex-wrap gap-6">
+
+  const { dasboardDataCount, loading } = useSelector(
+    (state) => state.dashboard
+  );
+  const { token } = useSelector((state) => state.user);
+  const [dataCountResult, setDataCountResult] = useState([]);
+  const dispatch = useDispatch();
+
+  //fetching dashboard data
+  useEffect(() => {
+    if (token) {
+      fetchDashboardData(dispatch, token);
+    }
+  }, []);
+
+  //binding fetched data
+  useEffect(() => {
+    if (dasboardDataCount) {
+      let dataCount = Object.keys(dasboardDataCount).map((key) => {
+        return {
+          count: dasboardDataCount[key],
+          title: "TOTAL " + key.substring(0, key.length - 5).toUpperCase(),
+          link: "/all-" + key.substring(0, key.length - 5),
+          icon:
+            key == "usersCount" ? (
+              <PersonRounded fontSize="large" />
+            ) : key == "bookingsCount" ? (
+              <BookOnlineRounded fontSize="large" />
+            ) : key == "vehiclesCount" ? (
+              <DirectionsCarRounded fontSize="large" />
+            ) : key == "locationCount" ? (
+              <LocationOnRounded fontSize="large" />
+            ) : key == "stationsCount" ? (
+              <DockRounded fontSize="large" />
+            ) : key == "couponsCount" ? (
+              <DiscountRounded fontSize="large" />
+            ) : key == "invoicesCount" ? (
+              <ReceiptRounded fontSize="large" />
+            ) : key == "plansCount" ? (
+              <ArticleRounded fontSize="large" />
+            ) : key == "ordersCount" ? (
+              <BookmarkBorderRounded fontSize="large" />
+            ) : (
+              <GroupRounded fontSize="large" />
+            ),
+        };
+      });
+      setDataCountResult(dataCount);
+    }
+  }, [dasboardDataCount]);
+
+  return !loading ? (
+    dataCountResult?.length > 0 ? (
+      <>
+        <h1 className="text-2xl uppercase font-bold text-theme mb-5">
+          Dashboard
+        </h1>
+        <div className="grid gird-cols-2 lg:grid-cols-3 gap-5 mb-5">
+          {dataCountResult?.map((item, index) => (
+            <InfoCard key={index} item={item} />
+          ))}
+        </div>
+        {/* <div className="flex items-center justify-between flex-wrap gap-6">
         <div className="flex-1 shadow-lg p-5 rounded-2xl bg-white">
           <h2 className="text-xl mb-3 font-semibold">Weekly Revenue</h2>
           <BarChart
@@ -121,8 +145,13 @@ const Dashboard = () => {
             type={"line"}
           />
         </div>
-      </div>
-    </>
+      </div> */}
+      </>
+    ) : (
+      <NotFound />
+    )
+  ) : (
+    <PreLoader />
   );
 };
 

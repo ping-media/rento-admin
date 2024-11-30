@@ -4,32 +4,27 @@ import userImage from "../assets/logo/user.png";
 import { useEffect, useState } from "react";
 import EditProfile from "../components/EditProfile/EditProfile";
 import { ProfileSkeleton } from "../components/Skeleton/index";
-import ProfileImg from '../assets/logo/user.png';
 // import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   //this is for toggling btw profile mode and edit mode
   const [isEditMode, setIsEditMode] = useState(false);
-  const [user, setData] = useState(JSON.parse(localStorage.getItem("user")))
-
-  // useEffect(() => {
-  //   let test = JSON.parse(localStorage.getItem("user"))
-  //   debugger
-  //   setData()
-  // }, [])
 
   return (
     <>
       {/* verfiyuser modal  */}
-      {/* <VerifyUserModal /> */}
+      <VerifyUserModal />
       <h1 className="text-2xl uppercase font-bold text-theme-blue mb-5">
         Profile
       </h1>
-      <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-2.5 lg:p-5 mx-auto bg-white">
+      {loading ? (
+        <ProfileSkeleton />
+      ) : (
+        <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-2.5 lg:p-5 mx-auto bg-white">
           {!isEditMode ? (
             <>
               <div className="flex justify-between lg:justify-end gap-2 mb-5">
-                {/* <button
+                <button
                   className="bg-theme-blue p-2 border hover:bg-transparent text-gray-100 rounded hover:text-black border-gray-300 flex items-center gap-1"
                   onClick={() => setIsEditMode(!isEditMode)}
                 >
@@ -48,24 +43,24 @@ const Profile = () => {
                     <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
                   </svg>
                   Edit Profile
-                </button> */}
+                </button>
               </div>
               {/* user image  */}
               <div className="flex justify-center lg:justify-around flex-wrap items-center pb-4">
                 <div>
                   <div className="w-44 h-44 border rounded-full p-5 mx-auto border-2 mb-2">
                     <img
-                     src={ProfileImg}
+                      src={`${currentUser?.userProfileImage || userImage}`}
                       className="w-full h-full object-cover"
-                      alt={"User Image"}
+                      alt={currentUser?.userName}
                     />
                   </div>
                   <div className="text-center mb-5">
                     <h2 className="text-xl font-semibold capitalize">
-                      {user.firstName} {user.lastName}
+                      {currentUser?.userName || "Admin Name"}
                     </h2>
                     <p className="text-gray-400">
-                      {"Business Partner"}
+                      {data?.businessPartner ? "Business Partner" : "User"}
                     </p>
                   </div>
                 </div>
@@ -88,7 +83,7 @@ const Profile = () => {
                     <span className="font-semibold capitalize hidden md:inline lg:inline">
                       UserName:
                     </span>
-                    {user.email}
+                    {currentUser?.userName || "Admin"}
                   </div>
                   <div className="flex gap-2 items-center">
                     <svg
@@ -107,7 +102,7 @@ const Profile = () => {
                     <span className="font-semibold capitalize hidden md:inline lg:inline">
                       Phone Number:
                     </span>
-                    {"+91 " + user.contact}
+                    {data?.UserPhoneNumber || "+91 XXXXXXXXXX"}
                   </div>
                   <div className="flex gap-2 items-center">
                     <svg
@@ -125,9 +120,9 @@ const Profile = () => {
                       <circle cx="12" cy="10" r="3" />
                     </svg>
                     <span className="font-semibold capitalize hidden md:inline lg:inline">
-                      userType: Admin
+                      Addresss:
                     </span>
-                    {/* {import.meta.env.VITE_ADDRESS} */}
+                    {data?.UserAddress || import.meta.env.VITE_ADDRESS}
                   </div>
                   <div className="flex gap-2 items-center">
                     <svg
@@ -148,11 +143,49 @@ const Profile = () => {
                     <span className="font-semibold capitalize hidden md:inline lg:inline">
                       Registerd On:
                     </span>
-                    {"1st Jan, 2024"}
+                    {data?.RegistrationDate || "1st Jan, 2024"}
                   </div>
                 </div>
               </div>
-              
+              {/* wallet & user verification  */}
+              {/* <div className="p-5 w-full lg:w-[80%] mx-auto">
+                <div className="flex items-center gap-6 flex-wrap my-5 cursor-pointer">
+                  <div
+                    className="flex-1 flex items-center p-4 shadow-md rounded-xl hover:shadow-lg"
+                    onClick={() => navigate("/wallet")}
+                  >
+                    <div className="w-16 lg:w-20 border-r-2">
+                      <img src={walletImage} className="W-full" alt="BALANCE" />
+                    </div>
+                    <div className="px-4">
+                      <p className="text-gray-400 text-sm lg:text-md">
+                        Wallet Balance
+                      </p>
+                      <h2 className="font-semibold text-md lg:text-xl">
+                        <span className="mr-[0.1rem]">₹</span>
+                        {currentUser?.balance || 0}
+                      </h2>
+                    </div>
+                  </div>
+                  <div className="flex-1 flex items-center p-4 shadow-md rounded-xl hover:shadow-lg">
+                    <div className="w-16 lg:w-20 border-r-2">
+                      <img src={verifyImage} className="W-full" alt="BALANCE" />
+                    </div>
+                    <div className="px-4">
+                      <p className="text-gray-400 text-sm lg:text-md">
+                        User Verification
+                      </p>
+                      <h2 className="font-semibold text-md lg:text-xl uppercase">
+                        {data?.UserVerify
+                          ? data?.UserVerify === "no"
+                            ? "not verified"
+                            : "verified"
+                          : "not verified"}
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+              </div> */}
             </>
           ) : (
             <EditProfile
@@ -162,6 +195,7 @@ const Profile = () => {
             />
           )}
         </div>
+      )}
     </>
   );
 };
