@@ -55,28 +55,28 @@ const UserForm = ({ handleFormSubmit, loading }) => {
             <SelectDropDown
               item={"KycApproved"}
               options={["yes", "no"]}
-              value={id ? vehicleMaster[0]?.kycApproved : ""}
+              value={id ? vehicleMaster[0]?.kycApproved : "no"}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"isContactVerified"}
               options={["yes", "no"]}
-              value={id ? vehicleMaster[0]?.isContactVerified : ""}
+              value={id ? vehicleMaster[0]?.isContactVerified : "no"}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"isEmailVerified"}
               options={["yes", "no"]}
-              value={id ? vehicleMaster[0]?.isEmailVerified : ""}
+              value={id ? vehicleMaster[0]?.isEmailVerified : "no"}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"status"}
               options={["active", "inActive"]}
-              value={id ? vehicleMaster[0]?.status : ""}
+              value={id ? vehicleMaster[0]?.status : "active"}
             />
           </div>
         </>

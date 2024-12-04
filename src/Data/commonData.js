@@ -63,7 +63,7 @@ const States = [
   "West Bengal",
 ];
 
-const userType = ["customer", "manager", "admin"];
+const userType = ["manager", "admin"];
 
 const vehicleBrands = [
   "Vespa",

@@ -65,10 +65,10 @@ const SideBar = () => {
         </h2>
       </div>
       <div
-        className="px-4 py-6 overflow-y-scroll no-scrollbar"
+        className="px-3.5 py-3 overflow-y-scroll no-scrollbar"
         style={{ height: "calc(100vh - 88px)" }}
       >
-        <ul className="leading-10">
+        <ul className="leading-9">
           {menuList.map((item, index) => {
             if (item.nestedLink) {
               return <SideBarDropDown item={item} key={index} />;
@@ -76,7 +76,7 @@ const SideBar = () => {
               return (
                 <Link to={`${item?.menuLink}`} key={index}>
                   <li
-                    className={`px-4 py-2 group capitalize ${
+                    className={`px-4 py-1.5 group capitalize ${
                       location.pathname.includes(
                         item?.menuLink.toLowerCase()
                       ) ||

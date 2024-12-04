@@ -42,6 +42,8 @@ input[type="number"] {
 body {
   /* font-family: "Montserrat", sans-serif !important; */
   font-family: "IBM Plex Sans", sans-serif !important;
+  font-size: 0.95rem !important;
+  font-weight: 400 !important;
   @apply bg-light-gray;
 }
 
