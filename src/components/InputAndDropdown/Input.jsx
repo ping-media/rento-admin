@@ -21,9 +21,15 @@ const Input = ({
           type={type}
           id={item}
           className={`block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none ${
-            item != "email" ? "capitalize" : ""
+            item != "email"
+              ? item == "vehicleNumber"
+                ? "uppercase"
+                : "capitalize"
+              : ""
           } disabled:bg-gray-400 disabled:bg-opacity-20`}
-          value={inputValue}
+          value={
+            item == "vehicleNumber" ? inputValue.toUpperCase() : inputValue
+          }
           onChange={(e) => setInputValue(e.target.value)}
           name={item}
           placeholder={`${item}`}

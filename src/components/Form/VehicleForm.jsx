@@ -14,7 +14,11 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
 
-  const fetchCollectedData = async (stationUrl, vehicleMasterUrl) => {
+  const fetchCollectedData = async (
+    stationUrl,
+    vehicleMasterUrl,
+    locationUrl
+  ) => {
     const stationResponse = await getData(
       endPointBasedOnKey[stationUrl],
       token
@@ -23,16 +27,21 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
       endPointBasedOnKey[vehicleMasterUrl],
       token
     );
+    const locationResponse = await getData(
+      endPointBasedOnKey[locationUrl],
+      token
+    );
 
-    if (vehicleMasterResponse && stationResponse) {
+    if (vehicleMasterResponse && stationResponse && locationResponse) {
       return setCollectedData({
         stationId: stationResponse?.data,
         vehicleMasterId: vehicleMasterResponse?.data,
+        locationId: locationResponse?.data,
       });
     }
   };
   useEffect(() => {
-    fetchCollectedData("stationId", "vehicleMasterId");
+    fetchCollectedData("stationId", "vehicleMasterId", "locationId");
     console.log(collectedData);
   }, []);
 
@@ -42,6 +51,13 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         {/* for updating the value of the existing one  */}
 
         <>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"locationId"}
+              options={collectedData?.locationId}
+              value={id && vehicleMaster[0]?.locationId}
+            />
+          </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"stationId"}
@@ -78,8 +94,16 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input
+            <SelectDropDown
               item={"vehicleColor"}
+              options={[
+                "white",
+                "black",
+                "gray",
+                "blue",
+                "yellow",
+                "dark blue",
+              ]}
               value={id && vehicleMaster[0]?.vehicleColor}
             />
           </div>
@@ -98,13 +122,16 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input item={"kmsRun"} value={id && vehicleMaster[0]?.kmsRun} />
+            <Input
+              item={"kmsRun"}
+              value={id ? vehicleMaster[0]?.kmsRun : "100"}
+            />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"isBooked"}
               options={["true", "false"]}
-              value={id && vehicleMaster[0]?.isBooked}
+              value={id ? vehicleMaster[0]?.isBooked : "false"}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -118,14 +145,14 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             <SelectDropDown
               item={"vehicleBookingStatus"}
               options={["available", "booked"]}
-              value={id && vehicleMaster[0]?.vehicleBookingStatus}
+              value={id ? vehicleMaster[0]?.vehicleBookingStatus : "available"}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"vehicleStatus"}
               options={["active", "inActive"]}
-              value={id && vehicleMaster[0]?.vehicleStatus}
+              value={id ? vehicleMaster[0]?.vehicleStatus : "active"}
             />
           </div>
         </>

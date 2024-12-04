@@ -16,10 +16,7 @@ const VehicleDetail = () => {
   const [collectedData, setCollectedData] = useState(null);
 
   const fetchCollectedData = async (stationUrl, vehicleMaster) => {
-    const vehicleResponse = await getData(
-      endPointBasedOnKey[vehicleMaster],
-      token
-    );
+    const vehicleResponse = await getData(vehicleMaster, token);
     const stationResponse = await getData(
       endPointBasedOnKey[stationUrl],
       token
@@ -42,7 +39,10 @@ const VehicleDetail = () => {
 
   useEffect(() => {
     if (vehicleMaster?.length == 1) {
-      fetchCollectedData("stationId", "vehicleMasterId");
+      fetchCollectedData(
+        "stationId",
+        `/getVehicleMasterData?_id=${vehicleMaster[0]?.vehicleMasterId}`
+      );
     }
   }, [vehicleMaster]);
 
@@ -101,8 +101,10 @@ const VehicleDetail = () => {
                               : key.includes("station") && "Pickup Point"}
                           </span>{" "}
                           <span className="text-gray-500 capitalize">
-                            {collectedData[key][0]?.stationName ||
-                              collectedData[key][0]?.vehicleName}
+                            {/* {
+                              // collectedData[key][0]?.stationName ||
+                              collectedData[key][0]?.vehicleName
+                            } */}
                           </span>
                         </div>
                       );

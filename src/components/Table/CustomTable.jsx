@@ -256,7 +256,7 @@ const CustomTable = ({ pageTitle, Data }) => {
                                   <div className="flex items-center gap-3 text-center">
                                     <img
                                       src={item[column]}
-                                      className="w-28 h-20 object-cover"
+                                      className="w-28 h-20 object-contain"
                                     />
                                   </div>
                                 </td>
@@ -396,25 +396,24 @@ const CustomTable = ({ pageTitle, Data }) => {
           </div>
         </div>
       </div>
-
-      {newUpdatedData.length > limitedData && (
-        <div className="flex flex-wrap items-center justify-start lg:justify-end gap-4 lg:gap-2">
-          <div className="flex items-center gap-2">
-            <h2 className="capitalize">Rows per Page</h2>
-            <DropDownComponent
-              defaultValue={limitedData}
-              options={showRecordsOptions}
-              setValue={setLimitedData}
-            />
-          </div>
-          <span className="hidden lg:mx-1">|</span>
-          <Pagination
-            totalNumberOfPages={totalPages}
-            currentPage={currentPage}
-            setPageChanger={setCurrentPage}
+      {/* {newUpdatedData.length > limitedData && ( */}
+      <div className="flex flex-wrap items-center justify-start lg:justify-end gap-4 lg:gap-2">
+        <div className="flex items-center gap-2">
+          <h2 className="capitalize">Rows per Page</h2>
+          <DropDownComponent
+            defaultValue={limitedData}
+            options={showRecordsOptions}
+            setValue={setLimitedData}
           />
         </div>
-      )}
+        <span className="hidden lg:mx-1">|</span>
+        <Pagination
+          totalNumberOfPages={totalPages}
+          currentPage={currentPage}
+          setPageChanger={setCurrentPage}
+        />
+      </div>
+      {/* )} */}
     </>
   );
 };

@@ -57,7 +57,7 @@ const postData = async (url, data, token) => {
         }
       );
     }
-    console.log(response);
+    // console.log(response);
     return response?.data;
   } catch (error) {
     return `Error :${error?.message}`;
@@ -69,7 +69,8 @@ const deleteData = async (url) => {
     const response = await axios.delete(
       `${import.meta.env.VITE_BASED_URL}${url}`
     );
-    return response;
+    // console.log(response);
+    return response?.data;
   } catch (error) {
     return `Error :${error?.message}`;
   }
