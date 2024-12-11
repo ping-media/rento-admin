@@ -108,6 +108,7 @@ const handleCreateAndUpdateVehicle = async (
   setFormLoading(true);
   const response = new FormData(event.target);
   let result = Object.fromEntries(response.entries());
+  console.log(result);
   // if there is id that means it we are updating the data and if there is not id than creating new data
   if (id) {
     result = Object.assign(result, { _id: id });

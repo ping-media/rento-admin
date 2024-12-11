@@ -11,7 +11,7 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { id } = useParams();
   const [imagesUrl, setImageUrl] = useState(
-    id && vehicleMaster[0]?.vehicleImage
+    id ? vehicleMaster[0]?.vehicleImage : ""
   );
   const [image, setImage] = useState(null);
 
@@ -52,7 +52,7 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
         <button
           className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
           type="submit"
-          disabled={loading}
+          disabled={loading || imagesUrl == ""}
         >
           {loading ? <Spinner message={"uploading"} /> : "Publish"}
         </button>

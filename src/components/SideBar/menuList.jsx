@@ -35,46 +35,24 @@ const menuList = [
   {
     menuImg: <DirectionsCarRoundedIcon />,
     menuTitle: "Manage Vehicles",
-    menuLink: "/all-vehicles",
-    // nestedLink: [
-    //   {
-    //     menuImg: <AdjustRoundedIcon />,
-    //     menuTitle: "All Vehicles",
-    //     menuLink: "/all-vehicles",
-    //   },
-    //   {
-    //     menuImg: <AdjustRoundedIcon />,
-    //     menuTitle: "Pending Vehicles",
-    //     menuLink: "/pending-vehicles",
-    //   },
-    //   {
-    //     menuImg: <AdjustRoundedIcon />,
-    //     menuTitle: "Approved Vehicles",
-    //     menuLink: "/approved-vehicles",
-    //   },
-    // ],
+    menuLink: "#",
+    nestedLink: [
+      {
+        menuImg: <AdjustRoundedIcon />,
+        menuTitle: "All Vehicles",
+        menuLink: "/all-vehicles",
+      },
+      {
+        menuImg: <AdjustRoundedIcon />,
+        menuTitle: "Users Documents",
+        menuLink: "/users-documents",
+      },
+    ],
   },
   {
     menuImg: <PersonRoundedIcon />,
     menuTitle: "Manage Users",
     menuLink: "/all-users",
-    // nestedLink: [
-    //   {
-    //     menuImg: <AdjustRoundedIcon />,
-    //     menuTitle: "All Users",
-    //     menuLink: "/all-users",
-    //   },
-    //   {
-    //     menuImg: <AdjustRoundedIcon />,
-    //     menuTitle: "Pending Users",
-    //     menuLink: "/pending-users",
-    //   },
-    //   {
-    //     menuImg: <AdjustRoundedIcon />,
-    //     menuTitle: "Approved Users",
-    //     menuLink: "/approved-users",
-    //   },
-    // ],
   },
   {
     menuImg: <DescriptionRoundedIcon />,

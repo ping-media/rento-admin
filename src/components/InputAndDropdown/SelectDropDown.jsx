@@ -10,6 +10,8 @@ const SelectDropDown = ({ item, options, value = "" }) => {
     vehicleMasterId: "Vehicle",
   };
 
+  console.log(title[item], value);
+
   return (
     <div className="w-full">
       <label

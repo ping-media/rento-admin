@@ -89,6 +89,9 @@ const SideBar = () => {
                       className={`w-7 h-7 group-hover:text-gray-100 text-lg ${
                         location.pathname.includes(
                           item?.menuLink?.toLowerCase()
+                        ) ||
+                        location.pathname.includes(
+                          item?.moreLink?.toLowerCase()
                         )
                           ? "text-gray-100"
                           : ""

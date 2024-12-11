@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
 
@@ -57,61 +56,37 @@ body {
   -webkit-backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
-=======
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Chrome, Safari, Edge, Opera */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+/* datatable css override  */
+/* Tailwind-based overrides */
+table.dataTable {
+  @apply border-collapse border border-gray-200 dark:border-gray-600;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-  visibility: hidden;
+table.dataTable thead th {
+  @apply bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 border-b;
 }
 
-.show-scrollbar::-webkit-scrollbar {
-  visibility: visible !important;
+table.dataTable tbody td {
+  @apply px-4 py-2 border-b border-gray-200 dark:border-gray-600;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+table.dataTable tbody tr:hover {
+  @apply bg-gray-100 dark:bg-gray-700;
 }
 
-/* Chrome, Safari, Edge, Opera */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.dataTables_wrapper .dataTables_filter input {
+  @apply px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
 }
 
-/* Firefox */
-input[type="number"] {
-  -moz-appearance: textfield;
+.dataTables_wrapper .dataTables_paginate {
+  @apply mt-4 flex justify-end items-center;
 }
 
-body {
-  /* font-family: "Montserrat", sans-serif !important; */
-  font-family: "IBM Plex Sans", sans-serif !important;
-  @apply bg-light-gray;
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  @apply px-4 py-2 mx-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700;
 }
 
-/* glass background */
-.glass {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  @apply bg-blue-500 text-white;
 }
->>>>>>> 7c68227eed8a9ef8581682dfe36493e539047016
