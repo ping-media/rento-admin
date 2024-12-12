@@ -77,7 +77,11 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input item={"pinCode"} value={id && vehicleMaster[0]?.pinCode} />
+            <Input
+              item={"pinCode"}
+              type="number"
+              value={id && Number(vehicleMaster[0]?.pinCode)}
+            />
           </div>
         </>
 

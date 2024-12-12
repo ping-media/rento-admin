@@ -79,7 +79,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             <Input
               item={"totalPrice"}
               type="number"
-              value={id ? vehicleMaster[0]?.bookingPrice?.totalPrice : ""}
+              value={id && Number(vehicleMaster[0]?.bookingPrice?.totalPrice)}
               require={true}
             />
           </div>
@@ -87,7 +87,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             <Input
               item={"bookingPrice"}
               type="number"
-              value={id ? vehicleMaster[0]?.bookingPrice?.bookingPrice : ""}
+              value={id && Number(vehicleMaster[0]?.bookingPrice?.bookingPrice)}
               require={true}
             />
           </div>
@@ -95,7 +95,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             <Input
               item={"tax"}
               type="number"
-              value={id ? vehicleMaster[0]?.bookingPrice?.tax : ""}
+              value={id && Number(vehicleMaster[0]?.bookingPrice?.tax)}
               require={true}
             />
           </div>
@@ -103,21 +103,23 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             <Input
               item={"roundPrice"}
               type="number"
-              value={id ? vehicleMaster[0]?.bookingPrice?.roundPrice : ""}
+              value={id && Number(vehicleMaster[0]?.bookingPrice?.roundPrice)}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
               item={"extraAddonPrice"}
               type="number"
-              value={id ? vehicleMaster[0]?.bookingPrice?.extraAddonPrice : ""}
+              value={
+                id && Number(vehicleMaster[0]?.bookingPrice?.extraAddonPrice)
+              }
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
               item={"vehiclePrice"}
               type="number"
-              value={id ? vehicleMaster[0]?.bookingPrice?.vehiclePrice : ""}
+              value={id && Number(vehicleMaster[0]?.bookingPrice?.vehiclePrice)}
               require={true}
             />
           </div>

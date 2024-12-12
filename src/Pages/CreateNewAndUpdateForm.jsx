@@ -36,7 +36,7 @@ const CreateNewAndUpdateForm = () => {
   // Dynamically select the form to render based on the URL
   const getFormType = () => {
     const formType = location.pathname.split("/")[1]; // Assuming the first part of the URL defines the form type
-    return forms[formType] || CouponForm; // Default to CouponForm if no match is found
+    return forms[formType];
   };
 
   const FormComponent = getFormType();

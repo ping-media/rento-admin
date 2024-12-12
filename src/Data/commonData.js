@@ -33,7 +33,10 @@ const endPointBasedOnURL = {
   "all-vehicles/": "/createVehicle",
   "all-users": "/getAllUsers",
   "all-users/": "/signup",
+  "users-documents": "/getAllDocument",
+  "users-documents/": "/uploadDocument",
   "all-bookings": "/getBookings",
+  "all-bookings/": "/createBooking",
   "all-coupons": "/getCoupons",
   "all-coupons/": "/createCoupon",
 };
@@ -46,6 +49,7 @@ const endPointBasedOnKey = {
   userIdAll: "/getAllUsers",
   vehicleMasterId: "/getVehicleMasterData",
   vehicleTableId: "/getVehicleTblData",
+  AllPlanDataId: "/getPlanData",
 };
 
 // states
@@ -103,6 +107,8 @@ const vehicleBrands = [
   "Ducati",
 ];
 
+const vehicleColor = ["white", "black", "gray", "blue", "yellow", "dark blue"];
+
 const forms = {
   "vehicle-master": VehicleMasterForm,
   "location-master": LocationMasterForm,
@@ -121,4 +127,5 @@ export {
   userType,
   vehicleBrands,
   forms,
+  vehicleColor,
 };

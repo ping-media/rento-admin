@@ -111,7 +111,7 @@ const App = () => {
               exact
               element={<CreateNewAndUpdateForm />}
             />
-            {/* users Routes  */}
+            {/* users & user documents Routes  */}
             <Route path="all-users" exact element={<VehicleMaster />} />
             <Route
               path="all-users/add-new"
@@ -123,6 +123,7 @@ const App = () => {
               exact
               element={<CreateNewAndUpdateForm />}
             />
+            <Route path="users-documents" exact element={<VehicleMaster />} />
             {/* booking Routes  */}
             <Route path="all-bookings" exact element={<VehicleMaster />} />
             <Route

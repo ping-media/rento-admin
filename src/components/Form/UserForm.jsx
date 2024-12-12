@@ -29,7 +29,8 @@ const UserForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <Input
               item={"contact"}
-              value={id ? vehicleMaster[0]?.contact : ""}
+              type="number"
+              value={id ? Number(vehicleMaster[0]?.contact) : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">

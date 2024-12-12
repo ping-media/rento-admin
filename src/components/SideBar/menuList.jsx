@@ -35,12 +35,17 @@ const menuList = [
   {
     menuImg: <DirectionsCarRoundedIcon />,
     menuTitle: "Manage Vehicles",
+    menuLink: "/all-vehicles",
+  },
+  {
+    menuImg: <PersonRoundedIcon />,
+    menuTitle: "Manage Users",
     menuLink: "#",
     nestedLink: [
       {
         menuImg: <AdjustRoundedIcon />,
-        menuTitle: "All Vehicles",
-        menuLink: "/all-vehicles",
+        menuTitle: "All Users",
+        menuLink: "/all-users",
       },
       {
         menuImg: <AdjustRoundedIcon />,
@@ -48,11 +53,6 @@ const menuList = [
         menuLink: "/users-documents",
       },
     ],
-  },
-  {
-    menuImg: <PersonRoundedIcon />,
-    menuTitle: "Manage Users",
-    menuLink: "/all-users",
   },
   {
     menuImg: <DescriptionRoundedIcon />,

@@ -146,10 +146,45 @@ const handleCreateAndUpdateVehicle = async (
   return setFormLoading(false);
 };
 
+const fetchStationBasedOnLocation = async (
+  vehicleMaster,
+  isLocationSelected,
+  setStationData,
+  token
+) => {
+  let stationResponse;
+  if (vehicleMaster && vehicleMaster?.length == 1) {
+    stationResponse = await getData(
+      `/getStationData?locationId=${isLocationSelected}`,
+      token
+    );
+  } else {
+    stationResponse = await getData(
+      `/getStationData?locationId=${isLocationSelected}`,
+      token
+    );
+  }
+  if (stationResponse?.status == 200) {
+    return setStationData(stationResponse?.data);
+  }
+};
+
+const tenYearBeforeCurrentYear = () => {
+  let modals = [];
+  const currentYear = new Date().getFullYear();
+  const tenYearsBefore = currentYear - 10;
+  for (let i = currentYear; i > tenYearsBefore; i--) {
+    modals.push(i);
+  }
+  return modals;
+};
+
 export {
   handleOtpLogin,
   fetchDashboardData,
   fetchVehicleMaster,
   fetchVehicleMasterById,
   handleCreateAndUpdateVehicle,
+  fetchStationBasedOnLocation,
+  tenYearBeforeCurrentYear,
 };

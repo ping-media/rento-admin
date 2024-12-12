@@ -81,7 +81,7 @@ const Header = () => {
         {/* user menu */}
         <div className="flex gap-2 items-center">
           <button
-            className="relative hover:shadow-none shadow-md rounded-xl cursor-pointer flex items-center gap-2 px-2 py-1 dark:bg-gray-700"
+            className="relative hover:shadow-none shadow-md rounded-xl cursor-pointer flex items-center gap-2 px-4 py-1 dark:bg-gray-700"
             ref={adminRef}
             onClick={handleToggleVisibility}
           >

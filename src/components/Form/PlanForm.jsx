@@ -6,34 +6,49 @@ import Spinner from "../Spinner/Spinner";
 import { useParams } from "react-router-dom";
 import { getData } from "../../Data";
 import { endPointBasedOnKey } from "../../Data/commonData";
+import { fetchStationBasedOnLocation } from "../../Data/Function";
 // import { activeStatus, options, userType } from "../../Data/commonData";
 
 const PlanForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [collectedData, setCollectedData] = useState([]);
+  const [isLocationSelected, setIsLocationSelected] = useState("");
+  const [stationData, setStationData] = useState(null);
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
 
-  const fetchCollectedData = async (stationUrl, vehicleMasterUrl) => {
-    const stationResponse = await getData(
-      endPointBasedOnKey[stationUrl],
-      token
-    );
+  const fetchCollectedData = async (vehicleMasterUrl, locationUrl) => {
     const vehicleResponse = await getData(
       endPointBasedOnKey[vehicleMasterUrl],
       token
     );
+    const locationResponse = await getData(
+      endPointBasedOnKey[locationUrl],
+      token
+    );
 
-    if (stationResponse && vehicleResponse) {
+    if (vehicleResponse && locationResponse) {
       return setCollectedData({
-        stationId: stationResponse?.data,
         vehicleMasterId: vehicleResponse?.data,
+        locationId: locationResponse?.data,
       });
     }
   };
   useEffect(() => {
-    fetchCollectedData("stationId", "vehicleMasterId");
+    fetchCollectedData("vehicleMasterId", "locationId");
   }, []);
+
+  //updating station based on location id
+  useEffect(() => {
+    if (isLocationSelected !== "") {
+      fetchStationBasedOnLocation(
+        vehicleMaster,
+        isLocationSelected,
+        setStationData,
+        token
+      );
+    }
+  }, [isLocationSelected]);
 
   return (
     <form onSubmit={handleFormSubmit}>
@@ -42,8 +57,16 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
         <>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
+              item={"locationId"}
+              options={(collectedData && collectedData?.locationId) || []}
+              value={id ? vehicleMaster[0]?.locationId : ""}
+              setIsLocationSelected={setIsLocationSelected}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
               item={"stationId"}
-              options={(collectedData && collectedData?.stationId) || []}
+              options={stationData && stationData}
               value={id ? vehicleMaster[0]?.stationId : ""}
             />
           </div>
@@ -54,18 +77,18 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
               value={id ? vehicleMaster[0]?.vehicleMasterId : ""}
             />
           </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"planName"}
+              value={id ? vehicleMaster[0]?.planName : ""}
+            />
+          </div>
           {!id && (
             <>
               <div className="w-full lg:w-[48%]">
                 <Input
-                  item={"planName"}
-                  value={id ? vehicleMaster[0]?.planName : ""}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <Input
                   item={"planDuration"}
-                  value={id ? vehicleMaster[0]?.planDuration : ""}
+                  value={id && Number(vehicleMaster[0]?.planDuration)}
                 />
               </div>
             </>
@@ -73,7 +96,8 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <Input
               item={"planPrice"}
-              value={id ? vehicleMaster[0]?.planPrice : ""}
+              type="number"
+              value={id && Number(vehicleMaster[0]?.planPrice)}
             />
           </div>
         </>

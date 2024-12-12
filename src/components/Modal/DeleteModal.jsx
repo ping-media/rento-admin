@@ -7,7 +7,7 @@ import { deleteData, postData } from "../../Data";
 import { endPointBasedOnURL } from "../../Data/commonData";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { restDeletevehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
-import { modifyUrl } from "../../utils";
+// import { modifyUrl } from "../../utils";
 
 const DeleteModal = () => {
   const dispatch = useDispatch();
@@ -28,7 +28,8 @@ const DeleteModal = () => {
     //   `${
     //     endPointBasedOnURL[(location?.pathname).replace("/", "")]
     //   }?_id=${deletevehicleId}`,
-    //   endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"]
+    //   endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"],
+    //   location?.pathname
     // );
     try {
       let response;

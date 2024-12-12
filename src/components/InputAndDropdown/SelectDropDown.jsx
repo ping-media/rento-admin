@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const SelectDropDown = ({ item, options, value = "" }) => {
+const SelectDropDown = ({
+  item,
+  options,
+  value = "",
+  setIsLocationSelected,
+}) => {
   const [inputSelect, setInputSelect] = useState(value);
   // for giving custom title
   const title = {
@@ -10,7 +15,19 @@ const SelectDropDown = ({ item, options, value = "" }) => {
     vehicleMasterId: "Vehicle",
   };
 
-  console.log(title[item], value);
+  // changing the value and if flg is present than change it
+  const handleChangeValue = (e) => {
+    setInputSelect(e.target.value);
+    if (setIsLocationSelected) {
+      setIsLocationSelected(e.target.value);
+    }
+  };
+
+  useEffect(() => {
+    if (value && setIsLocationSelected) {
+      setIsLocationSelected(value);
+    }
+  }, [value]);
 
   return (
     <div className="w-full">
@@ -25,10 +42,14 @@ const SelectDropDown = ({ item, options, value = "" }) => {
           name={item}
           id={item}
           value={inputSelect}
-          onChange={(e) => setInputSelect(e.target.value)}
-          className="block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize"
+          onChange={(e) => handleChangeValue(e)}
+          className="block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize disabled:bg-gray-300 disabled:bg-opacity-30"
+          disabled={!options || options?.length == 0 ? true : false}
         >
-          <option value="">Select {title[item] || item}</option>
+          <option value="">
+            {(options?.length == 0 && `No ${title[item] || item} Found`) ||
+              `Select ${title[item] || item}`}
+          </option>
           {options &&
             options.map((items, index) => {
               const isId = items?.hasOwnProperty("_id");
@@ -74,7 +95,7 @@ const SelectDropDown = ({ item, options, value = "" }) => {
                     key={items?._id}
                     className="capitalize"
                   >
-                    <span className="mr-2">{items?.vehicleBrand}</span>
+                    {/* {items?.vehicleBrand} {items?.vehicleName} */}
                     {items?.vehicleName}
                   </option>
                 );
