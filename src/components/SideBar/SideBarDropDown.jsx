@@ -1,4 +1,3 @@
-// import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
 const SideBarDropDown = ({ item }) => {
@@ -7,14 +6,10 @@ const SideBarDropDown = ({ item }) => {
     <div>
       <details
         className={`group capitalize transition duration-300 ease-in-out mb-2 dark:text-gray-100 open:text-gray-100`}
-        open={Boolean(
-          `${
-            location.pathname.includes(item?.menuLink.toLowerCase()) ||
-            location.pathname.includes(item?.moreLink?.toLowerCase())
-              ? true
-              : false
-          }`
-        )}
+        open={
+          location.pathname == "/all-users" ||
+          location.pathname == "/users-documents"
+        }
       >
         <summary className="flex cursor-pointer list-none items-center justify-between group-hover:bg-theme px-4 py-2 rounded-lg group-open:bg-theme w-full">
           <div className="flex items-center gap-1">

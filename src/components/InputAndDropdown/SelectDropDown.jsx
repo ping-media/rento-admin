@@ -13,6 +13,7 @@ const SelectDropDown = ({
     locationId: "Location",
     userId: "User",
     vehicleMasterId: "Vehicle",
+    vehicleTableId: "Vehicle",
   };
 
   // changing the value and if flg is present than change it

@@ -327,7 +327,7 @@ const CustomTable = ({ Data }) => {
                                     className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                     key={columnIndex}
                                   >
-                                    {console.log(column)}
+                                    {/* {console.log(column)} */}
                                     {column.includes("Documents") ||
                                     column.includes("Users")
                                       ? item[column].length

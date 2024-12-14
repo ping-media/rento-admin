@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { endPointBasedOnKey, userType } from "../../Data/commonData";
 import { useEffect, useState } from "react";
 import { getData } from "../../Data";
+import InputSearch from "../InputAndDropdown/InputSearch";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -13,38 +14,34 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
 
-  const fetchCollectedData = async (vehicleUrl, vehicleTbUrl, userUrl) => {
-    const userResponse = await getData(endPointBasedOnKey[userUrl], token);
+  const fetchCollectedData = async (vehicleTbUrl) => {
     const vehicleTblResponse = await getData(
       endPointBasedOnKey[vehicleTbUrl],
       token
     );
-    const vehicleResponse = await getData(
-      endPointBasedOnKey[vehicleUrl],
-      token
-    );
 
-    if (userResponse && vehicleTblResponse && vehicleResponse) {
+    if (vehicleTblResponse) {
       return setCollectedData({
-        userId: userResponse?.data,
         vehicleTableId: vehicleTblResponse?.data,
-        vehicleMasterId: vehicleResponse?.data,
       });
     }
   };
   useEffect(() => {
-    fetchCollectedData("vehicleMasterId", "vehicleTableId", "userIdAll");
+    fetchCollectedData("vehicleTableId");
   }, []);
+
   return (
     <form onSubmit={handleFormSubmit}>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one & for creating new one */}
         <>
           <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"vehicleMasterId"}
-              options={collectedData?.vehicleMasterId}
-              value={id ? vehicleMaster[0]?.vehicleMasterId : ""}
+            <InputSearch
+              item={"User"}
+              name={"userId"}
+              type="number"
+              token={token}
+              value={id ? vehicleMaster[0]?.userId : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -52,13 +49,6 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               item={"vehicleTableId"}
               options={collectedData?.vehicleTableId}
               value={id ? vehicleMaster[0]?.vehicleTableId : ""}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"userId"}
-              options={collectedData?.userId}
-              value={id ? vehicleMaster[0]?.userId : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -101,13 +91,6 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
-              item={"roundPrice"}
-              type="number"
-              value={id && Number(vehicleMaster[0]?.bookingPrice?.roundPrice)}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
               item={"extraAddonPrice"}
               type="number"
               value={
@@ -125,46 +108,50 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
-              item={"bookingStatus"}
-              options={["pending", "confirmed"]}
-              value={id ? vehicleMaster[0]?.bookingStatus : ""}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"paymentStatus"}
-              options={["pending", "confirmed"]}
-              value={id ? vehicleMaster[0]?.paymentStatus : ""}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"rideStatus"}
-              options={["pending", "confirmed"]}
-              value={id ? vehicleMaster[0]?.rideStatus : ""}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
               item={"paymentMethod"}
               options={["cash", "online"]}
               value={id ? vehicleMaster[0]?.paymentMethod : ""}
             />
           </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"payInitFrom"}
-              type="number"
-              value={id ? vehicleMaster[0]?.payInitFrom : "Razor pay"}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"paySuccessId"}
-              type="number"
-              value={id ? vehicleMaster[0]?.paySuccessId : "assa"}
-            />
-          </div>
+          {id && (
+            <>
+              <div className="w-full lg:w-[48%]">
+                <SelectDropDown
+                  item={"bookingStatus"}
+                  options={["pending", "confirmed"]}
+                  value={id ? vehicleMaster[0]?.bookingStatus : ""}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <SelectDropDown
+                  item={"paymentStatus"}
+                  options={["pending", "confirmed"]}
+                  value={id ? vehicleMaster[0]?.paymentStatus : ""}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <SelectDropDown
+                  item={"rideStatus"}
+                  options={["pending", "confirmed"]}
+                  value={id ? vehicleMaster[0]?.rideStatus : ""}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  item={"payInitFrom"}
+                  type="number"
+                  value={id ? vehicleMaster[0]?.payInitFrom : "Razor pay"}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  item={"paySuccessId"}
+                  type="number"
+                  value={id ? vehicleMaster[0]?.paySuccessId : "assa"}
+                />
+              </div>
+            </>
+          )}
         </>
       </div>
       <button
