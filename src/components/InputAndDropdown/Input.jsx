@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { camelCaseToSpaceSeparated } from "../../utils";
 
 const Input = ({
   item,
@@ -14,7 +15,8 @@ const Input = ({
         htmlFor={item}
         className="block text-gray-800 font-semibold text-sm capitalize"
       >
-        Enter {item} {require && <span className="text-red-500">*</span>}
+        Enter {camelCaseToSpaceSeparated(item)}{" "}
+        {require && <span className="text-red-500">*</span>}
       </label>
       <div className="mt-2">
         <input

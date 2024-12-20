@@ -23,6 +23,11 @@ const CreateNewAndUpdateForm = lazy(() =>
     default: module.CreateNewAndUpdateForm,
   }))
 );
+const Profile = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.Profile,
+  }))
+);
 // for default exports
 const Layout = lazy(() => import("./components/layout/Layout"));
 const Login = lazy(() => import("./components/Auth/Login"));
@@ -141,6 +146,11 @@ const App = () => {
               exact
               element={<BookingDetails />}
             />
+            {/* profile route  */}
+            <Route path="profile" exact element={<Profile />} />
+
+            {/* payment route  */}
+            <Route path="payments" exact element={<VehicleMaster />} />
 
             {/* if there is any error or if goes to url which is not a route in that
             case this error page will be shown. */}

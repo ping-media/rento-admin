@@ -39,6 +39,7 @@ const endPointBasedOnURL = {
   "all-bookings/": "/createBooking",
   "all-coupons": "/getCoupons",
   "all-coupons/": "/createCoupon",
+  payments: "/paymentRec",
 };
 
 //tofetchData for based on key
@@ -48,7 +49,7 @@ const endPointBasedOnKey = {
   userId: "/getAllUsers?userType=manager",
   userIdAll: "/getAllUsers",
   vehicleMasterId: "/getVehicleMasterData",
-  vehicleTableId: "/getVehicleTblData",
+  vehicleTableId: "/getAllVehiclesData",
   AllPlanDataId: "/getPlanData",
 };
 

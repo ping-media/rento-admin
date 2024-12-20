@@ -10,86 +10,119 @@ const UserForm = ({ handleFormSubmit, loading }) => {
   const { id } = useParams();
 
   return (
-    <form onSubmit={handleFormSubmit}>
-      <div className="flex flex-wrap gap-4">
-        {/* for updating the value of the existing one & for creating new one */}
-        <>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"firstName"}
-              value={id ? vehicleMaster[0]?.firstName : ""}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"lastName"}
-              value={id ? vehicleMaster[0]?.lastName : ""}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"contact"}
-              type="number"
-              value={id ? Number(vehicleMaster[0]?.contact) : ""}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"email"}
-              type="email"
-              value={id ? vehicleMaster[0]?.email : ""}
-            />
-          </div>
+    vehicleMaster && (
+      <form onSubmit={handleFormSubmit}>
+        <div className="flex flex-wrap gap-4">
+          {/* for updating the value of the existing one & for creating new one */}
+          <>
+            <div className="w-full lg:w-[48%]">
+              <Input
+                item={"firstName"}
+                value={
+                  id || location.pathname == "/profile"
+                    ? vehicleMaster[0]?.firstName
+                    : ""
+                }
+              />
+            </div>
+            <div className="w-full lg:w-[48%]">
+              <Input
+                item={"lastName"}
+                value={
+                  id || location.pathname == "/profile"
+                    ? vehicleMaster[0]?.lastName
+                    : ""
+                }
+              />
+            </div>
+            <div className="w-full lg:w-[48%]">
+              <Input
+                item={"contact"}
+                type="number"
+                value={
+                  id || location.pathname == "/profile"
+                    ? Number(vehicleMaster[0]?.contact)
+                    : ""
+                }
+                disabled={location?.pathname == "/profile" ? true : false}
+              />
+            </div>
+            <div className="w-full lg:w-[48%]">
+              <Input
+                item={"email"}
+                type="email"
+                value={
+                  id || location.pathname == "/profile"
+                    ? vehicleMaster[0]?.email
+                    : ""
+                }
+              />
+            </div>
+          </>
           {!id && (
             <div className="w-full lg:w-[48%]">
               <Input item={"password"} type="password" />
             </div>
           )}
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"userType"}
-              options={userType}
-              value={id ? vehicleMaster[0]?.userType : ""}
+          {location.pathname != "/profile" && (
+            <>
+              <div className="w-full lg:w-[48%]">
+                <SelectDropDown
+                  item={"userType"}
+                  options={userType}
+                  value={id ? vehicleMaster[0]?.userType : ""}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <SelectDropDown
+                  item={"KycApproved"}
+                  options={["yes", "no"]}
+                  value={id ? vehicleMaster[0]?.kycApproved : "no"}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <SelectDropDown
+                  item={"isContactVerified"}
+                  options={["yes", "no"]}
+                  value={id ? vehicleMaster[0]?.isContactVerified : "no"}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <SelectDropDown
+                  item={"isEmailVerified"}
+                  options={["yes", "no"]}
+                  value={id ? vehicleMaster[0]?.isEmailVerified : "no"}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <SelectDropDown
+                  item={"status"}
+                  options={["active", "inactive"]}
+                  value={id ? vehicleMaster[0]?.status : "active"}
+                />
+              </div>
+            </>
+          )}
+        </div>
+        <button
+          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? (
+            <Spinner
+              message={
+                location.pathname == "/profile" ? "updating" : "uploading"
+              }
             />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"KycApproved"}
-              options={["yes", "no"]}
-              value={id ? vehicleMaster[0]?.kycApproved : "no"}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"isContactVerified"}
-              options={["yes", "no"]}
-              value={id ? vehicleMaster[0]?.isContactVerified : "no"}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"isEmailVerified"}
-              options={["yes", "no"]}
-              value={id ? vehicleMaster[0]?.isEmailVerified : "no"}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"status"}
-              options={["active", "inactive"]}
-              value={id ? vehicleMaster[0]?.status : "active"}
-            />
-          </div>
-        </>
-      </div>
-      <button
-        className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
-        type="submit"
-        disabled={loading}
-      >
-        {loading ? <Spinner message={"uploading"} /> : "Publish"}
-      </button>
-    </form>
+          ) : location.pathname == "/profile" ? (
+            "Update"
+          ) : (
+            "Publish"
+          )}
+        </button>
+      </form>
+    )
   );
 };
 

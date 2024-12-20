@@ -150,20 +150,49 @@ const modifyUrl = (url) => {
   return url.endsWith("/") ? url : url + "/";
 };
 
+// const formatFullDateAndTime = (dateString) => {
+//   const date = new Date(dateString);
+
+//   // Format the date to a readable format without time zone abbreviation
+//   const formattedDate = date.toLocaleString("en-US", {
+//     year: "numeric", // "2024"
+//     month: "long", // "November"
+//     day: "2-digit", // "29"
+//     hour: "2-digit", // "10"
+//     minute: "2-digit", // "00"
+//     second: "2-digit", // "00"
+//   });
+
+//   return formattedDate;
+// };
+
 const formatFullDateAndTime = (dateString) => {
   const date = new Date(dateString);
 
-  // Format the date to a readable format without time zone abbreviation
-  const formattedDate = date.toLocaleString("en-US", {
-    year: "numeric", // "2024"
-    month: "long", // "November"
-    day: "2-digit", // "29"
-    hour: "2-digit", // "10"
-    minute: "2-digit", // "00"
-    second: "2-digit", // "00"
+  // Format the date using Intl.DateTimeFormat for custom formatting in UTC
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true, // Optional: to use 12-hour format
+    timeZone: "UTC", // Ensure UTC time zone
   });
 
-  return formattedDate;
+  return formatter.format(date);
+};
+
+const formatPrice = (price) => {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(price);
+};
+
+const camelCaseToSpaceSeparated = (str) => {
+  return str.replace(/([a-z])([A-Z])/g, "$1 $2");
 };
 
 export {
@@ -181,4 +210,6 @@ export {
   removeAfterSecondSlash,
   modifyUrl,
   formatFullDateAndTime,
+  formatPrice,
+  camelCaseToSpaceSeparated,
 };

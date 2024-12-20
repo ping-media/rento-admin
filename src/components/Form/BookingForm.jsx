@@ -26,6 +26,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       });
     }
   };
+  console.log(collectedData);
   useEffect(() => {
     fetchCollectedData("vehicleTableId");
   }, []);
@@ -109,38 +110,37 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"paymentMethod"}
-              options={["cash", "online"]}
-              value={id ? vehicleMaster[0]?.paymentMethod : ""}
+              options={["cash", "online", "partiallyPay"]}
+              value={id ? vehicleMaster[0]?.paymentMethod : "cash"}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"bookingStatus"}
+              options={["pending", "confirmed"]}
+              value={id ? vehicleMaster[0]?.bookingStatus : "confirmed"}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"paymentStatus"}
+              options={["pending", "confirmed"]}
+              value={id ? vehicleMaster[0]?.paymentStatus : "pending"}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"rideStatus"}
+              options={["pending", "confirmed"]}
+              value={id ? vehicleMaster[0]?.rideStatus : "pending"}
             />
           </div>
           {id && (
             <>
               <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"bookingStatus"}
-                  options={["pending", "confirmed"]}
-                  value={id ? vehicleMaster[0]?.bookingStatus : ""}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"paymentStatus"}
-                  options={["pending", "confirmed"]}
-                  value={id ? vehicleMaster[0]?.paymentStatus : ""}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"rideStatus"}
-                  options={["pending", "confirmed"]}
-                  value={id ? vehicleMaster[0]?.rideStatus : ""}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
                 <Input
                   item={"payInitFrom"}
-                  type="number"
-                  value={id ? vehicleMaster[0]?.payInitFrom : "Razor pay"}
+                  value={id ? vehicleMaster[0]?.payInitFrom : "cash"}
                 />
               </div>
               <div className="w-full lg:w-[48%]">

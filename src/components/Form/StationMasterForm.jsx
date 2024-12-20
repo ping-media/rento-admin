@@ -83,6 +83,20 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               value={id && Number(vehicleMaster[0]?.pinCode)}
             />
           </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"latitude"}
+              type="number"
+              value={id ? Number(vehicleMaster[0]?.latitude) : 12.971599}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"longitude"}
+              type="number"
+              value={id ? Number(vehicleMaster[0]?.longitude) : 77.594566}
+            />
+          </div>
         </>
 
         <button

@@ -58,8 +58,18 @@ const SelectDropDown = ({
               const isLocationName = items?.hasOwnProperty("locationName");
               const isStationName = items?.hasOwnProperty("stationName");
               const isVehicleName = items?.hasOwnProperty("vehicleName");
-
-              if (isId && isFirstName) {
+              const isVehicleNumber = item?.hasOwnProperty("vehicleNumber");
+              if (isId && isVehicleNumber) {
+                return (
+                  <option
+                    value={items?._id}
+                    key={items?._id}
+                    className="capitalize"
+                  >
+                    {items?.vehicleNumber} | {items?.vehicleName}
+                  </option>
+                );
+              } else if (isId && isFirstName) {
                 return (
                   <option
                     value={items?._id}

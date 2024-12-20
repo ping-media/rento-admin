@@ -146,6 +146,41 @@ const handleCreateAndUpdateVehicle = async (
   return setFormLoading(false);
 };
 
+const handleUpdateAdminProfile = async (
+  event,
+  dispatch,
+  setFormLoading,
+  id,
+  token,
+  navigate
+) => {
+  event.preventDefault();
+  setFormLoading(true);
+  const response = new FormData(event.target);
+  let result = Object.fromEntries(response.entries());
+  // console.log(result);
+  // if there is id that means it we are updating the data and if there is not id than creating new data
+  if (id) {
+    result = Object.assign(result, { _id: id });
+  }
+
+  const endpoint = `/signup?_id=${id}`;
+  console.log(endpoint, result);
+  try {
+    const response = await postData(endpoint, result, token);
+    console.log(response);
+    if (response?.status != 200) {
+      handleAsyncError(dispatch, response?.message);
+    } else {
+      handleAsyncError(dispatch, response?.message, "success");
+      navigate(removeAfterSecondSlash(location?.pathname));
+    }
+  } catch (error) {
+    handleAsyncError(dispatch, error?.message);
+  }
+  return setFormLoading(false);
+};
+
 const fetchStationBasedOnLocation = async (
   vehicleMaster,
   isLocationSelected,
@@ -187,4 +222,5 @@ export {
   handleCreateAndUpdateVehicle,
   fetchStationBasedOnLocation,
   tenYearBeforeCurrentYear,
+  handleUpdateAdminProfile,
 };

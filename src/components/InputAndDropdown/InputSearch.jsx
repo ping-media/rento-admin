@@ -13,17 +13,16 @@ const InputSearch = ({
   const [inputValue, setInputValue] = useState(value);
 
   const fetchData = async (id) => {
-    const userResponse = await getData(`/getAllUsers?_id=${id}`, token);
+    const userResponse = await getData(`/getAllUsers?contact=${id}`, token);
     if (userResponse) {
       console.log(userResponse);
     }
   };
 
-  const handleSelectUser = (e) => {
+  const handleSelectUser = async (e) => {
     setInputValue(e.target.value);
     if (e.target.value.length == 10) {
-      //   fetchData(e.target.value.toString());
-      fetchData(e.target.value);
+      const userData = await fetchData(e.target.value);
       console.log("validNumber");
     }
   };
