@@ -7,8 +7,16 @@ const Input = ({
   type = "text",
   disabled = false,
   require = false,
+  setValueChange,
 }) => {
   const [inputValue, setInputValue] = useState(value);
+
+  // changing the value
+  const handleChangeValue = (e) => {
+    setInputValue(e.target.value);
+    setValueChange && setValueChange(e.target.value);
+  };
+
   return (
     <div className="w-full">
       <label
@@ -32,7 +40,7 @@ const Input = ({
           value={
             item == "vehicleNumber" ? inputValue.toUpperCase() : inputValue
           }
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e) => handleChangeValue(e)}
           name={item}
           placeholder={`${item}`}
           disabled={disabled}

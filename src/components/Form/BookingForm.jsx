@@ -3,33 +3,46 @@ import Input from "../InputAndDropdown/Input";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import Spinner from "../Spinner/Spinner";
 import { useParams } from "react-router-dom";
-import { endPointBasedOnKey, userType } from "../../Data/commonData";
 import { useEffect, useState } from "react";
-import { getData } from "../../Data";
 import InputSearch from "../InputAndDropdown/InputSearch";
+import InputVehicleSearch from "../InputAndDropdown/inputVehicleSearch";
+import InputDateAndTime from "../InputAndDropdown/InputDateAndTime";
+import { calculateTax } from "../../utils";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [collectedData, setCollectedData] = useState(null);
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
+  const [bookingPrice, setBookingPrice] = useState(0);
+  const [extraAddonPrice, setExtraAddonPrice] = useState(0);
+  const [inputTax, setInputTax] = useState(0);
+  const [inputTotal, setInputTotal] = useState(0);
 
-  const fetchCollectedData = async (vehicleTbUrl) => {
-    const vehicleTblResponse = await getData(
-      endPointBasedOnKey[vehicleTbUrl],
-      token
-    );
-
-    if (vehicleTblResponse) {
-      return setCollectedData({
-        vehicleTableId: vehicleTblResponse?.data,
-      });
-    }
-  };
-  console.log(collectedData);
   useEffect(() => {
-    fetchCollectedData("vehicleTableId");
-  }, []);
+    // Create a debounced effect using setTimeout
+    const debounceTimeout = setTimeout(() => {
+      if (bookingPrice !== 0 || extraAddonPrice !== 0) {
+        const bookingTax = calculateTax(Number(bookingPrice), 18);
+        const extraTax =
+          extraAddonPrice !== 0 ? calculateTax(Number(extraAddonPrice), 18) : 0;
+
+        if (bookingTax) {
+          const totalPrice =
+            Number(bookingPrice) + Number(extraTax) + Number(bookingTax);
+          setInputTax(bookingTax);
+          setInputTotal(totalPrice);
+          // console.log(bookingTax, totalPrice);
+        }
+      } else {
+        setInputTax(0);
+        setInputTotal(0);
+      }
+    }, 300); // Debounce delay (in milliseconds)
+
+    // Cleanup the timeout when component unmounts or when inputs change
+    return () => clearTimeout(debounceTimeout);
+  }, [bookingPrice, extraAddonPrice, inputTax, inputTotal]);
 
   return (
     <form onSubmit={handleFormSubmit}>
@@ -40,37 +53,31 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             <InputSearch
               item={"User"}
               name={"userId"}
-              type="number"
               token={token}
               value={id ? vehicleMaster[0]?.userId : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"vehicleTableId"}
-              options={collectedData?.vehicleTableId}
+            <InputVehicleSearch
+              item={"Vehicle"}
+              name={"vehicleTableId"}
+              token={token}
               value={id ? vehicleMaster[0]?.vehicleTableId : ""}
+              suggestedData={collectedData}
+              setSuggestionData={setCollectedData}
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input
+            <InputDateAndTime
               item={"BookingStartDateAndTime"}
               value={id ? vehicleMaster[0]?.BookingStartDateAndTime : ""}
               require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input
+            <InputDateAndTime
               item={"BookingEndDateAndTime"}
               value={id ? vehicleMaster[0]?.BookingEndDateAndTime : ""}
-              require={true}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"totalPrice"}
-              type="number"
-              value={id && Number(vehicleMaster[0]?.bookingPrice?.totalPrice)}
               require={true}
             />
           </div>
@@ -80,14 +87,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               type="number"
               value={id && Number(vehicleMaster[0]?.bookingPrice?.bookingPrice)}
               require={true}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"tax"}
-              type="number"
-              value={id && Number(vehicleMaster[0]?.bookingPrice?.tax)}
-              require={true}
+              setValueChange={setBookingPrice}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -97,16 +97,39 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               value={
                 id && Number(vehicleMaster[0]?.bookingPrice?.extraAddonPrice)
               }
+              setBookingPrice={setExtraAddonPrice}
             />
           </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"vehiclePrice"}
-              type="number"
-              value={id && Number(vehicleMaster[0]?.bookingPrice?.vehiclePrice)}
-              require={true}
-            />
-          </div>
+          {inputTax && inputTotal && (
+            <>
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  item={"tax"}
+                  type="number"
+                  value={
+                    id
+                      ? Number(vehicleMaster[0]?.bookingPrice?.tax)
+                      : Number(inputTax)
+                  }
+                  require={true}
+                  disabled={true}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  item={"totalPrice"}
+                  type="number"
+                  value={
+                    id
+                      ? Number(vehicleMaster[0]?.bookingPrice?.totalPrice)
+                      : Number(inputTotal)
+                  }
+                  require={true}
+                  disabled={true}
+                />
+              </div>
+            </>
+          )}
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"paymentMethod"}
@@ -117,8 +140,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"bookingStatus"}
-              options={["pending", "confirmed"]}
-              value={id ? vehicleMaster[0]?.bookingStatus : "confirmed"}
+              options={["pending", "done"]}
+              value={id ? vehicleMaster[0]?.bookingStatus : "done"}
             />
           </div>
           <div className="w-full lg:w-[48%]">

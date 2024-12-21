@@ -64,6 +64,20 @@ const postData = async (url, data, token) => {
   }
 };
 
+const getGeoData = async (zipCode) => {
+  try {
+    let response = await axios.get(
+      `https://api.opencagedata.com/geocode/v1/json?q=${zipCode}&key=${
+        import.meta.env.VITE_GEO_KEY
+      }`
+    );
+    // console.log(response);
+    return response?.data;
+  } catch (error) {
+    return `Error :${error?.message}`;
+  }
+};
+
 const deleteData = async (url) => {
   try {
     const response = await axios.delete(
@@ -94,4 +108,4 @@ const handleAdminLogin = async (url, data) => {
   }
 };
 
-export { getData, postData, handleAdminLogin, deleteData };
+export { getData, postData, handleAdminLogin, deleteData, getGeoData };

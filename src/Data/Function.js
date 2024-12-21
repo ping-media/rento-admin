@@ -214,6 +214,14 @@ const tenYearBeforeCurrentYear = () => {
   return modals;
 };
 
+const fetchUserDataBasedOnQuery = async (endpoint, token) => {
+  const userResponse = await getData(endpoint, token);
+  if (userResponse) {
+    // console.log(userResponse);
+    return userResponse?.data;
+  }
+};
+
 export {
   handleOtpLogin,
   fetchDashboardData,
@@ -223,4 +231,5 @@ export {
   fetchStationBasedOnLocation,
   tenYearBeforeCurrentYear,
   handleUpdateAdminProfile,
+  fetchUserDataBasedOnQuery,
 };

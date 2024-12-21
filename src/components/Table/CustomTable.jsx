@@ -277,7 +277,8 @@ const CustomTable = ({ Data }) => {
                                       item[column] == "active" ||
                                       item[column] == "available" ||
                                       item[column] == "done" ||
-                                      item[column] == "paid"
+                                      item[column] == "paid" ||
+                                      item[column] == "partiallyPay"
                                         ? "bg-emerald-50"
                                         : "bg-red-50"
                                     } rounded-full flex justify-center w-20 items-center gap-1`}
@@ -297,7 +298,8 @@ const CustomTable = ({ Data }) => {
                                           item[column] == "active" ||
                                           item[column] == "available" ||
                                           item[column] == "done" ||
-                                          item[column] == "paid"
+                                          item[column] == "paid" ||
+                                          item[column] == "partiallyPay"
                                             ? "#059669"
                                             : "#E23844"
                                         }`}
@@ -308,7 +310,8 @@ const CustomTable = ({ Data }) => {
                                         item[column] == "active" ||
                                         item[column] == "available" ||
                                         item[column] == "done" ||
-                                        item[column] == "paid"
+                                        item[column] == "paid" ||
+                                        item[column] == "partiallyPay"
                                           ? "text-emerald-600"
                                           : "text-red-600"
                                       }`}
@@ -369,7 +372,8 @@ const CustomTable = ({ Data }) => {
                           )}
                           <td className="flex p-5 items-center gap-0.5">
                             {(location.pathname == "/all-vehicles" ||
-                              location.pathname == "/all-bookings") && (
+                              location.pathname == "/all-bookings" ||
+                              location.pathname == "/all-invoices") && (
                               <Link
                                 className="p-2 text-purple-500 hover:underline"
                                 to={`details/${item?._id}`}
@@ -377,9 +381,12 @@ const CustomTable = ({ Data }) => {
                                 view
                               </Link>
                             )}
-                            {(location.pathname != "/users-documents" ||
-                              location.pathname != "/all-bookings" ||
-                              location.pathname != "/payments") && (
+                            {!(
+                              location.pathname == "/users-documents" ||
+                              location.pathname == "/all-bookings" ||
+                              location.pathname == "/payments" ||
+                              location.pathname == "/all-invoices"
+                            ) && (
                               <Link
                                 className="p-2  rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
                                 to={`${item?._id}`}
@@ -400,8 +407,11 @@ const CustomTable = ({ Data }) => {
                                 </svg>
                               </Link>
                             )}
-                            {(location.pathname != "/all-bookings" ||
-                              location.pathname != "/payments") && (
+                            {!(
+                              location.pathname == "/all-bookings" ||
+                              location.pathname == "/payments" ||
+                              location.pathname == "/all-invoices"
+                            ) && (
                               <button
                                 className="p-2 rounded-full bg-white group transition-all duration-500 hover:bg-red-600 flex item-center"
                                 onClick={() => handleDeleteVehicle(item?._id)}

@@ -40,6 +40,7 @@ const endPointBasedOnURL = {
   "all-coupons": "/getCoupons",
   "all-coupons/": "/createCoupon",
   payments: "/paymentRec",
+  "all-invoices": "/getAllInvoice",
 };
 
 //tofetchData for based on key

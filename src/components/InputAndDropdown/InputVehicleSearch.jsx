@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
 import { fetchUserDataBasedOnQuery } from "../../Data/Function";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  addTempVehicleData,
-  removeTempVehicleData,
-} from "../../Redux/VehicleSlice/VehicleSlice";
 import { getData } from "../../Data";
 import PreLoader from "../Skeleton/PreLoader";
 
-const InputSearch = ({
+const InputVehicleSearch = ({
   item,
   value = "",
   type = "text",
@@ -16,13 +11,13 @@ const InputSearch = ({
   require = false,
   name,
   token,
+  suggestedData,
+  setSuggestionData,
 }) => {
-  const [userId, setUserId] = useState(value);
+  const [vehicleId, setvehicleId] = useState(value);
   const [inputValue, setInputValue] = useState("");
   const [timeoutId, setTimeoutId] = useState(null);
   const [userLoading, setUserLoading] = useState(false);
-  const { tempVehicleData } = useSelector((state) => state.vehicles);
-  const dispatch = useDispatch();
 
   // search user data based on query entered
   const handleSelectUser = async (e) => {
@@ -30,7 +25,8 @@ const InputSearch = ({
     setInputValue(value);
     // remove data if there is not search query
     if (value?.length == 0) {
-      dispatch(removeTempVehicleData());
+      //   dispatch(removeTempVehicleData());
+      setSuggestionData(null);
     }
     // Clear the previous timeout to prevent immediate API calls
     if (timeoutId) {
@@ -40,10 +36,10 @@ const InputSearch = ({
     const newTimeoutId = setTimeout(async () => {
       if (value) {
         const data = await fetchUserDataBasedOnQuery(
-          `/getAllUsers?search=${value}`,
+          `/getAllVehiclesData?search=${value}`,
           token
         );
-        dispatch(addTempVehicleData(data));
+        setSuggestionData(data);
       }
     }, 300);
     // Store the timeout ID to clear it if the user types again before 500ms
@@ -52,9 +48,9 @@ const InputSearch = ({
 
   // setting user data to input
   const handleSelectUserById = (item) => {
-    setUserId(item?._id);
-    setInputValue(`${item?.firstName} | ${item?.contact} | ${item?.userType}`);
-    dispatch(removeTempVehicleData());
+    setvehicleId(item?._id);
+    setInputValue(`${item?.vehicleName} | ${item?.vehicleNumber}`);
+    setSuggestionData(null);
   };
 
   // when editing the user
@@ -62,12 +58,13 @@ const InputSearch = ({
     if (value != "") {
       (async () => {
         setUserLoading(true);
-        const response = await getData(`/getAllUsers?_id=${value}`, token);
+        const response = await getData(
+          `/getAllVehiclesData?_id=${value}`,
+          token
+        );
         if (response.status == 200) {
           const data = response?.data;
-          setInputValue(
-            `${data[0]?.firstName} | ${data[0]?.contact} | ${data[0]?.userType}`
-          );
+          setInputValue(`${data[0]?.vehicleName} | ${data[0]?.vehicleNumber}`);
         }
         setUserLoading(false);
       })();
@@ -83,7 +80,7 @@ const InputSearch = ({
         Enter {item} {require && <span className="text-red-500">*</span>}
       </label>
       <div className="mt-2">
-        <input type="hidden" name={name} value={userId} />
+        <input type="hidden" name={name} value={vehicleId} />
         <input
           type={type}
           id={name}
@@ -103,17 +100,16 @@ const InputSearch = ({
           required={require}
         />
       </div>
-      {tempVehicleData != null && (
+      {suggestedData != null && (
         <div className="absolute top-20 w-full rounded-md px-3 py-2 bg-white border-2 z-30">
           <ul>
-            {tempVehicleData?.map((item) => (
+            {suggestedData?.map((item) => (
               <li
                 key={item?._id}
                 className="my-2 cursor-pointer"
                 onClick={() => handleSelectUserById(item)}
               >
-                {item?.firstName} {item?.lastName} | {item?.contact} |{" "}
-                {item?.userType}
+                {item?.vehicleName} | {item?.vehicleNumber}
               </li>
             ))}
           </ul>
@@ -125,4 +121,4 @@ const InputSearch = ({
   );
 };
 
-export default InputSearch;
+export default InputVehicleSearch;

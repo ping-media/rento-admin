@@ -3,19 +3,22 @@ import { useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
-import { getData } from "../../Data";
+import { getData, getGeoData } from "../../Data";
 import { endPointBasedOnKey, States } from "../../Data/commonData";
 import PreLoader from "../Skeleton/PreLoader";
 import { useParams } from "react-router-dom";
+import InputSearch from "../InputAndDropdown/InputSearch";
 
 const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [collectedData, setCollectedData] = useState(null);
+  const [zipCodeValue, setZipcodeValue] = useState(null);
+  const [zipCodeData, setZipCodeData] = useState(null);
+  const [zipLoading, setZipLoading] = useState(false);
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
 
-  const fetchCollectedData = async (userUrl, locationUrl, stationUrl) => {
-    const userResponse = await getData(endPointBasedOnKey[userUrl], token);
+  const fetchCollectedData = async (locationUrl, stationUrl) => {
     const locationResponse = await getData(
       endPointBasedOnKey[locationUrl],
       token
@@ -25,17 +28,32 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
       token
     );
 
-    if (userResponse && locationResponse && stationResponse) {
+    if (locationResponse && stationResponse) {
       return setCollectedData({
-        userId: userResponse?.data,
         locationId: locationResponse?.data,
         stationId: stationResponse?.data,
       });
     }
   };
+
   useEffect(() => {
-    fetchCollectedData("userId", "locationId", "stationId");
+    fetchCollectedData("locationId", "stationId");
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (zipCodeValue?.length == 6) {
+        setZipLoading(true);
+        const response = await getGeoData(zipCodeValue);
+        if (response) {
+          setZipCodeData(response?.results[0]?.geometry);
+        }
+        setZipLoading(false);
+      } else if (zipCodeValue?.length == 0) {
+        setZipCodeData(null);
+      }
+    })();
+  }, [zipCodeValue]);
 
   return collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
@@ -44,10 +62,11 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
 
         <>
           <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"userId"}
-              options={collectedData?.userId}
-              value={id && vehicleMaster[0]?.userId}
+            <InputSearch
+              item={"User"}
+              name={"userId"}
+              token={token}
+              value={id ? vehicleMaster[0]?.userId : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -81,22 +100,37 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"pinCode"}
               type="number"
               value={id && Number(vehicleMaster[0]?.pinCode)}
+              setValueChange={setZipcodeValue}
             />
           </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"latitude"}
-              type="number"
-              value={id ? Number(vehicleMaster[0]?.latitude) : 12.971599}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"longitude"}
-              type="number"
-              value={id ? Number(vehicleMaster[0]?.longitude) : 77.594566}
-            />
-          </div>
+          {zipLoading == false ? (
+            (zipCodeData != null || vehicleMaster?.length == 1) && (
+              <>
+                <div className="w-full lg:w-[48%]">
+                  <Input
+                    item={"latitude"}
+                    type="number"
+                    value={
+                      id ? Number(vehicleMaster[0]?.latitude) : zipCodeData?.lat
+                    }
+                  />
+                </div>
+                <div className="w-full lg:w-[48%]">
+                  <Input
+                    item={"longitude"}
+                    type="number"
+                    value={
+                      id
+                        ? Number(vehicleMaster[0]?.longitude)
+                        : zipCodeData?.lng
+                    }
+                  />
+                </div>
+              </>
+            )
+          ) : (
+            <PreLoader />
+          )}
         </>
 
         <button

@@ -28,6 +28,11 @@ const Profile = lazy(() =>
     default: module.Profile,
   }))
 );
+const InvoiceDetails = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.InvoiceDetails,
+  }))
+);
 // for default exports
 const Layout = lazy(() => import("./components/layout/Layout"));
 const Login = lazy(() => import("./components/Auth/Login"));
@@ -151,6 +156,14 @@ const App = () => {
 
             {/* payment route  */}
             <Route path="payments" exact element={<VehicleMaster />} />
+
+            {/* invoice route  */}
+            <Route path="all-invoices" exact element={<VehicleMaster />} />
+            <Route
+              path="all-invoices/details/:id"
+              exact
+              element={<InvoiceDetails />}
+            />
 
             {/* if there is any error or if goes to url which is not a route in that
             case this error page will be shown. */}

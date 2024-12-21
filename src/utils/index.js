@@ -195,6 +195,46 @@ const camelCaseToSpaceSeparated = (str) => {
   return str.replace(/([a-z])([A-Z])/g, "$1 $2");
 };
 
+const convertDateFormat = (dateStr) => {
+  // Check if the input date is in the format "yyyy-MM-ddTHH:mm"
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(dateStr)) {
+    // Convert "2024-12-20T17:00" to "2025-01-22T14:00:00Z"
+    const date = new Date(dateStr); // Parse to Date object
+    const utcString = date.toISOString(); // Convert to UTC ISO string
+
+    // Return the UTC formatted string
+    return utcString.slice(0, 19) + "Z"; // Remove milliseconds and add Z for UTC
+  }
+  // Check if the input date is in the format "yyyy-MM-ddTHH:mm:ssZ"
+  else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(dateStr)) {
+    // Convert "2025-01-22T14:00:00Z" to "2024-12-20T17:00"
+    const date = new Date(dateStr); // Parse to Date object
+    const localString = date.toLocaleString("en-GB", {
+      timeZone: "UTC",
+      hour12: false,
+    });
+
+    // Format and return as "yyyy-MM-ddTHH:mm"
+    const [day, month, year, hour, minute] = localString.split(/[\s,\/:]/);
+    return `${year}-${month}-${day}T${hour}:${minute}`;
+  } else {
+    throw new Error("Invalid date format");
+  }
+};
+
+const calculateTax = (amount, taxPercentage) => {
+  // Ensure the inputs are valid numbers
+  if (isNaN(amount) || isNaN(taxPercentage)) {
+    return "Invalid input";
+  }
+
+  // Calculate the tax based on the given percentage
+  const taxAmount = (taxPercentage / 100) * amount;
+
+  // Round the result to 2 decimal places and return it
+  return parseInt(taxAmount); // This will return a string, but it ensures two decimal places
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -212,4 +252,6 @@ export {
   formatFullDateAndTime,
   formatPrice,
   camelCaseToSpaceSeparated,
+  convertDateFormat,
+  calculateTax,
 };
