@@ -63,7 +63,10 @@ const VehicleMaster = () => {
           </div>
         )}
       </div>
-      <CustomTable Data={vehicleMaster} />
+      <CustomTable
+        Data={vehicleMaster}
+        // pagination={vehicleMaster?.pagination}
+      />
     </>
   ) : (
     <PreLoader />

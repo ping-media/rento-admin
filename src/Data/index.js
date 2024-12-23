@@ -16,7 +16,9 @@ const getData = async (url, token) => {
   });
 
   if (response.status == 200) {
+    // console.log(response);
     return response?.data;
+    // return response;
   } else {
     return response?.message;
   }

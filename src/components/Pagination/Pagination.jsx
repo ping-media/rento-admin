@@ -109,7 +109,7 @@ const Pagination = ({ totalNumberOfPages, currentPage, setPageChanger }) => {
                 aria-label="Next"
                 rel="next"
                 onClick={handleNextPageChange}
-                disabled={currentPage == totalNumberOfPages ? true : false}
+                disabled={currentPage === totalNumberOfPages ? true : false}
                 title="next"
               >
                 <svg

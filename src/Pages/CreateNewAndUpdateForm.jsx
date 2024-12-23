@@ -12,6 +12,7 @@ import {
 } from "../Data/Function.js";
 import PreLoader from "../components/Skeleton/PreLoader.jsx";
 import { endPointBasedOnURL, forms } from "../Data/commonData.js";
+import { removeTempIds } from "../Redux/VehicleSlice/VehicleSlice.js";
 
 const CreateNewAndUpdateForm = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const CreateNewAndUpdateForm = () => {
   const [formLoading, setFormLoading] = useState(false);
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
-  const { loading } = useSelector((state) => state.vehicles);
+  const { loading, tempIds } = useSelector((state) => state.vehicles);
 
   // fetch data based on id taking from url
   useEffect(() => {
@@ -78,7 +79,9 @@ const CreateNewAndUpdateForm = () => {
                 setFormLoading,
                 id,
                 token,
-                navigate
+                navigate,
+                tempIds,
+                removeTempIds
               )
             }
             loading={formLoading}

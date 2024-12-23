@@ -4,15 +4,20 @@ import {
   formatDate,
   formatFullDateAndTime,
   formatPrice,
+  formatTimeStampToDate,
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice.js";
 import { addVehicleIdToDelete } from "../../Redux/VehicleSlice/VehicleSlice.js";
+import { handleGenerateInvoice } from "../../Data/Function.js";
+import Spinner from "../Spinner/Spinner.jsx";
 
-const CustomTable = ({ Data }) => {
+const CustomTable = ({ Data, pagination }) => {
+  const { token } = useSelector((state) => state.user);
+  const [loadingStates, setLoadingStates] = useState({});
   const [limitedData, setLimitedData] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [updatedData, setUpdatedData] = useState([]);
@@ -28,14 +33,18 @@ const CustomTable = ({ Data }) => {
   const loadFiltersAndData = () => {
     if (newUpdatedData) {
       const pageCount = Math.ceil(newUpdatedData?.length / limitedData);
+      // const pageCount = pagination?.totalPages;
       setTotalPages(pageCount);
       const start = (currentPage - 1) * limitedData;
+      // const start = (pagination?.currentPage - 1) * limitedData;
       const end = start + limitedData;
       // if there is data in sortedData
       if (sortedData) return setNewUpdatedData(sortedData?.slice(start, end));
       setUpdatedData(Data?.slice(start, end));
     }
   };
+
+  // console.log(Data);
 
   useEffect(() => {
     // console.log(location.pathname);
@@ -67,6 +76,7 @@ const CustomTable = ({ Data }) => {
         });
 
         setTotalPages(Math.ceil(newData.length / limitedData));
+        // setTotalPages(pagination?.totalPages);
         setNewUpdatedData(newData);
       } else {
         loadFiltersAndData();
@@ -111,6 +121,17 @@ const CustomTable = ({ Data }) => {
           "updatedAt",
           "__v",
           "locationId",
+          "freeKms",
+          "extraKmsCharges",
+          "vehicleModel",
+          "vehicleColor",
+          "refundableDeposit",
+          "lateFee",
+          "speedLimit",
+          "kmsRun",
+          "condition",
+          "vehicleImage",
+          "vehiclePlan",
           "userId",
         ].includes(key)
     );
@@ -139,13 +160,24 @@ const CustomTable = ({ Data }) => {
           updatedAt,
           locationId,
           stationMasterUserId,
+          freeKms,
+          extraKmsCharges,
+          vehicleModel,
+          vehicleColor,
+          refundableDeposit,
+          lateFee,
+          speedLimit,
+          kmsRun,
+          condition,
+          vehicleImage,
+          vehiclePlan,
           userId,
           __v,
           ...rest
         } = item; // Destructuring to remove unwanted fields
         return rest; // return the rest of the object (without the unwanted fields)
       });
-    // console.log(modifiedData);
+
     setNewUpdatedData(modifiedData);
     setSortedData(modifiedData);
   };
@@ -153,7 +185,6 @@ const CustomTable = ({ Data }) => {
   //filtering data selecting only field we need
   useEffect(() => {
     if (Data) {
-      // console.log(Data);
       getTableHeaderAndTableValue(Data);
     }
   }, []);
@@ -278,7 +309,8 @@ const CustomTable = ({ Data }) => {
                                       item[column] == "available" ||
                                       item[column] == "done" ||
                                       item[column] == "paid" ||
-                                      item[column] == "partiallyPay"
+                                      item[column] == "partiallyPay" ||
+                                      item[column] == "partially_paid"
                                         ? "bg-emerald-50"
                                         : "bg-red-50"
                                     } rounded-full flex justify-center w-20 items-center gap-1`}
@@ -299,7 +331,8 @@ const CustomTable = ({ Data }) => {
                                           item[column] == "available" ||
                                           item[column] == "done" ||
                                           item[column] == "paid" ||
-                                          item[column] == "partiallyPay"
+                                          item[column] == "partiallyPay" ||
+                                          item[column] == "partially_paid"
                                             ? "#059669"
                                             : "#E23844"
                                         }`}
@@ -311,7 +344,8 @@ const CustomTable = ({ Data }) => {
                                         item[column] == "available" ||
                                         item[column] == "done" ||
                                         item[column] == "paid" ||
-                                        item[column] == "partiallyPay"
+                                        item[column] == "partiallyPay" ||
+                                        item[column] == "partially_paid"
                                           ? "text-emerald-600"
                                           : "text-red-600"
                                       }`}
@@ -366,13 +400,17 @@ const CustomTable = ({ Data }) => {
                                     ? `${item[column]} Days`
                                     : column.includes("DateAndTime")
                                     ? formatFullDateAndTime(item[column])
+                                    : column?.includes("InitiatedDate")
+                                    ? item[column] != "NA"
+                                      ? formatTimeStampToDate(item[column])
+                                      : ""
                                     : item[column]}
                                 </td>
                               )
                           )}
                           <td className="flex p-5 items-center gap-0.5">
                             {(location.pathname == "/all-vehicles" ||
-                              location.pathname == "/all-bookings" ||
+                              // location.pathname == "/all-bookings" ||
                               location.pathname == "/all-invoices") && (
                               <Link
                                 className="p-2 text-purple-500 hover:underline"
@@ -380,6 +418,34 @@ const CustomTable = ({ Data }) => {
                               >
                                 view
                               </Link>
+                            )}
+                            {location.pathname == "/all-bookings" && (
+                              <button
+                                type="button"
+                                className="w-auto lg:w-32 bg-theme text-gray-100 py-1 px-2 bg-opacity-90 rounded-lg shadow-md hover:shadow-none disabled:bg-gray-400"
+                                onClick={() =>
+                                  handleGenerateInvoice(
+                                    dispatch,
+                                    item?._id,
+                                    token,
+                                    setLoadingStates
+                                  )
+                                }
+                                disabled={
+                                  item?.bookingPrice?.isInvoiceCreated ||
+                                  loadingStates[item._id]
+                                }
+                              >
+                                {!loadingStates[item._id] ? (
+                                  item?.bookingPrice?.isInvoiceCreated ? (
+                                    "Created"
+                                  ) : (
+                                    "create Invoice"
+                                  )
+                                ) : (
+                                  <Spinner message={"creating.."} />
+                                )}
+                              </button>
                             )}
                             {!(
                               location.pathname == "/users-documents" ||

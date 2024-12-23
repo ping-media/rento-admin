@@ -80,9 +80,9 @@ const menuList = [
     menuLink: "/all-invoices",
   },
   {
-    menuImg: <SettingsRoundedIcon />,
-    menuTitle: "Settings",
-    menuLink: "/settings",
+    menuImg: <PersonRoundedIcon />,
+    menuTitle: "Profile",
+    menuLink: "/profile",
   },
 ];
 

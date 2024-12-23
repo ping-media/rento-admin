@@ -56,7 +56,7 @@ const fetchDashboardData = async (dispatch, token) => {
       dispatch(handleDashboardData(response?.data));
     } else {
       dispatch(resetDashboardData());
-      handleAsyncError(dispatch, response?.message);
+      // handleAsyncError(dispatch, response?.message);
     }
   } catch (error) {
     dispatch(resetDashboardData());
@@ -69,10 +69,11 @@ const fetchVehicleMaster = async (dispatch, token, endpoint) => {
     dispatch(fetchVehicleStart());
     const response = await getData(endpoint, token);
     if (response?.status == 200) {
+      // console.log(response);
       dispatch(fetchVehicleMasterData(response?.data));
     } else {
       dispatch(fetchVehicleEnd());
-      handleAsyncError(dispatch, response?.message);
+      // handleAsyncError(dispatch, response?.message);
     }
   } catch (error) {
     dispatch(fetchVehicleEnd());
@@ -88,7 +89,7 @@ const fetchVehicleMasterById = async (dispatch, id, token, endpoint) => {
       dispatch(fetchVehicleMasterData(response?.data));
     } else {
       dispatch(fetchVehicleEnd());
-      handleAsyncError(dispatch, response?.message);
+      // handleAsyncError(dispatch, response?.message);
     }
   } catch (error) {
     dispatch(fetchVehicleEnd());
@@ -102,21 +103,28 @@ const handleCreateAndUpdateVehicle = async (
   setFormLoading,
   id,
   token,
-  navigate
+  navigate,
+  tempIds,
+  removeTempIds
 ) => {
   event.preventDefault();
   setFormLoading(true);
   const response = new FormData(event.target);
   let result = Object.fromEntries(response.entries());
-  console.log(result);
   // if there is id that means it we are updating the data and if there is not id than creating new data
   if (id) {
     result = Object.assign(result, { _id: id });
+  } else if (tempIds != []) {
+    result = Object.assign(result, { vehiclePlan: tempIds });
+    dispatch(removeTempIds());
   }
   // we want to pass pincode as stationId
   else if (result?.pinCode) {
     result = Object.assign(result, { stationId: result?.pinCode });
   }
+
+  // console.log(result);
+
   const endpoint = id
     ? `${
         endPointBasedOnURL[
@@ -222,6 +230,29 @@ const fetchUserDataBasedOnQuery = async (endpoint, token) => {
   }
 };
 
+const handleGenerateInvoice = async (dispatch, id, token, setLoadingStates) => {
+  // console.log(id);
+  if (!id)
+    return handleAsyncError(dispatch, "failed to create Invoice! try again.");
+  setLoadingStates((prevState) => ({
+    ...prevState,
+    [id]: true,
+  }));
+  try {
+    const response = await postData("/createInvoice", { _id: id }, token);
+    if (response?.status == 200) {
+      handleAsyncError(dispatch, response?.message, "success");
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setLoadingStates((prevState) => ({
+      ...prevState,
+      [id]: false,
+    }));
+  }
+};
+
 export {
   handleOtpLogin,
   fetchDashboardData,
@@ -232,4 +263,5 @@ export {
   tenYearBeforeCurrentYear,
   handleUpdateAdminProfile,
   fetchUserDataBasedOnQuery,
+  handleGenerateInvoice,
 };

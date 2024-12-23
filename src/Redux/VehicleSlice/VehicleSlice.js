@@ -7,6 +7,7 @@ const vehicleSlice = createSlice({
     Vehicle: {},
     deletevehicleId: "",
     tempVehicleData: null,
+    tempIds: [],
     loading: false,
     error: null,
   },
@@ -29,9 +30,18 @@ const vehicleSlice = createSlice({
       state.loading = false;
       state.tempVehicleData = action.payload;
     },
+    addTempIds: (state, action) => {
+      state.loading = false;
+      // state.tempIds = action.payload;
+      state.tempIds = [...state.tempIds, ...action.payload];
+    },
     removeTempVehicleData: (state) => {
       state.loading = false;
       state.tempVehicleData = null;
+    },
+    removeTempIds: (state) => {
+      state.loading = false;
+      state.tempIds = [];
     },
     fetchMoreVehicleSuccess: (state, action) => {
       state.loading = false;
@@ -71,5 +81,7 @@ export const {
   restDeletevehicleId,
   toggleClearVehicle,
   fetchVehicleEnd,
+  addTempIds,
+  removeTempIds,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

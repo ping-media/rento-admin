@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
@@ -11,6 +11,7 @@ import {
   fetchStationBasedOnLocation,
   tenYearBeforeCurrentYear,
 } from "../../Data/Function";
+import { addTempIds } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const VehicleForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -20,13 +21,11 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   const [isLocationSelected, setIsLocationSelected] = useState("");
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
+  const dispatch = useDispatch();
 
-  const fetchCollectedData = async (vehicleMasterUrl, locationUrl) => {
+  const fetchCollectedData = async (vehicleMasterUrl, locationUrl, planUrl) => {
     setFormLoading(true);
-    // const stationResponse = await getData(
-    //   endPointBasedOnKey[stationUrl],
-    //   token
-    // );
+    const planResponse = await getData(endPointBasedOnKey[planUrl], token);
     const vehicleMasterResponse = await getData(
       endPointBasedOnKey[vehicleMasterUrl],
       token
@@ -36,17 +35,18 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
       token
     );
 
-    if (vehicleMasterResponse && locationResponse) {
+    if (vehicleMasterResponse && locationResponse && planResponse) {
       setFormLoading(false);
       return setCollectedData({
         vehicleMasterId: vehicleMasterResponse?.data,
         locationId: locationResponse?.data,
+        AllPlanDataId: planResponse?.data,
       });
     }
   };
   useEffect(() => {
-    fetchCollectedData("vehicleMasterId", "locationId");
-    // console.log(collectedData);
+    fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
+    console.log(collectedData);
   }, []);
 
   //updating station based on location id
@@ -61,11 +61,34 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
     }
   }, [isLocationSelected]);
 
+  const handlePushId = (ids) => {
+    dispatch(addTempIds([ids]));
+  };
+
   return !formLoading || collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
         <>
+          <h2 className="font-bold">Select Package</h2>
+          <div className="w-full flex items-center gap-2.5 pb-3 border-b-2">
+            {collectedData?.AllPlanDataId.map((plan) => (
+              <div key={plan?._id}>
+                <label
+                  className="inline-flex items-center"
+                  htmlFor="redCheckBox"
+                >
+                  <input
+                    id="redCheckBox"
+                    type="checkbox"
+                    className="w-4 h-4 accent-red-600"
+                    onClick={() => handlePushId(plan?._id)}
+                  />
+                  <span className="ml-2">{plan?.planName}</span>
+                </label>
+              </div>
+            ))}
+          </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"locationId"}

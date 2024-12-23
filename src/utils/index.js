@@ -235,6 +235,34 @@ const calculateTax = (amount, taxPercentage) => {
   return parseInt(taxAmount); // This will return a string, but it ensures two decimal places
 };
 
+const formatDateForInvoice = (dateString) => {
+  // Create a Date object from the string
+  const date = new Date(dateString);
+
+  // Extract day, month, and year
+  const day = String(date.getDate()).padStart(2, "0"); // Add leading zero if necessary
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed, so add 1
+  const year = date.getFullYear();
+
+  // Return the formatted date in "DD/MM/YYYY" format
+  return `${day}/${month}/${year}`;
+};
+
+const formatTimeStampToDate = (timestamp) => {
+  // Convert to milliseconds
+  const date = new Date(timestamp * 1000);
+
+  // Extract day, month, and year
+  const day = String(date.getDate()).padStart(2, "0"); // Adding leading zero
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  const year = String(date.getFullYear()).slice(-2); // Get the last two digits of the year
+
+  // Format the date
+  const formattedDate = `${day}/${month}/${year}`;
+
+  return formattedDate;
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -254,4 +282,6 @@ export {
   camelCaseToSpaceSeparated,
   convertDateFormat,
   calculateTax,
+  formatDateForInvoice,
+  formatTimeStampToDate,
 };
