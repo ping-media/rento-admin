@@ -1,8 +1,12 @@
 import CustomTable from "../components/Table/CustomTable";
+// import DataTableComponent from "../components/Table/DataTable";
 import { formatPathNameToTitle } from "../utils";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchVehicleMaster } from "../Data/Function";
+import {
+  fetchVehicleMaster,
+  fetchVehicleMasterWithPagination,
+} from "../Data/Function";
 import PreLoader from "../components/Skeleton/PreLoader";
 import { endPointBasedOnURL } from "../Data/commonData";
 import { Link } from "react-router-dom";
@@ -18,7 +22,7 @@ const VehicleMaster = () => {
     // console.log(endPointBasedOnURL[location.pathname.replace("/", "")]);
     // fetch data based on url
     if (deletevehicleId == "") {
-      fetchVehicleMaster(
+      fetchVehicleMasterWithPagination(
         dispatch,
         token,
         endPointBasedOnURL[location.pathname.replace("/", "")]
@@ -63,9 +67,10 @@ const VehicleMaster = () => {
           </div>
         )}
       </div>
+      {/* {console.log(vehicleMaster?.data)} */}
       <CustomTable
-        Data={vehicleMaster}
-        // pagination={vehicleMaster?.pagination}
+        Data={vehicleMaster?.data}
+        pagination={vehicleMaster?.pagination}
       />
     </>
   ) : (

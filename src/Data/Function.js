@@ -1,4 +1,4 @@
-import { getData, handleAdminLogin, postData } from ".";
+import { getData, getFullData, handleAdminLogin, postData } from ".";
 import {
   handleDashboardData,
   handleLoadingDashboardData,
@@ -51,13 +51,19 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
 const fetchDashboardData = async (dispatch, token) => {
   try {
     dispatch(handleLoadingDashboardData());
-    const response = await getData("/getAllDataCount", token);
-    if (response?.status == 200) {
-      dispatch(handleDashboardData(response?.data));
-    } else {
-      dispatch(resetDashboardData());
-      // handleAsyncError(dispatch, response?.message);
-    }
+    const [dashboardResponse, paymentResponse] = await Promise.all([
+      getData("/getAllDataCount", token),
+      getData("/paymentRec", token),
+      // getData("/getAllUsers", token),
+    ]);
+
+    dispatch(
+      handleDashboardData({
+        dashboard: dashboardResponse?.data,
+        payments: paymentResponse?.data,
+        // users: userResponse?.data,
+      })
+    );
   } catch (error) {
     dispatch(resetDashboardData());
     handleAsyncError(dispatch, error?.message);
@@ -68,6 +74,23 @@ const fetchVehicleMaster = async (dispatch, token, endpoint) => {
   try {
     dispatch(fetchVehicleStart());
     const response = await getData(endpoint, token);
+    if (response?.status == 200) {
+      // console.log(response);
+      dispatch(fetchVehicleMasterData(response?.data));
+    } else {
+      dispatch(fetchVehicleEnd());
+      // handleAsyncError(dispatch, response?.message);
+    }
+  } catch (error) {
+    dispatch(fetchVehicleEnd());
+    handleAsyncError(dispatch, error?.message);
+  }
+};
+
+const fetchVehicleMasterWithPagination = async (dispatch, token, endpoint) => {
+  try {
+    dispatch(fetchVehicleStart());
+    const response = await getFullData(endpoint, token);
     if (response?.status == 200) {
       // console.log(response);
       dispatch(fetchVehicleMasterData(response?.data));
@@ -264,4 +287,5 @@ export {
   handleUpdateAdminProfile,
   fetchUserDataBasedOnQuery,
   handleGenerateInvoice,
+  fetchVehicleMasterWithPagination,
 };

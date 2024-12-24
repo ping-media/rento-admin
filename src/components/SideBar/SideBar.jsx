@@ -60,7 +60,7 @@ const SideBar = () => {
             onLoad={() => setImageLoading(false)}
           />
         </div> */}
-        <h2 className="uppercase font-black text-4xl text-theme text-center">
+        <h2 className="uppercase font-black text-3xl lg:text-4xl text-theme text-center">
           Rento
         </h2>
       </div>
@@ -76,14 +76,14 @@ const SideBar = () => {
               return (
                 <Link to={`${item?.menuLink}`} key={index}>
                   <li
-                    className={`px-4 py-1.5 group capitalize ${
+                    className={`px-4 py-1 group capitalize text-md ${
                       location.pathname.includes(
                         item?.menuLink.toLowerCase()
                       ) ||
                       location.pathname.includes(item?.moreLink?.toLowerCase())
                         ? "bg-theme text-gray-100"
                         : ""
-                    } hover:bg-theme transition duration-300 ease-in-out rounded-lg flex items-center gap-2 mb-2 dark:text-gray-100`}
+                    } hover:bg-theme transition duration-300 ease-in-out rounded-md flex items-center gap-2 mb-2 dark:text-gray-100`}
                   >
                     <div
                       className={`w-7 h-7 group-hover:text-gray-100 text-lg ${

@@ -11,7 +11,7 @@ const SideBarDropDown = ({ item }) => {
           location.pathname == "/users-documents"
         }
       >
-        <summary className="flex cursor-pointer list-none items-center justify-between group-hover:bg-theme px-4 py-2 rounded-lg group-open:bg-theme w-full">
+        <summary className="flex cursor-pointer list-none items-center justify-between group-hover:bg-theme px-4 py-2 rounded-lg group-open:bg-theme w-full text-md">
           <div className="flex items-center gap-1">
             <div
               className={`w-7 h-7 group-hover:text-gray-100 text-lg ${
@@ -58,7 +58,7 @@ const SideBarDropDown = ({ item }) => {
           {item?.nestedLink?.map((item, index) => (
             <Link to={`${item?.menuLink}`} key={index}>
               <li
-                className={`px-4 py-2 group capitalize ${
+                className={`px-4 py-2 group capitalize text-md ${
                   location.pathname.includes(item?.menuLink.toLowerCase()) ||
                   location.pathname.includes(item?.moreLink?.toLowerCase())
                     ? "bg-theme text-gray-100"

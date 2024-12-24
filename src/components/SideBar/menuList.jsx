@@ -1,44 +1,44 @@
-import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
-import DirectionsCarRoundedIcon from "@mui/icons-material/DirectionsCarRounded";
-import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
-import PaymentRoundedIcon from "@mui/icons-material/PaymentRounded";
-import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import DirectionsCarFilledOutlinedIcon from "@mui/icons-material/DirectionsCarFilledOutlined";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
+import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import AdjustRoundedIcon from "@mui/icons-material/AdjustRounded";
-import EmojiTransportationRoundedIcon from "@mui/icons-material/EmojiTransportationRounded";
-import BookOnlineRoundedIcon from "@mui/icons-material/BookOnlineRounded";
-import DescriptionRoundedIcon from "@mui/icons-material/DescriptionRounded";
-import LoyaltyRoundedIcon from "@mui/icons-material/LoyaltyRounded";
-import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
+import EmojiTransportationOutlinedIcon from "@mui/icons-material/EmojiTransportationOutlined";
+import BookOnlineOutlinedIcon from "@mui/icons-material/BookOnlineOutlined";
+import RequestPageOutlinedIcon from "@mui/icons-material/RequestPageOutlined";
+import LoyaltyOutlinedIcon from "@mui/icons-material/LoyaltyOutlined";
+import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 
 const menuList = [
   {
-    menuImg: <DashboardRoundedIcon />,
+    menuImg: <DashboardOutlinedIcon />,
     menuTitle: "Dashboard",
     menuLink: "/dashboard",
   },
   {
-    menuImg: <DirectionsCarRoundedIcon />,
+    menuImg: <DirectionsCarFilledOutlinedIcon />,
     menuTitle: "Vehicle Master",
     menuLink: "/vehicle-master",
   },
   {
-    menuImg: <LocationOnRoundedIcon />,
+    menuImg: <LocationOnOutlinedIcon />,
     menuTitle: "Location Master",
     menuLink: "/location-master",
   },
   {
-    menuImg: <EmojiTransportationRoundedIcon />,
+    menuImg: <EmojiTransportationOutlinedIcon />,
     menuTitle: "Station Master",
     menuLink: "/station-master",
   },
   {
-    menuImg: <DirectionsCarRoundedIcon />,
+    menuImg: <DirectionsCarFilledOutlinedIcon />,
     menuTitle: "Manage Vehicles",
     menuLink: "/all-vehicles",
   },
   {
-    menuImg: <PersonRoundedIcon />,
+    menuImg: <PersonOutlinedIcon />,
     menuTitle: "Manage Users",
     menuLink: "#",
     nestedLink: [
@@ -55,32 +55,32 @@ const menuList = [
     ],
   },
   {
-    menuImg: <DescriptionRoundedIcon />,
+    menuImg: <RequestPageOutlinedIcon />,
     menuTitle: "All Plans",
     menuLink: "/all-plans",
   },
   {
-    menuImg: <BookOnlineRoundedIcon />,
+    menuImg: <BookOnlineOutlinedIcon />,
     menuTitle: "Manage Bookings",
     menuLink: "/all-bookings",
   },
   {
-    menuImg: <LoyaltyRoundedIcon />,
+    menuImg: <LoyaltyOutlinedIcon />,
     menuTitle: "All Coupons",
     menuLink: "/all-coupons",
   },
   {
-    menuImg: <PaymentRoundedIcon />,
+    menuImg: <AccountBalanceOutlinedIcon />,
     menuTitle: "Payments",
     menuLink: "/payments",
   },
   {
-    menuImg: <ReceiptRoundedIcon />,
+    menuImg: <ReceiptOutlinedIcon />,
     menuTitle: "Invoices",
     menuLink: "/all-invoices",
   },
   {
-    menuImg: <PersonRoundedIcon />,
+    menuImg: <PersonOutlinedIcon />,
     menuTitle: "Profile",
     menuLink: "/profile",
   },

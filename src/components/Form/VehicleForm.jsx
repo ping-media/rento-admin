@@ -72,22 +72,28 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         <>
           <h2 className="font-bold">Select Package</h2>
           <div className="w-full flex items-center gap-2.5 pb-3 border-b-2">
-            {collectedData?.AllPlanDataId.map((plan) => (
-              <div key={plan?._id}>
-                <label
-                  className="inline-flex items-center"
-                  htmlFor="redCheckBox"
-                >
-                  <input
-                    id="redCheckBox"
-                    type="checkbox"
-                    className="w-4 h-4 accent-red-600"
-                    onClick={() => handlePushId(plan?._id)}
-                  />
-                  <span className="ml-2">{plan?.planName}</span>
-                </label>
-              </div>
-            ))}
+            {collectedData?.length > 0 ? (
+              collectedData?.AllPlanDataId.map((plan) => (
+                <div key={plan?._id}>
+                  <label
+                    className="inline-flex items-center"
+                    htmlFor="redCheckBox"
+                  >
+                    <input
+                      id="redCheckBox"
+                      type="checkbox"
+                      className="w-4 h-4 accent-red-600"
+                      onClick={() => handlePushId(plan?._id)}
+                    />
+                    <span className="ml-2">{plan?.planName}</span>
+                  </label>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-400 italic capitalize">
+                no package found.
+              </p>
+            )}
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown

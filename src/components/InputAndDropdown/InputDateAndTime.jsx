@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { convertDateFormat } from "../../utils";
 
-const InputDateAndTime = ({ item, value = "", require = false, name }) => {
+const InputDateAndTime = ({
+  item,
+  value = "",
+  require = false,
+  name,
+  setDateAndTIme,
+}) => {
   const [dateAndTime, setDateAndTime] = useState("");
   const [inputValue, setInputValue] = useState("");
 
@@ -10,6 +16,7 @@ const InputDateAndTime = ({ item, value = "", require = false, name }) => {
     setInputValue(e.target.value);
     const databaseDate = convertDateFormat(e.target.value);
     setDateAndTime(databaseDate);
+    setDateAndTIme && setDateAndTIme(databaseDate);
   };
 
   useEffect(() => {

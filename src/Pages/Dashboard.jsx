@@ -18,55 +18,9 @@ import {
   ArticleRounded,
 } from "@mui/icons-material";
 import NotFound from "./NotFound";
+import PieChart from "../components/charts/PieChart";
 
 const Dashboard = () => {
-  // year chart
-  const yearChartOptions = {
-    chart: {
-      id: "year-chart",
-    },
-    colors: ["#e23844"],
-    xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-    },
-  };
-
-  const yearChartSeries = [
-    {
-      name: "yearSales",
-      data: [30, 40, 45, 50, 49, 60, 70, 90, 20, 55, 35, 55],
-    },
-  ];
-  // weekly chart
-  const weekChartOptions = {
-    chart: {
-      id: "week-chart",
-    },
-    colors: ["#e23844"],
-    xaxis: {
-      categories: ["Sun", "Mon", "Tuse", "Wed", "Thus", "Fri", "Sat"],
-    },
-  };
-  const weekChartSeries = [
-    {
-      name: "weekSales",
-      data: [30, 40, 45, 50, 49, 60, 70],
-    },
-  ];
-
   const { dasboardDataCount, loading } = useSelector(
     (state) => state.dashboard
   );
@@ -84,9 +38,9 @@ const Dashboard = () => {
   //binding fetched data
   useEffect(() => {
     if (dasboardDataCount) {
-      let dataCount = Object.keys(dasboardDataCount).map((key) => {
+      let dataCount = Object.keys(dasboardDataCount?.dashboard).map((key) => {
         return {
-          count: dasboardDataCount[key],
+          count: dasboardDataCount?.dashboard[key],
           title: "TOTAL " + key.substring(0, key.length - 5).toUpperCase(),
           link: "/all-" + key.substring(0, key.length - 5),
           icon:
@@ -117,6 +71,8 @@ const Dashboard = () => {
     }
   }, [dasboardDataCount]);
 
+  // console.log(dasboardDataCount);
+
   return !loading ? (
     dataCountResult?.length > 0 ? (
       <>
@@ -128,24 +84,22 @@ const Dashboard = () => {
             <InfoCard key={index} item={item} />
           ))}
         </div>
-        {/* <div className="flex items-center justify-between flex-wrap gap-6">
-        <div className="flex-1 shadow-lg p-5 rounded-2xl bg-white">
-          <h2 className="text-xl mb-3 font-semibold">Weekly Revenue</h2>
-          <BarChart
-            chartOptions={weekChartOptions}
-            chartSeries={weekChartSeries}
-            type={"bar"}
-          />
+        <div className="flex items-center justify-between flex-wrap gap-6">
+          <div className="flex-1 shadow-lg p-5 rounded-2xl bg-white">
+            <h2 className="text-xl mb-3 font-semibold">Payments</h2>
+            <BarChart
+              data={dasboardDataCount && dasboardDataCount?.payments}
+              type={"bar"}
+            />
+          </div>
+          <div className="flex-1 shadow-lg p-5 rounded-2xl bg-white">
+            <h2 className="text-xl mb-3 font-semibold">Payments</h2>
+            <BarChart
+              data={dasboardDataCount && dasboardDataCount?.payments}
+              type={"bar"}
+            />
+          </div>
         </div>
-        <div className="flex-1 shadow-lg p-5 rounded-2xl bg-white">
-          <h2 className="text-xl mb-3 font-semibold">Yearly Revenue</h2>
-          <BarChart
-            chartOptions={yearChartOptions}
-            chartSeries={yearChartSeries}
-            type={"line"}
-          />
-        </div>
-      </div> */}
       </>
     ) : (
       <NotFound />

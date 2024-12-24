@@ -18,31 +18,34 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   const [extraAddonPrice, setExtraAddonPrice] = useState(0);
   const [inputTax, setInputTax] = useState(0);
   const [inputTotal, setInputTotal] = useState(0);
+  const [startDateAndTime, setStartDateAndTime] = useState("");
+  const [endDateAndTIme, setEndDateAndTIme] = useState("");
+  const [isRequiredField, setIsRequiredField] = useState(false);
+
+  // useEffect(() => {
+  //   const updateTaxAndTotal = () => {
+  //     const bookingTax = calculateTax(Number(bookingPrice), 18);
+  //     const extraTax =
+  //       extraAddonPrice !== 0 ? calculateTax(Number(extraAddonPrice), 18) : 0;
+  //     const totalPrice =
+  //       Number(bookingPrice) + Number(bookingTax) + Number(extraTax);
+  //     setInputTax(bookingTax);
+  //     setInputTotal(totalPrice);
+  //   };
+
+  //   if (bookingPrice === 0 && extraAddonPrice === 0) {
+  //     setInputTax(0);
+  //     setInputTotal(0);
+  //   } else {
+  //     updateTaxAndTotal();
+  //   }
+  // }, [bookingPrice, extraAddonPrice]);
 
   useEffect(() => {
-    // Create a debounced effect using setTimeout
-    const debounceTimeout = setTimeout(() => {
-      if (bookingPrice !== 0 || extraAddonPrice !== 0) {
-        const bookingTax = calculateTax(Number(bookingPrice), 18);
-        const extraTax =
-          extraAddonPrice !== 0 ? calculateTax(Number(extraAddonPrice), 18) : 0;
-
-        if (bookingTax) {
-          const totalPrice =
-            Number(bookingPrice) + Number(extraTax) + Number(bookingTax);
-          setInputTax(bookingTax);
-          setInputTotal(totalPrice);
-          // console.log(bookingTax, totalPrice);
-        }
-      } else {
-        setInputTax(0);
-        setInputTotal(0);
-      }
-    }, 300); // Debounce delay (in milliseconds)
-
-    // Cleanup the timeout when component unmounts or when inputs change
-    return () => clearTimeout(debounceTimeout);
-  }, [bookingPrice, extraAddonPrice, inputTax, inputTotal]);
+    if (bookingPrice != 0 && startDateAndTime != "" && endDateAndTIme != "") {
+      console.log(startDateAndTime, endDateAndTIme);
+    }
+  }, [bookingPrice, startDateAndTime, endDateAndTIme]);
 
   return (
     <form onSubmit={handleFormSubmit}>
@@ -65,6 +68,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               value={id ? vehicleMaster[0]?.vehicleTableId : ""}
               suggestedData={collectedData}
               setSuggestionData={setCollectedData}
+              setBookingPrice={setBookingPrice}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -72,6 +76,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               item={"BookingStartDateAndTime"}
               value={id ? vehicleMaster[0]?.BookingStartDateAndTime : ""}
               require={true}
+              setDateAndTime={setStartDateAndTime}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -79,38 +84,39 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               item={"BookingEndDateAndTime"}
               value={id ? vehicleMaster[0]?.BookingEndDateAndTime : ""}
               require={true}
+              setDateAndTIme={setEndDateAndTIme}
             />
           </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"bookingPrice"}
-              type="number"
-              value={id && Number(vehicleMaster[0]?.bookingPrice?.bookingPrice)}
-              require={true}
-              setValueChange={setBookingPrice}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"extraAddonPrice"}
-              type="number"
-              value={
-                id && Number(vehicleMaster[0]?.bookingPrice?.extraAddonPrice)
-              }
-              setBookingPrice={setExtraAddonPrice}
-            />
-          </div>
-          {inputTax && inputTotal && (
+          {isRequiredField && (
             <>
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  item={"bookingPrice"}
+                  type="number"
+                  value={
+                    id && Number(vehicleMaster[0]?.bookingPrice?.bookingPrice)
+                  }
+                  require={true}
+                  setValueChange={setBookingPrice}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  item={"extraAddonPrice"}
+                  type="number"
+                  value={
+                    id &&
+                    Number(vehicleMaster[0]?.bookingPrice?.extraAddonPrice)
+                  }
+                  setBookingPrice={setExtraAddonPrice}
+                />
+              </div>
+
               <div className="w-full lg:w-[48%]">
                 <Input
                   item={"tax"}
                   type="number"
-                  value={
-                    id
-                      ? Number(vehicleMaster[0]?.bookingPrice?.tax)
-                      : Number(inputTax)
-                  }
+                  value={Number(inputTax)}
                   require={true}
                   disabled={true}
                 />
@@ -119,58 +125,38 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
                 <Input
                   item={"totalPrice"}
                   type="number"
-                  value={
-                    id
-                      ? Number(vehicleMaster[0]?.bookingPrice?.totalPrice)
-                      : Number(inputTotal)
-                  }
+                  value={Number(inputTotal)}
                   require={true}
                   disabled={true}
                 />
               </div>
-            </>
-          )}
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"paymentMethod"}
-              options={["cash", "online", "partiallyPay"]}
-              value={id ? vehicleMaster[0]?.paymentMethod : "cash"}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"bookingStatus"}
-              options={["pending", "done"]}
-              value={id ? vehicleMaster[0]?.bookingStatus : "done"}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"paymentStatus"}
-              options={["pending", "confirmed"]}
-              value={id ? vehicleMaster[0]?.paymentStatus : "pending"}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"rideStatus"}
-              options={["pending", "confirmed"]}
-              value={id ? vehicleMaster[0]?.rideStatus : "pending"}
-            />
-          </div>
-          {id && (
-            <>
+
               <div className="w-full lg:w-[48%]">
-                <Input
-                  item={"payInitFrom"}
-                  value={id ? vehicleMaster[0]?.payInitFrom : "cash"}
+                <SelectDropDown
+                  item={"paymentMethod"}
+                  options={["cash", "online", "partiallyPay"]}
+                  value={"cash"}
                 />
               </div>
               <div className="w-full lg:w-[48%]">
-                <Input
-                  item={"paySuccessId"}
-                  type="number"
-                  value={id ? vehicleMaster[0]?.paySuccessId : "assa"}
+                <SelectDropDown
+                  item={"bookingStatus"}
+                  options={["pending", "done", "canceled"]}
+                  value={"done"}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <SelectDropDown
+                  item={"paymentStatus"}
+                  options={["pending", "confirmed"]}
+                  value={"pending"}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <SelectDropDown
+                  item={"rideStatus"}
+                  options={["pending", "confirmed"]}
+                  value={"pending"}
                 />
               </div>
             </>

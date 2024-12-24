@@ -24,6 +24,28 @@ const getData = async (url, token) => {
   }
 };
 
+const getFullData = async (url, token) => {
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+    headers["token"] = `${token}`;
+  } else {
+    return "Error fetching Data. Try Again!";
+  }
+  const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
+    headers,
+  });
+
+  if (response.status == 200) {
+    return response;
+  } else {
+    return response?.message;
+  }
+};
+
 const postData = async (url, data, token) => {
   try {
     let headers = {
@@ -110,4 +132,11 @@ const handleAdminLogin = async (url, data) => {
   }
 };
 
-export { getData, postData, handleAdminLogin, deleteData, getGeoData };
+export {
+  getData,
+  getFullData,
+  postData,
+  handleAdminLogin,
+  deleteData,
+  getGeoData,
+};
