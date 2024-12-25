@@ -1,34 +1,33 @@
 import CustomTable from "../components/Table/CustomTable";
-// import DataTableComponent from "../components/Table/DataTable";
 import { formatPathNameToTitle } from "../utils";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchVehicleMaster,
-  fetchVehicleMasterWithPagination,
-} from "../Data/Function";
+import { fetchVehicleMasterWithPagination } from "../Data/Function";
 import PreLoader from "../components/Skeleton/PreLoader";
 import { endPointBasedOnURL } from "../Data/commonData";
 import { Link } from "react-router-dom";
 
 const VehicleMaster = () => {
   const dispatch = useDispatch();
-  const { token } = useSelector((state) => state.user);
+  const { currentUser, token } = useSelector((state) => state.user);
   const { vehicleMaster, loading, deletevehicleId } = useSelector(
     (state) => state.vehicles
   );
+  const { page, limit } = useSelector((state) => state.pagination);
 
   useEffect(() => {
-    // console.log(endPointBasedOnURL[location.pathname.replace("/", "")]);
     // fetch data based on url
     if (deletevehicleId == "") {
       fetchVehicleMasterWithPagination(
         dispatch,
         token,
-        endPointBasedOnURL[location.pathname.replace("/", "")]
+        endPointBasedOnURL[location.pathname.replace("/", "")],
+        page,
+        limit,
+        currentUser?.userType
       );
     }
-  }, [location.pathname, deletevehicleId]);
+  }, [location.pathname, deletevehicleId, page, limit]);
 
   return !loading ? (
     <>
@@ -67,7 +66,7 @@ const VehicleMaster = () => {
           </div>
         )}
       </div>
-      {/* {console.log(vehicleMaster?.data)} */}
+      {/* {console.log(vehicleMaster)} */}
       <CustomTable
         Data={vehicleMaster?.data}
         pagination={vehicleMaster?.pagination}

@@ -87,16 +87,25 @@ const fetchVehicleMaster = async (dispatch, token, endpoint) => {
   }
 };
 
-const fetchVehicleMasterWithPagination = async (dispatch, token, endpoint) => {
+const fetchVehicleMasterWithPagination = async (
+  dispatch,
+  token,
+  endpoint,
+  page,
+  limit,
+  userType
+) => {
   try {
     dispatch(fetchVehicleStart());
-    const response = await getFullData(endpoint, token);
+    const response = await getFullData(
+      `${endpoint}?page=${page}&limit=${limit}&userType=${userType}`,
+      token
+    );
+    // console.log(`${endpoint}?page=${page}&limit=${limit}&userType=${userType}`);
     if (response?.status == 200) {
-      // console.log(response);
       dispatch(fetchVehicleMasterData(response?.data));
     } else {
       dispatch(fetchVehicleEnd());
-      // handleAsyncError(dispatch, response?.message);
     }
   } catch (error) {
     dispatch(fetchVehicleEnd());

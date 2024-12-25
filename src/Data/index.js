@@ -64,7 +64,7 @@ const postData = async (url, data, token) => {
       headers["token"] = `${token}`;
     }
     let response;
-    if (data?._id && url.includes("update")) {
+    if (data?._id && url?.includes("update")) {
       response = await axios.put(
         `${import.meta.env.VITE_BASED_URL}${url}`,
         data,

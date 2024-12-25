@@ -14,6 +14,7 @@ import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice.js";
 import { addVehicleIdToDelete } from "../../Redux/VehicleSlice/VehicleSlice.js";
 import { handleGenerateInvoice } from "../../Data/Function.js";
 import Spinner from "../Spinner/Spinner.jsx";
+import InputSwitch from "../InputAndDropdown/InputSwitch.jsx";
 
 const CustomTable = ({ Data, pagination }) => {
   const { token } = useSelector((state) => state.user);
@@ -32,11 +33,11 @@ const CustomTable = ({ Data, pagination }) => {
 
   const loadFiltersAndData = () => {
     if (newUpdatedData) {
-      const pageCount = Math.ceil(newUpdatedData?.length / limitedData);
-      // const pageCount = pagination?.totalPages;
+      // const pageCount = Math.ceil(newUpdatedData?.length / limitedData);
+      const pageCount = pagination?.totalPages;
       setTotalPages(pageCount);
-      const start = (currentPage - 1) * limitedData;
-      // const start = (pagination?.currentPage - 1) * limitedData;
+      // const start = (currentPage - 1) * limitedData;
+      const start = (pagination?.currentPage - 1) * limitedData;
       const end = start + limitedData;
       // if there is data in sortedData
       if (sortedData) return setNewUpdatedData(sortedData?.slice(start, end));
@@ -47,7 +48,6 @@ const CustomTable = ({ Data, pagination }) => {
   // console.log(Data);
 
   useEffect(() => {
-    // console.log(location.pathname);
     loadFiltersAndData();
   }, [currentPage, limitedData, sortedData]);
 
@@ -75,13 +75,13 @@ const CustomTable = ({ Data, pagination }) => {
           });
         });
 
-        setTotalPages(Math.ceil(newData.length / limitedData));
-        // setTotalPages(pagination?.totalPages);
+        // setTotalPages(Math.ceil(newData.length / limitedData));
+        setTotalPages(pagination?.totalPages);
         setNewUpdatedData(newData);
       } else {
         loadFiltersAndData();
       }
-    }, 300); // Delay in milliseconds (e.g., 300ms)
+    }, 300);
   };
 
   // Sorting function
@@ -140,8 +140,8 @@ const CustomTable = ({ Data, pagination }) => {
       // <input type="checkbox" className="w-5 h-5 rounded-xl" />,
       "SNO",
       ...filteredKeys,
-      "Actions",
     ];
+    location?.pathname != "/payments" && header.push("Actions");
     setColumns(header);
 
     const modifiedData = [...Data]
@@ -187,7 +187,7 @@ const CustomTable = ({ Data, pagination }) => {
     if (Data) {
       getTableHeaderAndTableValue(Data);
     }
-  }, []);
+  }, [Data]);
 
   // for delete the data
   const handleDeleteVehicle = (id) => {
@@ -210,37 +210,37 @@ const CustomTable = ({ Data, pagination }) => {
             Users Documents
           </h1>
         )}
-        {newUpdatedData.length > 0 && (
-          <div className="w-full lg:w-[30%] bg-white rounded-md shadow-lg">
-            <form className="flex items-center justify-center p-2">
-              <input
-                type="text"
-                placeholder="Search Here.."
-                className="w-full rounded-md px-2 py-1 focus:outline-none focus:border-transparent"
-                onChange={handleFilterData}
-              />
-              <button
-                type="submit"
-                className="bg-gray-800 text-white rounded-md px-4 py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
+        {/* {newUpdatedData.length > 0 && ( */}
+        <div className="w-full lg:w-[30%] bg-white rounded-md shadow-lg">
+          <form className="flex items-center justify-center p-2">
+            <input
+              type="text"
+              placeholder="Search Here.."
+              className="w-full rounded-md px-2 py-1 focus:outline-none focus:border-transparent"
+              onChange={handleFilterData}
+            />
+            <button
+              type="submit"
+              className="bg-gray-800 text-white rounded-md px-4 py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="stroke-gray-100"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="22"
-                  height="22"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="stroke-gray-100"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </button>
-            </form>
-          </div>
-        )}
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </button>
+          </form>
+        </div>
+        {/* )} */}
       </div>
       <div className="mt-5">
         <div className="flex flex-col">
@@ -256,7 +256,7 @@ const CustomTable = ({ Data, pagination }) => {
                           className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
                           key={index}
                           onClick={() => sortData(item)}
-                          colSpan={item?.includes("files") ? 2 : 1}
+                          // colSpan={item?.includes("files") ? 2 : 1}
                         >
                           {/* {console.log(item)} */}
                           {camelCaseToSpaceSeparated(item)}
@@ -296,6 +296,17 @@ const CustomTable = ({ Data, pagination }) => {
                                       className="w-28 h-20 object-contain"
                                     />
                                   </div>
+                                </td>
+                              ) : location?.pathname == "/location-master" &&
+                                column.includes("Status") ? (
+                                <td
+                                  className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                  key={columnIndex}
+                                >
+                                  <InputSwitch
+                                    value={item[column]}
+                                    id={item?._id}
+                                  />
                                 </td>
                               ) : column.includes("tatus") ||
                                 column.includes("Active") ? (
@@ -454,7 +465,7 @@ const CustomTable = ({ Data, pagination }) => {
                               location.pathname == "/all-invoices"
                             ) && (
                               <Link
-                                className="p-2  rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
+                                className="p-2 rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
                                 to={`${item?._id}`}
                               >
                                 <svg
@@ -518,24 +529,24 @@ const CustomTable = ({ Data, pagination }) => {
           </div>
         </div>
       </div>
-      {/* {newUpdatedData.length > limitedData && ( */}
-      <div className="flex flex-wrap items-center justify-start lg:justify-end gap-4 lg:gap-2">
-        <div className="flex items-center gap-2">
-          <h2 className="capitalize">Rows per Page</h2>
-          <DropDownComponent
-            defaultValue={limitedData}
-            options={showRecordsOptions}
-            setValue={setLimitedData}
+      {pagination?.totalPages > 1 && (
+        <div className="flex flex-wrap items-center justify-start lg:justify-end gap-4 lg:gap-2">
+          <div className="flex items-center gap-2">
+            <h2 className="capitalize">Rows per Page</h2>
+            <DropDownComponent
+              defaultValue={limitedData}
+              options={showRecordsOptions}
+              setValue={setLimitedData}
+            />
+          </div>
+          <span className="hidden lg:mx-1">|</span>
+          <Pagination
+            totalNumberOfPages={totalPages}
+            currentPage={currentPage}
+            setPageChanger={setCurrentPage}
           />
         </div>
-        <span className="hidden lg:mx-1">|</span>
-        <Pagination
-          totalNumberOfPages={totalPages}
-          currentPage={currentPage}
-          setPageChanger={setCurrentPage}
-        />
-      </div>
-      {/* )} */}
+      )}
     </>
   );
 };

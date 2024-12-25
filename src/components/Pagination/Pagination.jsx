@@ -1,23 +1,35 @@
 import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { handleChangePage } from "../../Redux/PaginationSlice/PaginationSlice";
 // import { ScrollTopAfterEvent } from "../utils/utilFunction";
 
 const Pagination = ({ totalNumberOfPages, currentPage, setPageChanger }) => {
+  const { limit, page } = useSelector((state) => state.pagination);
+  const dispatch = useDispatch();
+
   //going back to previous page
   const handlePrevPageChange = () => {
-    currentPage > 1 && setPageChanger(currentPage - 1);
+    if (page > 1) {
+      setPageChanger(page - 1);
+      dispatch(handleChangePage(page - 1));
+    }
   };
   // going to next page
   const handleNextPageChange = () => {
-    currentPage <= totalNumberOfPages && setPageChanger(currentPage + 1);
+    if (page <= totalNumberOfPages) {
+      setPageChanger(page + 1);
+      dispatch(handleChangePage(page + 1));
+    }
   };
   //jump to any page when you click on that page number
   const handleJumpPageChange = (number) => {
+    dispatch(handleChangePage(number));
     return setPageChanger(number);
   };
   //handle the pagination page number adding ellipses where it is need
   const getPaginationItems = () => {
     const items = [];
-    const maxPagesToShow = 10; // Total number of page buttons to display
+    const maxPagesToShow = limit; // Total number of page buttons to display
 
     // If total pages are less than or equal to max pages to show, just return all pages
     if (totalNumberOfPages <= maxPagesToShow) {
@@ -35,14 +47,14 @@ const Pagination = ({ totalNumberOfPages, currentPage, setPageChanger }) => {
 
       // Calculate the range of pages to show around the current page
       const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalNumberOfPages - 1, currentPage + 1);
+      const end = Math.min(totalNumberOfPages - 1, page + 1);
 
       for (let i = start; i <= end; i++) {
         items.push(i);
       }
 
       // Show the last page
-      if (currentPage < totalNumberOfPages - 2) {
+      if (page < totalNumberOfPages - 2) {
         items.push("...");
       }
       items.push(totalNumberOfPages);
@@ -69,7 +81,7 @@ const Pagination = ({ totalNumberOfPages, currentPage, setPageChanger }) => {
                 aria-label="Previous"
                 rel="prev"
                 onClick={handlePrevPageChange}
-                disabled={currentPage == 1 ? true : false}
+                disabled={page == 1 ? true : false}
               >
                 <svg
                   className="w-6 h-6 rtl:scale-x-[-1]"
@@ -91,7 +103,7 @@ const Pagination = ({ totalNumberOfPages, currentPage, setPageChanger }) => {
                 <button
                   type="button"
                   className={`relative flex items-center justify-center font-medium min-w-[2rem] px-1.5 h-8 -my-3 rounded-md outline-none transition focus:underline ${
-                    currentPage == number
+                    page == number
                       ? "text-gray-100 bg-black ring-0"
                       : "text-black bg-transparent"
                   } ring-2 ring-gray-200`}
@@ -105,11 +117,11 @@ const Pagination = ({ totalNumberOfPages, currentPage, setPageChanger }) => {
             <li>
               <button
                 type="button"
-                className="relative flex items-center justify-center font-medium min-w-[2rem] px-1.5 h-8 -my-3 rounded-md outline-none hover:bg-gray-500/5 focus:ring-2 focus:ring-theme transition text-black"
+                className="relative flex items-center justify-center font-medium min-w-[2rem] px-1.5 h-8 -my-3 rounded-md outline-none hover:bg-gray-500/5 focus:ring-2 focus:ring-theme transition text-black disabled:bg-gray-300"
                 aria-label="Next"
                 rel="next"
                 onClick={handleNextPageChange}
-                disabled={currentPage === totalNumberOfPages ? true : false}
+                disabled={page === totalNumberOfPages ? true : false}
                 title="next"
               >
                 <svg

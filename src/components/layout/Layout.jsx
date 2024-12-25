@@ -9,6 +9,7 @@ import DeleteModal from "../Modal/DeleteModal";
 import ScrollToTopButton from "../ScrollButton/ScrollToTopButton";
 import PreLoader from "../Skeleton/PreLoader";
 import { handleCurrentUser } from "../../Redux/UserSlice/UserSlice";
+import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
 
 const Layout = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,11 @@ const Layout = () => {
       dispatch(handleCurrentUser(user));
     }
   }, []);
+
+  //need to reset the page and limit when every user change page
+  useEffect(() => {
+    dispatch(handleRestPagination());
+  }, [location.href]);
 
   return !loading ? (
     token != null ? (

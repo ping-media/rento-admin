@@ -10,6 +10,7 @@ import DasboardReducer from "./DashboardSlice/DashboardSlice";
 import ThemeReducer from "./ThemeSlice/ThemeSlice";
 import userReducer from "./UserSlice/UserSlice";
 import LocationAndStationReducer from "./LocationAndStationSlice/LocationAndStationSlice";
+import PaginationReducer from "./PaginationSlice/PaginationSlice";
 
 const userPersistConfig = {
   key: "user",
@@ -30,6 +31,7 @@ const store = configureStore({
     user: persistedUserReducer,
     dashboard: DasboardReducer,
     locationAndStation: LocationAndStationReducer,
+    pagination: PaginationReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
