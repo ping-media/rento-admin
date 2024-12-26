@@ -14,7 +14,7 @@ import {
 import { addTempIds } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const VehicleForm = ({ handleFormSubmit, loading }) => {
-  const { vehicleMaster } = useSelector((state) => state.vehicles);
+  const { vehicleMaster, tempIds } = useSelector((state) => state.vehicles);
   const [collectedData, setCollectedData] = useState(null);
   const [stationData, setStationData] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -44,6 +44,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
       });
     }
   };
+
   useEffect(() => {
     fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
     console.log(collectedData);
@@ -72,7 +73,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         <>
           <h2 className="font-bold">Select Package</h2>
           <div className="w-full flex items-center gap-2.5 pb-3 border-b-2">
-            {collectedData?.length > 0 ? (
+            {collectedData?.AllPlanDataId?.length > 0 ? (
               collectedData?.AllPlanDataId.map((plan) => (
                 <div key={plan?._id}>
                   <label

@@ -192,7 +192,13 @@ const formatPrice = (price) => {
 };
 
 const camelCaseToSpaceSeparated = (str) => {
-  return str.replace(/([a-z])([A-Z])/g, "$1 $2");
+  if (typeof str === "string") return str.replace(/([a-z])([A-Z])/g, "$1 $2");
+};
+
+const camelCaseToSpaceSeparatedMapped = (str) => {
+  return str?.map((key) => {
+    if (typeof key === "string") return key.replace(/([a-z])([A-Z])/g, "$1 $2");
+  });
 };
 
 const convertDateFormat = (dateStr) => {
@@ -284,4 +290,5 @@ export {
   calculateTax,
   formatDateForInvoice,
   formatTimeStampToDate,
+  camelCaseToSpaceSeparatedMapped,
 };

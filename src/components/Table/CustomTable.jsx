@@ -130,7 +130,7 @@ const CustomTable = ({ Data, pagination }) => {
           "speedLimit",
           "kmsRun",
           "condition",
-          "vehicleImage",
+          // "vehicleImage",
           "vehiclePlan",
           "userId",
         ].includes(key)
@@ -169,7 +169,7 @@ const CustomTable = ({ Data, pagination }) => {
           speedLimit,
           kmsRun,
           condition,
-          vehicleImage,
+          // vehicleImage,
           vehiclePlan,
           userId,
           __v,
@@ -487,7 +487,8 @@ const CustomTable = ({ Data, pagination }) => {
                             {!(
                               location.pathname == "/all-bookings" ||
                               location.pathname == "/payments" ||
-                              location.pathname == "/all-invoices"
+                              location.pathname == "/all-invoices" ||
+                              location.pathname == "/location-master"
                             ) && (
                               <button
                                 className="p-2 rounded-full bg-white group transition-all duration-500 hover:bg-red-600 flex item-center"

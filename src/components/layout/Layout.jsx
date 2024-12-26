@@ -10,6 +10,7 @@ import ScrollToTopButton from "../ScrollButton/ScrollToTopButton";
 import PreLoader from "../Skeleton/PreLoader";
 import { handleCurrentUser } from "../../Redux/UserSlice/UserSlice";
 import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
+import { removeTempIds } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const Layout = () => {
   const dispatch = useDispatch();
@@ -60,6 +61,7 @@ const Layout = () => {
   //need to reset the page and limit when every user change page
   useEffect(() => {
     dispatch(handleRestPagination());
+    dispatch(removeTempIds());
   }, [location.href]);
 
   return !loading ? (

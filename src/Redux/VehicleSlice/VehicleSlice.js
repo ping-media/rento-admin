@@ -39,6 +39,10 @@ const vehicleSlice = createSlice({
       state.loading = false;
       state.tempVehicleData = action.payload;
     },
+    addTempIdsAll: (state, action) => {
+      state.loading = false;
+      state.tempIds = action.payload;
+    },
     addTempIds: (state, action) => {
       state.loading = false;
       state.tempIds = [...state.tempIds, ...action.payload];
@@ -89,6 +93,7 @@ export const {
   restDeletevehicleId,
   toggleClearVehicle,
   fetchVehicleEnd,
+  addTempIdsAll,
   addTempIds,
   removeTempIds,
   handleUpdateStatus,

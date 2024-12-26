@@ -42,10 +42,11 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   // }, [bookingPrice, extraAddonPrice]);
 
   useEffect(() => {
-    if (bookingPrice != 0 && startDateAndTime != "" && endDateAndTIme != "") {
+    console.log(startDateAndTime, endDateAndTIme);
+    if (startDateAndTime != "" && endDateAndTIme != "") {
       console.log(startDateAndTime, endDateAndTIme);
     }
-  }, [bookingPrice, startDateAndTime, endDateAndTIme]);
+  }, [startDateAndTime, endDateAndTIme]);
 
   return (
     <form onSubmit={handleFormSubmit}>

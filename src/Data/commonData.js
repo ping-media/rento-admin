@@ -35,7 +35,7 @@ const endPointBasedOnURL = {
   "all-users/": "/signup",
   "users-documents": "/getAllDocument",
   "users-documents/": "/uploadDocument",
-  "all-bookings": "/getBookings",
+  "all-bookings": "/getBooking",
   "all-bookings/": "/createBooking",
   "all-coupons": "/getCoupons",
   "all-coupons/": "/createCoupon",

@@ -5,6 +5,7 @@ import { useIsMobile } from "../../utils";
 import { useEffect } from "react";
 import { menuList } from "./menuList";
 import SideBarDropDown from "./SideBarDropDown";
+import rentoLogo from "../../assets/logo/rento-logo.png";
 
 const SideBar = () => {
   const location = useLocation();
@@ -48,21 +49,18 @@ const SideBar = () => {
           </svg>
         </button>
       </div>
-      <div className="py-[1.5rem]">
-        {/* <div className="w-40 lg:w-[12.5rem] h-auto lg:h-20 mx-auto">
-          show this until image load fully 
-          {imageLoading && <ImageSkeleton />}
+      <div className="py-[0.5rem]">
+        <div className="w-24 lg:w-28 h-14 lg:h-16 mx-auto">
           <img
-            src={theme !== "dark" ? webLogo : webLogoWhite}
+            src={rentoLogo}
             className="w-full h-full object-contain"
             loading="lazy"
-            alt="sure success"
-            onLoad={() => setImageLoading(false)}
+            alt="RENTO_BIKES"
           />
-        </div> */}
-        <h2 className="uppercase font-black text-3xl lg:text-4xl text-theme text-center">
+        </div>
+        {/* <h2 className="uppercase font-black text-3xl lg:text-4xl text-theme text-center">
           Rento
-        </h2>
+        </h2> */}
       </div>
       <div
         className="px-3.5 py-3 overflow-y-scroll no-scrollbar"

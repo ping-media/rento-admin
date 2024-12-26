@@ -6,6 +6,7 @@ import { fetchVehicleMasterWithPagination } from "../Data/Function";
 import PreLoader from "../components/Skeleton/PreLoader";
 import { endPointBasedOnURL } from "../Data/commonData";
 import { Link } from "react-router-dom";
+import CustomTableComponent from "../components/Table/DataTable";
 
 const VehicleMaster = () => {
   const dispatch = useDispatch();
@@ -38,11 +39,16 @@ const VehicleMaster = () => {
             : "justify-end"
         } mt-5 gap-4`}
       >
-        {location.pathname != "/users-documents" && (
+        {!(
+          location.pathname == "/payments" ||
+          location.pathname == "/all-invoices" ||
+          location.pathname == "/users-documents"
+        ) && (
           <div className="flex items-center justify-between gap-2 w-full">
             <h1 className="text-xl xl:text-2xl uppercase font-bold text-theme">
               {formatPathNameToTitle(location.pathname)}
             </h1>
+
             <Link
               className="bg-theme font-semibold text-gray-100 px-4 lg:px-6 py-2.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
               to={"add-new"}
@@ -67,7 +73,11 @@ const VehicleMaster = () => {
         )}
       </div>
       {/* {console.log(vehicleMaster)} */}
-      <CustomTable
+      {/* <CustomTable
+        Data={vehicleMaster?.data}
+        pagination={vehicleMaster?.pagination}
+      /> */}
+      <CustomTableComponent
         Data={vehicleMaster?.data}
         pagination={vehicleMaster?.pagination}
       />

@@ -98,10 +98,10 @@ const fetchVehicleMasterWithPagination = async (
   try {
     dispatch(fetchVehicleStart());
     const response = await getFullData(
-      `${endpoint}?page=${page}&limit=${limit}&userType=${userType}`,
+      `${endpoint}?page=${page}&limit=${limit}`,
       token
     );
-    // console.log(`${endpoint}?page=${page}&limit=${limit}&userType=${userType}`);
+    // console.log(`${endpoint}?page=${page}&limit=${limit}`);
     if (response?.status == 200) {
       dispatch(fetchVehicleMasterData(response?.data));
     } else {

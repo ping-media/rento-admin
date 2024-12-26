@@ -88,7 +88,8 @@ const VehicleDetail = () => {
                       key.includes("_v") ||
                       key.includes("At") ||
                       key.includes("Id") ||
-                      key.includes("Image")
+                      key.includes("Image") ||
+                      key.includes("vehiclePlan")
                     ) {
                       return null;
                     }
@@ -132,7 +133,6 @@ const VehicleDetail = () => {
                     </p>
                   </div>
                 </div>
-                {/* <VehicleInfo {...collectedData?.vehicleMasterId[0]} /> */}
                 <VehicleInfo {...vehicleMaster[0]} />
               </div>
             </div>
