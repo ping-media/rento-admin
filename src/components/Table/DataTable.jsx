@@ -161,10 +161,14 @@ const CustomTable = ({ Data, pagination }) => {
 
     // Add SNO at the start of the filtered keys array
     const header = [...filteredKeys];
-    location?.pathname != "/payments" && header.push("Actions");
+    !(
+      location?.pathname == "/payments" ||
+      location?.pathname == "/all-pickup-image" ||
+      location?.pathname == "/users-documents"
+    ) && header.push("Actions");
     setColumns(header);
 
-    const modifiedData = [...Data].sort((a, b) => {
+    let modifiedData = [...Data].sort((a, b) => {
       // Sort by `updatedAt` in descending order (latest first)
       return new Date(b.updatedAt) - new Date(a.updatedAt);
     });
@@ -259,21 +263,21 @@ const CustomTable = ({ Data, pagination }) => {
                 <table className="table-auto min-w-full rounded-xl">
                   <thead>
                     <tr className="bg-gray-50">
-                      {Columns?.length > 0 && (
-                        <th
-                          scope="col"
-                          className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
-                        >
-                          <CheckBoxInput
-                            handleChange={toggleSelectAll}
-                            tempIds={tempIds}
-                            data={newUpdatedData}
-                            unique={"headerSelected"}
-                          />
-                        </th>
-                      )}
+                      {Columns?.length > 0 &&
+                        location.pathname == "/all-vehicles" && (
+                          <th
+                            scope="col"
+                            className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                          >
+                            <CheckBoxInput
+                              handleChange={toggleSelectAll}
+                              tempIds={tempIds}
+                              data={newUpdatedData}
+                              unique={"headerSelected"}
+                            />
+                          </th>
+                        )}
                       {Columns.map((item, index) => {
-                        // Render a combined header for `startDateAndTime` and `endDateAndTime`
                         if (item === "BookingStartDateAndTime") {
                           return (
                             <th
@@ -285,11 +289,9 @@ const CustomTable = ({ Data, pagination }) => {
                             </th>
                           );
                         }
-                        // Skip rendering `endDateAndTime` header to avoid duplication
                         if (item === "BookingEndDateAndTime") {
                           return null;
                         }
-                        // Default behavior for other headers
                         return (
                           <th
                             scope="col"
@@ -312,15 +314,18 @@ const CustomTable = ({ Data, pagination }) => {
                           className="bg-white transition-all duration-500 hover:bg-gray-50"
                           key={item?._id}
                         >
-                          <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
-                            <CheckBoxInput
-                              handleChange={toggleSelectOne}
-                              tempIds={tempIds}
-                              data={newUpdatedData}
-                              isId={item?._id}
-                              unique={item?._id}
-                            />
-                          </td>
+                          {newUpdatedData?.includes("files") && newUpdatedData}
+                          {location.pathname == "/all-vehicles" && (
+                            <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
+                              <CheckBoxInput
+                                handleChange={toggleSelectOne}
+                                tempIds={tempIds}
+                                data={newUpdatedData}
+                                isId={item?._id}
+                                unique={item?._id}
+                              />
+                            </td>
+                          )}
                           {/* dynamically rendering */}
                           {Columns.slice(0, Columns.length - 1).map(
                             (column, columnIndex) => {

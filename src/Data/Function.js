@@ -92,8 +92,7 @@ const fetchVehicleMasterWithPagination = async (
   token,
   endpoint,
   page,
-  limit,
-  userType
+  limit
 ) => {
   try {
     dispatch(fetchVehicleStart());

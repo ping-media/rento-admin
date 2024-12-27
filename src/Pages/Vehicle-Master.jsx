@@ -1,16 +1,20 @@
 import CustomTable from "../components/Table/CustomTable";
 import { formatPathNameToTitle } from "../utils";
-import { useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVehicleMasterWithPagination } from "../Data/Function";
 import PreLoader from "../components/Skeleton/PreLoader";
 import { endPointBasedOnURL } from "../Data/commonData";
 import { Link } from "react-router-dom";
 import CustomTableComponent from "../components/Table/DataTable";
+import { togglePickupImageModal } from "../Redux/SideBarSlice/SideBarSlice";
+const UploadPickupImageModal = lazy(() =>
+  import("../components/Modal/UploadPickupImageModal")
+);
 
 const VehicleMaster = () => {
   const dispatch = useDispatch();
-  const { currentUser, token } = useSelector((state) => state.user);
+  const { token } = useSelector((state) => state.user);
   const { vehicleMaster, loading, deletevehicleId } = useSelector(
     (state) => state.vehicles
   );
@@ -24,8 +28,7 @@ const VehicleMaster = () => {
         token,
         endPointBasedOnURL[location.pathname.replace("/", "")],
         page,
-        limit,
-        currentUser?.userType
+        limit
       );
     }
   }, [location.pathname, deletevehicleId, page, limit]);
@@ -39,6 +42,9 @@ const VehicleMaster = () => {
             : "justify-end"
         } mt-5 gap-4`}
       >
+        {/* show this modal on specific page  */}
+        {location.pathname == "/all-pickup-image" && <UploadPickupImageModal />}
+
         {!(
           location.pathname == "/payments" ||
           location.pathname == "/all-invoices" ||
@@ -51,7 +57,11 @@ const VehicleMaster = () => {
 
             <Link
               className="bg-theme font-semibold text-gray-100 px-4 lg:px-6 py-2.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
-              to={"add-new"}
+              to={location.pathname != "/all-pickup-image" ? "add-new" : "#"}
+              onClick={() =>
+                location.pathname == "/all-pickup-image" &&
+                dispatch(togglePickupImageModal())
+              }
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

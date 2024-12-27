@@ -9,6 +9,7 @@ import BookOnlineOutlinedIcon from "@mui/icons-material/BookOnlineOutlined";
 import RequestPageOutlinedIcon from "@mui/icons-material/RequestPageOutlined";
 import LoyaltyOutlinedIcon from "@mui/icons-material/LoyaltyOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 
 const menuList = [
@@ -63,6 +64,11 @@ const menuList = [
     menuImg: <BookOnlineOutlinedIcon />,
     menuTitle: "Manage Bookings",
     menuLink: "/all-bookings",
+  },
+  {
+    menuImg: <ImageOutlinedIcon />,
+    menuTitle: "vehicle Pickup",
+    menuLink: "/all-pickup-image",
   },
   {
     menuImg: <LoyaltyOutlinedIcon />,

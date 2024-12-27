@@ -6,6 +6,7 @@ const initialState = {
   isRechargeModelActive: false,
   isVerifyUserModalActive: false,
   isDeleteModalActive: false,
+  isUploadPickupImageActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -30,6 +31,10 @@ const SideBarSlice = createSlice({
       state.isDeleteModalActive =
         state.isDeleteModalActive === false ? true : false;
     },
+    togglePickupImageModal: (state) => {
+      state.isUploadPickupImageActive =
+        state.isUploadPickupImageActive === false ? true : false;
+    },
     toggleClearModals: () => initialState,
   },
 });
@@ -41,6 +46,7 @@ export const {
   toggleVerifyUserModal,
   toggleClearModals,
   toggleDeleteModal,
+  togglePickupImageModal,
 } = SideBarSlice.actions;
 
 export default SideBarSlice.reducer;

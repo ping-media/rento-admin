@@ -164,6 +164,8 @@ const App = () => {
               exact
               element={<InvoiceDetails />}
             />
+            {/* pickup route  */}
+            <Route path="all-pickup-image" exact element={<VehicleMaster />} />
 
             {/* if there is any error or if goes to url which is not a route in that
             case this error page will be shown. */}

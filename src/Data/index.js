@@ -53,7 +53,7 @@ const postData = async (url, data, token) => {
       Accept: "application/json",
     };
 
-    if (data?.isImage || data?.image) {
+    if (data?.isImage || data?.image || data?.images) {
       headers = {
         "Content-Type": "multipart/form-data",
       };
@@ -63,6 +63,7 @@ const postData = async (url, data, token) => {
       headers["Authorization"] = `Bearer ${token}`;
       headers["token"] = `${token}`;
     }
+
     let response;
     if (data?._id && url?.includes("update")) {
       response = await axios.put(
@@ -81,6 +82,32 @@ const postData = async (url, data, token) => {
         }
       );
     }
+    // console.log(response);
+    return response?.data;
+  } catch (error) {
+    return `Error :${error?.message}`;
+  }
+};
+
+const postMultipleData = async (url, data, token) => {
+  try {
+    let headers = {
+      "Content-Type": "multipart/form-data",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+      headers["token"] = `${token}`;
+    }
+
+    let response = await axios.post(
+      `${import.meta.env.VITE_BASED_URL}${url}`,
+      data,
+      {
+        headers,
+      }
+    );
+
     // console.log(response);
     return response?.data;
   } catch (error) {
@@ -136,6 +163,7 @@ export {
   getData,
   getFullData,
   postData,
+  postMultipleData,
   handleAdminLogin,
   deleteData,
   getGeoData,
