@@ -3,25 +3,32 @@ import {
   camelCaseToSpaceSeparated,
   formatDate,
   formatFullDateAndTime,
+  formatPathNameToTitle,
   formatPrice,
   formatTimeStampToDate,
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice.js";
-import { addVehicleIdToDelete } from "../../Redux/VehicleSlice/VehicleSlice.js";
-import { handleGenerateInvoice } from "../../Data/Function.js";
-import Spinner from "../Spinner/Spinner.jsx";
+import {
+  addTempIds,
+  addTempIdsAll,
+  addVehicleIdToDelete,
+  removeTempIds,
+} from "../../Redux/VehicleSlice/VehicleSlice.js";
 import InputSwitch from "../InputAndDropdown/InputSwitch.jsx";
+import CheckBoxInput from "../InputAndDropdown/CheckBoxInput.jsx";
+import StatusChange from "./StatusChange.jsx";
+import GenerateInvoiceButton from "./GenerateInvoiceButton.jsx";
+import TableNotFound from "../Skeleton/TableNotFound.jsx";
 
 const CustomTable = ({ Data, pagination }) => {
-  const { token } = useSelector((state) => state.user);
   const [loadingStates, setLoadingStates] = useState({});
   const [limitedData, setLimitedData] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [updatedData, setUpdatedData] = useState([]);
+  // const [updatedData, setUpdatedData] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const showRecordsOptions = [10, 20, 25, 50, 100];
   //   sorting
@@ -29,19 +36,18 @@ const CustomTable = ({ Data, pagination }) => {
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
   const [Columns, setColumns] = useState([]);
   const [newUpdatedData, setNewUpdatedData] = useState([]);
+  const { tempIds } = useSelector((state) => state.vehicles);
   const dispatch = useDispatch();
 
   const loadFiltersAndData = () => {
     if (newUpdatedData) {
-      // const pageCount = Math.ceil(newUpdatedData?.length / limitedData);
       const pageCount = pagination?.totalPages;
       setTotalPages(pageCount);
-      // const start = (currentPage - 1) * limitedData;
-      const start = (pagination?.currentPage - 1) * limitedData;
+      const start = (Number(pagination?.currentPage) - 1) * limitedData;
       const end = start + limitedData;
       // if there is data in sortedData
       if (sortedData) return setNewUpdatedData(sortedData?.slice(start, end));
-      setUpdatedData(Data?.slice(start, end));
+      // setUpdatedData(Data?.slice(start, end));
     }
   };
 
@@ -75,7 +81,6 @@ const CustomTable = ({ Data, pagination }) => {
           });
         });
 
-        // setTotalPages(Math.ceil(newData.length / limitedData));
         setTotalPages(pagination?.totalPages);
         setNewUpdatedData(newData);
       } else {
@@ -106,77 +111,68 @@ const CustomTable = ({ Data, pagination }) => {
     if (Data.length == 0) return;
     // Extract keys from the first item (assuming all items have the same structure)
     const keys = Object.keys(Data[0]);
-    // Remove _id, createdAt, updatedAt from the keys array
-    const filteredKeys = keys.filter(
+
+    let filteredKeys = keys.filter(
       (key) =>
         ![
           "_id",
           "vehicleMasterId",
           "vehicleTableId",
           "stationMasterUserId",
-          "vehicleBookingStatus",
+          "vehiclePlan",
           "vehicleBasic",
           "stationId",
           "createdAt",
           "updatedAt",
+          "latitude",
+          "longitude",
           "__v",
           "locationId",
           "freeKms",
           "extraKmsCharges",
           "vehicleModel",
           "vehicleColor",
+          "vehicleBookingStatus",
           "refundableDeposit",
           "lateFee",
           "speedLimit",
           "kmsRun",
           "condition",
-          // "vehicleImage",
-          "vehiclePlan",
           "userId",
         ].includes(key)
     );
+
+    if (location.pathname == "/all-bookings") {
+      filteredKeys = filteredKeys.filter(
+        (item) =>
+          ![
+            "paySuccessId",
+            "vehicleImage",
+            "vehicleBrand",
+            "paymentgatewayOrderId",
+            "paymentgatewayReceiptId",
+            "paymentInitiatedDate",
+            "paymentMethod",
+            "payInitFrom",
+            "paymentStatus",
+          ].includes(item)
+      );
+    }
+
     // Add SNO at the start of the filtered keys array
-    const header = [
-      // <input type="checkbox" className="w-5 h-5 rounded-xl" />,
-      "SNO",
-      ...filteredKeys,
-    ];
-    location?.pathname != "/payments" && header.push("Actions");
+    const header = [...filteredKeys];
+    !(
+      location?.pathname == "/payments" ||
+      location?.pathname == "/all-pickup-image" ||
+      location?.pathname == "/users-documents"
+    ) && header.push("Actions");
+
     setColumns(header);
 
-    const modifiedData = [...Data]
-      .sort((a, b) => {
-        // Sort by `updatedAt` in descending order (latest first)
-        return new Date(b.updatedAt) - new Date(a.updatedAt);
-      })
-      .map((item) => {
-        const {
-          createdAt,
-          vehicleMasterId,
-          vehicleBookingStatus,
-          vehicleTableId,
-          vehicleBasic,
-          stationId,
-          updatedAt,
-          locationId,
-          stationMasterUserId,
-          freeKms,
-          extraKmsCharges,
-          vehicleModel,
-          vehicleColor,
-          refundableDeposit,
-          lateFee,
-          speedLimit,
-          kmsRun,
-          condition,
-          // vehicleImage,
-          vehiclePlan,
-          userId,
-          __v,
-          ...rest
-        } = item; // Destructuring to remove unwanted fields
-        return rest; // return the rest of the object (without the unwanted fields)
-      });
+    let modifiedData = [...Data].sort((a, b) => {
+      // Sort by `updatedAt` in descending order (latest first)
+      return new Date(b.updatedAt) - new Date(a.updatedAt);
+    });
 
     setNewUpdatedData(modifiedData);
     setSortedData(modifiedData);
@@ -195,22 +191,40 @@ const CustomTable = ({ Data, pagination }) => {
     dispatch(toggleDeleteModal());
   };
 
+  const toggleSelectAll = (isChecked) => {
+    if (isChecked) {
+      if (!newUpdatedData) return;
+      dispatch(addTempIdsAll(newUpdatedData?.map((item) => item?._id)));
+    } else {
+      dispatch(removeTempIds());
+    }
+  };
+
+  const toggleSelectOne = (id) => {
+    if (!id) return;
+    return dispatch(addTempIds(id));
+  };
+
   return (
     // Data &&
     <>
       <div
         className={`md:flex lg:flex ${
-          location.pathname == "/users-documents"
+          location.pathname == "/users-documents" ||
+          location.pathname == "/payments" ||
+          location.pathname == "/all-invoices"
             ? "justify-between"
             : "justify-end"
         } items-center mt-5 gap-4`}
       >
-        {location.pathname == "/users-documents" && (
+        {(location.pathname == "/users-documents" ||
+          location.pathname == "/payments" ||
+          location.pathname == "/all-invoices") && (
           <h1 className="text-xl xl:text-2xl uppercase font-bold text-theme">
-            Users Documents
+            {formatPathNameToTitle(location.pathname)}
           </h1>
         )}
-        {/* {newUpdatedData.length > 0 && ( */}
+
         <div className="w-full lg:w-[30%] bg-white rounded-md shadow-lg">
           <form className="flex items-center justify-center p-2">
             <input
@@ -240,8 +254,8 @@ const CustomTable = ({ Data, pagination }) => {
             </button>
           </form>
         </div>
-        {/* )} */}
       </div>
+
       <div className="mt-5">
         <div className="flex flex-col">
           <div className=" overflow-x-auto pb-4 no-scrollbar">
@@ -250,46 +264,163 @@ const CustomTable = ({ Data, pagination }) => {
                 <table className="table-auto min-w-full rounded-xl">
                   <thead>
                     <tr className="bg-gray-50">
-                      {Columns.map((item, index) => (
-                        <th
-                          scope="col"
-                          className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
-                          key={index}
-                          onClick={() => sortData(item)}
-                          // colSpan={item?.includes("files") ? 2 : 1}
-                        >
-                          {/* {console.log(item)} */}
-                          {camelCaseToSpaceSeparated(item)}
-                          {sortConfig.key === item &&
-                            (sortConfig.direction === "asc" ? "↑" : "↓")}
-                        </th>
-                      ))}
+                      {Columns?.length > 0 &&
+                        location.pathname == "/all-vehicles" && (
+                          <th
+                            scope="col"
+                            className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                          >
+                            <CheckBoxInput
+                              handleChange={toggleSelectAll}
+                              tempIds={tempIds}
+                              data={newUpdatedData}
+                              unique={"headerSelected"}
+                            />
+                          </th>
+                        )}
+                      {Columns.map((item, index) => {
+                        if (item == "files") {
+                          const maxFiles = Array(6).fill("image");
+                          return (
+                            <React.Fragment key={index}>
+                              {maxFiles.map((item, index) => (
+                                <th
+                                  scope="col"
+                                  className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                                  key={`${item}-${index}`}
+                                >
+                                  {`Images ${index + 1}`}
+                                </th>
+                              ))}
+                            </React.Fragment>
+                          );
+                        }
+                        if (item === "BookingStartDateAndTime") {
+                          return (
+                            <th
+                              scope="col"
+                              className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                              key="startAndEndDate"
+                            >
+                              Start & End Date and Time
+                            </th>
+                          );
+                        }
+                        if (item === "BookingEndDateAndTime") {
+                          return null;
+                        }
+                        return (
+                          <th
+                            scope="col"
+                            className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                            key={index}
+                            onClick={() => sortData(item)}
+                          >
+                            {camelCaseToSpaceSeparated(item)}
+                            {sortConfig.key === item &&
+                              (sortConfig.direction === "asc" ? "↑" : "↓")}
+                          </th>
+                        );
+                      })}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-300 ">
                     {newUpdatedData.length > 0 ? (
-                      newUpdatedData.map((item, index) => (
+                      newUpdatedData.map((item) => (
                         <tr
                           className="bg-white transition-all duration-500 hover:bg-gray-50"
                           key={item?._id}
                         >
-                          {/* <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
-                            <input
-                              type="checkbox"
-                              className="w-5 h-5 rounded-xl"
-                              value={item?._id}
-                              name={item?.vehicleName}
-                              id=""
-                            />
-                          </td> */}
-                          <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
-                            {index + 1}
-                          </td>
+                          {/* {newUpdatedData?.includes("files") && newUpdatedData} */}
+                          {location.pathname == "/all-vehicles" && (
+                            <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
+                              <CheckBoxInput
+                                handleChange={toggleSelectOne}
+                                tempIds={tempIds}
+                                data={newUpdatedData}
+                                isId={item?._id}
+                                unique={item?._id}
+                              />
+                            </td>
+                          )}
+                          {console.log(item?.files)}
                           {/* dynamically rendering */}
-                          {Columns.slice(1, Columns.length - 1).map(
-                            (column, columnIndex) =>
-                              column.includes("Image") ? (
-                                <td className=" px-5 py-3" key={columnIndex}>
+
+                          {item.files &&
+                            Array.from({ length: 6 }).map((_, index) => (
+                              <td key={index}>
+                                {item.files[index] ? (
+                                  <img
+                                    src={item.files[index].imageUrl}
+                                    alt={item.files[index].fileName}
+                                    style={{
+                                      maxWidth: "100px",
+                                      maxHeight: "100px",
+                                    }}
+                                  />
+                                ) : (
+                                  "N/A"
+                                )}
+                              </td>
+                            ))}
+
+                          {Columns.slice(0, Columns.length - 1).map(
+                            (column, columnIndex) => {
+                              if (
+                                column.includes("files") &&
+                                Array.isArray(item[column])
+                              ) {
+                                return (
+                                  <td
+                                    className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                    key={columnIndex}
+                                    colSpan={item[column].length}
+                                  >
+                                    {console.log(item[column])}
+                                    <div className="flex gap-2">
+                                      {item[column].map((file) => (
+                                        <div
+                                          key={file?._id}
+                                          className="text-center"
+                                        >
+                                          <img
+                                            src={file?.imageUrl}
+                                            alt={file?.fileName}
+                                            className="w-28 h-20 object-cover mb-2"
+                                          />
+                                          {/* <p className="text-xs">{file?.fileName}</p> */}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </td>
+                                );
+                              }
+                              if (column === "BookingStartDateAndTime") {
+                                return (
+                                  <td
+                                    className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                    key="startAndEndDate"
+                                  >
+                                    <p>
+                                      {`${formatFullDateAndTime(
+                                        item.BookingStartDateAndTime
+                                      )}`}
+                                    </p>
+                                    <p>
+                                      {`${formatFullDateAndTime(
+                                        item.BookingEndDateAndTime
+                                      )}`}
+                                    </p>
+                                  </td>
+                                );
+                              }
+                              // Skip rendering `endDateAndTime` data to avoid duplication
+                              if (column === "BookingEndDateAndTime") {
+                                return null;
+                              }
+                              // Default behavior for other columns
+                              return column.includes("Image") ? (
+                                <td className="px-5 py-3" key={columnIndex}>
                                   <div className="flex items-center gap-3 text-center">
                                     <img
                                       src={item[column]}
@@ -297,7 +428,7 @@ const CustomTable = ({ Data, pagination }) => {
                                     />
                                   </div>
                                 </td>
-                              ) : location?.pathname == "/location-master" &&
+                              ) : location?.pathname === "/location-master" &&
                                 column.includes("Status") ? (
                                 <td
                                   className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
@@ -308,78 +439,27 @@ const CustomTable = ({ Data, pagination }) => {
                                     id={item?._id}
                                   />
                                 </td>
-                              ) : column.includes("tatus") ||
+                              ) : column.includes("Status") ||
                                 column.includes("Active") ? (
                                 <td
                                   className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                   key={columnIndex}
                                 >
-                                  <div
-                                    className={`py-1.5 px-2.5 ${
-                                      item[column] == "active" ||
-                                      item[column] == "available" ||
-                                      item[column] == "done" ||
-                                      item[column] == "paid" ||
-                                      item[column] == "partiallyPay" ||
-                                      item[column] == "partially_paid"
-                                        ? "bg-emerald-50"
-                                        : "bg-red-50"
-                                    } rounded-full flex justify-center w-20 items-center gap-1`}
-                                  >
-                                    <svg
-                                      width="5"
-                                      height="6"
-                                      viewBox="0 0 5 6"
-                                      fill="none"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                      <circle
-                                        cx="2.5"
-                                        cy="3"
-                                        r="2.5"
-                                        fill={`${
-                                          item[column] == "active" ||
-                                          item[column] == "available" ||
-                                          item[column] == "done" ||
-                                          item[column] == "paid" ||
-                                          item[column] == "partiallyPay" ||
-                                          item[column] == "partially_paid"
-                                            ? "#059669"
-                                            : "#E23844"
-                                        }`}
-                                      ></circle>
-                                    </svg>
-                                    <span
-                                      className={`font-medium text-xs ${
-                                        item[column] == "active" ||
-                                        item[column] == "available" ||
-                                        item[column] == "done" ||
-                                        item[column] == "paid" ||
-                                        item[column] == "partiallyPay" ||
-                                        item[column] == "partially_paid"
-                                          ? "text-emerald-600"
-                                          : "text-red-600"
-                                      }`}
-                                    >
-                                      {item[column]}
-                                    </span>
-                                  </div>
+                                  <StatusChange item={item} column={column} />
                                 </td>
-                              ) : typeof item[column] == "object" ? (
+                              ) : typeof item[column] === "object" ? (
                                 column.includes("files") ? (
                                   item[column].map((file) => (
                                     <td
                                       className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                       key={file?._id}
                                     >
-                                      {
-                                        <img
-                                          src={file?.imageUrl}
-                                          alt={file?.fileName}
-                                          className="w-28 h-20 object-cover"
-                                          key={file?._id}
-                                        />
-                                      }
+                                      <img
+                                        src={file?.imageUrl}
+                                        alt={file?.fileName}
+                                        className="w-28 h-20 object-cover"
+                                        key={file?._id}
+                                      />
                                     </td>
                                   ))
                                 ) : (
@@ -387,7 +467,6 @@ const CustomTable = ({ Data, pagination }) => {
                                     className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                     key={columnIndex}
                                   >
-                                    {/* {console.log(column)} */}
                                     {column.includes("Documents") ||
                                     column.includes("Users")
                                       ? item[column].length
@@ -401,7 +480,6 @@ const CustomTable = ({ Data, pagination }) => {
                                   className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                   key={columnIndex}
                                 >
-                                  {/* made some changes based on keys  */}
                                   {column.includes("Charges") ||
                                   column.includes("Deposit") ||
                                   column.includes("Cost") ||
@@ -412,13 +490,15 @@ const CustomTable = ({ Data, pagination }) => {
                                     : column.includes("DateAndTime")
                                     ? formatFullDateAndTime(item[column])
                                     : column?.includes("InitiatedDate")
-                                    ? item[column] != "NA"
+                                    ? item[column] !== "NA"
                                       ? formatTimeStampToDate(item[column])
                                       : ""
                                     : item[column]}
                                 </td>
-                              )
+                              );
+                            }
                           )}
+
                           <td className="flex p-5 items-center gap-0.5">
                             {(location.pathname == "/all-vehicles" ||
                               // location.pathname == "/all-bookings" ||
@@ -431,32 +511,11 @@ const CustomTable = ({ Data, pagination }) => {
                               </Link>
                             )}
                             {location.pathname == "/all-bookings" && (
-                              <button
-                                type="button"
-                                className="w-auto lg:w-32 bg-theme text-gray-100 py-1 px-2 bg-opacity-90 rounded-lg shadow-md hover:shadow-none disabled:bg-gray-400"
-                                onClick={() =>
-                                  handleGenerateInvoice(
-                                    dispatch,
-                                    item?._id,
-                                    token,
-                                    setLoadingStates
-                                  )
-                                }
-                                disabled={
-                                  item?.bookingPrice?.isInvoiceCreated ||
-                                  loadingStates[item._id]
-                                }
-                              >
-                                {!loadingStates[item._id] ? (
-                                  item?.bookingPrice?.isInvoiceCreated ? (
-                                    "Created"
-                                  ) : (
-                                    "create Invoice"
-                                  )
-                                ) : (
-                                  <Spinner message={"creating.."} />
-                                )}
-                              </button>
+                              <GenerateInvoiceButton
+                                item={item}
+                                loadingStates={loadingStates}
+                                setLoadingStates={setLoadingStates}
+                              />
                             )}
                             {!(
                               location.pathname == "/users-documents" ||
@@ -514,14 +573,7 @@ const CustomTable = ({ Data, pagination }) => {
                         </tr>
                       ))
                     ) : (
-                      <tr>
-                        <td
-                          className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 text-center capitalize"
-                          colSpan={7}
-                        >
-                          No Data to display.
-                        </td>
-                      </tr>
+                      <TableNotFound />
                     )}
                   </tbody>
                 </table>

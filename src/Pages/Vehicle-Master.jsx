@@ -82,7 +82,7 @@ const VehicleMaster = () => {
           </div>
         )}
       </div>
-      {/* {console.log(vehicleMaster)} */}
+      {console.log(vehicleMaster)}
       {/* <CustomTable
         Data={vehicleMaster?.data}
         pagination={vehicleMaster?.pagination}

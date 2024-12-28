@@ -8,7 +8,7 @@ import {
   formatTimeStampToDate,
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice.js";
@@ -166,6 +166,7 @@ const CustomTable = ({ Data, pagination }) => {
       location?.pathname == "/all-pickup-image" ||
       location?.pathname == "/users-documents"
     ) && header.push("Actions");
+
     setColumns(header);
 
     let modifiedData = [...Data].sort((a, b) => {
@@ -223,7 +224,7 @@ const CustomTable = ({ Data, pagination }) => {
             {formatPathNameToTitle(location.pathname)}
           </h1>
         )}
-        {/* {newUpdatedData.length > 0 && ( */}
+
         <div className="w-full lg:w-[30%] bg-white rounded-md shadow-lg">
           <form className="flex items-center justify-center p-2">
             <input
@@ -253,8 +254,8 @@ const CustomTable = ({ Data, pagination }) => {
             </button>
           </form>
         </div>
-        {/* )} */}
       </div>
+
       <div className="mt-5">
         <div className="flex flex-col">
           <div className=" overflow-x-auto pb-4 no-scrollbar">
@@ -278,6 +279,22 @@ const CustomTable = ({ Data, pagination }) => {
                           </th>
                         )}
                       {Columns.map((item, index) => {
+                        if (item == "files") {
+                          const maxFiles = Array(6).fill("image");
+                          return (
+                            <React.Fragment key={index}>
+                              {maxFiles.map((item, index) => (
+                                <th
+                                  scope="col"
+                                  className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                                  key={`${item}-${index}`}
+                                >
+                                  {`Images ${index + 1}`}
+                                </th>
+                              ))}
+                            </React.Fragment>
+                          );
+                        }
                         if (item === "BookingStartDateAndTime") {
                           return (
                             <th
@@ -314,7 +331,6 @@ const CustomTable = ({ Data, pagination }) => {
                           className="bg-white transition-all duration-500 hover:bg-gray-50"
                           key={item?._id}
                         >
-                          {newUpdatedData?.includes("files") && newUpdatedData}
                           {location.pathname == "/all-vehicles" && (
                             <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
                               <CheckBoxInput
@@ -326,6 +342,26 @@ const CustomTable = ({ Data, pagination }) => {
                               />
                             </td>
                           )}
+                          {item.files && console.log(item.files)}
+
+                          {item.files &&
+                            Array.from({ length: 6 }).map((_, index) => (
+                              <td key={index}>
+                                {item.files[index] ? (
+                                  <img
+                                    src={item.files[index].imageUrl}
+                                    alt={item.files[index].fileName}
+                                    style={{
+                                      maxWidth: "100px",
+                                      maxHeight: "100px",
+                                    }}
+                                  />
+                                ) : (
+                                  "N/A"
+                                )}
+                              </td>
+                            ))}
+
                           {/* dynamically rendering */}
                           {Columns.slice(0, Columns.length - 1).map(
                             (column, columnIndex) => {
@@ -382,33 +418,17 @@ const CustomTable = ({ Data, pagination }) => {
                                   <StatusChange item={item} column={column} />
                                 </td>
                               ) : typeof item[column] === "object" ? (
-                                column.includes("files") ? (
-                                  item[column].map((file) => (
-                                    <td
-                                      className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
-                                      key={file?._id}
-                                    >
-                                      <img
-                                        src={file?.imageUrl}
-                                        alt={file?.fileName}
-                                        className="w-28 h-20 object-cover"
-                                        key={file?._id}
-                                      />
-                                    </td>
-                                  ))
-                                ) : (
-                                  <td
-                                    className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
-                                    key={columnIndex}
-                                  >
-                                    {column.includes("Documents") ||
-                                    column.includes("Users")
-                                      ? item[column].length
-                                      : `₹${formatPrice(
-                                          item[column]?.bookingPrice
-                                        )}`}
-                                  </td>
-                                )
+                                <td
+                                  className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                  key={columnIndex}
+                                >
+                                  {column.includes("Documents") ||
+                                  column.includes("Users")
+                                    ? item[column].length
+                                    : `₹${formatPrice(
+                                        item[column]?.bookingPrice
+                                      )}`}
+                                </td>
                               ) : (
                                 <td
                                   className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"

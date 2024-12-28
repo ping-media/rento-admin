@@ -19,7 +19,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   const [inputTax, setInputTax] = useState(0);
   const [inputTotal, setInputTotal] = useState(0);
   const [startDateAndTime, setStartDateAndTime] = useState("");
-  const [endDateAndTIme, setEndDateAndTIme] = useState("");
+  const [endDateAndTime, setEndDateAndTime] = useState("");
   const [isRequiredField, setIsRequiredField] = useState(false);
 
   // useEffect(() => {
@@ -42,11 +42,26 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   // }, [bookingPrice, extraAddonPrice]);
 
   useEffect(() => {
-    console.log(startDateAndTime, endDateAndTIme);
-    if (startDateAndTime != "" && endDateAndTIme != "") {
-      console.log(startDateAndTime, endDateAndTIme);
+    console.log(startDateAndTime, endDateAndTime, collectedData);
+    if (
+      startDateAndTime != "" &&
+      endDateAndTime != "" &&
+      collectedData != null
+    ) {
+      // setIsRequiredField(true);
+      console.log(startDateAndTime, endDateAndTime);
     }
-  }, [startDateAndTime, endDateAndTIme]);
+  }, [startDateAndTime, endDateAndTime, collectedData]);
+
+  const handleContinueBooking = () => {
+    if (
+      startDateAndTime != "" &&
+      endDateAndTime != "" &&
+      collectedData != null
+    ) {
+      setIsRequiredField(true);
+    }
+  };
 
   return (
     <form onSubmit={handleFormSubmit}>
@@ -59,6 +74,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               name={"userId"}
               token={token}
               value={id ? vehicleMaster[0]?.userId : ""}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -70,24 +86,28 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               suggestedData={collectedData}
               setSuggestionData={setCollectedData}
               setBookingPrice={setBookingPrice}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <InputDateAndTime
               item={"BookingStartDateAndTime"}
+              name={"BookingStartDateAndTime"}
               value={id ? vehicleMaster[0]?.BookingStartDateAndTime : ""}
               require={true}
-              setDateAndTime={setStartDateAndTime}
+              setDateChanger={setStartDateAndTime}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <InputDateAndTime
               item={"BookingEndDateAndTime"}
+              namme={"BookingEndDateAndTime"}
               value={id ? vehicleMaster[0]?.BookingEndDateAndTime : ""}
               require={true}
-              setDateAndTIme={setEndDateAndTIme}
+              setDateChanger={setEndDateAndTime}
             />
           </div>
+
           {isRequiredField && (
             <>
               <div className="w-full lg:w-[48%]">
@@ -164,13 +184,23 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           )}
         </>
       </div>
-      <button
-        className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
-        type="submit"
-        disabled={loading}
-      >
-        {loading ? <Spinner message={"uploading"} /> : "Publish"}
-      </button>
+      {!isRequiredField ? (
+        <button
+          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+          type="button"
+          onClick={handleContinueBooking}
+        >
+          Continue
+        </button>
+      ) : (
+        <button
+          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+          type="submit"
+          disabled={loading || !isRequiredField}
+        >
+          {loading ? <Spinner message={"uploading"} /> : "Publish"}
+        </button>
+      )}
     </form>
   );
 };
