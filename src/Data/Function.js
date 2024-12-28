@@ -150,9 +150,9 @@ const handleCreateAndUpdateVehicle = async (
     dispatch(removeTempIds());
   }
   // we want to pass pincode as stationId
-  else if (result?.pinCode) {
-    result = Object.assign(result, { stationId: result?.pinCode });
-  }
+  // else if (result?.includes("pinCode")) {
+  //   result = Object.assign(result, { stationId: result?.pinCode });
+  // }
 
   // console.log(result);
 

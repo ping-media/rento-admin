@@ -96,6 +96,11 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
+            <input
+              type="hidden"
+              name="stationId"
+              value={id ? vehicleMaster[0]?.stationId : zipCodeValue}
+            />
             <Input
               item={"pinCode"}
               type="number"

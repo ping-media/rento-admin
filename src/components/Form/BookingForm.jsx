@@ -59,7 +59,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       endDateAndTime != "" &&
       collectedData != null
     ) {
-      setIsRequiredField(true);
+      return setIsRequiredField(true);
     }
   };
 
@@ -85,7 +85,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               value={id ? vehicleMaster[0]?.vehicleTableId : ""}
               suggestedData={collectedData}
               setSuggestionData={setCollectedData}
-              setBookingPrice={setBookingPrice}
+              // setBookingPrice={setBookingPrice}
               require={true}
             />
           </div>
