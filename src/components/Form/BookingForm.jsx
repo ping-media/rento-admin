@@ -5,7 +5,7 @@ import Spinner from "../Spinner/Spinner";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import InputSearch from "../InputAndDropdown/InputSearch";
-import InputVehicleSearch from "../InputAndDropdown/inputVehicleSearch";
+import InputVehicleSearch from "../InputAndDropdown/InputVehicleSearch";
 import InputDateAndTime from "../InputAndDropdown/InputDateAndTime";
 import { calculateTax } from "../../utils";
 
