@@ -45,6 +45,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
     }
   };
 
+  // test
   useEffect(() => {
     fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
     console.log(collectedData);
