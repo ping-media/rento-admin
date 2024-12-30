@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
-import Spinner from "../Spinner/Spinner";
+import Spinner from "../Spinner/Spinner.jsx";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import { getData } from "../../Data";
 import { endPointBasedOnKey, vehicleColor } from "../../Data/commonData";
