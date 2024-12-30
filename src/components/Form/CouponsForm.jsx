@@ -31,13 +31,6 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one & for creating new one */}
         <>
-          {/* <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"userId"}
-              options={(collectedData && collectedData?.userId) || []}
-              value={id ? vehicleMaster[0]?.userId : ""}
-            />
-          </div> */}
           <div className="w-full lg:w-[48%]">
             <Input
               item={"couponName"}
@@ -55,6 +48,13 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
               type="number"
               item={"discount"}
               value={id ? vehicleMaster[0]?.discount : ""}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              type="number"
+              item={"couponCount"}
+              value={id ? vehicleMaster[0]?.couponCount : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">
