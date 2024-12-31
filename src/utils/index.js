@@ -150,22 +150,6 @@ const modifyUrl = (url) => {
   return url.endsWith("/") ? url : url + "/";
 };
 
-// const formatFullDateAndTime = (dateString) => {
-//   const date = new Date(dateString);
-
-//   // Format the date to a readable format without time zone abbreviation
-//   const formattedDate = date.toLocaleString("en-US", {
-//     year: "numeric", // "2024"
-//     month: "long", // "November"
-//     day: "2-digit", // "29"
-//     hour: "2-digit", // "10"
-//     minute: "2-digit", // "00"
-//     second: "2-digit", // "00"
-//   });
-
-//   return formattedDate;
-// };
-
 const formatFullDateAndTime = (dateString) => {
   const date = new Date(dateString);
 
@@ -176,7 +160,6 @@ const formatFullDateAndTime = (dateString) => {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit",
     hour12: true, // Optional: to use 12-hour format
     timeZone: "UTC", // Ensure UTC time zone
   });
@@ -269,6 +252,82 @@ const formatTimeStampToDate = (timestamp) => {
   return formattedDate;
 };
 
+const getDurationBetweenDates = (startDate, endDate) => {
+  // Parse the dates
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  // Calculate the difference in milliseconds
+  const diffInMs = Math.abs(end - start);
+
+  // Convert milliseconds to days, hours, minutes, and seconds
+  const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor(
+    (diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  );
+  const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diffInMs % (1000 * 60)) / 1000);
+
+  // Return the duration as an object
+  return { days, hours, minutes, seconds };
+};
+
+const formatReadableDateTime = (dateString) => {
+  const date = new Date(dateString);
+
+  // Get the day, month, year, hour, and minutes
+  const day = date.getUTCDate();
+  const year = date.getUTCFullYear();
+  const hours = date.getUTCHours();
+  const minutes = date.getUTCMinutes();
+
+  // Format the month name
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = monthNames[date.getUTCMonth()];
+
+  // Format hours to 12-hour clock and determine AM/PM
+  const formattedHours = hours % 12 || 12; // Convert 0 to 12
+  const period = hours >= 12 ? "PM" : "AM";
+
+  // Format minutes with leading zero
+  const formattedMinutes = minutes.toString().padStart(2, "0");
+
+  // Construct the formatted string
+  return `${day} ${month} ${year} At ${formattedHours}:${formattedMinutes} ${period}`;
+};
+
+const getDurationInDays = (date1Str, date2Str) => {
+  // Parse the input strings into Date objects
+  const date1 = new Date(date1Str);
+  const date2 = new Date(date2Str);
+
+  // Check if the dates are valid
+  if (isNaN(date1) || isNaN(date2)) {
+    return "Invalid date format";
+  }
+
+  // Get the difference between the two dates in milliseconds
+  const differenceInMs = Math.abs(date2 - date1);
+
+  // Convert milliseconds to days
+  const days = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
+
+  return days;
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -291,4 +350,7 @@ export {
   formatDateForInvoice,
   formatTimeStampToDate,
   camelCaseToSpaceSeparatedMapped,
+  getDurationBetweenDates,
+  formatReadableDateTime,
+  getDurationInDays,
 };

@@ -27,12 +27,10 @@ const vehicleSlice = createSlice({
       state.loading = false;
     },
     handleUpdateStatus: (state, action) => {
-      const { id, newStatus } = action.payload;
-      const location = state?.vehicleMaster?.data?.find(
-        (item) => item._id === id
-      );
-      if (location) {
-        location.locationStatus = newStatus;
+      const { id, newStatus, flag } = action.payload;
+      const data = state?.vehicleMaster?.data?.find((item) => item._id === id);
+      if (data) {
+        data[flag] = newStatus;
       }
     },
     addTempVehicleData: (state, action) => {

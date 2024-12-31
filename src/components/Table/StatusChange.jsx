@@ -1,5 +1,4 @@
 const StatusChange = ({ item, column }) => {
-  // console.log(item[column], item, column);
   return (
     <div
       className={`py-1.5 px-2.5 ${
@@ -7,8 +6,8 @@ const StatusChange = ({ item, column }) => {
         item[column] == "available" ||
         item[column] == "done" ||
         item[column] == "paid" ||
-        item[column] == "partiallyPay" ||
-        item[column] == "partially_paid"
+        item[column] == "partially_paid" ||
+        item[column] == "partiallyPay"
           ? "bg-emerald-50"
           : "bg-red-50"
       } rounded-full flex justify-center w-20 items-center gap-1`}
@@ -25,12 +24,12 @@ const StatusChange = ({ item, column }) => {
           cy="3"
           r="2.5"
           fill={`${
-            item[column] == "active" ||
-            item[column] == "available" ||
-            item[column] == "done" ||
-            item[column] == "paid" ||
-            item[column] == "partiallyPay" ||
-            item[column] == "partially_paid"
+            item[column] === "active" ||
+            item[column] === "available" ||
+            item[column] === "done" ||
+            item[column] === "paid" ||
+            item[column] === "partially_paid" ||
+            item[column] === "partiallyPay"
               ? "#059669"
               : "#E23844"
           }`}
@@ -38,17 +37,19 @@ const StatusChange = ({ item, column }) => {
       </svg>
       <span
         className={`font-medium text-xs ${
-          item[column] == "active" ||
-          item[column] == "available" ||
-          item[column] == "done" ||
-          item[column] == "paid" ||
-          item[column] == "partiallyPay" ||
-          item[column] == "partially_paid"
+          item[column] === "active" ||
+          item[column] === "available" ||
+          item[column] === "done" ||
+          item[column] === "paid" ||
+          item[column] === "partially_paid" ||
+          item[column] === "partiallyPay"
             ? "text-emerald-600"
             : "text-red-600"
         }`}
       >
-        {item[column]}
+        {item[column] === "partially_paid"
+          ? item[column].replace("_", " ")
+          : item[column]}
       </span>
     </div>
   );

@@ -262,7 +262,6 @@ const fetchUserDataBasedOnQuery = async (endpoint, token) => {
 };
 
 const handleGenerateInvoice = async (dispatch, id, token, setLoadingStates) => {
-  // console.log(id);
   if (!id)
     return handleAsyncError(dispatch, "failed to create Invoice! try again.");
   setLoadingStates((prevState) => ({
@@ -284,6 +283,78 @@ const handleGenerateInvoice = async (dispatch, id, token, setLoadingStates) => {
   }
 };
 
+//   searh filtered data
+// const handleFilterData = (
+//   e,
+//   newUpdatedData,
+//   pagination,
+//   setTotalPages,
+//   setNewUpdatedData,
+//   loadFiltersAndData
+// ) => {
+//   e.preventDefault();
+//   let debounceTimeout;
+//   const searchedQuery = e.target.value;
+
+//   // Clear the previous timeout if the user is typing again
+//   clearTimeout(debounceTimeout);
+
+//   debounceTimeout = setTimeout(() => {
+//     if (searchedQuery.length >= 3) {
+//       // Filter dynamically based on the keys of each data item
+//       const newData = newUpdatedData?.filter((data) => {
+//         return Object.keys(data).some((key) => {
+//           // Check if the value of the key is a string and if it matches the search query
+//           if (typeof data[key] === "string") {
+//             return data[key]
+//               .toLowerCase()
+//               .includes(searchedQuery.toLowerCase());
+//           }
+//           return false;
+//         });
+//       });
+
+//       setTotalPages(pagination?.totalPages);
+//       setNewUpdatedData(newData);
+//     } else {
+//       loadFiltersAndData();
+//     }
+//   }, 300);
+// };
+const handleFilterData = async (
+  e,
+  pagination,
+  setTotalPages,
+  setNewUpdatedData
+) => {
+  e.preventDefault();
+  let debounceTimeout;
+  const searchedQuery = e.target.value;
+
+  // Clear the previous timeout if the user is typing again
+  clearTimeout(debounceTimeout);
+
+  debounceTimeout = setTimeout(async () => {
+    if (searchedQuery.length >= 3) {
+      try {
+        // Fetch data from the backend or another source based on the search query
+        const result = await fetchFilteredData(searchedQuery);
+
+        // Assume result includes a data array and pagination details
+        if (result) {
+          const { data, totalPages } = result;
+          setNewUpdatedData(data || []);
+          setTotalPages(totalPages || 1);
+        }
+      } catch (error) {
+        console.error("Error fetching filtered data:", error);
+      }
+    } else {
+      loadFiltersAndData();
+    }
+  }, 300);
+};
+
 export {
   handleOtpLogin,
   fetchDashboardData,
@@ -296,4 +367,5 @@ export {
   fetchUserDataBasedOnQuery,
   handleGenerateInvoice,
   fetchVehicleMasterWithPagination,
+  handleFilterData,
 };

@@ -66,7 +66,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"User"}
               name={"userId"}
               token={token}
-              value={id ? vehicleMaster[0]?.userId : ""}
+              value={id ? vehicleMaster[0]?.userId?._id : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">

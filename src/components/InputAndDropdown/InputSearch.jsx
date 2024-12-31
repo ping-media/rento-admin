@@ -16,6 +16,7 @@ const InputSearch = ({
   require = false,
   name,
   token,
+  setValueChanger,
 }) => {
   const [userId, setUserId] = useState(value);
   const [inputValue, setInputValue] = useState("");
@@ -53,6 +54,7 @@ const InputSearch = ({
   // setting user data to input
   const handleSelectUserById = (item) => {
     setUserId(item?._id);
+    setValueChanger && setValueChanger(item?._id);
     setInputValue(`${item?.firstName} | ${item?.contact} | ${item?.userType}`);
     dispatch(removeTempVehicleData());
   };

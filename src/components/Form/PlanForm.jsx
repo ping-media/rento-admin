@@ -35,7 +35,7 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
     }
   };
   useEffect(() => {
-    fetchCollectedData("vehicleMasterId", "locationId");
+    // fetchCollectedData("vehicleMasterId", "locationId");
   }, []);
 
   //updating station based on location id
@@ -55,7 +55,7 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one & for creating new one */}
         <>
-          <div className="w-full lg:w-[48%]">
+          {/* <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"locationId"}
               options={(collectedData && collectedData?.locationId) || []}
@@ -69,14 +69,14 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
               options={stationData && stationData}
               value={id ? vehicleMaster[0]?.stationId : ""}
             />
-          </div>
-          <div className="w-full lg:w-[48%]">
+          </div> */}
+          {/* <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"vehicleMasterId"}
               options={(collectedData && collectedData?.vehicleMasterId) || []}
               value={id ? vehicleMaster[0]?.vehicleMasterId : ""}
             />
-          </div>
+          </div> */}
           <div className="w-full lg:w-[48%]">
             <Input
               item={"planName"}
@@ -88,6 +88,7 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
               <div className="w-full lg:w-[48%]">
                 <Input
                   item={"planDuration"}
+                  type="number"
                   value={id && Number(vehicleMaster[0]?.planDuration)}
                 />
               </div>

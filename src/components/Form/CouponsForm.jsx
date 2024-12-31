@@ -1,30 +1,12 @@
-import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import Spinner from "../Spinner/Spinner";
 import { useParams } from "react-router-dom";
-import { getData } from "../../Data";
-// import { endPointBasedOnKey } from "../../Data/commonData";
 
 const PlanForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
-  const [collectedData, setCollectedData] = useState([]);
   const { id } = useParams();
-  const { token } = useSelector((state) => state.user);
-
-  const fetchCollectedData = async (userUrl) => {
-    const userResponse = await getData(userUrl, token);
-
-    if (userResponse) {
-      return setCollectedData({
-        userId: userResponse?.data,
-      });
-    }
-  };
-  useEffect(() => {
-    fetchCollectedData("/getAllUsers?userType=customer");
-  }, []);
 
   return (
     <form onSubmit={handleFormSubmit}>
@@ -38,9 +20,10 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input
+            <SelectDropDown
               item={"discountType"}
-              value={id ? vehicleMaster[0]?.discountType : ""}
+              options={["percentage", "fixed"]}
+              value={id ? vehicleMaster[0]?.discountType : "percentage"}
             />
           </div>
           <div className="w-full lg:w-[48%]">

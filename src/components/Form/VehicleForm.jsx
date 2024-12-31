@@ -47,7 +47,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
 
   useEffect(() => {
     fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
-    console.log(collectedData);
+    // console.log(collectedData);
   }, []);
 
   //updating station based on location id
@@ -68,34 +68,34 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
 
   return !formLoading || collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
+      <div className="border-b-2 mb-5">
+        <h2 className="font-bold">Select Package</h2>
+        <div className="w-full pb-2">
+          {collectedData?.AllPlanDataId?.length > 0 ? (
+            collectedData?.AllPlanDataId.map((plan) => (
+              <div className="flex items-center gap-1.5 my-2.5" key={plan?._id}>
+                <label
+                  className="inline-flex items-center whitespace-nowrap"
+                  htmlFor="redCheckBox"
+                >
+                  <input
+                    id="redCheckBox"
+                    type="checkbox"
+                    className="w-4 h-4 accent-red-600"
+                    onClick={() => handlePushId(plan?._id)}
+                  />
+                  <span className="ml-2">{plan?.planName}</span>
+                </label>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-400 italic capitalize">no package found.</p>
+          )}
+        </div>
+      </div>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
         <>
-          <h2 className="font-bold">Select Package</h2>
-          <div className="w-full flex items-center gap-2.5 pb-3 border-b-2">
-            {collectedData?.AllPlanDataId?.length > 0 ? (
-              collectedData?.AllPlanDataId.map((plan) => (
-                <div key={plan?._id}>
-                  <label
-                    className="inline-flex items-center"
-                    htmlFor="redCheckBox"
-                  >
-                    <input
-                      id="redCheckBox"
-                      type="checkbox"
-                      className="w-4 h-4 accent-red-600"
-                      onClick={() => handlePushId(plan?._id)}
-                    />
-                    <span className="ml-2">{plan?.planName}</span>
-                  </label>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400 italic capitalize">
-                no package found.
-              </p>
-            )}
-          </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"locationId"}

@@ -7,6 +7,7 @@ import PreLoader from "../Skeleton/PreLoader";
 import { NotFound } from "../../Pages";
 import { getData } from "../../Data";
 import { endPointBasedOnKey } from "../../Data/commonData";
+import { camelCaseToSpaceSeparated } from "../../utils/index";
 
 const VehicleDetail = () => {
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
@@ -82,33 +83,41 @@ const VehicleDetail = () => {
                   Vehicle Infomation
                 </h2>
                 <div className="border-2 p-2 border-gray-300 rounded-lg">
-                  {Object.entries(vehicleMaster[0]).map(([key, value]) => {
-                    if (
-                      key.includes("id") ||
-                      key.includes("_v") ||
-                      key.includes("At") ||
-                      key.includes("Id") ||
-                      key.includes("Image") ||
-                      key.includes("vehiclePlan")
-                    ) {
-                      return null;
-                    }
+                  {Object.entries(vehicleMaster[0]).map(
+                    ([key, value], index) => {
+                      if (
+                        key.includes("id") ||
+                        key.includes("_v") ||
+                        key.includes("At") ||
+                        key.includes("Id") ||
+                        key.includes("Image") ||
+                        key.includes("vehiclePlan")
+                      ) {
+                        return null;
+                      }
 
-                    return (
-                      <div
-                        className={`flex justify-between items-center py-1.5 border-b-2 border-gray-300`}
-                        key={key}
-                      >
-                        <span className="font-semibold uppercase">{key}</span>{" "}
-                        <span className="text-gray-500 capitalize">
-                          {key.includes("Cost") || key.includes("Charges")
-                            ? "₹"
-                            : ""}
-                          {value}
-                        </span>
-                      </div>
-                    );
-                  })}
+                      return (
+                        <div
+                          className={`flex justify-between items-center py-1.5 ${
+                            Object.entries(vehicleMaster[0]).length != index + 1
+                              ? "border-b-2"
+                              : ""
+                          } border-gray-300`}
+                          key={key}
+                        >
+                          <span className="font-semibold uppercase">
+                            {camelCaseToSpaceSeparated(key)}
+                          </span>{" "}
+                          <span className="text-gray-500 capitalize">
+                            {key.includes("Cost") || key.includes("Charges")
+                              ? "₹"
+                              : ""}
+                            {value}
+                          </span>
+                        </div>
+                      );
+                    }
+                  )}
                 </div>
               </div>
               <div className="flex-1 px-6 py-4 bg-white shadow-md rounded-lg">

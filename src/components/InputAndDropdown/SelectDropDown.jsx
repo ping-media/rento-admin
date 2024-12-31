@@ -112,8 +112,12 @@ const SelectDropDown = ({
                 );
               } else {
                 return (
-                  <option value={items} key={index} className="capitalize">
-                    {items}
+                  <option
+                    value={items.toLowerCase()}
+                    key={index}
+                    className="capitalize"
+                  >
+                    {items.toLowerCase()}
                   </option>
                 );
               }

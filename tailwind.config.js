@@ -15,8 +15,22 @@ export default {
         "theme-purple-dark": "#0F0248",
         "theme-purple-light": "#58D3FF",
         "theme-cyan": "#00bfd9",
+        "autofill-bg": "#ffffff",
+        "autofill-text": "#000000",
+      },
+    },
+    variants: {
+      extend: {
+        backgroundColor: ["autofill"], // Enable background color for autofill
+        textColor: ["autofill"], // Enable text color for autofill
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addVariant }) {
+      addVariant("autofill", "&:-webkit-autofill"); // Add autofill variant for webkit browsers
+      addVariant("autofill-active", "&:-webkit-autofill:active"); // Optional active state
+      addVariant("autofill-focus", "&:-webkit-autofill:focus"); // Optional focus state
+    },
+  ],
 };

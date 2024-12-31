@@ -126,6 +126,7 @@ const CustomTable = ({ Data, pagination }) => {
           "updatedAt",
           "latitude",
           "longitude",
+          "imageFileName",
           "__v",
           "locationId",
           "freeKms",
@@ -152,6 +153,7 @@ const CustomTable = ({ Data, pagination }) => {
             "paymentgatewayOrderId",
             "paymentgatewayReceiptId",
             "paymentInitiatedDate",
+            "discountCuopon",
             "paymentMethod",
             "payInitFrom",
             "paymentStatus",
@@ -160,14 +162,39 @@ const CustomTable = ({ Data, pagination }) => {
     }
 
     // Add SNO at the start of the filtered keys array
-    const header = [...filteredKeys];
-    !(
-      location?.pathname == "/payments" ||
-      location?.pathname == "/all-pickup-image" ||
-      location?.pathname == "/users-documents"
-    ) && header.push("Actions");
+    // const header = [...filteredKeys];
+    // !(
+    //   location?.pathname == "/payments" ||
+    //   location?.pathname == "/all-pickup-image" ||
+    //   location?.pathname == "/users-documents"
+    // ) && header.push("Actions");
 
-    setColumns(header);
+    // setColumns(header);
+
+    const header = [...filteredKeys];
+
+    // Extract "Status" or "Active" columns
+    const statusColumns = header.filter(
+      (key) => key.includes("Status") || key.includes("Active")
+    );
+
+    // Remove "Status" or "Active" columns from the main list
+    const filteredHeader = header.filter(
+      (key) => !key.includes("Status") && !key.includes("Active")
+    );
+
+    // Add "Status" columns before "Actions" and push "Actions" at the end
+    const finalHeader = [
+      ...filteredHeader,
+      ...statusColumns,
+      // !(
+      //   location?.pathname == "/payments" ||
+      //   location?.pathname == "/all-pickup-image" ||
+      //   location?.pathname == "/users-documents"
+      // ) && "Actions",
+    ].filter(Boolean); // Remove any false values if "Actions" is not added
+
+    setColumns(finalHeader);
 
     let modifiedData = [...Data].sort((a, b) => {
       // Sort by `updatedAt` in descending order (latest first)
@@ -278,7 +305,7 @@ const CustomTable = ({ Data, pagination }) => {
                             />
                           </th>
                         )}
-                      {Columns.map((item, index) => {
+                      {/* {Columns.map((item, index) => {
                         if (item == "files") {
                           const maxFiles = Array(6).fill("image");
                           return (
@@ -321,7 +348,88 @@ const CustomTable = ({ Data, pagination }) => {
                               (sortConfig.direction === "asc" ? "↑" : "↓")}
                           </th>
                         );
+                      })} */}
+                      {/* Render headers for columns that do not include "Status" or "Active" */}
+                      {/* Render headers for columns that do not include "Status" or "Active" */}
+                      {Columns.filter(
+                        (item) =>
+                          !item.includes("Status") && !item.includes("Active")
+                      ).map((item, index) => {
+                        if (item === "files") {
+                          const maxFiles = Array(6).fill("image");
+                          return (
+                            <React.Fragment key={index}>
+                              {maxFiles.map((_, fileIndex) => (
+                                <th
+                                  scope="col"
+                                  className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                                  key={`Images-${fileIndex}`}
+                                >
+                                  {`Images ${fileIndex + 1}`}
+                                </th>
+                              ))}
+                            </React.Fragment>
+                          );
+                        }
+                        if (item === "BookingStartDateAndTime") {
+                          return (
+                            <th
+                              scope="col"
+                              className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                              key="startAndEndDate"
+                            >
+                              Start & End Date and Time
+                            </th>
+                          );
+                        }
+                        if (item === "BookingEndDateAndTime") {
+                          return null;
+                        }
+                        return (
+                          <th
+                            scope="col"
+                            className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                            key={index}
+                            onClick={() => sortData(item)}
+                          >
+                            {camelCaseToSpaceSeparated(item)}
+                            {sortConfig.key === item &&
+                              (sortConfig.direction === "asc" ? "↑" : "↓")}
+                          </th>
+                        );
                       })}
+
+                      {/* Render headers for columns containing "Status" or "Active" */}
+                      {Columns.filter(
+                        (item) =>
+                          item.includes("Status") || item.includes("Active")
+                      ).map((item, index) => (
+                        <th
+                          scope="col"
+                          className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                          key={`Status-${index}`}
+                          onClick={() => sortData(item)}
+                        >
+                          {camelCaseToSpaceSeparated(item)}
+                          {sortConfig.key === item &&
+                            (sortConfig.direction === "asc" ? "↑" : "↓")}
+                        </th>
+                      ))}
+
+                      {/* Add "Actions" as the last header */}
+                      {!(
+                        location?.pathname === "/payments" ||
+                        location?.pathname === "/all-pickup-image" ||
+                        location?.pathname === "/users-documents"
+                      ) && (
+                        <th
+                          scope="col"
+                          className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                          key="Actions"
+                        >
+                          Actions
+                        </th>
+                      )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-300 ">
@@ -331,7 +439,6 @@ const CustomTable = ({ Data, pagination }) => {
                           className="bg-white transition-all duration-500 hover:bg-gray-50"
                           key={item?._id}
                         >
-                          {/* {newUpdatedData?.includes("files") && newUpdatedData} */}
                           {location.pathname == "/all-vehicles" && (
                             <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
                               <CheckBoxInput
@@ -343,9 +450,7 @@ const CustomTable = ({ Data, pagination }) => {
                               />
                             </td>
                           )}
-                          {console.log(item?.files)}
-                          {/* dynamically rendering */}
-
+                          {item.files && console.log(item.files)}
                           {item.files &&
                             Array.from({ length: 6 }).map((_, index) => (
                               <td key={index}>
@@ -363,38 +468,9 @@ const CustomTable = ({ Data, pagination }) => {
                                 )}
                               </td>
                             ))}
-
-                          {Columns.slice(0, Columns.length - 1).map(
+                          {/* dynamically rendering */}
+                          {/* {Columns.slice(0, Columns.length - 1).map(
                             (column, columnIndex) => {
-                              if (
-                                column.includes("files") &&
-                                Array.isArray(item[column])
-                              ) {
-                                return (
-                                  <td
-                                    className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
-                                    key={columnIndex}
-                                    colSpan={item[column].length}
-                                  >
-                                    {console.log(item[column])}
-                                    <div className="flex gap-2">
-                                      {item[column].map((file) => (
-                                        <div
-                                          key={file?._id}
-                                          className="text-center"
-                                        >
-                                          <img
-                                            src={file?.imageUrl}
-                                            alt={file?.fileName}
-                                            className="w-28 h-20 object-cover mb-2"
-                                          />
-                                          {/* <p className="text-xs">{file?.fileName}</p> */}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </td>
-                                );
-                              }
                               if (column === "BookingStartDateAndTime") {
                                 return (
                                   <td
@@ -414,11 +490,11 @@ const CustomTable = ({ Data, pagination }) => {
                                   </td>
                                 );
                               }
-                              // Skip rendering `endDateAndTime` data to avoid duplication
+                              Skip rendering `endDateAndTime` data to avoid duplication
                               if (column === "BookingEndDateAndTime") {
                                 return null;
                               }
-                              // Default behavior for other columns
+                              Default behavior for other columns
                               return column.includes("Image") ? (
                                 <td className="px-5 py-3" key={columnIndex}>
                                   <div className="flex items-center gap-3 text-center">
@@ -448,33 +524,17 @@ const CustomTable = ({ Data, pagination }) => {
                                   <StatusChange item={item} column={column} />
                                 </td>
                               ) : typeof item[column] === "object" ? (
-                                column.includes("files") ? (
-                                  item[column].map((file) => (
-                                    <td
-                                      className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
-                                      key={file?._id}
-                                    >
-                                      <img
-                                        src={file?.imageUrl}
-                                        alt={file?.fileName}
-                                        className="w-28 h-20 object-cover"
-                                        key={file?._id}
-                                      />
-                                    </td>
-                                  ))
-                                ) : (
-                                  <td
-                                    className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
-                                    key={columnIndex}
-                                  >
-                                    {column.includes("Documents") ||
-                                    column.includes("Users")
-                                      ? item[column].length
-                                      : `₹${formatPrice(
-                                          item[column]?.bookingPrice
-                                        )}`}
-                                  </td>
-                                )
+                                <td
+                                  className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                  key={columnIndex}
+                                >
+                                  {column.includes("Documents") ||
+                                  column.includes("Users")
+                                    ? item[column].length
+                                    : `₹${formatPrice(
+                                        item[column]?.bookingPrice
+                                      )}`}
+                                </td>
                               ) : (
                                 <td
                                   className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
@@ -497,8 +557,107 @@ const CustomTable = ({ Data, pagination }) => {
                                 </td>
                               );
                             }
+                          )} */}
+                          {Columns.filter(
+                            (column) =>
+                              !column.includes("Status") &&
+                              !column.includes("Active")
+                          )
+                            // .slice(0, Columns.length - 1)
+                            .map((column, columnIndex) => {
+                              if (column === "BookingStartDateAndTime") {
+                                return (
+                                  <td
+                                    className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                    key="startAndEndDate"
+                                  >
+                                    <p>
+                                      {`${formatFullDateAndTime(
+                                        item.BookingStartDateAndTime
+                                      )}`}
+                                    </p>
+                                    <p>
+                                      {`${formatFullDateAndTime(
+                                        item.BookingEndDateAndTime
+                                      )}`}
+                                    </p>
+                                  </td>
+                                );
+                              }
+                              // Skip rendering `BookingEndDateAndTime` data to avoid duplication
+                              if (column === "BookingEndDateAndTime") {
+                                return null;
+                              }
+                              // Default behavior for other columns
+                              return column.includes("Image") ? (
+                                <td className="px-5 py-3" key={columnIndex}>
+                                  <div className="flex items-center gap-3 text-center">
+                                    <img
+                                      src={item[column]}
+                                      className="w-28 h-20 object-contain"
+                                    />
+                                  </div>
+                                </td>
+                              ) : typeof item[column] === "object" ? (
+                                <td
+                                  className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                  key={columnIndex}
+                                >
+                                  {column.includes("Documents") ||
+                                  column.includes("Users")
+                                    ? item[column].length
+                                    : `₹${formatPrice(
+                                        item[column]?.bookingPrice
+                                      )}`}
+                                </td>
+                              ) : (
+                                <td
+                                  className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                  key={columnIndex}
+                                >
+                                  {column.includes("Charges") ||
+                                  column.includes("Deposit") ||
+                                  column.includes("Cost") ||
+                                  column.includes("Price")
+                                    ? `₹ ${formatPrice(item[column])}`
+                                    : column.includes("Duration")
+                                    ? `${item[column]} Days`
+                                    : column.includes("DateAndTime")
+                                    ? formatFullDateAndTime(item[column])
+                                    : column?.includes("InitiatedDate")
+                                    ? item[column] !== "NA"
+                                      ? formatTimeStampToDate(item[column])
+                                      : ""
+                                    : item[column]}
+                                </td>
+                              );
+                            })}
+                          {/* Render "Status" or "Active" columns at the end */}
+                          {Columns.filter(
+                            (column) =>
+                              column.includes("Status") ||
+                              column.includes("Active")
+                          ).map((column, columnIndex) =>
+                            location?.pathname === "/location-master" &&
+                            column.includes("Status") ? (
+                              <td
+                                className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                key={columnIndex}
+                              >
+                                <InputSwitch
+                                  value={item[column]}
+                                  id={item?._id}
+                                />
+                              </td>
+                            ) : (
+                              <td
+                                className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                key={columnIndex}
+                              >
+                                <StatusChange item={item} column={column} />
+                              </td>
+                            )
                           )}
-
                           <td className="flex p-5 items-center gap-0.5">
                             {(location.pathname == "/all-vehicles" ||
                               // location.pathname == "/all-bookings" ||

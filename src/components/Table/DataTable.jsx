@@ -58,36 +58,36 @@ const CustomTable = ({ Data, pagination }) => {
   }, [currentPage, limitedData, sortedData]);
 
   //   searh filtered data
-  let debounceTimeout;
-  const handleFilterData = (e) => {
-    e.preventDefault();
-    const searchedQuery = e.target.value;
+  // let debounceTimeout;
+  // const handleFilterData = (e, debounceTimeout, newUpdatedData, pagination, setTotalPages, setNewUpdatedData, loadFiltersAndData) => {
+  //   e.preventDefault();
+  //   const searchedQuery = e.target.value;
 
-    // Clear the previous timeout if the user is typing again
-    clearTimeout(debounceTimeout);
+  //   // Clear the previous timeout if the user is typing again
+  //   clearTimeout(debounceTimeout);
 
-    debounceTimeout = setTimeout(() => {
-      if (searchedQuery.length >= 3) {
-        // Filter dynamically based on the keys of each data item
-        const newData = newUpdatedData?.filter((data) => {
-          return Object.keys(data).some((key) => {
-            // Check if the value of the key is a string and if it matches the search query
-            if (typeof data[key] === "string") {
-              return data[key]
-                .toLowerCase()
-                .includes(searchedQuery.toLowerCase());
-            }
-            return false;
-          });
-        });
+  //   debounceTimeout = setTimeout(() => {
+  //     if (searchedQuery.length >= 3) {
+  //       // Filter dynamically based on the keys of each data item
+  //       const newData = newUpdatedData?.filter((data) => {
+  //         return Object.keys(data).some((key) => {
+  //           // Check if the value of the key is a string and if it matches the search query
+  //           if (typeof data[key] === "string") {
+  //             return data[key]
+  //               .toLowerCase()
+  //               .includes(searchedQuery.toLowerCase());
+  //           }
+  //           return false;
+  //         });
+  //       });
 
-        setTotalPages(pagination?.totalPages);
-        setNewUpdatedData(newData);
-      } else {
-        loadFiltersAndData();
-      }
-    }, 300);
-  };
+  //       setTotalPages(pagination?.totalPages);
+  //       setNewUpdatedData(newData);
+  //     } else {
+  //       loadFiltersAndData();
+  //     }
+  //   }, 300);
+  // };
 
   // Sorting function
   const sortData = (key) => {
@@ -139,7 +139,9 @@ const CustomTable = ({ Data, pagination }) => {
           "speedLimit",
           "kmsRun",
           "condition",
-          "userId",
+          "lastServiceDate",
+          "country",
+          // "userId",
         ].includes(key)
     );
 
@@ -154,6 +156,7 @@ const CustomTable = ({ Data, pagination }) => {
             "paymentgatewayReceiptId",
             "paymentInitiatedDate",
             "discountCuopon",
+            "stationName",
             "paymentMethod",
             "payInitFrom",
             "paymentStatus",
@@ -161,15 +164,29 @@ const CustomTable = ({ Data, pagination }) => {
       );
     }
 
-    // Add SNO at the start of the filtered keys array
-    const header = [...filteredKeys];
-    !(
-      location?.pathname == "/payments" ||
-      location?.pathname == "/all-pickup-image" ||
-      location?.pathname == "/users-documents"
-    ) && header.push("Actions");
+    if (
+      location.pathname == "/payments" ||
+      location.pathname == "/all-invoices" ||
+      location.pathname == "/users-documents"
+    ) {
+      filteredKeys = filteredKeys.filter((item) => !["userId"].includes(item));
+    }
 
-    setColumns(header);
+    const header = [...filteredKeys];
+
+    // Extract "Status" or "Active" columns
+    const statusColumns = header.filter(
+      (key) => key.includes("Status") || key.includes("Active")
+    );
+
+    // Remove "Status" or "Active" columns from the main list
+    const filteredHeader = header.filter(
+      (key) => !key.includes("Status") && !key.includes("Active")
+    );
+    // Add "Status" columns before "Actions" and push "Actions" at the end
+    const finalHeader = [...filteredHeader, ...statusColumns].filter(Boolean);
+
+    setColumns(finalHeader);
 
     let modifiedData = [...Data].sort((a, b) => {
       // Sort by `updatedAt` in descending order (latest first)
@@ -185,7 +202,7 @@ const CustomTable = ({ Data, pagination }) => {
     if (Data) {
       getTableHeaderAndTableValue(Data);
     }
-  }, [Data]);
+  }, [Data, loadingStates]);
 
   // for delete the data
   const handleDeleteVehicle = (id) => {
@@ -227,7 +244,7 @@ const CustomTable = ({ Data, pagination }) => {
           </h1>
         )}
 
-        <div className="w-full lg:w-[30%] bg-white rounded-md shadow-lg">
+        {/* <div className="w-full lg:w-[30%] bg-white rounded-md shadow-lg">
           <form className="flex items-center justify-center p-2">
             <input
               type="text"
@@ -255,7 +272,7 @@ const CustomTable = ({ Data, pagination }) => {
               </svg>
             </button>
           </form>
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-5">
@@ -270,7 +287,7 @@ const CustomTable = ({ Data, pagination }) => {
                         location.pathname == "/all-vehicles" && (
                           <th
                             scope="col"
-                            className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                            className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
                           >
                             <CheckBoxInput
                               handleChange={toggleSelectAll}
@@ -280,41 +297,71 @@ const CustomTable = ({ Data, pagination }) => {
                             />
                           </th>
                         )}
-                      {Columns.map((item, index) => {
-                        if (item == "files") {
-                          const maxFiles = Array(6).fill("image");
+                      {/* Render headers for columns that do not include "Status" or "Active" */}
+                      {Columns.filter(
+                        (item) =>
+                          !item.includes("Status") && !item.includes("Active")
+                      ).map((item, index) => {
+                        if (item === "files") {
+                          const maxFiles =
+                            location.pathname == "/users-documents"
+                              ? Array(2).fill("image")
+                              : Array(6).fill("image");
                           return (
                             <React.Fragment key={index}>
-                              {maxFiles.map((item, index) => (
+                              {maxFiles.map((_, fileIndex) => (
                                 <th
                                   scope="col"
-                                  className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
-                                  key={`${item}-${index}`}
+                                  className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                                  key={`Images-${fileIndex}`}
                                 >
-                                  {`Images ${index + 1}`}
+                                  {`Images ${fileIndex + 1}`}
                                 </th>
                               ))}
                             </React.Fragment>
                           );
                         }
-                        if (item === "BookingStartDateAndTime") {
+                        if (item === "userId") {
                           return (
                             <th
                               scope="col"
-                              className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
-                              key="startAndEndDate"
+                              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                              key={"userId"}
                             >
-                              Start & End Date and Time
+                              User Name & Phone
                             </th>
                           );
                         }
-                        if (item === "BookingEndDateAndTime") {
+                        if (
+                          item === "BookingStartDateAndTime" ||
+                          item === "city"
+                        ) {
+                          return (
+                            <th
+                              scope="col"
+                              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                              key={
+                                item === "BookingStartDateAndTime"
+                                  ? "startAndEndDate"
+                                  : " CityAndState"
+                              }
+                            >
+                              {item === "BookingStartDateAndTime"
+                                ? " Start & End Date and Time"
+                                : " City & State"}
+                            </th>
+                          );
+                        }
+                        if (
+                          item === "BookingEndDateAndTime" ||
+                          item === "state"
+                        ) {
                           return null;
                         }
                         return (
                           <th
                             scope="col"
-                            className="p-5 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                            className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
                             key={index}
                             onClick={() => sortData(item)}
                           >
@@ -324,6 +371,39 @@ const CustomTable = ({ Data, pagination }) => {
                           </th>
                         );
                       })}
+
+                      {/* Render headers for columns containing "Status" or "Active" */}
+                      {Columns.filter(
+                        (item) =>
+                          item.includes("Status") || item.includes("Active")
+                      ).map((item, index) => (
+                        <th
+                          scope="col"
+                          className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                          key={`Status-${index}`}
+                          onClick={() => sortData(item)}
+                        >
+                          {camelCaseToSpaceSeparated(item)}
+                          {sortConfig.key === item &&
+                            (sortConfig.direction === "asc" ? "↑" : "↓")}
+                        </th>
+                      ))}
+
+                      {/* Add "Actions" as the last header */}
+                      {newUpdatedData.length > 0 &&
+                        !(
+                          location?.pathname === "/payments" ||
+                          location?.pathname === "/all-pickup-image" ||
+                          location?.pathname === "/users-documents"
+                        ) && (
+                          <th
+                            scope="col"
+                            className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                            key="Actions"
+                          >
+                            Actions
+                          </th>
+                        )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-300 ">
@@ -334,7 +414,7 @@ const CustomTable = ({ Data, pagination }) => {
                           key={item?._id}
                         >
                           {location.pathname == "/all-vehicles" && (
-                            <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
+                            <td className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
                               <CheckBoxInput
                                 handleChange={toggleSelectOne}
                                 tempIds={tempIds}
@@ -344,55 +424,93 @@ const CustomTable = ({ Data, pagination }) => {
                               />
                             </td>
                           )}
-                          {item.files && console.log(item.files)}
-
                           {item.files &&
-                            Array.from({ length: 6 }).map((_, index) => (
-                              <td key={index}>
+                            Array.from({
+                              length:
+                                location.pathname == "/users-documents" ? 2 : 6,
+                            }).map((_, index) => (
+                              <td className="p-3" key={index}>
                                 {item.files[index] ? (
                                   <img
                                     src={item.files[index].imageUrl}
                                     alt={item.files[index].fileName}
-                                    style={{
-                                      maxWidth: "100px",
-                                      maxHeight: "100px",
-                                    }}
+                                    className="w-28 h-20 object-contain"
                                   />
                                 ) : (
                                   "N/A"
                                 )}
                               </td>
                             ))}
-
                           {/* dynamically rendering */}
-                          {Columns.slice(0, Columns.length - 1).map(
-                            (column, columnIndex) => {
-                              if (column === "BookingStartDateAndTime") {
+                          {Columns.filter(
+                            (column) =>
+                              !column.includes("Status") &&
+                              !column.includes("Active")
+                          )
+                            // .slice(0, Columns.length - 1)
+                            .map((column, columnIndex) => {
+                              if (column === "userId") {
                                 return (
                                   <td
-                                    className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
-                                    key="startAndEndDate"
+                                    className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize text-left"
+                                    key="userId"
                                   >
-                                    <p>
-                                      {`${formatFullDateAndTime(
-                                        item.BookingStartDateAndTime
-                                      )}`}
-                                    </p>
-                                    <p>
-                                      {`${formatFullDateAndTime(
-                                        item.BookingEndDateAndTime
-                                      )}`}
+                                    <p>{`${
+                                      item?.userId?.firstName || "Random"
+                                    } ${item?.userId?.lastName || "User"}`}</p>
+                                    <p className="text-xs hover:text-theme">
+                                      <Link
+                                        to={`tel:${
+                                          item?.userId?.contact || "#"
+                                        }`}
+                                      >
+                                        ({item?.userId?.contact || "NA"})
+                                      </Link>
                                     </p>
                                   </td>
                                 );
                               }
-                              // Skip rendering `endDateAndTime` data to avoid duplication
-                              if (column === "BookingEndDateAndTime") {
+                              if (
+                                column === "BookingStartDateAndTime" ||
+                                column === "city"
+                              ) {
+                                return (
+                                  <td
+                                    className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize"
+                                    key="startAndEndDate"
+                                  >
+                                    {column === "BookingStartDateAndTime" ? (
+                                      <>
+                                        <p>
+                                          {`${formatFullDateAndTime(
+                                            item.BookingStartDateAndTime
+                                          )}`}
+                                        </p>
+                                        <p>
+                                          {`${formatFullDateAndTime(
+                                            item.BookingEndDateAndTime
+                                          )}`}
+                                        </p>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <p>{item?.city}</p>
+                                        <p>{item?.state}</p>
+                                      </>
+                                    )}
+                                  </td>
+                                );
+                              }
+                              // Skip rendering `BookingEndDateAndTime` data to avoid duplication
+                              if (
+                                column === "BookingEndDateAndTime" ||
+                                column === "state"
+                              ) {
                                 return null;
                               }
                               // Default behavior for other columns
                               return column.includes("Image") ? (
-                                <td className="px-5 py-3" key={columnIndex}>
+                                <td className="p-3" key={columnIndex}>
                                   <div className="flex items-center gap-3 text-center">
                                     <img
                                       src={item[column]}
@@ -400,28 +518,9 @@ const CustomTable = ({ Data, pagination }) => {
                                     />
                                   </div>
                                 </td>
-                              ) : location?.pathname === "/location-master" &&
-                                column.includes("Status") ? (
-                                <td
-                                  className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
-                                  key={columnIndex}
-                                >
-                                  <InputSwitch
-                                    value={item[column]}
-                                    id={item?._id}
-                                  />
-                                </td>
-                              ) : column.includes("Status") ||
-                                column.includes("Active") ? (
-                                <td
-                                  className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
-                                  key={columnIndex}
-                                >
-                                  <StatusChange item={item} column={column} />
-                                </td>
                               ) : typeof item[column] === "object" ? (
                                 <td
-                                  className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                  className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                   key={columnIndex}
                                 >
                                   {column.includes("Documents") ||
@@ -433,7 +532,7 @@ const CustomTable = ({ Data, pagination }) => {
                                 </td>
                               ) : (
                                 <td
-                                  className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                  className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize"
                                   key={columnIndex}
                                 >
                                   {column.includes("Charges") ||
@@ -449,15 +548,43 @@ const CustomTable = ({ Data, pagination }) => {
                                     ? item[column] !== "NA"
                                       ? formatTimeStampToDate(item[column])
                                       : ""
+                                    : column?.includes("bookingId")
+                                    ? `#${item[column]}`
                                     : item[column]}
                                 </td>
                               );
-                            }
+                            })}
+                          {/* Render "Status" or "Active" columns at the end */}
+                          {Columns.filter(
+                            (column) =>
+                              column.includes("Status") ||
+                              column.includes("Active")
+                          ).map((column, columnIndex) =>
+                            (location?.pathname === "/location-master" &&
+                              column.includes("Status")) ||
+                            (location?.pathname === "/all-vehicles" &&
+                              column.includes("vehicleStatus")) ? (
+                              <td
+                                className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 pl-4"
+                                key={columnIndex}
+                              >
+                                <InputSwitch
+                                  value={item[column]}
+                                  id={item?._id}
+                                />
+                              </td>
+                            ) : (
+                              <td
+                                className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                key={columnIndex}
+                              >
+                                <StatusChange item={item} column={column} />
+                              </td>
+                            )
                           )}
-
-                          <td className="flex p-5 items-center gap-0.5">
+                          <td className="flex p-3 items-center gap-0.5">
                             {(location.pathname == "/all-vehicles" ||
-                              // location.pathname == "/all-bookings" ||
+                              location.pathname == "/all-bookings" ||
                               location.pathname == "/all-invoices") && (
                               <Link
                                 className="p-2 text-purple-500 hover:underline"
@@ -480,7 +607,7 @@ const CustomTable = ({ Data, pagination }) => {
                               location.pathname == "/all-invoices"
                             ) && (
                               <Link
-                                className="p-2 rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
+                                className="p-3 rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
                                 to={`${item?._id}`}
                               >
                                 <svg
@@ -500,13 +627,14 @@ const CustomTable = ({ Data, pagination }) => {
                               </Link>
                             )}
                             {!(
+                              location.pathname == "/users-documents" ||
                               location.pathname == "/all-bookings" ||
                               location.pathname == "/payments" ||
                               location.pathname == "/all-invoices" ||
                               location.pathname == "/location-master"
                             ) && (
                               <button
-                                className="p-2 rounded-full bg-white group transition-all duration-500 hover:bg-red-600 flex item-center"
+                                className="p-3 rounded-full bg-white group transition-all duration-500 hover:bg-red-600 flex item-center"
                                 onClick={() => handleDeleteVehicle(item?._id)}
                               >
                                 <svg

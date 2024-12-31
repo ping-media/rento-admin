@@ -7,60 +7,55 @@ import { useEffect, useState } from "react";
 import InputSearch from "../InputAndDropdown/InputSearch";
 import InputVehicleSearch from "../InputAndDropdown/InputVehicleSearch";
 import InputDateAndTime from "../InputAndDropdown/InputDateAndTime";
-import { calculateTax } from "../../utils";
+import { calculateTax, getDurationBetweenDates } from "../../utils";
+import BookingStepOne from "./BookingComponents/BookingStepOne";
+import BookingStepTwo from "./BookingComponents/BookingStepTwo";
+import BookingStepThree from "./BookingComponents/BookingStepThree";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
-  const { vehicleMaster } = useSelector((state) => state.vehicles);
-  const [collectedData, setCollectedData] = useState(null);
+  // const [collectedData, setCollectedData] = useState(null);
   const { token } = useSelector((state) => state.user);
-  const { id } = useParams();
-  const [bookingPrice, setBookingPrice] = useState(0);
-  const [extraAddonPrice, setExtraAddonPrice] = useState(0);
-  const [inputTax, setInputTax] = useState(0);
-  const [inputTotal, setInputTotal] = useState(0);
-  const [startDateAndTime, setStartDateAndTime] = useState("");
-  const [endDateAndTime, setEndDateAndTime] = useState("");
-  const [isRequiredField, setIsRequiredField] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    stepOneData: {},
+    stepTwoData: {},
+    StepThreeData: {},
+  });
+  const handleNext = (data) => {
+    if (currentStep === 1) setFormData({ ...formData, stepOneData: data });
+    if (currentStep === 2) setFormData({ ...formData, stepTwoData: data });
+    setCurrentStep(currentStep + 1);
+  };
 
-  // useEffect(() => {
-  //   const updateTaxAndTotal = () => {
-  //     const bookingTax = calculateTax(Number(bookingPrice), 18);
-  //     const extraTax =
-  //       extraAddonPrice !== 0 ? calculateTax(Number(extraAddonPrice), 18) : 0;
-  //     const totalPrice =
-  //       Number(bookingPrice) + Number(bookingTax) + Number(extraTax);
-  //     setInputTax(bookingTax);
-  //     setInputTotal(totalPrice);
-  //   };
+  const changePriceAccordingtoData = ({
+    bookingStartDate,
+    bookingEndDate,
+    selectedVehicle,
+  }) => {
+    const durationBetweenStartAndEnd = getDurationBetweenDates(
+      bookingStartDate,
+      bookingEndDate
+    );
+    const bookingPrice =
+      Number(durationBetweenStartAndEnd?.days) *
+      Number(selectedVehicle?.perDayCost);
+    const extraAddonPrice = 0;
+    const tax = calculateTax(bookingPrice, 18);
+    const totalPrice = bookingPrice + tax;
+    const combinedData = { bookingPrice, extraAddonPrice, tax, totalPrice };
+    return setFormData({ ...formData, stepTwoData: combinedData });
+  };
 
-  //   if (bookingPrice === 0 && extraAddonPrice === 0) {
-  //     setInputTax(0);
-  //     setInputTotal(0);
-  //   } else {
-  //     updateTaxAndTotal();
-  //   }
-  // }, [bookingPrice, extraAddonPrice]);
+  const handlePrevious = () => {
+    setCurrentStep(currentStep - 1);
+  };
 
-  useEffect(() => {
-    console.log(startDateAndTime, endDateAndTime, collectedData);
-    if (
-      startDateAndTime != "" &&
-      endDateAndTime != "" &&
-      collectedData != null
-    ) {
-      // setIsRequiredField(true);
-      console.log(startDateAndTime, endDateAndTime);
-    }
-  }, [startDateAndTime, endDateAndTime, collectedData]);
+  console.log(formData);
 
-  const handleContinueBooking = () => {
-    if (
-      startDateAndTime != "" &&
-      endDateAndTime != "" &&
-      collectedData != null
-    ) {
-      return setIsRequiredField(true);
-    }
+  const handleSubmit = (data) => {
+    // Save the last step's data and handle final submission
+    setFormData({ ...formData, stepThreeData: data });
+    console.log("Form submitted: ", { ...formData, stepThreeData: data });
   };
 
   return (
@@ -68,135 +63,32 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one & for creating new one */}
         <>
-          <div className="w-full lg:w-[48%]">
-            <InputSearch
-              item={"User"}
-              name={"userId"}
+          {currentStep === 1 && (
+            <BookingStepOne
               token={token}
-              value={id ? vehicleMaster[0]?.userId : ""}
-              require={true}
+              onNext={handleNext}
+              priceCalculate={changePriceAccordingtoData}
             />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <InputVehicleSearch
-              item={"Vehicle"}
-              name={"vehicleTableId"}
-              token={token}
-              value={id ? vehicleMaster[0]?.vehicleTableId : ""}
-              suggestedData={collectedData}
-              setSuggestionData={setCollectedData}
-              // setBookingPrice={setBookingPrice}
-              require={true}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <InputDateAndTime
-              item={"BookingStartDateAndTime"}
-              name={"BookingStartDateAndTime"}
-              value={id ? vehicleMaster[0]?.BookingStartDateAndTime : ""}
-              require={true}
-              setDateChanger={setStartDateAndTime}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <InputDateAndTime
-              item={"BookingEndDateAndTime"}
-              namme={"BookingEndDateAndTime"}
-              value={id ? vehicleMaster[0]?.BookingEndDateAndTime : ""}
-              require={true}
-              setDateChanger={setEndDateAndTime}
-            />
-          </div>
+          )}
 
-          {isRequiredField && (
-            <>
-              <div className="w-full lg:w-[48%]">
-                <Input
-                  item={"bookingPrice"}
-                  type="number"
-                  value={
-                    id && Number(vehicleMaster[0]?.bookingPrice?.bookingPrice)
-                  }
-                  require={true}
-                  setValueChange={setBookingPrice}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <Input
-                  item={"extraAddonPrice"}
-                  type="number"
-                  value={
-                    id &&
-                    Number(vehicleMaster[0]?.bookingPrice?.extraAddonPrice)
-                  }
-                  setBookingPrice={setExtraAddonPrice}
-                />
-              </div>
+          {currentStep === 2 && (
+            <BookingStepTwo
+              data={formData?.stepTwoData}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+            />
+          )}
 
-              <div className="w-full lg:w-[48%]">
-                <Input
-                  item={"tax"}
-                  type="number"
-                  value={Number(inputTax)}
-                  require={true}
-                  disabled={true}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <Input
-                  item={"totalPrice"}
-                  type="number"
-                  value={Number(inputTotal)}
-                  require={true}
-                  disabled={true}
-                />
-              </div>
-
-              <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"paymentMethod"}
-                  options={["cash", "online", "partiallyPay"]}
-                  value={"cash"}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"bookingStatus"}
-                  options={["pending", "done", "canceled"]}
-                  value={"done"}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"paymentStatus"}
-                  options={["pending", "confirmed"]}
-                  value={"pending"}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"rideStatus"}
-                  options={["pending", "confirmed"]}
-                  value={"pending"}
-                />
-              </div>
-            </>
+          {currentStep === 3 && (
+            <BookingStepThree onPrevious={handlePrevious} />
           )}
         </>
       </div>
-      {!isRequiredField ? (
-        <button
-          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
-          type="button"
-          onClick={handleContinueBooking}
-        >
-          Continue
-        </button>
-      ) : (
+      {currentStep === 3 && (
         <button
           className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
           type="submit"
-          disabled={loading || !isRequiredField}
+          disabled={loading}
         >
           {loading ? <Spinner message={"uploading"} /> : "Publish"}
         </button>

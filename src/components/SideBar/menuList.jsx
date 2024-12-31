@@ -19,11 +19,6 @@ const menuList = [
     menuLink: "/dashboard",
   },
   {
-    menuImg: <DirectionsCarFilledOutlinedIcon />,
-    menuTitle: "Vehicle Master",
-    menuLink: "/vehicle-master",
-  },
-  {
     menuImg: <LocationOnOutlinedIcon />,
     menuTitle: "Location Master",
     menuLink: "/location-master",
@@ -35,7 +30,12 @@ const menuList = [
   },
   {
     menuImg: <DirectionsCarFilledOutlinedIcon />,
-    menuTitle: "Manage Vehicles",
+    menuTitle: "Vehicle Master",
+    menuLink: "/vehicle-master",
+  },
+  {
+    menuImg: <DirectionsCarFilledOutlinedIcon />,
+    menuTitle: "All Vehicles",
     menuLink: "/all-vehicles",
   },
   {
@@ -65,11 +65,11 @@ const menuList = [
     menuTitle: "Manage Bookings",
     menuLink: "/all-bookings",
   },
-  {
-    menuImg: <ImageOutlinedIcon />,
-    menuTitle: "vehicle Pickup",
-    menuLink: "/all-pickup-image",
-  },
+  // {
+  //   menuImg: <ImageOutlinedIcon />,
+  //   menuTitle: "vehicle Pickup",
+  //   menuLink: "/all-pickup-image",
+  // },
   {
     menuImg: <LoyaltyOutlinedIcon />,
     menuTitle: "All Coupons",
