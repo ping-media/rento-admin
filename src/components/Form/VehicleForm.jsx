@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner.jsx";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
@@ -11,17 +11,16 @@ import {
   fetchStationBasedOnLocation,
   tenYearBeforeCurrentYear,
 } from "../../Data/Function";
-import { addTempIds } from "../../Redux/VehicleSlice/VehicleSlice";
+import VehiclePlan from "./VehicleComponents/VehiclePlan";
 
 const VehicleForm = ({ handleFormSubmit, loading }) => {
-  const { vehicleMaster, tempIds } = useSelector((state) => state.vehicles);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [collectedData, setCollectedData] = useState(null);
   const [stationData, setStationData] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [isLocationSelected, setIsLocationSelected] = useState("");
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
-  const dispatch = useDispatch();
 
   const fetchCollectedData = async (vehicleMasterUrl, locationUrl, planUrl) => {
     setFormLoading(true);
@@ -47,7 +46,6 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
 
   useEffect(() => {
     fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
-    // console.log(collectedData);
   }, []);
 
   //updating station based on location id
@@ -62,35 +60,15 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
     }
   }, [isLocationSelected]);
 
-  const handlePushId = (ids) => {
-    dispatch(addTempIds([ids]));
-  };
-
   return !formLoading || collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
       <div className="border-b-2 mb-5">
         <h2 className="font-bold">Select Package</h2>
         <div className="w-full pb-2">
-          {collectedData?.AllPlanDataId?.length > 0 ? (
-            collectedData?.AllPlanDataId.map((plan) => (
-              <div className="flex items-center gap-1.5 my-2.5" key={plan?._id}>
-                <label
-                  className="inline-flex items-center whitespace-nowrap"
-                  htmlFor="redCheckBox"
-                >
-                  <input
-                    id="redCheckBox"
-                    type="checkbox"
-                    className="w-4 h-4 accent-red-600"
-                    onClick={() => handlePushId(plan?._id)}
-                  />
-                  <span className="ml-2">{plan?.planName}</span>
-                </label>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-400 italic capitalize">no package found.</p>
-          )}
+          <VehiclePlan
+            collectedData={collectedData}
+            data={id && vehicleMaster[0]?.vehiclePlan}
+          />
         </div>
       </div>
       <div className="flex flex-wrap gap-4">
@@ -102,6 +80,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               options={collectedData?.locationId}
               value={id && vehicleMaster[0]?.locationId}
               setIsLocationSelected={setIsLocationSelected}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -109,6 +88,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"stationId"}
               options={stationData && stationData}
               value={id && vehicleMaster[0]?.stationId}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -116,12 +96,14 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"vehicleMasterId"}
               options={collectedData?.vehicleMasterId}
               value={id && vehicleMaster[0]?.vehicleMasterId}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
               item={"vehicleNumber"}
               value={id && vehicleMaster[0]?.vehicleNumber}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -129,6 +111,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"freeKms"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.freeKms) : 100}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -136,6 +119,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"extraKmsCharges"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.extraKmsCharges) : 15}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -143,6 +127,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"vehicleModel"}
               options={tenYearBeforeCurrentYear()}
               value={id && vehicleMaster[0]?.vehicleModel}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -150,6 +135,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"vehicleColor"}
               options={vehicleColor}
               value={id && vehicleMaster[0]?.vehicleColor}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -157,6 +143,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"perDayCost"}
               type="number"
               value={id && Number(vehicleMaster[0]?.perDayCost)}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -164,13 +151,15 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"lastServiceDate"}
               type="date"
               value={id && vehicleMaster[0]?.lastServiceDate}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
               item={"kmsRun"}
               type="number"
-              value={id && Number(vehicleMaster[0]?.kmsRun)}
+              value={id ? Number(vehicleMaster[0]?.kmsRun) : 1000}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -178,6 +167,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"refundableDeposit"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.refundableDeposit) : 1000}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -185,6 +175,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"lateFee"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.lateFee) : 100}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -192,6 +183,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"speedLimit"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.speedLimit) : 60}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -199,6 +191,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"isBooked"}
               options={["true", "false"]}
               value={id ? vehicleMaster[0]?.isBooked : "false"}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -206,6 +199,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"condition"}
               options={["new", "old"]}
               value={id && vehicleMaster[0]?.condition}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -213,6 +207,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"vehicleBookingStatus"}
               options={["available", "booked"]}
               value={id ? vehicleMaster[0]?.vehicleBookingStatus : "available"}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -220,6 +215,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"vehicleStatus"}
               options={["active", "inActive"]}
               value={id ? vehicleMaster[0]?.vehicleStatus : "active"}
+              require={true}
             />
           </div>
         </>

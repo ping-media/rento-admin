@@ -35,13 +35,19 @@ const Dashboard = () => {
     }
   }, []);
 
+  console.log(dasboardDataCount);
+
   //binding fetched data
   useEffect(() => {
     if (dasboardDataCount) {
       let dataCount = Object.keys(dasboardDataCount?.dashboard).map((key) => {
         return {
           count: dasboardDataCount?.dashboard[key],
-          title: "TOTAL " + key.substring(0, key.length - 5).toUpperCase(),
+          title:
+            "TOTAL " +
+            (key !== "Amount"
+              ? key.substring(0, key.length - 5).toUpperCase()
+              : "PAYMENTS"),
           link: "/all-" + key.substring(0, key.length - 5),
           icon:
             key == "usersCount" ? (

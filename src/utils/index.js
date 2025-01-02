@@ -246,10 +246,26 @@ const formatTimeStampToDate = (timestamp) => {
   const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
   const year = String(date.getFullYear()).slice(-2); // Get the last two digits of the year
 
-  // Format the date
-  const formattedDate = `${day}/${month}/${year}`;
+  // Extract hours, minutes, and seconds
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
 
-  return formattedDate;
+  // Determine AM/PM and convert to 12-hour format
+  const amPm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12; // Convert 0 to 12 for midnight
+
+  // Format the date and time
+  const formattedDate = `${day}/${month}/${year}`;
+  const formattedTime = `${String(hours).padStart(
+    2,
+    "0"
+  )}:${minutes}:${seconds} ${amPm}`;
+
+  // Combine date and time
+  const formattedDateTime = `${formattedDate} ${formattedTime}`;
+
+  return formattedDateTime;
 };
 
 const getDurationBetweenDates = (startDate, endDate) => {

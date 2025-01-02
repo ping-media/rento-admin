@@ -45,9 +45,24 @@ const vehicleSlice = createSlice({
       state.loading = false;
       state.tempIds = [...state.tempIds, ...action.payload];
     },
+    updateTempId: (state, action) => {
+      const { id, planPrice } = action.payload;
+      state.tempIds = state.tempIds.map((item) =>
+        item._id === id ? { ...item, planPrice } : item
+      );
+    },
     removeTempVehicleData: (state) => {
       state.loading = false;
       state.tempVehicleData = null;
+    },
+    removeLastTempId: (state) => {
+      if (state.tempIds.length > 0) {
+        state.tempIds.pop();
+      }
+    },
+    removeTempIdById: (state, action) => {
+      const idToRemove = action.payload;
+      state.tempIds = state.tempIds.filter((item) => item._id !== idToRemove);
     },
     removeTempIds: (state) => {
       state.loading = false;
@@ -86,6 +101,7 @@ export const {
   fetchMoreVehicleSuccess,
   addVehicleIdToDelete,
   addTempVehicleData,
+  removeLastTempId,
   removeTempVehicleData,
   fetchVehicleFailure,
   restDeletevehicleId,
@@ -95,5 +111,7 @@ export const {
   addTempIds,
   removeTempIds,
   handleUpdateStatus,
+  updateTempId,
+  removeTempIdById,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

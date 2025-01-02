@@ -5,6 +5,7 @@ const SelectDropDown = ({
   options,
   value = "",
   setIsLocationSelected,
+  require = false,
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
   // for giving custom title
@@ -37,6 +38,7 @@ const SelectDropDown = ({
         className="block text-gray-800 font-semibold text-sm capitalize"
       >
         Select {title[item] || item}
+        {require && <span className="ml-1 text-red-500">*</span>}
       </label>
       <div className="mt-2">
         <select
@@ -46,6 +48,7 @@ const SelectDropDown = ({
           onChange={(e) => handleChangeValue(e)}
           className="block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize disabled:bg-gray-300 disabled:bg-opacity-30"
           disabled={!options || options?.length == 0 ? true : false}
+          required={require}
         >
           <option value="">
             {(options?.length == 0 && `No ${title[item] || item} Found`) ||
@@ -106,18 +109,13 @@ const SelectDropDown = ({
                     key={items?._id}
                     className="capitalize"
                   >
-                    {/* {items?.vehicleBrand} {items?.vehicleName} */}
                     {items?.vehicleName}
                   </option>
                 );
               } else {
                 return (
-                  <option
-                    value={items.toLowerCase()}
-                    key={index}
-                    className="capitalize"
-                  >
-                    {items.toLowerCase()}
+                  <option value={items} key={index} className="capitalize">
+                    {items}
                   </option>
                 );
               }

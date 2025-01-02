@@ -1,11 +1,16 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { handleChangeLimit } from "../../Redux/PaginationSlice/PaginationSlice";
 
 const DropDownComponent = ({ defaultValue, options, setValue }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
+  const dispatch = useDispatch();
 
   const handleChangeData = (value) => {
     setIsOptionsVisible(!isOptionsVisible);
     setValue(value);
+    // changing the limit
+    dispatch(handleChangeLimit(value));
   };
   return (
     <>

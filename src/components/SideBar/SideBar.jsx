@@ -58,9 +58,6 @@ const SideBar = () => {
             alt="RENTO_BIKES"
           />
         </div>
-        {/* <h2 className="uppercase font-black text-3xl lg:text-4xl text-theme text-center">
-          Rento
-        </h2> */}
       </div>
       <div
         className="px-3.5 py-3 overflow-y-scroll no-scrollbar"

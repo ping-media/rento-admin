@@ -149,10 +149,8 @@ const handleCreateAndUpdateVehicle = async (
     result = Object.assign(result, { vehiclePlan: tempIds });
     dispatch(removeTempIds());
   }
-  // we want to pass pincode as stationId
-  // else if (result?.includes("pinCode")) {
-  //   result = Object.assign(result, { stationId: result?.pinCode });
-  // }
+
+  return;
 
   // console.log(result);
 

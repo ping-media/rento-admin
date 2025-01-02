@@ -11,6 +11,7 @@ import { endPointBasedOnURL } from "../Data/commonData";
 import { Link } from "react-router-dom";
 import CustomTableComponent from "../components/Table/DataTable";
 import { togglePickupImageModal } from "../Redux/SideBarSlice/SideBarSlice";
+import { removeTempIds } from "../Redux/VehicleSlice/VehicleSlice";
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
 );
@@ -35,6 +36,11 @@ const VehicleMaster = () => {
       );
     }
   }, [location.pathname, deletevehicleId, page, limit]);
+
+  // clear data after page change
+  useEffect(() => {
+    dispatch(removeTempIds());
+  }, []);
 
   return !loading ? (
     <>
@@ -125,7 +131,7 @@ const VehicleMaster = () => {
           </div>
         )}
       </div>
-      {/* {console.log(vehicleMaster)} */}
+      {console.log(vehicleMaster)}
       {/* <CustomTable
         Data={vehicleMaster?.data}
         pagination={vehicleMaster?.pagination}
