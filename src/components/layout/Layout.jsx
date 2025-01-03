@@ -8,9 +8,15 @@ import SignOutModal from "../Modal/SignOutModal";
 import DeleteModal from "../Modal/DeleteModal";
 import ScrollToTopButton from "../ScrollButton/ScrollToTopButton";
 import PreLoader from "../Skeleton/PreLoader";
-import { handleCurrentUser } from "../../Redux/UserSlice/UserSlice";
+import {
+  handleCurrentUser,
+  handleLoadingUserData,
+  handleLoadingUserDataFalse,
+} from "../../Redux/UserSlice/UserSlice";
 import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
 import { removeTempIds } from "../../Redux/VehicleSlice/VehicleSlice";
+import { getData } from "../../Data/index";
+import { handleLogoutUser } from "../../Data/Function";
 
 const Layout = () => {
   const dispatch = useDispatch();
@@ -21,7 +27,9 @@ const Layout = () => {
   const { is_open } = useSelector((state) => state.sideBar);
   const mainRef = useRef(null);
   const [visible, setVisible] = useState(false);
-  const { token, user, loading } = useSelector((state) => state.user);
+  const { token, user, currentUser, loading } = useSelector(
+    (state) => state.user
+  );
 
   //scrolltotop function
   const handleScrollToTop = () => {
@@ -57,6 +65,32 @@ const Layout = () => {
       dispatch(handleCurrentUser(user));
     }
   }, []);
+
+  // if user is not found or inactive then logout for first time
+  useEffect(() => {
+    if (currentUser) {
+      (async () => {
+        try {
+          dispatch(handleLoadingUserData());
+          const response = await getData(
+            `/getAllUsers?_id=${currentUser?._id}`,
+            token
+          );
+          console.log(response?.data);
+          if (
+            response?.data?.length == 0 ||
+            response?.data[0]?.status !== "active"
+          ) {
+            return handleLogoutUser(dispatch);
+          }
+        } catch (error) {
+          console.log(error?.message);
+        } finally {
+          dispatch(handleLoadingUserDataFalse());
+        }
+      })();
+    }
+  }, [currentUser]);
 
   //need to reset the page and limit when every user change page
   useEffect(() => {

@@ -3,9 +3,11 @@ import Input from "../InputAndDropdown/Input";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import Spinner from "../Spinner/Spinner";
 import { useParams } from "react-router-dom";
+import { useState } from "react";
 
 const PlanForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
+  const [couponCount, setCouponCount] = useState(0);
   const { id } = useParams();
 
   return (
@@ -34,10 +36,16 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
+            <input
+              type="hidden"
+              name="allowedUsersCount"
+              value={id ? vehicleMaster[0]?.allowedUsersCount : couponCount}
+            />
             <Input
               type="number"
               item={"couponCount"}
               value={id ? vehicleMaster[0]?.couponCount : ""}
+              setValueChange={setCouponCount}
             />
           </div>
           <div className="w-full lg:w-[48%]">

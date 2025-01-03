@@ -38,7 +38,9 @@ const Input = ({
               : ""
           } disabled:bg-gray-400 disabled:bg-opacity-20`}
           value={
-            item == "vehicleNumber" ? inputValue.toUpperCase() : inputValue
+            item == "vehicleNumber" || item == "couponName"
+              ? inputValue.toUpperCase()
+              : inputValue
           }
           onChange={(e) => handleChangeValue(e)}
           name={item}

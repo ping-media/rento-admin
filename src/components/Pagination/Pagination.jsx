@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { handleChangePage } from "../../Redux/PaginationSlice/PaginationSlice";
 // import { ScrollTopAfterEvent } from "../utils/utilFunction";
@@ -6,7 +6,7 @@ import { handleChangePage } from "../../Redux/PaginationSlice/PaginationSlice";
 const Pagination = ({ totalNumberOfPages, currentPage, setPageChanger }) => {
   const { limit, page } = useSelector((state) => state.pagination);
   const dispatch = useDispatch();
-
+  // console.log(totalNumberOfPages);
   //going back to previous page
   const handlePrevPageChange = () => {
     if (page > 1) {

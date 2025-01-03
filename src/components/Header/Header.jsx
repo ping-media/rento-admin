@@ -44,16 +44,9 @@ const Header = () => {
     };
   }, []);
 
-  // const currentUser = {
-  //   userProfileImage: "",
-  //   balance: "",
-  //   phone: "",
-  //   userName: "Admin",
-  //   isbusinessPartner: false,
-  // };
   return (
     <header>
-      <div className="flex items-center justify-between px-5 lg:px-10 py-4 shadow dark:shadow-gray-200 bg-white">
+      <div className="flex items-center justify-between px-5 lg:px-10 py-2.5 shadow dark:shadow-gray-200 bg-white">
         {/* <div className="flex items-center justify-between px-5 lg:px-10 py-4 shadow dark:shadow-gray-200 bg-theme-seconday-dark"> */}
         {/* hamburger menu  */}
         <div className="flex items-center gap-4">
@@ -101,9 +94,9 @@ const Header = () => {
             </div>
             {isVisible && (
               <div className="absolute w-40 top-16 right-0 z-10 bg-white flex flex-col items-center text-left gap-2 border border-gray-200 rounded-xl p-2 dark:bg-gray-800 dark:border-none">
-                <Link className="lg:hidden border-b-2 text-center font-semibold md:hidden py-1.5 hover:bg-theme hover:text-white transition duration-200 ease-in-ou w-full capitalize">
+                <p className="lg:hidden border-b-2 text-center font-semibold md:hidden py-1.5 hover:bg-theme hover:text-white transition duration-200 ease-in-ou w-full capitalize">
                   {currentUser?.firstName}
-                </Link>
+                </p>
                 <Link
                   className="py-1.5 px-1.5 hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-ou w-full"
                   to={"/dashboard"}

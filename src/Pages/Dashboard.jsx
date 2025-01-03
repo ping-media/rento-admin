@@ -35,8 +35,6 @@ const Dashboard = () => {
     }
   }, []);
 
-  console.log(dasboardDataCount);
-
   //binding fetched data
   useEffect(() => {
     if (dasboardDataCount) {
@@ -48,7 +46,10 @@ const Dashboard = () => {
             (key !== "Amount"
               ? key.substring(0, key.length - 5).toUpperCase()
               : "PAYMENTS"),
-          link: "/all-" + key.substring(0, key.length - 5),
+          link:
+            key !== "Amount"
+              ? "/all-" + key.substring(0, key.length - 5)
+              : "/payments",
           icon:
             key == "usersCount" ? (
               <PersonRounded fontSize="large" />

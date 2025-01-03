@@ -1,3 +1,4 @@
+import { toggleClearModals } from "../Redux/SideBarSlice/SideBarSlice";
 import { getData, getFullData, handleAdminLogin, postData } from ".";
 import {
   handleDashboardData,
@@ -8,6 +9,7 @@ import {
   handleLoadingUserData,
   handleSetToken,
   handleSignIn,
+  handleSignOut,
 } from "../Redux/UserSlice/UserSlice";
 import {
   fetchVehicleEnd,
@@ -91,16 +93,19 @@ const fetchVehicleMasterWithPagination = async (
   dispatch,
   token,
   endpoint,
+  isSearchTermPresent,
   page,
   limit
 ) => {
   try {
     dispatch(fetchVehicleStart());
-    const response = await getFullData(
-      `${endpoint}?page=${page}&limit=${limit}`,
-      token
-    );
-    // console.log(`${endpoint}?page=${page}&limit=${limit}`);
+    // setting dynamic route
+    const dynamicEndpoint =
+      isSearchTermPresent !== null
+        ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
+        : `${endpoint}?page=${page}&limit=${limit}`;
+
+    const response = await getFullData(dynamicEndpoint, token);
     if (response?.status == 200) {
       dispatch(fetchVehicleMasterData(response?.data));
     } else {
@@ -149,8 +154,7 @@ const handleCreateAndUpdateVehicle = async (
     result = Object.assign(result, { vehiclePlan: tempIds });
     dispatch(removeTempIds());
   }
-
-  return;
+  // return;
 
   // console.log(result);
 
@@ -281,76 +285,9 @@ const handleGenerateInvoice = async (dispatch, id, token, setLoadingStates) => {
   }
 };
 
-//   searh filtered data
-// const handleFilterData = (
-//   e,
-//   newUpdatedData,
-//   pagination,
-//   setTotalPages,
-//   setNewUpdatedData,
-//   loadFiltersAndData
-// ) => {
-//   e.preventDefault();
-//   let debounceTimeout;
-//   const searchedQuery = e.target.value;
-
-//   // Clear the previous timeout if the user is typing again
-//   clearTimeout(debounceTimeout);
-
-//   debounceTimeout = setTimeout(() => {
-//     if (searchedQuery.length >= 3) {
-//       // Filter dynamically based on the keys of each data item
-//       const newData = newUpdatedData?.filter((data) => {
-//         return Object.keys(data).some((key) => {
-//           // Check if the value of the key is a string and if it matches the search query
-//           if (typeof data[key] === "string") {
-//             return data[key]
-//               .toLowerCase()
-//               .includes(searchedQuery.toLowerCase());
-//           }
-//           return false;
-//         });
-//       });
-
-//       setTotalPages(pagination?.totalPages);
-//       setNewUpdatedData(newData);
-//     } else {
-//       loadFiltersAndData();
-//     }
-//   }, 300);
-// };
-const handleFilterData = async (
-  e,
-  pagination,
-  setTotalPages,
-  setNewUpdatedData
-) => {
-  e.preventDefault();
-  let debounceTimeout;
-  const searchedQuery = e.target.value;
-
-  // Clear the previous timeout if the user is typing again
-  clearTimeout(debounceTimeout);
-
-  debounceTimeout = setTimeout(async () => {
-    if (searchedQuery.length >= 3) {
-      try {
-        // Fetch data from the backend or another source based on the search query
-        const result = await fetchFilteredData(searchedQuery);
-
-        // Assume result includes a data array and pagination details
-        if (result) {
-          const { data, totalPages } = result;
-          setNewUpdatedData(data || []);
-          setTotalPages(totalPages || 1);
-        }
-      } catch (error) {
-        console.error("Error fetching filtered data:", error);
-      }
-    } else {
-      loadFiltersAndData();
-    }
-  }, 300);
+const handleLogoutUser = (dispatch) => {
+  dispatch(handleSignOut());
+  dispatch(toggleClearModals());
 };
 
 export {
@@ -365,5 +302,5 @@ export {
   fetchUserDataBasedOnQuery,
   handleGenerateInvoice,
   fetchVehicleMasterWithPagination,
-  handleFilterData,
+  handleLogoutUser,
 };

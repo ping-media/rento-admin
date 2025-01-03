@@ -12,15 +12,9 @@ const InfoCard = ({ item }) => {
           <div>
             <h2 className="text-semibold text-gray-400">{item?.title}</h2>
             <h2 className="lg:text-2xl font-bold">
-              {item?.title.includes("balance") ? "₹" : ""}
-              <CountUp end={item?.count} />
+              {item?.title?.includes("PAYMENTS") ? "₹" : ""}
+              <CountUp className="ml-1" end={item?.count} />
             </h2>
-            {/* {index % 2 == 0 && (
-            <p>
-              <span className="text-green-500 text-sm lg:text-md">+23%</span>{" "}
-              Since last month
-            </p>
-          )} */}
           </div>
         </div>
       </div>

@@ -159,6 +159,25 @@ const handleAdminLogin = async (url, data) => {
   }
 };
 
+// const fetchFilteredData = async (searchedQuery, token) => {
+//   try {
+//     if (!searchedQuery) return;
+//     const response = await axios.get(
+//       `${
+//         import.meta.env.VITE_BASED_URL
+//       }/getAllVehiclesData?search=${searchedQuery}`,
+//       token
+//     );
+//     if (response?.status == 200) {
+//       return response?.data;
+//     } else {
+//       return response?.message;
+//     }
+//   } catch (error) {
+//     return error?.message;
+//   }
+// };
+
 export {
   getData,
   getFullData,
@@ -167,4 +186,5 @@ export {
   handleAdminLogin,
   deleteData,
   getGeoData,
+  // fetchFilteredData,
 };
