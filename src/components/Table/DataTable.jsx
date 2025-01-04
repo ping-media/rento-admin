@@ -14,6 +14,7 @@ import {
   togglePickupImageModal,
 } from "../../Redux/SideBarSlice/SideBarSlice.js";
 import {
+  addTempIdOneByOne,
   addTempIds,
   addTempIdsAll,
   addVehicleIdToDelete,
@@ -22,16 +23,18 @@ import {
 import InputSwitch from "../InputAndDropdown/InputSwitch.jsx";
 import CheckBoxInput from "../InputAndDropdown/CheckBoxInput.jsx";
 import StatusChange from "./StatusChange.jsx";
-import GenerateInvoiceButton from "./GenerateInvoiceButton.jsx";
 import TableNotFound from "../Skeleton/TableNotFound.jsx";
 import TableHeader from "./TableHeader.jsx";
-import { tableIcons } from "../../Data/Icons.jsx";
 const UploadPickupImageModal = lazy(() =>
   import("../../components/Modal/UploadPickupImageModal")
 );
 import { useDebounce } from "../../utils/Helper/debounce.js";
 import { handleChangeSearchTerm } from "../../Redux/PaginationSlice/PaginationSlice.js";
 import TableDataLoading from "../../components/Skeleton/TableDataLoading.jsx";
+import TableActions from "./TableActions.jsx";
+import UserDisplayCell from "./UserDisplayCell.jsx";
+import BookingDateAndCityCell from "./BookingDateAndCityCell.jsx";
+import TablePageHeader from "./TablePageHeader.jsx";
 
 const CustomTable = ({ Data, pagination, searchTermQuery }) => {
   const [loadingStates, setLoadingStates] = useState({});
@@ -145,7 +148,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
             "stationName",
             "paymentMethod",
             "payInitFrom",
-            "paymentStatus",
           ].includes(item)
       );
     }
@@ -224,7 +226,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
 
   const toggleSelectOne = (id) => {
     if (!id) return;
-    return dispatch(addTempIds(id));
+    // return dispatch(addTempIdOneByOne(id));
   };
 
   return (
@@ -237,81 +239,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
         } mt-5 gap-4`}
       >
         {/* show this modal on specific page  */}
-        {location.pathname == "/all-pickup-image" && <UploadPickupImageModal />}
+        {location.pathname == "/all-bookings" && <UploadPickupImageModal />}
 
-        <div className="flex items-center justify-between gap-2 w-full">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl xl:text-2xl uppercase font-bold text-theme">
-              {formatPathNameToTitle(location.pathname)}
-            </h1>
-
-            {!(
-              location.pathname == "/payments" ||
-              location.pathname == "/all-invoices" ||
-              location.pathname == "/users-documents"
-            ) && (
-              <Link
-                className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
-                to={location.pathname != "/all-pickup-image" ? "add-new" : "#"}
-                onClick={() =>
-                  location.pathname == "/all-pickup-image" &&
-                  dispatch(togglePickupImageModal())
-                }
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="stroke-gray-100"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Add
-              </Link>
-            )}
-          </div>
-          {!(
-            location.pathname == "/payments" ||
-            location.pathname == "/all-invoices" ||
-            location.pathname == "/users-documents"
-          ) && (
-            <div className="w-full lg:w-[30%] bg-white rounded-md shadow-lg">
-              <form className="flex items-center justify-center p-2">
-                <input
-                  type="text"
-                  placeholder="Search Here.."
-                  className="w-full rounded-md px-2 py-1 focus:outline-none focus:border-transparent"
-                  onChange={(e) => setInputSearchQuery(e.target.value)}
-                />
-                <button
-                  type="submit"
-                  className="bg-gray-800 text-white rounded-md px-4 py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="stroke-gray-100"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                </button>
-              </form>
-            </div>
-          )}
-        </div>
+        <TablePageHeader
+          dispatch={dispatch}
+          setInputSearchQuery={setInputSearchQuery}
+        />
       </div>
 
       <div className="mt-5">
@@ -379,25 +312,10 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
                               .map((column, columnIndex) => {
                                 if (column === "userId") {
                                   return (
-                                    <td
-                                      className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize text-left"
-                                      key="userId"
-                                    >
-                                      <p>{`${
-                                        item?.userId?.firstName || "Random"
-                                      } ${
-                                        item?.userId?.lastName || "User"
-                                      }`}</p>
-                                      <p className="text-xs hover:text-theme">
-                                        <Link
-                                          to={`tel:${
-                                            item?.userId?.contact || "#"
-                                          }`}
-                                        >
-                                          ({item?.userId?.contact || "NA"})
-                                        </Link>
-                                      </p>
-                                    </td>
+                                    <UserDisplayCell
+                                      key={`${item?._id}_userDisplayCell`}
+                                      item={item}
+                                    />
                                   );
                                 }
                                 if (
@@ -405,30 +323,11 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
                                   column === "city"
                                 ) {
                                   return (
-                                    <td
-                                      className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize"
-                                      key="startAndEndDate"
-                                    >
-                                      {column === "BookingStartDateAndTime" ? (
-                                        <>
-                                          <p>
-                                            {`${formatFullDateAndTime(
-                                              item.BookingStartDateAndTime
-                                            )}`}
-                                          </p>
-                                          <p>
-                                            {`${formatFullDateAndTime(
-                                              item.BookingEndDateAndTime
-                                            )}`}
-                                          </p>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <p>{item?.city}</p>
-                                          <p>{item?.state}</p>
-                                        </>
-                                      )}
-                                    </td>
+                                    <BookingDateAndCityCell
+                                      key={item?._id}
+                                      item={item}
+                                      column={column}
+                                    />
                                   );
                                 }
                                 // Skip rendering `BookingEndDateAndTime` data to avoid duplication
@@ -457,7 +356,11 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
                                     column.includes("Users")
                                       ? item[column].length
                                       : `₹${formatPrice(
-                                          item[column]?.bookingPrice
+                                          item[column]?.discountTotalPrice &&
+                                            item[column]?.discountTotalPrice !=
+                                              0
+                                            ? item[column]?.discountTotalPrice
+                                            : item[column]?.totalPrice
                                         )}`}
                                   </td>
                                 ) : (
@@ -516,52 +419,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
                                 </td>
                               )
                             )}
-                            <td className="flex p-3 items-center gap-0.5">
-                              {(location.pathname == "/all-vehicles" ||
-                                location.pathname == "/all-bookings" ||
-                                location.pathname == "/all-invoices") && (
-                                <Link
-                                  className="p-2 text-purple-500 hover:underline"
-                                  to={`details/${item?._id}`}
-                                >
-                                  view
-                                </Link>
-                              )}
-                              {location.pathname == "/all-bookings" && (
-                                <GenerateInvoiceButton
-                                  item={item}
-                                  loadingStates={loadingStates}
-                                  setLoadingStates={setLoadingStates}
-                                />
-                              )}
-                              {!(
-                                location.pathname == "/users-documents" ||
-                                location.pathname == "/all-bookings" ||
-                                location.pathname == "/payments" ||
-                                location.pathname == "/all-invoices"
-                              ) && (
-                                <Link
-                                  className="p-3 rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
-                                  to={`${item?._id}`}
-                                >
-                                  {tableIcons.edit}
-                                </Link>
-                              )}
-                              {!(
-                                location.pathname == "/users-documents" ||
-                                location.pathname == "/all-bookings" ||
-                                location.pathname == "/payments" ||
-                                location.pathname == "/all-invoices" ||
-                                location.pathname == "/location-master"
-                              ) && (
-                                <button
-                                  className="p-3 rounded-full bg-white group transition-all duration-500 hover:bg-red-600 flex item-center"
-                                  onClick={() => handleDeleteVehicle(item?._id)}
-                                >
-                                  {tableIcons.delete}
-                                </button>
-                              )}
-                            </td>
+                            <TableActions
+                              item={item}
+                              loadingStates={loadingStates}
+                              setLoadingStates={setLoadingStates}
+                              handleDeleteVehicle={handleDeleteVehicle}
+                            />
                           </tr>
                         ))
                       ) : (

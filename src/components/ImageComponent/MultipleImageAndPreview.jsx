@@ -6,6 +6,7 @@ const MultipleImageAndPreview = ({
   imagesUrl,
   setImageChanger,
   setImageUrlChanger,
+  loading,
 }) => {
   const imagesRef = useRef(null);
 
@@ -88,7 +89,7 @@ const MultipleImageAndPreview = ({
                       <line x1="14" y1="11" x2="14" y2="17"></line>
                     </svg>
                   </button>
-                  <div className="w-full h-24 relative mx-auto">
+                  <div className="w-full h-20 relative mx-auto">
                     <img
                       src={image}
                       className="w-full h-full object-contain hover:border rounded-xl transition duration-300 ease-in-out"
@@ -98,10 +99,12 @@ const MultipleImageAndPreview = ({
                 </div>
               ))}
             </div>
-            {imagesUrl?.length < 6 && <UploadImageComponent />}
+            {imagesUrl?.length < 6 && (
+              <UploadImageComponent loading={loading} />
+            )}
           </>
         ) : (
-          <UploadImageComponent />
+          <UploadImageComponent loading={loading} />
         )}
       </div>
     </>

@@ -2,30 +2,42 @@ import { useDispatch, useSelector } from "react-redux";
 import { togglePickupImageModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useState } from "react";
 import MultipleImageAndPreview from "../ImageComponent/MultipleImageAndPreview";
-import InputSearch from "../InputAndDropdown/InputSearch";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postMultipleData } from "../../Data";
 import Spinner from "../Spinner/Spinner";
+import {
+  handleInvoiceCreated,
+  removeTempVehicleData,
+} from "../../Redux/VehicleSlice/VehicleSlice";
 
 const UploadPickupImageModal = () => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const { token } = useSelector((state) => state.user);
+  const { tempVehicleData, vehicleMaster } = useSelector(
+    (state) => state.vehicles
+  );
   const dispatch = useDispatch();
   const [imagesUrl, setImageUrl] = useState([]);
   const [image, setImage] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  //upload images
   const handleUploadPickupImages = async (event) => {
     event.preventDefault();
     const formData = new FormData();
     const images = Array.from(event.target.elements.images?.files || []);
-    const formElements = event.target.elements;
-    const userId = formElements?.userId[0]?.value;
+    // const formElements = event.target.elements;
+    // const userId = formElements?.userId[0]?.value;
+    // const bookingId = formElements?.bookingId?.value;
+    // const odometerReading = formElements?.vehicleMeterReading?.value;
 
-    if (!userId)
-      return handleAsyncError(dispatch, "unable to upload! try again.");
+    if (!tempVehicleData)
+      return handleAsyncError(dispatch, "All fields required.");
 
-    formData.append("userId", userId);
+    formData.append("userId", tempVehicleData?.userId?._id);
+    formData.append("bookingId", tempVehicleData?.bookingId);
+    formData.append("_id", tempVehicleData?._id);
+    // formData.append("vehicleMeterReading", odometerReading);
 
     if (images.length > 0) {
       // Append images to the FormData
@@ -41,6 +53,17 @@ const UploadPickupImageModal = () => {
       );
     }
 
+    let currentBooking = vehicleMaster?.data?.find(
+      (item) => item?._id == tempVehicleData?._id
+    );
+    const updatedBooking = {
+      ...currentBooking,
+      bookingPrice: {
+        ...currentBooking.bookingPrice,
+        isPickupImageAdded: true,
+      },
+    };
+
     setLoading(true);
     try {
       const responseImage = await postMultipleData(
@@ -53,6 +76,7 @@ const UploadPickupImageModal = () => {
         setImage([]);
         setImageUrl([]);
         dispatch(togglePickupImageModal());
+        dispatch(handleInvoiceCreated(updatedBooking));
         handleAsyncError(dispatch, responseImage?.message, "success");
       } else {
         handleAsyncError(dispatch, responseImage?.message);
@@ -68,6 +92,7 @@ const UploadPickupImageModal = () => {
   const handleClearAndClose = () => {
     setImage([]);
     setImageUrl([]);
+    dispatch(removeTempVehicleData());
     return dispatch(togglePickupImageModal());
   };
 
@@ -77,12 +102,13 @@ const UploadPickupImageModal = () => {
         !isUploadPickupImageActive ? "hidden" : ""
       } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-xl">
+      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white max-w-xl">
         <div className="flex justify-end p-2">
           <button
             onClick={handleClearAndClose}
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+            disabled={loading}
           >
             <svg
               className="w-5 h-5"
@@ -101,15 +127,13 @@ const UploadPickupImageModal = () => {
 
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handleUploadPickupImages}>
-            <div className="text-left mb-5">
-              <InputSearch item={"User"} name={"userId"} token={token} />
-            </div>
             <div>
               <MultipleImageAndPreview
                 image={image}
                 setImageChanger={setImage}
                 imagesUrl={imagesUrl}
                 setImageUrlChanger={setImageUrl}
+                loading={loading}
               />
               {imagesUrl && imagesUrl?.length > 6 && (
                 <p className="text-theme text-sm text-left">

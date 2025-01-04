@@ -15,7 +15,8 @@ import BookingStepThree from "./BookingComponents/BookingStepThree";
 const BookingForm = ({ handleFormSubmit, loading }) => {
   // const [collectedData, setCollectedData] = useState(null);
   const { token } = useSelector((state) => state.user);
-  const [currentStep, setCurrentStep] = useState(1);
+  const { id } = useParams();
+  const [currentStep, setCurrentStep] = useState(id ? 3 : 1);
   const [formData, setFormData] = useState({
     stepOneData: {},
     stepTwoData: {},
@@ -80,7 +81,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           )}
 
           {currentStep === 3 && (
-            <BookingStepThree onPrevious={handlePrevious} />
+            <BookingStepThree id={id} onPrevious={handlePrevious} />
           )}
         </>
       </div>

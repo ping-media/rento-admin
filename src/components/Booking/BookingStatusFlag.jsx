@@ -12,7 +12,8 @@ const BookingStatusFlag = ({ title, rides, flag }) => {
             (rides[flag] === "failed" && "bg-theme") ||
             (rides[flag] === "canceled" && "bg-theme") ||
             (rides[flag] === "paid" && "bg-green-500 bg-opacity-80") ||
-            (rides[flag] === "done" && "bg-green-500 bg-opacity-80")
+            (rides[flag] === "done" && "bg-green-500 bg-opacity-80") ||
+            (rides[flag] === "ongoing" && "bg-orange-600 bg-opacity-80")
           } text-gray-100 px-4 py-1 rounded-full cursor-pointer capitalize ml-2`}
         >
           {rides[flag].replace("_", " ")}

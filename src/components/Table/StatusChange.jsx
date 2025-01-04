@@ -7,8 +7,11 @@ const StatusChange = ({ item, column }) => {
         item[column] == "done" ||
         item[column] == "paid" ||
         item[column] == "partially_paid" ||
-        item[column] == "partiallyPay"
+        item[column] == "partiallyPay" ||
+        item[column] == "completed"
           ? "bg-emerald-50"
+          : item[column] == "ongoing"
+          ? "bg-orange-50"
           : "bg-red-50"
       } rounded-full flex justify-center w-20 items-center gap-1`}
     >
@@ -29,8 +32,11 @@ const StatusChange = ({ item, column }) => {
             item[column] === "done" ||
             item[column] === "paid" ||
             item[column] === "partially_paid" ||
-            item[column] === "partiallyPay"
+            item[column] === "partiallyPay" ||
+            item[column] === "completed"
               ? "#059669"
+              : item[column] == "ongoing"
+              ? "#FFA500"
               : "#E23844"
           }`}
         ></circle>
@@ -42,8 +48,11 @@ const StatusChange = ({ item, column }) => {
           item[column] === "done" ||
           item[column] === "paid" ||
           item[column] === "partially_paid" ||
-          item[column] === "partiallyPay"
+          item[column] === "partiallyPay" ||
+          item[column] === "completed"
             ? "text-emerald-600"
+            : item[column] == "ongoing"
+            ? "text-orange-600"
             : "text-red-600"
         }`}
       >

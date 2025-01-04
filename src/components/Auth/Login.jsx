@@ -4,12 +4,17 @@ import loginImage from "../../assets/logo/login.svg";
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
 import { useNavigate } from "react-router-dom";
-import { handleOtpLogin } from "../../Data/Function";
+import {
+  handleLogoutUser,
+  handleOtpLogin,
+  validateUser,
+} from "../../Data/Function";
 import webLogo from "../../assets/logo/rento-logo.png";
+import PreLoader from "../../components/Skeleton/PreLoader";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-
+  const [preLoaderLoading, setPreLoaderLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { message, type } = useSelector((state) => state.error);
@@ -19,9 +24,14 @@ const Login = () => {
 
   //if user is already login than don't let user to come to this page
   useEffect(() => {
-    if (token != null) {
-      navigate("/dashboard");
-    }
+    (async () => {
+      await validateUser(
+        token,
+        handleLogoutUser,
+        dispatch,
+        setPreLoaderLoading
+      );
+    })();
   }, []);
 
   // change the type of password to type
@@ -35,7 +45,7 @@ const Login = () => {
     }
   };
 
-  return (
+  return !preLoaderLoading ? (
     <div className="min-h-screen login relative">
       {/* alert or error showing  */}
       {message && <Alert error={message} errorType={type} />}
@@ -192,6 +202,8 @@ const Login = () => {
         </div>
       </div>
     </div>
+  ) : (
+    <PreLoader />
   );
 };
 

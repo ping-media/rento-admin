@@ -263,9 +263,26 @@ const fetchUserDataBasedOnQuery = async (endpoint, token) => {
   }
 };
 
-const handleGenerateInvoice = async (dispatch, id, token, setLoadingStates) => {
-  if (!id)
+const handleGenerateInvoice = async (
+  dispatch,
+  id,
+  token,
+  setLoadingStates,
+  bookingData,
+  handleInvoiceCreated
+) => {
+  if (!id && !bookingData)
     return handleAsyncError(dispatch, "failed to create Invoice! try again.");
+  let currentBooking = bookingData?.find((item) => item?._id == id);
+  if (!currentBooking)
+    return handleAsyncError(dispatch, "failed to create Invoice! try again");
+  const updatedBooking = {
+    ...currentBooking,
+    bookingPrice: {
+      ...currentBooking.bookingPrice,
+      isInvoiceCreated: true,
+    },
+  };
   setLoadingStates((prevState) => ({
     ...prevState,
     [id]: true,
@@ -273,6 +290,7 @@ const handleGenerateInvoice = async (dispatch, id, token, setLoadingStates) => {
   try {
     const response = await postData("/createInvoice", { _id: id }, token);
     if (response?.status == 200) {
+      dispatch(handleInvoiceCreated(updatedBooking));
       handleAsyncError(dispatch, response?.message, "success");
     }
   } catch (error) {
@@ -282,6 +300,29 @@ const handleGenerateInvoice = async (dispatch, id, token, setLoadingStates) => {
       ...prevState,
       [id]: false,
     }));
+  }
+};
+
+const validateUser = async (
+  token,
+  handleLogoutUser,
+  dispatch,
+  setPreLoaderLoading
+) => {
+  try {
+    setPreLoaderLoading && setPreLoaderLoading(true);
+    if (!token) return;
+    const response = await postData(`/validedToken`, { token: token }, token);
+    const isUserValid = response?.isUserValid;
+    if (isUserValid === true) {
+      if (location.pathname == "/") return navigate("/dashboard");
+    } else {
+      handleLogoutUser(dispatch);
+    }
+  } catch (error) {
+    handleLogoutUser(dispatch);
+  } finally {
+    setPreLoaderLoading && setPreLoaderLoading(false);
   }
 };
 
@@ -302,5 +343,6 @@ export {
   fetchUserDataBasedOnQuery,
   handleGenerateInvoice,
   fetchVehicleMasterWithPagination,
+  validateUser,
   handleLogoutUser,
 };

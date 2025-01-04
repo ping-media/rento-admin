@@ -1,22 +1,18 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef, useState } from "react";
+import { lazy, useEffect, useRef, useState } from "react";
 import Header from "../Header/Header";
 import SideBar from "../SideBar/SideBar";
 import Alert from "../Alert/Alert";
-import SignOutModal from "../Modal/SignOutModal";
-import DeleteModal from "../Modal/DeleteModal";
 import ScrollToTopButton from "../ScrollButton/ScrollToTopButton";
 import PreLoader from "../Skeleton/PreLoader";
-import {
-  handleCurrentUser,
-  handleLoadingUserData,
-  handleLoadingUserDataFalse,
-} from "../../Redux/UserSlice/UserSlice";
+import { handleCurrentUser } from "../../Redux/UserSlice/UserSlice";
 import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
 import { removeTempIds } from "../../Redux/VehicleSlice/VehicleSlice";
-import { getData } from "../../Data/index";
-import { handleLogoutUser } from "../../Data/Function";
+import { handleLogoutUser, validateUser } from "../../Data/Function";
+// modals
+const SignOutModal = lazy(() => import("../Modal/SignOutModal"));
+const DeleteModal = lazy(() => import("../Modal/DeleteModal"));
 
 const Layout = () => {
   const dispatch = useDispatch();
@@ -27,9 +23,7 @@ const Layout = () => {
   const { is_open } = useSelector((state) => state.sideBar);
   const mainRef = useRef(null);
   const [visible, setVisible] = useState(false);
-  const { token, user, currentUser, loading } = useSelector(
-    (state) => state.user
-  );
+  const { token, user, loading } = useSelector((state) => state.user);
 
   //scrolltotop function
   const handleScrollToTop = () => {
@@ -68,29 +62,10 @@ const Layout = () => {
 
   // if user is not found or inactive then logout for first time
   useEffect(() => {
-    if (currentUser) {
-      (async () => {
-        try {
-          dispatch(handleLoadingUserData());
-          const response = await getData(
-            `/getAllUsers?_id=${currentUser?._id}`,
-            token
-          );
-          console.log(response?.data);
-          if (
-            response?.data?.length == 0 ||
-            response?.data[0]?.status !== "active"
-          ) {
-            return handleLogoutUser(dispatch);
-          }
-        } catch (error) {
-          console.log(error?.message);
-        } finally {
-          dispatch(handleLoadingUserDataFalse());
-        }
-      })();
-    }
-  }, [currentUser]);
+    (async () => {
+      await validateUser(token, handleLogoutUser, dispatch);
+    })();
+  }, []);
 
   //need to reset the page and limit when every user change page
   useEffect(() => {

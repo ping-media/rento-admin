@@ -7,7 +7,7 @@ import PreLoader from "../Skeleton/PreLoader";
 import { getData } from "../../Data";
 import {
   formatFullDateAndTime,
-  formatReadableDateTime,
+  // formatReadableDateTime,
 } from "../../utils/index";
 import BookingFareDetails from "./BookingFareDetails";
 import BookingUserDetails from "./BookingUserDetail";
@@ -43,7 +43,6 @@ const BookingDetail = () => {
     if (vehicleMaster?.length == 1) {
       fetchCollectedData(`/getAllUsers?_id=${vehicleMaster[0]?.userId}`);
     }
-    // console.log(vehicleMaster, collectedData);
   }, [vehicleMaster]);
 
   // combining data for use
@@ -52,15 +51,11 @@ const BookingDetail = () => {
       const data = {
         user: [
           {
-            key: "First Name",
+            key: "Full Name",
             value:
-              (collectedData && collectedData["userId"][0]?.firstName) ||
-              "John",
-          },
-          {
-            key: "Last Name",
-            value:
-              (collectedData && collectedData["userId"][0]?.lastName) || "deo",
+              (collectedData &&
+                `${collectedData["userId"][0]?.firstName} ${collectedData["userId"][0]?.lastName}`) ||
+              "",
           },
           {
             key: "Mobile Number",
@@ -73,15 +68,6 @@ const BookingDetail = () => {
             value:
               (collectedData && collectedData["userId"][0]?.email) ||
               "example@gmail.com",
-          },
-          {
-            key: "Joined",
-            value:
-              (collectedData &&
-                formatReadableDateTime(
-                  collectedData["userId"][0]?.createdAt
-                )) ||
-              "2024-10-28 02:45 PM",
           },
         ],
         moreInfo: [
@@ -108,6 +94,15 @@ const BookingDetail = () => {
               vehicleMaster &&
               formatFullDateAndTime(
                 vehicleMaster && vehicleMaster[0]?.BookingEndDateAndTime
+              )
+            }`,
+          },
+          {
+            key: "Booking Date",
+            value: `${
+              vehicleMaster &&
+              formatFullDateAndTime(
+                vehicleMaster && vehicleMaster[0]?.createdAt
               )
             }`,
           },

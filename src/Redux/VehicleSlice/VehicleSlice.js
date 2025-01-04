@@ -45,6 +45,10 @@ const vehicleSlice = createSlice({
       state.loading = false;
       state.tempIds = [...state.tempIds, ...action.payload];
     },
+    addTempIdOneByOne: (state, action) => {
+      state.loading = false;
+      state.tempIds = (prev) => [...prev, action.payload];
+    },
     updateTempId: (state, action) => {
       const { id, planPrice } = action.payload;
       state.tempIds = state.tempIds.map((item) =>
@@ -67,6 +71,14 @@ const vehicleSlice = createSlice({
     removeTempIds: (state) => {
       state.loading = false;
       state.tempIds = [];
+    },
+    handleInvoiceCreated: (state, action) => {
+      const newData = action.payload;
+      state.vehicleMaster.data.forEach((item) => {
+        if (item._id === newData._id) {
+          Object.assign(item, newData);
+        }
+      });
     },
     fetchMoreVehicleSuccess: (state, action) => {
       state.loading = false;
@@ -107,10 +119,12 @@ export const {
   restDeletevehicleId,
   toggleClearVehicle,
   fetchVehicleEnd,
+  handleInvoiceCreated,
   addTempIdsAll,
   addTempIds,
   removeTempIds,
   handleUpdateStatus,
+  addTempIdOneByOne,
   updateTempId,
   removeTempIdById,
 } = vehicleSlice.actions;

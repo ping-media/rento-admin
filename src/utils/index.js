@@ -153,14 +153,14 @@ const modifyUrl = (url) => {
 const formatFullDateAndTime = (dateString) => {
   const date = new Date(dateString);
 
-  // Format the date using Intl.DateTimeFormat for custom formatting in UTC
+  // Format the date using Intl.DateTimeFormat with short month format
   const formatter = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
-    month: "long",
+    month: "short", // Use short month format
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-    hour12: true, // Optional: to use 12-hour format
+    hour12: true, // Use 12-hour format
     timeZone: "UTC", // Ensure UTC time zone
   });
 

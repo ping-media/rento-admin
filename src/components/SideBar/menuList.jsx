@@ -34,6 +34,11 @@ const menuList = [
     menuLink: "/vehicle-master",
   },
   {
+    menuImg: <RequestPageOutlinedIcon />,
+    menuTitle: "Plan Master",
+    menuLink: "/all-plans",
+  },
+  {
     menuImg: <DirectionsCarFilledOutlinedIcon />,
     menuTitle: "All Vehicles",
     menuLink: "/all-vehicles",
@@ -54,11 +59,6 @@ const menuList = [
         menuLink: "/users-documents",
       },
     ],
-  },
-  {
-    menuImg: <RequestPageOutlinedIcon />,
-    menuTitle: "All Plans",
-    menuLink: "/all-plans",
   },
   {
     menuImg: <BookOnlineOutlinedIcon />,
