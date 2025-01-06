@@ -1,16 +1,15 @@
 import { Link } from "react-router-dom";
-import { togglePickupImageModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import { formatPathNameToTitle } from "../../utils/index";
 import { tableIcons } from "../../Data/Icons";
+import BulkActionButtons from "./BulkActionButtons";
 
-const TablePageHeader = ({ dispatch, setInputSearchQuery }) => {
+const TablePageHeader = ({ setInputSearchQuery }) => {
   return (
     <div className="flex items-center flex-wrap justify-between gap-2 w-full">
       <div className="flex items-center gap-2">
         <h1 className="text-xl xl:text-2xl uppercase font-bold text-theme">
           {formatPathNameToTitle(location.pathname)}
         </h1>
-
         {!(
           location.pathname == "/payments" ||
           location.pathname == "/all-invoices" ||
@@ -24,21 +23,10 @@ const TablePageHeader = ({ dispatch, setInputSearchQuery }) => {
             Add
           </Link>
         )}
-        {/* {location.pathname == "/all-bookings" && (
-          <button
-            className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap"
-            onClick={() => dispatch(togglePickupImageModal())}
-          >
-            {tableIcons.add}
-            Add Image
-          </button>
-        )} */}
+        {/* this button is to perform bulk action */}
+        <BulkActionButtons />
       </div>
-      {!(
-        location.pathname == "/payments" ||
-        location.pathname == "/all-invoices" ||
-        location.pathname == "/users-documents"
-      ) && (
+      {!(location.pathname == "/users-documents") && (
         <div className="w-full lg:w-[30%] bg-white rounded-md shadow-lg">
           <form className="flex items-center justify-center p-2">
             <input

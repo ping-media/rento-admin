@@ -7,14 +7,9 @@ import {
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
 import React, { lazy, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice.js";
 import {
-  toggleDeleteModal,
-  togglePickupImageModal,
-} from "../../Redux/SideBarSlice/SideBarSlice.js";
-import {
-  addTempIdOneByOne,
   addTempIds,
   addTempIdsAll,
   addVehicleIdToDelete,
@@ -35,8 +30,10 @@ import TableActions from "./TableActions.jsx";
 import UserDisplayCell from "./UserDisplayCell.jsx";
 import BookingDateAndCityCell from "./BookingDateAndCityCell.jsx";
 import TablePageHeader from "./TablePageHeader.jsx";
+import UserStatusCell from "./UserStatusCell.jsx";
+import UserDocumentCell from "./UserDocumentCell.jsx";
 
-const CustomTable = ({ Data, pagination, searchTermQuery }) => {
+const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
   const { limit } = useSelector((state) => state.pagination);
   // const { token } = useSelector((state) => state.user);
@@ -154,8 +151,8 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
 
     if (
       location.pathname == "/payments" ||
-      location.pathname == "/all-invoices" ||
-      location.pathname == "/users-documents"
+      location.pathname == "/all-invoices"
+      // location.pathname == "/users-documents"
     ) {
       filteredKeys = filteredKeys.filter((item) => !["userId"].includes(item));
     }
@@ -196,6 +193,8 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
       if (searchTermQuery == null) {
         getTableHeader(Data);
       }
+      // clear the previous data
+      setNewUpdatedData([]);
       getTableValue(Data);
     }
   }, [Data, totalPages]);
@@ -215,20 +214,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
     dispatch(toggleDeleteModal());
   };
 
-  const toggleSelectAll = (isChecked) => {
-    if (isChecked) {
-      if (!newUpdatedData) return;
-      dispatch(addTempIdsAll(newUpdatedData?.map((item) => item?._id)));
-    } else {
-      dispatch(removeTempIds());
-    }
-  };
-
-  const toggleSelectOne = (id) => {
-    if (!id) return;
-    // return dispatch(addTempIdOneByOne(id));
-  };
-
   return (
     <>
       <div
@@ -241,10 +226,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
         {/* show this modal on specific page  */}
         {location.pathname == "/all-bookings" && <UploadPickupImageModal />}
 
-        <TablePageHeader
-          dispatch={dispatch}
-          setInputSearchQuery={setInputSearchQuery}
-        />
+        <TablePageHeader setInputSearchQuery={setInputSearchQuery} />
       </div>
 
       <div className="mt-5">
@@ -260,175 +242,178 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
                         sortConfig={sortConfig}
                         sortData={sortData}
                         newUpdatedData={newUpdatedData}
-                        toggleSelectAll={toggleSelectAll}
                       />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-300 ">
-                    {Data && newUpdatedData && newUpdatedData != [] ? (
-                      newUpdatedData && newUpdatedData.length > 0 ? (
-                        newUpdatedData.map((item) => (
-                          <tr
-                            className="bg-white transition-all duration-500 hover:bg-gray-50"
-                            key={item?._id}
-                          >
-                            {location.pathname == "/all-vehicles" && (
-                              <td className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
-                                <CheckBoxInput
-                                  handleChange={toggleSelectOne}
-                                  tempIds={tempIds}
-                                  data={newUpdatedData}
-                                  isId={item?._id}
-                                  unique={item?._id}
-                                />
-                              </td>
-                            )}
-                            {item.files &&
-                              Array.from({
-                                length:
-                                  location.pathname == "/users-documents"
-                                    ? 2
-                                    : 6,
-                              }).map((_, index) => (
-                                <td className="p-3" key={index}>
-                                  {item.files[index] ? (
-                                    <img
-                                      src={item.files[index].imageUrl}
-                                      alt={item.files[index].fileName}
-                                      className="w-28 h-20 object-contain"
-                                    />
-                                  ) : (
-                                    "N/A"
-                                  )}
+                    {!dataLoading ? (
+                      Data &&
+                      Data.length > 0 &&
+                      newUpdatedData &&
+                      newUpdatedData != [] ? (
+                        newUpdatedData && newUpdatedData.length > 0 ? (
+                          newUpdatedData.map((item) => (
+                            <tr
+                              className="bg-white transition-all duration-500 hover:bg-gray-50"
+                              key={item?._id}
+                            >
+                              {location.pathname == "/all-vehicles" && (
+                                <td className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
+                                  <CheckBoxInput isId={item?._id} />
                                 </td>
-                              ))}
-                            {/* dynamically rendering */}
-                            {Columns.filter(
-                              (column) =>
-                                !column.includes("Status") &&
-                                !column.includes("Active")
-                            )
-                              // .slice(0, Columns.length - 1)
-                              .map((column, columnIndex) => {
-                                if (column === "userId") {
-                                  return (
-                                    <UserDisplayCell
-                                      key={`${item?._id}_userDisplayCell`}
-                                      item={item}
-                                    />
-                                  );
-                                }
-                                if (
-                                  column === "BookingStartDateAndTime" ||
-                                  column === "city"
-                                ) {
-                                  return (
-                                    <BookingDateAndCityCell
-                                      key={item?._id}
-                                      item={item}
-                                      column={column}
-                                    />
-                                  );
-                                }
-                                // Skip rendering `BookingEndDateAndTime` data to avoid duplication
-                                if (
-                                  column === "BookingEndDateAndTime" ||
-                                  column === "state"
-                                ) {
-                                  return null;
-                                }
-                                // Default behavior for other columns
-                                return column.includes("Image") ? (
-                                  <td className="p-3" key={columnIndex}>
-                                    <div className="flex items-center gap-3 text-center">
-                                      <img
-                                        src={item[column]}
-                                        className="w-28 h-20 object-contain"
+                              )}
+                              {/* {item.files && <UserDocumentCell item={item} />} */}
+                              {/* dynamically rendering */}
+                              {Columns.filter(
+                                (column) =>
+                                  !column.includes("Status") &&
+                                  !column.includes("status") &&
+                                  !column.includes("Active") &&
+                                  !column.includes("Invoice")
+                              )
+                                // .slice(0, Columns.length - 1)
+                                .map((column, columnIndex) => {
+                                  if (column === "files") {
+                                    return <UserDocumentCell item={item} />;
+                                  }
+                                  if (column === "userId") {
+                                    return (
+                                      <UserDisplayCell
+                                        key={`${item?._id}_userDisplayCell`}
+                                        item={item}
                                       />
-                                    </div>
+                                    );
+                                  }
+                                  if (
+                                    column === "BookingStartDateAndTime" ||
+                                    column === "city"
+                                  ) {
+                                    return (
+                                      <BookingDateAndCityCell
+                                        key={item?._id}
+                                        item={item}
+                                        column={column}
+                                      />
+                                    );
+                                  }
+                                  if (column === "isEmailVerified") {
+                                    return (
+                                      <UserStatusCell
+                                        item={item}
+                                        index={columnIndex}
+                                      />
+                                    );
+                                  }
+                                  // Skip rendering `BookingEndDateAndTime` data to avoid duplication
+                                  if (
+                                    column === "BookingEndDateAndTime" ||
+                                    column === "state" ||
+                                    column === "isContactVerified" ||
+                                    column === "kycApproved"
+                                  ) {
+                                    return null;
+                                  }
+                                  // Default behavior for other columns
+                                  return column.includes("Image") ? (
+                                    <td className="p-3" key={columnIndex}>
+                                      <div className="flex items-center gap-3 text-center">
+                                        <img
+                                          src={item[column]}
+                                          className="w-28 h-20 object-contain"
+                                        />
+                                      </div>
+                                    </td>
+                                  ) : typeof item[column] === "object" ? (
+                                    <td
+                                      className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                      key={columnIndex}
+                                    >
+                                      {column.includes("files")
+                                        ? null
+                                        : `₹${formatPrice(
+                                            item[column]?.discountTotalPrice &&
+                                              item[column]
+                                                ?.discountTotalPrice != 0
+                                              ? item[column]?.discountTotalPrice
+                                              : item[column]?.totalPrice
+                                          )}`}
+                                    </td>
+                                  ) : (
+                                    <td
+                                      className={`p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ${
+                                        column?.includes("email")
+                                          ? ""
+                                          : "capitalize"
+                                      }`}
+                                      key={columnIndex}
+                                    >
+                                      {column.includes("Charges") ||
+                                      column.includes("Deposit") ||
+                                      column.includes("Cost") ||
+                                      column.includes("Price")
+                                        ? `₹ ${formatPrice(item[column])}`
+                                        : column.includes("Duration")
+                                        ? `${item[column]} Days`
+                                        : column.includes("DateAndTime")
+                                        ? formatFullDateAndTime(item[column])
+                                        : column?.includes("InitiatedDate")
+                                        ? item[column] !== "NA"
+                                          ? formatTimeStampToDate(item[column])
+                                          : ""
+                                        : column?.includes("bookingId")
+                                        ? `#${item[column]}`
+                                        : item[column]}
+                                    </td>
+                                  );
+                                })}
+
+                              {/* Render "Status" or "Active" columns at the end */}
+                              {Columns.filter(
+                                (column) =>
+                                  column.includes("Status") ||
+                                  column.includes("status") ||
+                                  column.includes("Active") ||
+                                  column.includes("Invoice")
+                              ).map((column, columnIndex) =>
+                                (location?.pathname === "/location-master" &&
+                                  column.includes("Status")) ||
+                                (location?.pathname === "/all-vehicles" &&
+                                  column.includes("vehicleStatus")) ? (
+                                  <td
+                                    className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 pl-4"
+                                    key={columnIndex}
+                                  >
+                                    <InputSwitch
+                                      value={item[column]}
+                                      id={item?._id}
+                                    />
                                   </td>
-                                ) : typeof item[column] === "object" ? (
+                                ) : (
                                   <td
                                     className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                     key={columnIndex}
                                   >
-                                    {column.includes("Documents") ||
-                                    column.includes("Users")
-                                      ? item[column].length
-                                      : `₹${formatPrice(
-                                          item[column]?.discountTotalPrice &&
-                                            item[column]?.discountTotalPrice !=
-                                              0
-                                            ? item[column]?.discountTotalPrice
-                                            : item[column]?.totalPrice
-                                        )}`}
+                                    <StatusChange item={item} column={column} />
                                   </td>
-                                ) : (
-                                  <td
-                                    className={`p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ${
-                                      column?.includes("email")
-                                        ? ""
-                                        : "capitalize"
-                                    }`}
-                                    key={columnIndex}
-                                  >
-                                    {column.includes("Charges") ||
-                                    column.includes("Deposit") ||
-                                    column.includes("Cost") ||
-                                    column.includes("Price")
-                                      ? `₹ ${formatPrice(item[column])}`
-                                      : column.includes("Duration")
-                                      ? `${item[column]} Days`
-                                      : column.includes("DateAndTime")
-                                      ? formatFullDateAndTime(item[column])
-                                      : column?.includes("InitiatedDate")
-                                      ? item[column] !== "NA"
-                                        ? formatTimeStampToDate(item[column])
-                                        : ""
-                                      : column?.includes("bookingId")
-                                      ? `#${item[column]}`
-                                      : item[column]}
-                                  </td>
-                                );
-                              })}
-                            {/* Render "Status" or "Active" columns at the end */}
-                            {Columns.filter(
-                              (column) =>
-                                column.includes("Status") ||
-                                column.includes("Active")
-                            ).map((column, columnIndex) =>
-                              (location?.pathname === "/location-master" &&
-                                column.includes("Status")) ||
-                              (location?.pathname === "/all-vehicles" &&
-                                column.includes("vehicleStatus")) ? (
-                                <td
-                                  className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 pl-4"
-                                  key={columnIndex}
-                                >
-                                  <InputSwitch
-                                    value={item[column]}
-                                    id={item?._id}
-                                  />
-                                </td>
-                              ) : (
-                                <td
-                                  className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
-                                  key={columnIndex}
-                                >
-                                  <StatusChange item={item} column={column} />
-                                </td>
-                              )
-                            )}
-                            <TableActions
-                              item={item}
-                              loadingStates={loadingStates}
-                              setLoadingStates={setLoadingStates}
-                              handleDeleteVehicle={handleDeleteVehicle}
-                            />
-                          </tr>
-                        ))
-                      ) : (
+                                )
+                              )}
+                              <TableActions
+                                item={item}
+                                loadingStates={loadingStates}
+                                setLoadingStates={setLoadingStates}
+                                handleDeleteVehicle={handleDeleteVehicle}
+                              />
+                            </tr>
+                          ))
+                        ) : (
+                          <TableNotFound />
+                        )
+                      ) : !Data ? (
                         <TableNotFound />
+                      ) : (
+                        <>
+                          <TableDataLoading />
+                        </>
                       )
                     ) : (
                       <TableDataLoading />
@@ -441,7 +426,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery }) => {
         </div>
       </div>
 
-      {pagination?.limit >= 10 && (
+      {pagination?.limit >= 10 && newUpdatedData?.length > 0 && (
         <div className="flex flex-wrap items-center justify-start lg:justify-end gap-4 lg:gap-2">
           <div className="flex items-center gap-2">
             <h2 className="capitalize">Rows per Page</h2>

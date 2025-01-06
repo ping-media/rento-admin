@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { getData } from "../Data";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 import PreLoader from "../components/Skeleton/PreLoader";
-import companyLogo from "../assets/favicon.ico";
+import companyLogo from "../assets/logo/rento-logo.png";
 import { formatDateForInvoice, formatPrice } from "../utils";
 // import jsPDF from "jspdf";
 import html2pdf from "html2pdf.js";
@@ -41,6 +41,7 @@ const InvoiceDetails = () => {
         const response = await getData(`/getAllInvoice?_id=${id}`, token);
         if (response?.status == 200) {
           const tempInvoiceData = response?.data[0];
+          console.log(tempInvoiceData);
           setInvoiceData(tempInvoiceData);
           await getUserData(tempInvoiceData?.userId);
         }
@@ -112,14 +113,13 @@ const InvoiceDetails = () => {
       >
         <div className="grid grid-cols-2 items-center">
           <div>
-            <img src={companyLogo} alt="company-logo" height="75" width="75" />
+            <img src={companyLogo} alt="company-logo" className="size-20" />
           </div>
 
           <div className="text-right">
-            <p>Rento</p>
-            <p className="text-gray-500 text-sm">support@rento.com</p>
-            <p className="text-gray-500 text-sm mt-1">+41-442341232</p>
-            {/* <p className="text-gray-500 text-sm mt-1">VAT: 8657671212</p> */}
+            <p>Rento Bikes</p>
+            <p className="text-gray-500 text-sm">support@rentobikes.com</p>
+            <p className="text-gray-500 text-sm mt-1">+91-8884488891</p>
           </div>
         </div>
 
@@ -233,6 +233,26 @@ const InvoiceDetails = () => {
                   ₹{formatPrice(invoiceData?.bookingPrice?.bookingPrice)}
                 </td>
               </tr>
+              {invoiceData?.bookingPrice?.extraAddonPrice !== 0 && (
+                <tr>
+                  <th
+                    scope="row"
+                    colSpan="3"
+                    className="hidden pl-4 pr-3 pt-4 text-right text-sm font-normal text-gray-500 sm:table-cell sm:pl-0"
+                  >
+                    Extra Helmet Charge
+                  </th>
+                  <th
+                    scope="row"
+                    className="pl-6 pr-3 pt-4 text-left text-sm font-normal text-gray-500 sm:hidden"
+                  >
+                    Extra Helmet Charge
+                  </th>
+                  <td className="pl-3 pr-6 pt-4 text-right text-sm text-gray-500 sm:pr-0">
+                    + ₹{formatPrice(invoiceData?.bookingPrice?.extraAddonPrice)}
+                  </td>
+                </tr>
+              )}
               <tr>
                 <th
                   scope="row"
@@ -248,27 +268,30 @@ const InvoiceDetails = () => {
                   Tax
                 </th>
                 <td className="pl-3 pr-6 pt-4 text-right text-sm text-gray-500 sm:pr-0">
-                  ₹{formatPrice(invoiceData?.bookingPrice?.tax)}
+                  + ₹{formatPrice(invoiceData?.bookingPrice?.tax)}
                 </td>
               </tr>
-              {/* <tr>
-              <th
-                scope="row"
-                colSpan="3"
-                className="hidden pl-4 pr-3 pt-4 text-right text-sm font-normal text-gray-500 sm:table-cell sm:pl-0"
-              >
-                Discount
-              </th>
-              <th
-                scope="row"
-                className="pl-6 pr-3 pt-4 text-left text-sm font-normal text-gray-500 sm:hidden"
-              >
-                Discount
-              </th>
-              <td className="pl-3 pr-6 pt-4 text-right text-sm text-gray-500 sm:pr-0">
-                - 10%
-              </td>
-            </tr> */}
+              {invoiceData?.bookingPrice?.discountPrice &&
+                invoiceData?.bookingPrice?.discountPrice !== 0 && (
+                  <tr>
+                    <th
+                      scope="row"
+                      colSpan="3"
+                      className="hidden pl-4 pr-3 pt-4 text-right text-sm font-normal text-gray-500 sm:table-cell sm:pl-0"
+                    >
+                      Discount
+                    </th>
+                    <th
+                      scope="row"
+                      className="pl-6 pr-3 pt-4 text-left text-sm font-normal text-gray-500 sm:hidden"
+                    >
+                      Discount
+                    </th>
+                    <td className="pl-3 pr-6 pt-4 text-right text-sm text-gray-500 sm:pr-0">
+                      - ₹{formatPrice(invoiceData?.bookingPrice?.discountPrice)}
+                    </td>
+                  </tr>
+                )}
               <tr>
                 <th
                   scope="row"
@@ -284,7 +307,13 @@ const InvoiceDetails = () => {
                   Total
                 </th>
                 <td className="pl-3 pr-4 pt-4 text-right text-sm font-semibold text-gray-900 sm:pr-0">
-                  ₹{formatPrice(invoiceData?.bookingPrice?.totalPrice)}
+                  ₹
+                  {formatPrice(
+                    invoiceData?.bookingPrice?.discountTotalPrice &&
+                      invoiceData?.bookingPrice?.discountTotalPrice !== 0
+                      ? invoiceData?.bookingPrice?.discountTotalPrice
+                      : invoiceData?.bookingPrice?.totalPrice
+                  )}
                 </td>
               </tr>
             </tfoot>

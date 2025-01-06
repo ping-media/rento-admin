@@ -1,16 +1,8 @@
-import CheckBoxInput from "../InputAndDropdown/CheckBoxInput";
 import { camelCaseToSpaceSeparated } from "../../utils/index";
-import { useSelector } from "react-redux";
 import React from "react";
+import CheckBoxInputToMultiple from "../InputAndDropdown/CheckBoxInputToMultiple";
 
-const TableHeader = ({
-  Columns,
-  sortConfig,
-  sortData,
-  newUpdatedData,
-  toggleSelectAll,
-}) => {
-  const { tempIds } = useSelector((state) => state.vehicles);
+const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
   return (
     <>
       {Columns?.length > 0 && location.pathname == "/all-vehicles" && (
@@ -18,9 +10,7 @@ const TableHeader = ({
           scope="col"
           className="px-3 py-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
         >
-          <CheckBoxInput
-            handleChange={toggleSelectAll}
-            tempIds={tempIds}
+          <CheckBoxInputToMultiple
             data={newUpdatedData}
             unique={"headerSelected"}
           />
@@ -77,7 +67,23 @@ const TableHeader = ({
             </th>
           );
         }
-        if (item === "BookingEndDateAndTime" || item === "state") {
+        if (item === "isEmailVerified") {
+          return (
+            <th
+              scope="col"
+              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              key="UserVerification"
+            >
+              User Verification
+            </th>
+          );
+        }
+        if (
+          item === "BookingEndDateAndTime" ||
+          item === "state" ||
+          item === "isContactVerified" ||
+          item === "kycApproved"
+        ) {
           return null;
         }
         return (

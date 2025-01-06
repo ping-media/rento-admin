@@ -7,6 +7,7 @@ const initialState = {
   isVerifyUserModalActive: false,
   isDeleteModalActive: false,
   isUploadPickupImageActive: false,
+  isVehicleBulkModalActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -35,6 +36,10 @@ const SideBarSlice = createSlice({
       state.isUploadPickupImageActive =
         state.isUploadPickupImageActive === false ? true : false;
     },
+    toogleBulkVehicleEditModal: (state) => {
+      state.isVehicleBulkModalActive =
+        state.isVehicleBulkModalActive === false ? true : false;
+    },
     toggleClearModals: () => initialState,
   },
 });
@@ -47,6 +52,7 @@ export const {
   toggleClearModals,
   toggleDeleteModal,
   togglePickupImageModal,
+  toogleBulkVehicleEditModal,
 } = SideBarSlice.actions;
 
 export default SideBarSlice.reducer;

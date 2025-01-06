@@ -8,6 +8,8 @@ const vehicleSlice = createSlice({
     deletevehicleId: "",
     tempVehicleData: null,
     tempIds: [],
+    tempLoading: { loading: false, operation: "" },
+    isHeaderChecked: false,
     loading: false,
     error: null,
   },
@@ -25,6 +27,9 @@ const vehicleSlice = createSlice({
     fetchVehicleMasterData: (state, action) => {
       state.vehicleMaster = action.payload;
       state.loading = false;
+    },
+    handleIsHeaderChecked: (state, action) => {
+      state.isHeaderChecked = action.payload;
     },
     handleUpdateStatus: (state, action) => {
       const { id, newStatus, flag } = action.payload;
@@ -45,9 +50,13 @@ const vehicleSlice = createSlice({
       state.loading = false;
       state.tempIds = [...state.tempIds, ...action.payload];
     },
-    addTempIdOneByOne: (state, action) => {
-      state.loading = false;
-      state.tempIds = (prev) => [...prev, action.payload];
+    changeTempLoadingTrue: (state, action) => {
+      state.tempLoading.loading = true;
+      state.tempLoading.operation = action.payload;
+    },
+    changeTempLoadingFalse: (state) => {
+      state.tempLoading.loading = false;
+      state.tempLoading.operation = "";
     },
     updateTempId: (state, action) => {
       const { id, planPrice } = action.payload;
@@ -63,6 +72,10 @@ const vehicleSlice = createSlice({
       if (state.tempIds.length > 0) {
         state.tempIds.pop();
       }
+    },
+    removeSingleTempIdById: (state, action) => {
+      const idToRemove = action.payload;
+      state.tempIds = state.tempIds.filter((item) => item !== idToRemove);
     },
     removeTempIdById: (state, action) => {
       const idToRemove = action.payload;
@@ -99,6 +112,9 @@ const vehicleSlice = createSlice({
     restDeletevehicleId: (state) => {
       state.deletevehicleId = "";
     },
+    restvehicleMaster: (state) => {
+      state.vehicleMaster = null;
+    },
     fetchVehicleEnd: (state) => {
       state.loading = false;
     },
@@ -110,6 +126,7 @@ export const {
   fetchVehicleStart,
   fetchVehicleSuccess,
   fetchVehicleMasterData,
+  handleIsHeaderChecked,
   fetchMoreVehicleSuccess,
   addVehicleIdToDelete,
   addTempVehicleData,
@@ -124,8 +141,11 @@ export const {
   addTempIds,
   removeTempIds,
   handleUpdateStatus,
-  addTempIdOneByOne,
   updateTempId,
   removeTempIdById,
+  removeSingleTempIdById,
+  restvehicleMaster,
+  changeTempLoadingTrue,
+  changeTempLoadingFalse,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

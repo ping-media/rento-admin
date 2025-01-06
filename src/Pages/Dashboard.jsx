@@ -25,6 +25,7 @@ const Dashboard = () => {
     (state) => state.dashboard
   );
   const { token } = useSelector((state) => state.user);
+  const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dataCountResult, setDataCountResult] = useState([]);
   const dispatch = useDispatch();
 
@@ -38,6 +39,7 @@ const Dashboard = () => {
   //binding fetched data
   useEffect(() => {
     if (dasboardDataCount) {
+      setDashboardLoading(true);
       let dataCount = Object.keys(dasboardDataCount?.dashboard).map((key) => {
         return {
           count: dasboardDataCount?.dashboard[key],
@@ -75,12 +77,13 @@ const Dashboard = () => {
         };
       });
       setDataCountResult(dataCount);
+      setDashboardLoading(false);
     }
   }, [dasboardDataCount]);
 
-  // console.log(dasboardDataCount);
+  console.log(dasboardDataCount);
 
-  return !loading ? (
+  return !loading && !dashboardLoading ? (
     dataCountResult?.length > 0 ? (
       <>
         <h1 className="text-2xl uppercase font-bold text-theme mb-5">

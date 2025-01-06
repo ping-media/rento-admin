@@ -35,7 +35,7 @@ const BookingStepOne = ({ vehicleMaster, token, onNext, priceCalculate }) => {
           item={"User"}
           name={"userId"}
           token={token}
-          value={""}
+          // value={""}
           require={true}
           setValueChanger={setUserId}
         />
@@ -45,7 +45,7 @@ const BookingStepOne = ({ vehicleMaster, token, onNext, priceCalculate }) => {
           item={"Vehicle"}
           name={"vehicleTableId"}
           token={token}
-          value={""}
+          // value={""}
           require={true}
           suggestedData={suggestedData}
           setSuggestionData={setSuggestionData}
@@ -57,7 +57,7 @@ const BookingStepOne = ({ vehicleMaster, token, onNext, priceCalculate }) => {
         <InputDateAndTime
           item={"BookingStartDateAndTime"}
           name={"BookingStartDateAndTime"}
-          value={""}
+          // value={""}
           require={true}
           setValueChanger={setBookingStartDate}
         />
@@ -66,7 +66,7 @@ const BookingStepOne = ({ vehicleMaster, token, onNext, priceCalculate }) => {
         <InputDateAndTime
           item={"BookingEndDateAndTime"}
           namme={"BookingEndDateAndTime"}
-          value={""}
+          // value={""}
           require={true}
           setValueChanger={setBookingEndDate}
         />

@@ -16,9 +16,7 @@ const getData = async (url, token) => {
   });
 
   if (response.status == 200) {
-    // console.log(response);
     return response?.data;
-    // return response;
   } else {
     return response?.message;
   }
@@ -82,7 +80,6 @@ const postData = async (url, data, token) => {
         }
       );
     }
-    // console.log(response);
     return response?.data;
   } catch (error) {
     return `Error :${error?.message}`;
@@ -134,7 +131,18 @@ const deleteData = async (url) => {
     const response = await axios.delete(
       `${import.meta.env.VITE_BASED_URL}${url}`
     );
-    // console.log(response);
+    return response?.data;
+  } catch (error) {
+    return `Error :${error?.message}`;
+  }
+};
+
+const deleteDataById = async (url, data) => {
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASED_URL}${url}`,
+      data
+    );
     return response?.data;
   } catch (error) {
     return `Error :${error?.message}`;
@@ -159,25 +167,6 @@ const handleAdminLogin = async (url, data) => {
   }
 };
 
-// const fetchFilteredData = async (searchedQuery, token) => {
-//   try {
-//     if (!searchedQuery) return;
-//     const response = await axios.get(
-//       `${
-//         import.meta.env.VITE_BASED_URL
-//       }/getAllVehiclesData?search=${searchedQuery}`,
-//       token
-//     );
-//     if (response?.status == 200) {
-//       return response?.data;
-//     } else {
-//       return response?.message;
-//     }
-//   } catch (error) {
-//     return error?.message;
-//   }
-// };
-
 export {
   getData,
   getFullData,
@@ -185,6 +174,6 @@ export {
   postMultipleData,
   handleAdminLogin,
   deleteData,
+  deleteDataById,
   getGeoData,
-  // fetchFilteredData,
 };
