@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { deleteDataById } from "../../Data/index";
 import { useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
+import { handleUpdateImageData } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const UserDocumentCell = ({ item }) => {
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,7 @@ const UserDocumentCell = ({ item }) => {
         fileName: item?.fileName,
       });
       if (response?.status == 200) {
+        dispatch(handleUpdateImageData({ id: item?._id }));
         return handleAsyncError(dispatch, response?.message, "success");
       } else {
         return handleAsyncError(dispatch, response?.message);

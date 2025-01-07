@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InputDateAndTime from "../../InputAndDropdown/InputDateAndTime";
 import InputSearch from "../../InputAndDropdown/InputSearch";
-import InputVehicleSearch from "../../InputAndDropdown/InputVehicleSearch";
+import SelectDropDownVehicle from "../../InputAndDropdown/SelectDropDownVehicle";
+import { getData } from "../../../Data/index";
+import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
+import { useDispatch } from "react-redux";
 
-const BookingStepOne = ({ vehicleMaster, token, onNext, priceCalculate }) => {
+const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
   const [userId, setUserId] = useState("");
   const [vehicleId, setVehicleId] = useState("");
   const [bookingStartDate, setBookingStartDate] = useState("");
@@ -11,6 +14,7 @@ const BookingStepOne = ({ vehicleMaster, token, onNext, priceCalculate }) => {
   const [selectedVehicle, setSlectedVehicle] = useState(null);
   //vehicle suggestion list
   const [suggestedData, setSuggestionData] = useState(null);
+  const dispatch = useDispatch();
 
   const handleNext = () => {
     onNext({
@@ -20,14 +24,23 @@ const BookingStepOne = ({ vehicleMaster, token, onNext, priceCalculate }) => {
       bookingEndDate,
       selectedVehicle,
     });
-    priceCalculate({
-      userId,
-      vehicleId,
-      bookingStartDate,
-      bookingEndDate,
-      selectedVehicle,
-    });
   };
+
+  useEffect(() => {
+    if (bookingStartDate !== "" && bookingEndDate !== "") {
+      (async () => {
+        const response = await getData(
+          `/getVehicleTblData?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}`
+        );
+        if (response?.status == 200) {
+          setSuggestionData(response?.data);
+        } else {
+          handleAsyncError(dispatch, response?.message);
+        }
+      })();
+    }
+  }, [bookingStartDate, bookingEndDate]);
+
   return (
     <>
       <div className="w-full lg:w-[48%]">
@@ -38,19 +51,6 @@ const BookingStepOne = ({ vehicleMaster, token, onNext, priceCalculate }) => {
           // value={""}
           require={true}
           setValueChanger={setUserId}
-        />
-      </div>
-      <div className="w-full lg:w-[48%]">
-        <InputVehicleSearch
-          item={"Vehicle"}
-          name={"vehicleTableId"}
-          token={token}
-          // value={""}
-          require={true}
-          suggestedData={suggestedData}
-          setSuggestionData={setSuggestionData}
-          setValueChanger={setVehicleId}
-          setSlectedVehicle={setSlectedVehicle}
         />
       </div>
       <div className="w-full lg:w-[48%]">
@@ -69,6 +69,16 @@ const BookingStepOne = ({ vehicleMaster, token, onNext, priceCalculate }) => {
           // value={""}
           require={true}
           setValueChanger={setBookingEndDate}
+        />
+      </div>
+      <div className="w-full lg:w-[48%]">
+        <SelectDropDownVehicle
+          item={"Vehicle"}
+          name={"vehicleTableId"}
+          options={suggestedData}
+          setValueChanger={setVehicleId}
+          setSelectedChanger={setSlectedVehicle}
+          require={true}
         />
       </div>
       <button

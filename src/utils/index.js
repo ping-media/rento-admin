@@ -187,24 +187,22 @@ const camelCaseToSpaceSeparatedMapped = (str) => {
 const convertDateFormat = (dateStr) => {
   // Check if the input date is in the format "yyyy-MM-ddTHH:mm"
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(dateStr)) {
-    // Convert "2024-12-20T17:00" to "2025-01-22T14:00:00Z"
-    const date = new Date(dateStr); // Parse to Date object
+    // Convert "2024-12-20T17:00" to "2025-01-22T14:00:00Z" (UTC)
+    const date = new Date(dateStr); // Parse to Date object (local time)
     const utcString = date.toISOString(); // Convert to UTC ISO string
-
-    // Return the UTC formatted string
     return utcString.slice(0, 19) + "Z"; // Remove milliseconds and add Z for UTC
   }
-  // Check if the input date is in the format "yyyy-MM-ddTHH:mm:ssZ"
+  // Check if the input date is in the format "yyyy-MM-ddTHH:mm:ssZ" (UTC)
   else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(dateStr)) {
-    // Convert "2025-01-22T14:00:00Z" to "2024-12-20T17:00"
-    const date = new Date(dateStr); // Parse to Date object
-    const localString = date.toLocaleString("en-GB", {
-      timeZone: "UTC",
-      hour12: false,
-    });
+    // Convert "2025-01-22T14:00:00Z" (UTC) to local time "2024-12-20T17:00"
+    const date = new Date(dateStr); // Parse to Date object (UTC)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const day = String(date.getDate()).padStart(2, "0");
+    const hour = String(date.getHours()).padStart(2, "0");
+    const minute = String(date.getMinutes()).padStart(2, "0");
 
-    // Format and return as "yyyy-MM-ddTHH:mm"
-    const [day, month, year, hour, minute] = localString.split(/[\s,\/:]/);
+    // Format as "yyyy-MM-ddTHH:mm"
     return `${year}-${month}-${day}T${hour}:${minute}`;
   } else {
     throw new Error("Invalid date format");

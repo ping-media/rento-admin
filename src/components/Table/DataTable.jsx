@@ -274,7 +274,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 // .slice(0, Columns.length - 1)
                                 .map((column, columnIndex) => {
                                   if (column === "files") {
-                                    return <UserDocumentCell item={item} />;
+                                    return (
+                                      <UserDocumentCell
+                                        item={item}
+                                        key={columnIndex}
+                                      />
+                                    );
                                   }
                                   if (column === "userId") {
                                     return (

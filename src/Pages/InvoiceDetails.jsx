@@ -117,7 +117,7 @@ const InvoiceDetails = () => {
           </div>
 
           <div className="text-right">
-            <p>Rento Bikes</p>
+            <p>Bongi Mobility Solutions Private Limited</p>
             <p className="text-gray-500 text-sm">support@rentobikes.com</p>
             <p className="text-gray-500 text-sm mt-1">+91-8884488891</p>
           </div>

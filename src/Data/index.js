@@ -8,9 +8,8 @@ const getData = async (url, token) => {
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
     headers["token"] = `${token}`;
-  } else {
-    return "Error fetching Data. Try Again!";
   }
+
   const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
     headers,
   });
@@ -167,6 +166,33 @@ const handleAdminLogin = async (url, data) => {
   }
 };
 
+// for creating order id
+const createOrderId = async (data) => {
+  if (!data) return "unable to process payment.";
+  const payableAmount =
+    data?.bookingPrice?.userPaid ||
+    data?.bookingPrice?.discountTotalPrice ||
+    data?.bookingPrice?.totalPrice ||
+    100;
+
+  const amount = payableAmount;
+  const options = { amount: amount, booking_id: data?.bookingId || "000000" };
+
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASED_URL}/createOrderId`,
+      options
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error(
+      "Error creating Razorpay order:",
+      error.response ? error.response.data : error.message
+    );
+  }
+};
+
 export {
   getData,
   getFullData,
@@ -176,4 +202,5 @@ export {
   deleteData,
   deleteDataById,
   getGeoData,
+  createOrderId,
 };

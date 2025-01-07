@@ -1,19 +1,49 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../../InputAndDropdown/Input";
+import PreLoader from "../../Skeleton/PreLoader";
 
-const BookingStepTwo = ({ data, onNext, onPrevious }) => {
-  const [extaAddonPrice, setExtaAddonPrice] = useState("");
+const BookingStepTwo = ({ data, onNext, onPrevious, priceCalculate }) => {
+  const [stepTwoData, setStepTwoData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [extraAddonPrice, setExtraAddonPrice] = useState("");
+
+  useEffect(() => {
+    if (!data) return;
+
+    let timeoutId; // To store the timeout reference
+
+    const { bookingStartDate, bookingEndDate, selectedVehicle } = data;
+
+    const calculatePrice = () => {
+      setLoading(true);
+      const newData = priceCalculate(
+        bookingStartDate,
+        bookingEndDate,
+        selectedVehicle,
+        Number(extraAddonPrice)
+      );
+      setStepTwoData(newData);
+      setLoading(false);
+    };
+
+    calculatePrice(); // Initial calculation
+    timeoutId = setTimeout(() => {
+      calculatePrice();
+    }, 200);
+
+    return () => clearTimeout(timeoutId);
+  }, [data, extraAddonPrice]);
 
   const handleNext = () => {
-    // onNext({ data });
+    onNext();
   };
-  return (
+  return !loading && stepTwoData != null ? (
     <>
       <div className="w-full lg:w-[48%]">
         <Input
           item={"bookingPrice"}
           type="number"
-          value={data && data?.bookingPrice}
+          value={stepTwoData && stepTwoData?.bookingPrice}
           require={true}
           //   setValueChange={setBookingPrice}
         />
@@ -22,8 +52,8 @@ const BookingStepTwo = ({ data, onNext, onPrevious }) => {
         <Input
           item={"extraAddonPrice"}
           type="number"
-          value={data && data?.extaAddonPrice}
-          //   setBookingPrice={setExtraAddonPrice}
+          value={stepTwoData && stepTwoData?.extaAddonPrice}
+          setValueChange={setExtraAddonPrice}
         />
       </div>
 
@@ -31,7 +61,7 @@ const BookingStepTwo = ({ data, onNext, onPrevious }) => {
         <Input
           item={"tax"}
           type="number"
-          value={data && data?.tax}
+          value={stepTwoData && stepTwoData?.tax}
           require={true}
           disabled={true}
         />
@@ -40,7 +70,7 @@ const BookingStepTwo = ({ data, onNext, onPrevious }) => {
         <Input
           item={"totalPrice"}
           type="number"
-          value={data && data?.totalPrice}
+          value={stepTwoData && stepTwoData?.totalPrice}
           require={true}
           disabled={true}
         />
@@ -62,6 +92,8 @@ const BookingStepTwo = ({ data, onNext, onPrevious }) => {
         </button>
       </div>
     </>
+  ) : (
+    <PreLoader />
   );
 };
 
