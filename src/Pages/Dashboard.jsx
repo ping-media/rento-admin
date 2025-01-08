@@ -50,7 +50,11 @@ const Dashboard = () => {
               : "PAYMENTS"),
           link:
             key !== "Amount"
-              ? "/all-" + key.substring(0, key.length - 5)
+              ? key === "locationCount" || key === "stationsCount"
+                ? key === "stationsCount"
+                  ? "/" + key.substring(0, key.length - 6) + "-master"
+                  : "/" + key.substring(0, key.length - 5) + "-master"
+                : "/all-" + key.substring(0, key.length - 5)
               : "/payments",
           icon:
             key == "usersCount" ? (
@@ -84,7 +88,7 @@ const Dashboard = () => {
   console.log(dasboardDataCount);
 
   return !loading && !dashboardLoading ? (
-    dataCountResult?.length > 0 ? (
+    dataCountResult && dataCountResult?.length > 0 ? (
       <>
         <h1 className="text-2xl uppercase font-bold text-theme mb-5">
           Dashboard

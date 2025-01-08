@@ -10,7 +10,6 @@ import { createOrderId, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
-  // const [collectedData, setCollectedData] = useState(null);
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
   const dispatch = useDispatch();
