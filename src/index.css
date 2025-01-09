@@ -44,6 +44,8 @@ body {
   font-family: "IBM Plex Sans", sans-serif !important;
   font-size: 0.95rem !important;
   font-weight: 400 !important;
+  cursor: default;
+  user-select: none;
   @apply bg-light-gray;
 }
 

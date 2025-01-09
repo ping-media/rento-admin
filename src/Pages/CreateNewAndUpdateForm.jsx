@@ -77,11 +77,11 @@ const CreateNewAndUpdateForm = () => {
                 event,
                 dispatch,
                 setFormLoading,
-                id,
                 token,
                 navigate,
                 tempIds,
-                removeTempIds
+                removeTempIds,
+                id
               )
             }
             loading={formLoading}

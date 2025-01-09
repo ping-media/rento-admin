@@ -137,11 +137,11 @@ const handleCreateAndUpdateVehicle = async (
   event,
   dispatch,
   setFormLoading,
-  id,
   token,
   navigate,
   tempIds,
-  removeTempIds
+  removeTempIds,
+  id
 ) => {
   event.preventDefault();
   setFormLoading(true);
@@ -150,13 +150,11 @@ const handleCreateAndUpdateVehicle = async (
   // if there is id that means it we are updating the data and if there is not id than creating new data
   if (id) {
     result = Object.assign(result, { _id: id });
-  } else if (tempIds != []) {
+  }
+  if (tempIds?.length > 0) {
     result = Object.assign(result, { vehiclePlan: tempIds });
     dispatch(removeTempIds());
   }
-  // return;
-
-  // console.log(result);
 
   const endpoint = id
     ? `${
@@ -171,11 +169,11 @@ const handleCreateAndUpdateVehicle = async (
         ]
       }?_id=${id}`
     : `${endPointBasedOnURL[modifyUrl(location?.pathname)]}`;
-  console.log(endpoint, result);
+  // console.log(endpoint, result);
   try {
     const response = await postData(endpoint, result, token);
     console.log(response);
-    if (response?.status != 200) {
+    if (response?.status !== 200) {
       handleAsyncError(dispatch, response?.message);
     } else {
       handleAsyncError(dispatch, response?.message, "success");

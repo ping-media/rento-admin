@@ -11,7 +11,7 @@ const BookingUserDetails = ({ data }) => {
           <span className="font-semibold uppercase text-sm">{item?.key}</span>{" "}
           <span
             className={`text-gray-500 text-sm ${
-              item?.key != "email" ? "" : "capitalize"
+              item?.key === "Email" ? "" : "capitalize"
             }`}
           >
             {item?.value}

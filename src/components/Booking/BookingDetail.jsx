@@ -4,11 +4,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchVehicleMasterById } from "../../Data/Function";
 import PreLoader from "../Skeleton/PreLoader";
-import { getData } from "../../Data";
-import {
-  formatFullDateAndTime,
-  // formatReadableDateTime,
-} from "../../utils/index";
+import { formatFullDateAndTime } from "../../utils/index";
 import BookingFareDetails from "./BookingFareDetails";
 import BookingUserDetails from "./BookingUserDetail";
 import BookingStatusFlag from "./BookingStatusFlag";
@@ -19,18 +15,7 @@ const BookingDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
-  const [collectedData, setCollectedData] = useState(null);
   const [data, setData] = useState(null);
-
-  const fetchCollectedData = async (userUrl) => {
-    const userResponse = await getData(userUrl, token);
-
-    if (userResponse) {
-      return setCollectedData({
-        userId: userResponse?.data,
-      });
-    }
-  };
 
   // through this we are fetching single vehicle data
   useEffect(() => {
@@ -38,35 +23,29 @@ const BookingDetail = () => {
       fetchVehicleMasterById(dispatch, id, token, "/getBookings");
     }
   }, []);
-  // fetching user data
-  useEffect(() => {
-    if (vehicleMaster?.length == 1) {
-      fetchCollectedData(`/getAllUsers?_id=${vehicleMaster[0]?.userId}`);
-    }
-  }, [vehicleMaster]);
 
   // combining data for use
   useEffect(() => {
-    if (vehicleMaster?.length == 1 && collectedData != null) {
+    if (vehicleMaster?.length == 1) {
       const data = {
         user: [
           {
             key: "Full Name",
             value:
-              (collectedData &&
-                `${collectedData["userId"][0]?.firstName} ${collectedData["userId"][0]?.lastName}`) ||
+              (vehicleMaster[0] &&
+                `${vehicleMaster[0]?.userId?.firstName} ${vehicleMaster[0]?.userId?.lastName}`) ||
               "",
           },
           {
             key: "Mobile Number",
             value:
-              (collectedData && collectedData["userId"][0]?.contact) ||
+              (vehicleMaster[0] && vehicleMaster[0]?.userId?.contact) ||
               "xxxxxxxxxx",
           },
           {
             key: "Email",
             value:
-              (collectedData && collectedData["userId"][0]?.email) ||
+              (vehicleMaster[0] && vehicleMaster[0]?.userId?.email) ||
               "example@gmail.com",
           },
         ],
@@ -110,7 +89,7 @@ const BookingDetail = () => {
       };
       return setData(data);
     }
-  }, [vehicleMaster, collectedData]);
+  }, [vehicleMaster]);
 
   return !loading && data != null ? (
     <>

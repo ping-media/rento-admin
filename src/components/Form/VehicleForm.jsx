@@ -4,7 +4,7 @@ import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner.jsx";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import { getData } from "../../Data";
-import { endPointBasedOnKey, vehicleColor } from "../../Data/commonData";
+import { endPointBasedOnKey } from "../../Data/commonData";
 import PreLoader from "../Skeleton/PreLoader";
 import { useParams } from "react-router-dom";
 import {
@@ -12,6 +12,7 @@ import {
   tenYearBeforeCurrentYear,
 } from "../../Data/Function";
 import VehiclePlan from "./VehicleComponents/VehiclePlan";
+import { debounce } from "lodash";
 
 const VehicleForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -22,27 +23,30 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
 
-  const fetchCollectedData = async (vehicleMasterUrl, locationUrl, planUrl) => {
-    setFormLoading(true);
-    const planResponse = await getData(endPointBasedOnKey[planUrl], token);
-    const vehicleMasterResponse = await getData(
-      endPointBasedOnKey[vehicleMasterUrl],
-      token
-    );
-    const locationResponse = await getData(
-      endPointBasedOnKey[locationUrl],
-      token
-    );
+  const fetchCollectedData = debounce(
+    async (vehicleMasterUrl, locationUrl, planUrl) => {
+      setFormLoading(true);
+      const planResponse = await getData(endPointBasedOnKey[planUrl], token);
+      const vehicleMasterResponse = await getData(
+        endPointBasedOnKey[vehicleMasterUrl],
+        token
+      );
+      const locationResponse = await getData(
+        endPointBasedOnKey[locationUrl],
+        token
+      );
 
-    if (vehicleMasterResponse && locationResponse && planResponse) {
-      setFormLoading(false);
-      return setCollectedData({
-        vehicleMasterId: vehicleMasterResponse?.data,
-        locationId: locationResponse?.data,
-        AllPlanDataId: planResponse?.data,
-      });
-    }
-  };
+      if (vehicleMasterResponse && locationResponse && planResponse) {
+        setFormLoading(false);
+        return setCollectedData({
+          vehicleMasterId: vehicleMasterResponse?.data,
+          locationId: locationResponse?.data,
+          AllPlanDataId: planResponse?.data,
+        });
+      }
+    },
+    60
+  );
 
   useEffect(() => {
     fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
@@ -50,7 +54,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
 
   //updating station based on location id
   useEffect(() => {
-    if (isLocationSelected !== "") {
+    if ((id && vehicleMaster?.length == 1) || isLocationSelected !== "") {
       fetchStationBasedOnLocation(
         vehicleMaster,
         isLocationSelected,
@@ -58,9 +62,10 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         token
       );
     }
-  }, [isLocationSelected]);
+  }, [isLocationSelected, vehicleMaster]);
 
-  return !formLoading || collectedData != null ? (
+  return (!formLoading && vehicleMaster?.length === 1) ||
+    collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
       <div className="border-b-2 mb-5">
         <h2 className="font-bold">Select Package</h2>
@@ -131,14 +136,6 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"vehicleColor"}
-              options={vehicleColor}
-              value={id && vehicleMaster[0]?.vehicleColor}
-              require={true}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
             <Input
               item={"perDayCost"}
               type="number"
@@ -183,14 +180,6 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"speedLimit"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.speedLimit) : 60}
-              require={true}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"isBooked"}
-              options={["true", "false"]}
-              value={id ? vehicleMaster[0]?.isBooked : "false"}
               require={true}
             />
           </div>
