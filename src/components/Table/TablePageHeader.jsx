@@ -4,6 +4,11 @@ import { tableIcons } from "../../Data/Icons";
 import BulkActionButtons from "./BulkActionButtons";
 
 const TablePageHeader = ({ setInputSearchQuery }) => {
+  const handleQuery = (e) => {
+    e.preventDefault();
+    setInputSearchQuery(e.target.value);
+  };
+
   return (
     <div className="flex items-center flex-wrap justify-between gap-2 w-full">
       <div className="flex items-center gap-2">
@@ -33,7 +38,7 @@ const TablePageHeader = ({ setInputSearchQuery }) => {
               type="text"
               placeholder="Search Here.."
               className="w-full rounded-md px-2 py-1 focus:outline-none focus:border-transparent"
-              onChange={(e) => setInputSearchQuery(e.target.value)}
+              onChange={(e) => handleQuery(e)}
             />
             <button
               type="submit"

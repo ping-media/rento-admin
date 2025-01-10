@@ -50,7 +50,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [newUpdatedData, setNewUpdatedData] = useState([]);
   const [inputSearchQuery, setInputSearchQuery] = useState("");
   const searchTerm = useDebounce(inputSearchQuery, 500);
-  const { tempIds } = useSelector((state) => state.vehicles);
   const dispatch = useDispatch();
 
   const loadFiltersAndData = () => {
