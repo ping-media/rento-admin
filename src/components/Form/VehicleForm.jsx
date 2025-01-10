@@ -12,7 +12,6 @@ import {
   tenYearBeforeCurrentYear,
 } from "../../Data/Function";
 import VehiclePlan from "./VehicleComponents/VehiclePlan";
-import { debounce } from "lodash";
 
 const VehicleForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -23,30 +22,27 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
 
-  const fetchCollectedData = debounce(
-    async (vehicleMasterUrl, locationUrl, planUrl) => {
-      setFormLoading(true);
-      const planResponse = await getData(endPointBasedOnKey[planUrl], token);
-      const vehicleMasterResponse = await getData(
-        endPointBasedOnKey[vehicleMasterUrl],
-        token
-      );
-      const locationResponse = await getData(
-        endPointBasedOnKey[locationUrl],
-        token
-      );
+  const fetchCollectedData = async (vehicleMasterUrl, locationUrl, planUrl) => {
+    setFormLoading(true);
+    const planResponse = await getData(endPointBasedOnKey[planUrl], token);
+    const vehicleMasterResponse = await getData(
+      endPointBasedOnKey[vehicleMasterUrl],
+      token
+    );
+    const locationResponse = await getData(
+      endPointBasedOnKey[locationUrl],
+      token
+    );
 
-      if (vehicleMasterResponse && locationResponse && planResponse) {
-        setFormLoading(false);
-        return setCollectedData({
-          vehicleMasterId: vehicleMasterResponse?.data,
-          locationId: locationResponse?.data,
-          AllPlanDataId: planResponse?.data,
-        });
-      }
-    },
-    60
-  );
+    if (vehicleMasterResponse && locationResponse && planResponse) {
+      setFormLoading(false);
+      return setCollectedData({
+        vehicleMasterId: vehicleMasterResponse?.data,
+        locationId: locationResponse?.data,
+        AllPlanDataId: planResponse?.data,
+      });
+    }
+  };
 
   useEffect(() => {
     fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
@@ -72,7 +68,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         <div className="w-full pb-2">
           <VehiclePlan
             collectedData={collectedData}
-            data={id && vehicleMaster[0]?.vehiclePlan}
+            data={(id && vehicleMaster[0]?.vehiclePlan) || null}
           />
         </div>
       </div>

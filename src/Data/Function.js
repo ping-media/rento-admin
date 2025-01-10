@@ -51,7 +51,7 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
 };
 
 // for fetching data & posting data
-const fetchDashboardData = debounce(async (dispatch, token) => {
+const fetchDashboardData = async (dispatch, token) => {
   try {
     dispatch(handleLoadingDashboardData());
     const [dashboardResponse, paymentResponse] = await Promise.all([
@@ -71,9 +71,9 @@ const fetchDashboardData = debounce(async (dispatch, token) => {
     dispatch(resetDashboardData());
     handleAsyncError(dispatch, error?.message);
   }
-}, 50);
+};
 
-const fetchVehicleMaster = debounce(async (dispatch, token, endpoint) => {
+const fetchVehicleMaster = async (dispatch, token, endpoint) => {
   try {
     dispatch(fetchVehicleStart());
     const response = await getData(endpoint, token);
@@ -88,50 +88,50 @@ const fetchVehicleMaster = debounce(async (dispatch, token, endpoint) => {
     dispatch(fetchVehicleEnd());
     handleAsyncError(dispatch, error?.message);
   }
-}, 50);
+};
 
-const fetchVehicleMasterWithPagination = debounce(
-  async (dispatch, token, endpoint, isSearchTermPresent, page, limit) => {
-    try {
-      dispatch(fetchVehicleStart());
-      // setting dynamic route
-      const dynamicEndpoint =
-        isSearchTermPresent !== null
-          ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
-          : `${endpoint}?page=${page}&limit=${limit}`;
+const fetchVehicleMasterWithPagination = async (
+  dispatch,
+  token,
+  endpoint,
+  isSearchTermPresent,
+  page,
+  limit
+) => {
+  try {
+    dispatch(fetchVehicleStart());
+    // setting dynamic route
+    const dynamicEndpoint =
+      isSearchTermPresent !== null
+        ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
+        : `${endpoint}?page=${page}&limit=${limit}`;
 
-      const response = await getFullData(dynamicEndpoint, token);
-      if (response?.status == 200) {
-        dispatch(fetchVehicleMasterData(response?.data));
-      } else {
-        dispatch(fetchVehicleEnd());
-      }
-    } catch (error) {
+    const response = await getFullData(dynamicEndpoint, token);
+    if (response?.status == 200) {
+      dispatch(fetchVehicleMasterData(response?.data));
+    } else {
       dispatch(fetchVehicleEnd());
-      handleAsyncError(dispatch, error?.message);
     }
-  },
-  50
-);
+  } catch (error) {
+    dispatch(fetchVehicleEnd());
+    handleAsyncError(dispatch, error?.message);
+  }
+};
 
-const fetchVehicleMasterById = debounce(
-  async (dispatch, id, token, endpoint) => {
-    try {
-      dispatch(fetchVehicleStart());
-      const response = await getData(`${endpoint}?_id=${id}`, token);
-      if (response?.status == 200) {
-        dispatch(fetchVehicleMasterData(response?.data));
-      } else {
-        dispatch(fetchVehicleEnd());
-        // handleAsyncError(dispatch, response?.message);
-      }
-    } catch (error) {
+const fetchVehicleMasterById = async (dispatch, id, token, endpoint) => {
+  try {
+    dispatch(fetchVehicleStart());
+    const response = await getData(`${endpoint}?_id=${id}`, token);
+    if (response?.status == 200) {
+      dispatch(fetchVehicleMasterData(response?.data));
+    } else {
       dispatch(fetchVehicleEnd());
-      handleAsyncError(dispatch, error?.message);
     }
-  },
-  50
-);
+  } catch (error) {
+    dispatch(fetchVehicleEnd());
+    handleAsyncError(dispatch, error?.message);
+  }
+};
 
 const handleCreateAndUpdateVehicle = async (
   event,
@@ -151,7 +151,7 @@ const handleCreateAndUpdateVehicle = async (
   if (id) {
     result = Object.assign(result, { _id: id });
   }
-  if (tempIds?.length > 0) {
+  if (tempIds && tempIds.length > 0) {
     result = Object.assign(result, { vehiclePlan: tempIds });
     dispatch(removeTempIds());
   }
@@ -169,7 +169,7 @@ const handleCreateAndUpdateVehicle = async (
         ]
       }?_id=${id}`
     : `${endPointBasedOnURL[modifyUrl(location?.pathname)]}`;
-  // console.log(endpoint, result);
+  console.log(endpoint, result);
   try {
     const response = await postData(endpoint, result, token);
     console.log(response);
@@ -219,26 +219,28 @@ const handleUpdateAdminProfile = async (
   return setFormLoading(false);
 };
 
-const fetchStationBasedOnLocation = debounce(
-  async (vehicleMaster, isLocationSelected, setStationData, token) => {
-    let stationResponse;
-    if (vehicleMaster && vehicleMaster?.length == 1) {
-      stationResponse = await getData(
-        `/getStationData?locationId=${isLocationSelected}`,
-        token
-      );
-    } else {
-      stationResponse = await getData(
-        `/getStationData?locationId=${isLocationSelected}`,
-        token
-      );
-    }
-    if (stationResponse?.status == 200) {
-      return setStationData(stationResponse?.data);
-    }
-  },
-  50
-);
+const fetchStationBasedOnLocation = async (
+  vehicleMaster,
+  isLocationSelected,
+  setStationData,
+  token
+) => {
+  let stationResponse;
+  if (vehicleMaster && vehicleMaster?.length == 1) {
+    stationResponse = await getData(
+      `/getStationData?locationId=${isLocationSelected}`,
+      token
+    );
+  } else {
+    stationResponse = await getData(
+      `/getStationData?locationId=${isLocationSelected}`,
+      token
+    );
+  }
+  if (stationResponse?.status == 200) {
+    return setStationData(stationResponse?.data);
+  }
+};
 
 const tenYearBeforeCurrentYear = () => {
   let modals = [];

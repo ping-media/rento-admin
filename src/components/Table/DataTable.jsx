@@ -177,9 +177,8 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   // for table value
   const getTableValue = (Data) => {
     if (Data.length == 0) return;
-
+    // Sort by `updatedAt` in descending order (latest first)
     let modifiedData = [...Data].sort((a, b) => {
-      // Sort by `updatedAt` in descending order (latest first)
       return new Date(b.updatedAt) - new Date(a.updatedAt);
     });
 
@@ -246,179 +245,168 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-300 ">
-                    {!dataLoading ? (
-                      Data &&
-                      Data.length > 0 &&
-                      newUpdatedData &&
-                      newUpdatedData != [] ? (
-                        newUpdatedData && newUpdatedData.length > 0 ? (
-                          newUpdatedData.map((item) => (
-                            <tr
-                              className="bg-white transition-all duration-500 hover:bg-gray-50"
-                              key={item?._id}
-                            >
-                              {location.pathname == "/all-vehicles" && (
-                                <td className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
-                                  <CheckBoxInput isId={item?._id} />
-                                </td>
-                              )}
-                              {/* {item.files && <UserDocumentCell item={item} />} */}
-                              {/* dynamically rendering */}
-                              {Columns.filter(
-                                (column) =>
-                                  !column.includes("Status") &&
-                                  !column.includes("status") &&
-                                  !column.includes("Active") &&
-                                  !column.includes("Invoice")
-                              )
-                                // .slice(0, Columns.length - 1)
-                                .map((column, columnIndex) => {
-                                  if (column === "files") {
-                                    return (
-                                      <UserDocumentCell
-                                        item={item}
-                                        key={columnIndex}
-                                      />
-                                    );
-                                  }
-                                  if (column === "userId") {
-                                    return (
-                                      <UserDisplayCell
-                                        key={`${item?._id}_userDisplayCell`}
-                                        item={item}
-                                      />
-                                    );
-                                  }
-                                  if (
-                                    column === "BookingStartDateAndTime" ||
-                                    column === "city"
-                                  ) {
-                                    return (
-                                      <BookingDateAndCityCell
-                                        key={item?._id}
-                                        item={item}
-                                        column={column}
-                                      />
-                                    );
-                                  }
-                                  if (column === "isEmailVerified") {
-                                    return (
-                                      <UserStatusCell
-                                        item={item}
-                                        index={columnIndex}
-                                      />
-                                    );
-                                  }
-                                  // Skip rendering `BookingEndDateAndTime` data to avoid duplication
-                                  if (
-                                    column === "BookingEndDateAndTime" ||
-                                    column === "state" ||
-                                    column === "isContactVerified" ||
-                                    column === "kycApproved"
-                                  ) {
-                                    return null;
-                                  }
-                                  // Default behavior for other columns
-                                  return column.includes("Image") ? (
-                                    <td className="p-3" key={columnIndex}>
-                                      <div className="flex items-center gap-3 text-center">
-                                        <img
-                                          src={item[column]}
-                                          className="w-28 h-20 object-contain"
-                                        />
-                                      </div>
-                                    </td>
-                                  ) : typeof item[column] === "object" ? (
-                                    <td
-                                      className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                    {!dataLoading && Data ? (
+                      newUpdatedData && newUpdatedData.length > 0 ? (
+                        newUpdatedData.map((item) => (
+                          <tr
+                            className="bg-white transition-all duration-500 hover:bg-gray-50"
+                            key={item?._id}
+                          >
+                            {location.pathname == "/all-vehicles" && (
+                              <td className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
+                                <CheckBoxInput isId={item?._id} />
+                              </td>
+                            )}
+                            {/* {item.files && <UserDocumentCell item={item} />} */}
+                            {/* dynamically rendering */}
+                            {Columns.filter(
+                              (column) =>
+                                !column.includes("Status") &&
+                                !column.includes("status") &&
+                                !column.includes("Active") &&
+                                !column.includes("Invoice")
+                            )
+                              // .slice(0, Columns.length - 1)
+                              .map((column, columnIndex) => {
+                                if (column === "files") {
+                                  return (
+                                    <UserDocumentCell
+                                      item={item}
                                       key={columnIndex}
-                                    >
-                                      {column.includes("files")
-                                        ? null
-                                        : `₹${formatPrice(
-                                            item[column]?.discountTotalPrice &&
-                                              item[column]
-                                                ?.discountTotalPrice != 0
-                                              ? item[column]?.discountTotalPrice
-                                              : item[column]?.totalPrice
-                                          )}`}
-                                    </td>
-                                  ) : (
-                                    <td
-                                      className={`p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ${
-                                        column?.includes("email")
-                                          ? ""
-                                          : "capitalize"
-                                      }`}
-                                      key={columnIndex}
-                                    >
-                                      {column.includes("Charges") ||
-                                      column.includes("Deposit") ||
-                                      column.includes("Cost") ||
-                                      column.includes("Price")
-                                        ? `₹ ${formatPrice(item[column])}`
-                                        : column.includes("Duration")
-                                        ? `${item[column]} Days`
-                                        : column.includes("DateAndTime")
-                                        ? formatFullDateAndTime(item[column])
-                                        : column?.includes("InitiatedDate")
-                                        ? item[column] !== "NA"
-                                          ? formatTimeStampToDate(item[column])
-                                          : ""
-                                        : column?.includes("bookingId")
-                                        ? `#${item[column]}`
-                                        : item[column]}
-                                    </td>
-                                  );
-                                })}
-
-                              {/* Render "Status" or "Active" columns at the end */}
-                              {Columns.filter(
-                                (column) =>
-                                  column.includes("Status") ||
-                                  column.includes("status") ||
-                                  column.includes("Active") ||
-                                  column.includes("Invoice")
-                              ).map((column, columnIndex) =>
-                                (location?.pathname === "/location-master" &&
-                                  column.includes("Status")) ||
-                                (location?.pathname === "/all-vehicles" &&
-                                  column.includes("vehicleStatus")) ? (
-                                  <td
-                                    className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 pl-4"
-                                    key={columnIndex}
-                                  >
-                                    <InputSwitch
-                                      value={item[column]}
-                                      id={item?._id}
                                     />
+                                  );
+                                }
+                                if (column === "userId") {
+                                  return (
+                                    <UserDisplayCell
+                                      key={`${item?._id}_userDisplayCell`}
+                                      item={item}
+                                    />
+                                  );
+                                }
+                                if (
+                                  column === "BookingStartDateAndTime" ||
+                                  column === "city"
+                                ) {
+                                  return (
+                                    <BookingDateAndCityCell
+                                      key={item?._id}
+                                      item={item}
+                                      column={column}
+                                    />
+                                  );
+                                }
+                                if (column === "isEmailVerified") {
+                                  return (
+                                    <UserStatusCell
+                                      item={item}
+                                      index={columnIndex}
+                                    />
+                                  );
+                                }
+                                // Skip rendering `BookingEndDateAndTime` data to avoid duplication
+                                if (
+                                  column === "BookingEndDateAndTime" ||
+                                  column === "state" ||
+                                  column === "isContactVerified" ||
+                                  column === "kycApproved"
+                                ) {
+                                  return null;
+                                }
+                                // Default behavior for other columns
+                                return column.includes("Image") ? (
+                                  <td className="p-3" key={columnIndex}>
+                                    <div className="flex items-center gap-3 text-center">
+                                      <img
+                                        src={item[column]}
+                                        className="w-28 h-20 object-contain"
+                                      />
+                                    </div>
                                   </td>
-                                ) : (
+                                ) : typeof item[column] === "object" ? (
                                   <td
                                     className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
                                     key={columnIndex}
                                   >
-                                    <StatusChange item={item} column={column} />
+                                    {column.includes("files")
+                                      ? null
+                                      : `₹${formatPrice(
+                                          item[column]?.discountTotalPrice &&
+                                            item[column]?.discountTotalPrice !=
+                                              0
+                                            ? item[column]?.discountTotalPrice
+                                            : item[column]?.totalPrice
+                                        )}`}
                                   </td>
-                                )
-                              )}
-                              <TableActions
-                                item={item}
-                                loadingStates={loadingStates}
-                                setLoadingStates={setLoadingStates}
-                                handleDeleteVehicle={handleDeleteVehicle}
-                              />
-                            </tr>
-                          ))
-                        ) : (
-                          <TableNotFound />
-                        )
-                      ) : !Data ? (
-                        <TableNotFound />
+                                ) : (
+                                  <td
+                                    className={`p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ${
+                                      column?.includes("email")
+                                        ? ""
+                                        : "capitalize"
+                                    }`}
+                                    key={columnIndex}
+                                  >
+                                    {column.includes("Charges") ||
+                                    column.includes("Deposit") ||
+                                    column.includes("Cost") ||
+                                    column.includes("Price")
+                                      ? `₹ ${formatPrice(item[column])}`
+                                      : column.includes("Duration")
+                                      ? `${item[column]} Days`
+                                      : column.includes("DateAndTime")
+                                      ? formatFullDateAndTime(item[column])
+                                      : column?.includes("InitiatedDate")
+                                      ? item[column] !== "NA"
+                                        ? formatTimeStampToDate(item[column])
+                                        : ""
+                                      : column?.includes("bookingId")
+                                      ? `#${item[column]}`
+                                      : item[column]}
+                                  </td>
+                                );
+                              })}
+
+                            {/* Render "Status" or "Active" columns at the end */}
+                            {Columns.filter(
+                              (column) =>
+                                column.includes("Status") ||
+                                column.includes("status") ||
+                                column.includes("Active") ||
+                                column.includes("Invoice")
+                            ).map((column, columnIndex) =>
+                              (location?.pathname === "/location-master" &&
+                                column.includes("Status")) ||
+                              (location?.pathname === "/all-vehicles" &&
+                                column.includes("vehicleStatus")) ? (
+                                <td
+                                  className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 pl-4"
+                                  key={columnIndex}
+                                >
+                                  <InputSwitch
+                                    value={item[column]}
+                                    id={item?._id}
+                                  />
+                                </td>
+                              ) : (
+                                <td
+                                  className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                  key={columnIndex}
+                                >
+                                  <StatusChange item={item} column={column} />
+                                </td>
+                              )
+                            )}
+                            <TableActions
+                              item={item}
+                              loadingStates={loadingStates}
+                              setLoadingStates={setLoadingStates}
+                              handleDeleteVehicle={handleDeleteVehicle}
+                            />
+                          </tr>
+                        ))
                       ) : (
-                        <>
-                          <TableDataLoading />
-                        </>
+                        <TableNotFound />
                       )
                     ) : (
                       <TableDataLoading />

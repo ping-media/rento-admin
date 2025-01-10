@@ -112,7 +112,6 @@ import {
   updateTempId,
 } from "../../../Redux/VehicleSlice/VehicleSlice";
 import { useEffect, useState } from "react";
-// import { useDebounce } from "../../../utils/Helper/debounce";
 
 const VehiclePlan = ({ collectedData, data }) => {
   const { tempIds } = useSelector((state) => state.vehicles);
@@ -133,16 +132,11 @@ const VehiclePlan = ({ collectedData, data }) => {
 
   // Handle checkbox toggle
   const handleCheckboxChange = (id) => {
-    setCheckedPlans((prev) => ({
-      ...prev,
-      [id]: !prev[id], // Toggle the checkbox state
-    }));
-  };
+    setCheckedPlans((prev) => {
+      const updatedPlans = { ...prev, [id]: !prev[id] };
 
-  // Respond to changes in checkedPlans state
-  useEffect(() => {
-    Object.keys(checkedPlans).forEach((id) => {
-      const isChecked = checkedPlans[id];
+      // Ensure Redux state reflects the checkbox change
+      const isChecked = updatedPlans[id];
       const existingPlan = tempIds.find((plan) => plan._id === id);
 
       if (isChecked && !existingPlan) {
@@ -154,9 +148,12 @@ const VehiclePlan = ({ collectedData, data }) => {
           addTempIdsAll(tempIds.filter((plan) => plan._id !== id)) // Filter out the unchecked plan
         );
       }
-    });
-  }, [checkedPlans, tempIds, dispatch]);
 
+      return updatedPlans;
+    });
+  };
+
+  // Handle price update
   const handleEditPlanId = (id, e) => {
     const updatedPrice = Number(e.target.value);
     // Update the price in Redux state
