@@ -2,35 +2,16 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { getData } from "../Data";
-import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 import PreLoader from "../components/Skeleton/PreLoader";
 import companyLogo from "../assets/logo/rento-logo.png";
 import { formatDateForInvoice, formatPrice } from "../utils";
-// import jsPDF from "jspdf";
 import html2pdf from "html2pdf.js";
 
 const InvoiceDetails = () => {
   const { id } = useParams();
-  const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
   const [invoiceData, setInvoiceData] = useState(null);
-  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // getting invoice user data
-  const getUserData = async (userId) => {
-    try {
-      if (!userId) return "Id not found";
-      const response = await getData(`/getAllUsers?_id=${userId}`, token);
-      if (response?.status == 200) {
-        setUserData(response?.data[0]);
-      } else {
-        return handleAsyncError(dispatch, "User not found");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   // getting invoice data
   useEffect(() => {
@@ -41,9 +22,7 @@ const InvoiceDetails = () => {
         const response = await getData(`/getAllInvoice?_id=${id}`, token);
         if (response?.status == 200) {
           const tempInvoiceData = response?.data[0];
-          console.log(tempInvoiceData);
           setInvoiceData(tempInvoiceData);
-          await getUserData(tempInvoiceData?.userId);
         }
       } catch (error) {
         console.log(error);
@@ -132,9 +111,9 @@ const InvoiceDetails = () => {
             102, San-Fransico, CA, USA
           </p> */}
             <p className="text-gray-500">
-              {userData?.firstName} {userData?.lastName}
+              {invoiceData?.firstName} {invoiceData?.lastName}
             </p>
-            <p className="text-gray-500">{userData?.email}</p>
+            <p className="text-gray-500">{invoiceData?.email}</p>
           </div>
 
           <div className="text-right">
@@ -271,8 +250,9 @@ const InvoiceDetails = () => {
                   + ₹{formatPrice(invoiceData?.bookingPrice?.tax)}
                 </td>
               </tr>
-              {invoiceData?.bookingPrice?.discountPrice &&
-                invoiceData?.bookingPrice?.discountPrice !== 0 && (
+              {invoiceData?.bookingPrice?.discountPrice !== undefined &&
+                invoiceData?.bookingPrice?.discountPrice !== null &&
+                invoiceData?.bookingPrice?.discountPrice > 0 && (
                   <tr>
                     <th
                       scope="row"

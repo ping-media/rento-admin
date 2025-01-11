@@ -19,6 +19,11 @@ const VehicleMaster = () => {
 
   useEffect(() => {
     // fetch data based on url
+    const searchBasedOnPage =
+      (location.pathname === "/all-users" && "userType=customer") ||
+      (location.pathname === "/all-managers" && "userType=manager") ||
+      "";
+
     if (!tempLoading?.loading && deletevehicleId === "") {
       fetchVehicleMasterWithPagination(
         dispatch,
@@ -26,7 +31,8 @@ const VehicleMaster = () => {
         endPointBasedOnURL[location.pathname.replace("/", "")],
         searchTerm,
         page,
-        limit
+        limit,
+        searchBasedOnPage
       );
     }
   }, [location.href, deletevehicleId, page, limit, searchTerm, tempLoading]);

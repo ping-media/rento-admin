@@ -13,7 +13,7 @@ const StatusChange = ({ item, column }) => {
           : item[column] == "ongoing"
           ? "bg-orange-50"
           : "bg-red-50"
-      } rounded-full flex justify-center w-20 items-center gap-1`}
+      } rounded-full flex justify-center w-24 items-center gap-1`}
     >
       <svg
         width="5"

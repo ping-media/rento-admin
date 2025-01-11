@@ -24,11 +24,6 @@ const menuList = [
     menuLink: "/location-master",
   },
   {
-    menuImg: <EmojiTransportationOutlinedIcon />,
-    menuTitle: "Station Master",
-    menuLink: "/station-master",
-  },
-  {
     menuImg: <DirectionsCarFilledOutlinedIcon />,
     menuTitle: "Vehicle Master",
     menuLink: "/vehicle-master",
@@ -37,6 +32,11 @@ const menuList = [
     menuImg: <RequestPageOutlinedIcon />,
     menuTitle: "Plan Master",
     menuLink: "/all-plans",
+  },
+  {
+    menuImg: <EmojiTransportationOutlinedIcon />,
+    menuTitle: "Station",
+    menuLink: "/station-master",
   },
   {
     menuImg: <DirectionsCarFilledOutlinedIcon />,
@@ -52,6 +52,11 @@ const menuList = [
         menuImg: <AdjustRoundedIcon />,
         menuTitle: "All Users",
         menuLink: "/all-users",
+      },
+      {
+        menuImg: <AdjustRoundedIcon />,
+        menuTitle: "All Managers",
+        menuLink: "/all-managers",
       },
       {
         menuImg: <AdjustRoundedIcon />,

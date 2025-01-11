@@ -123,6 +123,7 @@ const App = () => {
             />
             {/* users & user documents Routes  */}
             <Route path="all-users" exact element={<VehicleMaster />} />
+            <Route path="all-managers" exact element={<VehicleMaster />} />
             <Route
               path="all-users/add-new"
               exact

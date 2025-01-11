@@ -96,15 +96,20 @@ const fetchVehicleMasterWithPagination = async (
   endpoint,
   isSearchTermPresent,
   page,
-  limit
+  limit,
+  searchBasedOnFilter = ""
 ) => {
   try {
     dispatch(fetchVehicleStart());
     // setting dynamic route
     const dynamicEndpoint =
       isSearchTermPresent !== null
-        ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
-        : `${endpoint}?page=${page}&limit=${limit}`;
+        ? searchBasedOnFilter === ""
+          ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
+          : `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${page}&limit=${limit}`
+        : searchBasedOnFilter === ""
+        ? `${endpoint}?page=${page}&limit=${limit}`
+        : `${endpoint}?${searchBasedOnFilter}&page=${page}&limit=${limit}`;
 
     const response = await getFullData(dynamicEndpoint, token);
     if (response?.status == 200) {
@@ -284,7 +289,11 @@ const handleGenerateInvoice = async (
     [id]: true,
   }));
   try {
-    const response = await postData("/createInvoice", { _id: id }, token);
+    const response = await postData(
+      "/createInvoice",
+      { currentBookingId: id },
+      token
+    );
     if (response?.status == 200) {
       dispatch(handleInvoiceCreated(updatedBooking));
       handleAsyncError(dispatch, response?.message, "success");

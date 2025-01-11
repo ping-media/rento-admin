@@ -111,14 +111,17 @@ const InputSearch = ({
           <ul>
             {tempVehicleData ? (
               tempVehicleData.length > 0 ? (
-                tempVehicleData.filter(
-                  (item) =>
-                    item.userType !== "admin" && item.userType !== "manager"
+                tempVehicleData.filter((item) =>
+                  location.pathname == "/station-master/add-new"
+                    ? item.userType !== "customer"
+                    : item.userType !== "admin" && item.userType !== "manager"
                 ).length > 0 ? (
                   tempVehicleData
-                    .filter(
-                      (item) =>
-                        item.userType !== "admin" && item.userType !== "manager"
+                    .filter((item) =>
+                      location.pathname == "/station-master/add-new"
+                        ? item.userType !== "customer"
+                        : item.userType !== "admin" &&
+                          item.userType !== "manager"
                     )
                     .map((item) => (
                       <li

@@ -46,7 +46,9 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
               className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               key={"userId"}
             >
-              User Name & Phone
+              {location.pathname == "/station-master"
+                ? "Managers & Phone"
+                : "User Name & Phone"}
             </th>
           );
         }

@@ -32,6 +32,7 @@ const endPointBasedOnURL = {
   "all-vehicles": "/getAllVehiclesData",
   "all-vehicles/": "/createVehicle",
   "all-users": "/getAllUsers",
+  "all-managers": "/getAllUsers",
   "all-users/": "/signup",
   "users-documents": "/getAllDocument",
   "users-documents/": "/uploadDocument",

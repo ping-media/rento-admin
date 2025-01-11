@@ -36,7 +36,6 @@ import UserDocumentCell from "./UserDocumentCell.jsx";
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
   const { limit } = useSelector((state) => state.pagination);
-  // const { token } = useSelector((state) => state.user);
   const [limitedData, setLimitedData] = useState(
     (limit && Number(limit)) || 10
   );
@@ -156,6 +155,18 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
       filteredKeys = filteredKeys.filter((item) => !["userId"].includes(item));
     }
 
+    if (
+      location.pathname == "/all-invoices"
+      // location.pathname == "/users-documents"
+    ) {
+      filteredKeys = filteredKeys.filter(
+        (item) =>
+          !["userId", "firstName", "lastName", "contact", "email"].includes(
+            item
+          )
+      );
+    }
+
     const header = [...filteredKeys];
 
     // Extract "Status" or "Active" columns
@@ -243,20 +254,19 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                       />
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-300 ">
+                  <tbody className="divide-y divide-gray-300">
                     {!dataLoading && Data ? (
                       newUpdatedData && newUpdatedData.length > 0 ? (
                         newUpdatedData.map((item) => (
                           <tr
-                            className="bg-white transition-all duration-500 hover:bg-gray-50"
+                            className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh]"
                             key={item?._id}
                           >
                             {location.pathname == "/all-vehicles" && (
-                              <td className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
+                              <td className="p-3 whitespace-nowrap text-sm font-medium text-gray-900">
                                 <CheckBoxInput isId={item?._id} />
                               </td>
                             )}
-                            {/* {item.files && <UserDocumentCell item={item} />} */}
                             {/* dynamically rendering */}
                             {Columns.filter(
                               (column) =>
@@ -324,7 +334,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   </td>
                                 ) : typeof item[column] === "object" ? (
                                   <td
-                                    className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                    className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
                                     key={columnIndex}
                                   >
                                     {column.includes("files")
@@ -339,7 +349,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   </td>
                                 ) : (
                                   <td
-                                    className={`p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ${
+                                    className={`p-3 whitespace-nowrap text-sm font-medium text-gray-900 ${
                                       column?.includes("email")
                                         ? ""
                                         : "capitalize"
@@ -379,7 +389,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               (location?.pathname === "/all-vehicles" &&
                                 column.includes("vehicleStatus")) ? (
                                 <td
-                                  className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 pl-4"
+                                  className="p-3 whitespace-nowrap text-sm font-medium text-gray-900 pl-4"
                                   key={columnIndex}
                                 >
                                   <InputSwitch
@@ -389,7 +399,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 </td>
                               ) : (
                                 <td
-                                  className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900"
+                                  className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
                                   key={columnIndex}
                                 >
                                   <StatusChange item={item} column={column} />

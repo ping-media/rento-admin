@@ -18,7 +18,6 @@ import {
   ArticleRounded,
 } from "@mui/icons-material";
 import NotFound from "./NotFound";
-import PieChart from "../components/charts/PieChart";
 
 const Dashboard = () => {
   const { dasboardDataCount, loading } = useSelector(
@@ -84,8 +83,6 @@ const Dashboard = () => {
       setDashboardLoading(false);
     }
   }, [dasboardDataCount]);
-
-  console.log(dasboardDataCount);
 
   return !loading && !dashboardLoading ? (
     dataCountResult && dataCountResult?.length > 0 ? (

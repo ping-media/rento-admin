@@ -9,7 +9,7 @@ const TableActions = ({
   handleDeleteVehicle,
 }) => {
   return (
-    <td className="flex p-3 items-center gap-1">
+    <td className="flex p-3 whitespace-nowrap text-sm items-center gap-1">
       {(location.pathname == "/all-vehicles" ||
         location.pathname == "/all-bookings" ||
         location.pathname == "/all-invoices") && (
