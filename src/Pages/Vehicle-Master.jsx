@@ -41,7 +41,7 @@ const VehicleMaster = () => {
   useEffect(() => {
     dispatch(restvehicleMaster());
     dispatch(handleRestSearchTerm());
-    location.pathname !== "/all-vehicles" && dispatch(removeTempIds());
+    dispatch(removeTempIds());
   }, [location.href]);
 
   return (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner.jsx";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
@@ -12,6 +12,7 @@ import {
   tenYearBeforeCurrentYear,
 } from "../../Data/Function";
 import VehiclePlan from "./VehicleComponents/VehiclePlan";
+import { addTempIdsAll } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const VehicleForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -19,34 +20,9 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   const [stationData, setStationData] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [isLocationSelected, setIsLocationSelected] = useState("");
+  const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
-
-  const fetchCollectedData = async (vehicleMasterUrl, locationUrl, planUrl) => {
-    setFormLoading(true);
-    const planResponse = await getData(endPointBasedOnKey[planUrl], token);
-    const vehicleMasterResponse = await getData(
-      endPointBasedOnKey[vehicleMasterUrl],
-      token
-    );
-    const locationResponse = await getData(
-      endPointBasedOnKey[locationUrl],
-      token
-    );
-
-    if (vehicleMasterResponse && locationResponse && planResponse) {
-      setFormLoading(false);
-      return setCollectedData({
-        vehicleMasterId: vehicleMasterResponse?.data,
-        locationId: locationResponse?.data,
-        AllPlanDataId: planResponse?.data,
-      });
-    }
-  };
-
-  useEffect(() => {
-    fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
-  }, []);
 
   //updating station based on location id
   useEffect(() => {
@@ -60,17 +36,61 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
     }
   }, [isLocationSelected, vehicleMaster]);
 
+  const fetchCollectedData = async (vehicleMasterUrl, locationUrl, planUrl) => {
+    setFormLoading(true);
+
+    try {
+      // Fetch all data in parallel
+      const [planResponse, vehicleMasterResponse, locationResponse] =
+        await Promise.all([
+          getData(endPointBasedOnKey[planUrl], token),
+          getData(endPointBasedOnKey[vehicleMasterUrl], token),
+          getData(endPointBasedOnKey[locationUrl], token),
+        ]);
+
+      // Set the collected data if all responses are successful
+      if (planResponse && vehicleMasterResponse && locationResponse) {
+        setCollectedData({
+          vehicleMasterId: vehicleMasterResponse?.data,
+          locationId: locationResponse?.data,
+          AllPlanDataId: planResponse?.data,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setFormLoading(false); // Ensure loading is turned off even if an error occurs
+    }
+  };
+
+  useEffect(() => {
+    fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
+  }, []);
+
+  // pushing the old data
+  useEffect(() => {
+    if (id && vehicleMaster && vehicleMaster?.length > 0) {
+      dispatch(addTempIdsAll(vehicleMaster[0]?.vehiclePlan));
+    }
+  }, [vehicleMaster]);
+
   return (!formLoading && vehicleMaster?.length === 1) ||
     collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
-      <div className="border-b-2 mb-5">
-        <h2 className="font-bold">Select Package</h2>
-        <div className="w-full pb-2">
-          <VehiclePlan
-            collectedData={collectedData}
-            data={(id && vehicleMaster[0]?.vehiclePlan) || null}
-          />
-        </div>
+      <div className={`border-b-2 ${!id ? "mb-5" : "pb-5 mb-5"}`}>
+        <h2 className="font-bold">
+          {!id
+            ? "Select Package"
+            : `Package Applied: ${vehicleMaster[0]?.vehiclePlan?.length} Plan`}
+        </h2>
+        {!id && (
+          <div className="w-full pb-2">
+            <VehiclePlan
+              collectedData={collectedData}
+              data={(id && vehicleMaster[0]?.vehiclePlan) || null}
+            />
+          </div>
+        )}
       </div>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
