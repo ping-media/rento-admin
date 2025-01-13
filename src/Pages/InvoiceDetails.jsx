@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { getData } from "../Data";
@@ -7,6 +7,23 @@ import companyLogo from "../assets/logo/rento-logo.png";
 import { formatDateForInvoice, formatPrice } from "../utils";
 import html2pdf from "html2pdf.js";
 
+const useInvoiceData = (id, token) => {
+  const fetchInvoiceData = useCallback(async () => {
+    if (!id) return null;
+    try {
+      const response = await getData(`/getAllInvoice?_id=${id}`, token);
+      if (response?.status === 200) {
+        return response?.data[0];
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    return null;
+  }, [id, token]);
+
+  return fetchInvoiceData;
+};
+
 const InvoiceDetails = () => {
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
@@ -14,23 +31,35 @@ const InvoiceDetails = () => {
   const [loading, setLoading] = useState(false);
 
   // getting invoice data
+  const fetchInvoiceData = useInvoiceData(id, token);
+  // useEffect(() => {
+  //   if (!id) return;
+  //   (async () => {
+  //     setLoading(true);
+  //     try {
+  //       const response = await getData(`/getAllInvoice?_id=${id}`, token);
+  //       if (response?.status == 200) {
+  //         const tempInvoiceData = response?.data[0];
+  //         setInvoiceData(tempInvoiceData);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   })();
+  // }, [id]);
   useEffect(() => {
     if (!id) return;
+    setLoading(true);
     (async () => {
-      setLoading(true);
-      try {
-        const response = await getData(`/getAllInvoice?_id=${id}`, token);
-        if (response?.status == 200) {
-          const tempInvoiceData = response?.data[0];
-          setInvoiceData(tempInvoiceData);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
+      const tempInvoiceData = await fetchInvoiceData();
+      if (tempInvoiceData) {
+        setInvoiceData(tempInvoiceData);
       }
+      setLoading(false);
     })();
-  }, [id]);
+  }, [fetchInvoiceData, id, setLoading, setInvoiceData]);
 
   // function for downloading the invoice in pdf format
   const handleSaveInvoice = () => {
@@ -110,7 +139,7 @@ const InvoiceDetails = () => {
             <br />
             102, San-Fransico, CA, USA
           </p> */}
-            <p className="text-gray-500">
+            <p className="text-gray-500 capitalize">
               {invoiceData?.firstName} {invoiceData?.lastName}
             </p>
             <p className="text-gray-500">{invoiceData?.email}</p>
@@ -146,7 +175,7 @@ const InvoiceDetails = () => {
                   scope="col"
                   className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
                 >
-                  Vehicle Name
+                  Booking Id & Vehicle Name
                 </th>
                 <th
                   scope="col"
@@ -172,7 +201,7 @@ const InvoiceDetails = () => {
               <tr className="border-b border-gray-200 align-top">
                 <td className="max-w-0 py-5 pl-4 pr-3 text-sm sm:pl-0">
                   <div className="font-medium text-gray-900 capitalize">
-                    {invoiceData?.vehicleName}
+                    {`#${invoiceData?.bookingId} (${invoiceData?.vehicleName})`}
                   </div>
                   <div className="mt-1 mb-3 text-gray-500">
                     ({invoiceData?.vehicleBasic?.vehicleNumber})

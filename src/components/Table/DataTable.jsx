@@ -9,12 +9,7 @@ import Pagination from "../Pagination/Pagination.jsx";
 import React, { lazy, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice.js";
-import {
-  addTempIds,
-  addTempIdsAll,
-  addVehicleIdToDelete,
-  removeTempIds,
-} from "../../Redux/VehicleSlice/VehicleSlice.js";
+import { addVehicleIdToDelete } from "../../Redux/VehicleSlice/VehicleSlice.js";
 import InputSwitch from "../InputAndDropdown/InputSwitch.jsx";
 import CheckBoxInput from "../InputAndDropdown/CheckBoxInput.jsx";
 import StatusChange from "./StatusChange.jsx";
@@ -188,12 +183,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const getTableValue = (Data) => {
     if (Data.length == 0) return;
     // Sort by `updatedAt` in descending order (latest first)
-    let modifiedData = [...Data].sort((a, b) => {
-      return new Date(b.updatedAt) - new Date(a.updatedAt);
-    });
+    // let modifiedData = [...Data].sort((a, b) => {
+    //   return new Date(b.updatedAt) - new Date(a.updatedAt);
+    // });
 
-    setNewUpdatedData(modifiedData);
-    setSortedData(modifiedData);
+    setNewUpdatedData(Data);
+    setSortedData(Data);
   };
 
   //filtering data selecting only field we need
@@ -234,7 +229,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
       >
         {/* show this modal on specific page  */}
         {location.pathname == "/all-bookings" && <UploadPickupImageModal />}
-
         <TablePageHeader setInputSearchQuery={setInputSearchQuery} />
       </div>
 
@@ -429,7 +423,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
       </div>
 
       {pagination?.limit >= 10 && newUpdatedData?.length > 0 && (
-        <div className="flex flex-wrap items-center justify-start lg:justify-end gap-4 lg:gap-2">
+        <div className="flex flex-wrap items-center justify-start lg:justify-between gap-4 lg:gap-2">
           <div className="flex items-center gap-2">
             <h2 className="capitalize">Rows per Page</h2>
             <DropDownComponent

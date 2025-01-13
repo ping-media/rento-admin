@@ -297,6 +297,8 @@ const handleGenerateInvoice = async (
     if (response?.status == 200) {
       dispatch(handleInvoiceCreated(updatedBooking));
       handleAsyncError(dispatch, response?.message, "success");
+    } else {
+      handleAsyncError(dispatch, response?.message);
     }
   } catch (error) {
     console.log(error);
@@ -364,6 +366,18 @@ const handleDeleteAndEditAllData = async (
   }
 };
 
+const cancelBookingById = async (id, data, token) => {
+  try {
+    const response = await postData(`/createBooking?_id=${id}`, data, token);
+    if (response?.status !== 200) {
+      return response?.message;
+    }
+    return true;
+  } catch (error) {
+    return error?.message;
+  }
+};
+
 export {
   handleOtpLogin,
   fetchDashboardData,
@@ -379,4 +393,5 @@ export {
   validateUser,
   handleLogoutUser,
   handleDeleteAndEditAllData,
+  cancelBookingById,
 };

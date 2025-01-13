@@ -60,7 +60,7 @@ const MoreActionCell = ({ item, loadingStates, setLoadingStates }) => {
           >
             {item?.bookingPrice?.isPickupImageAdded
               ? "Images Added"
-              : "Add Images"}
+              : "Start Ride"}
           </button>
         </div>
       )}

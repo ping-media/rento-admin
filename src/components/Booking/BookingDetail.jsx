@@ -1,8 +1,6 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import VehicleInfo from "../VehicleDetails/VehicleInfo";
-import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { fetchVehicleMasterById } from "../../Data/Function";
 import PreLoader from "../Skeleton/PreLoader";
 import { formatFullDateAndTime } from "../../utils/index";
 import BookingFareDetails from "./BookingFareDetails";
@@ -11,22 +9,12 @@ import BookingStatusFlag from "./BookingStatusFlag";
 import BookingMoreInfo from "./BookingMoreInfo";
 
 const BookingDetail = () => {
-  const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
-  const { id } = useParams();
-  const dispatch = useDispatch();
-  const { token } = useSelector((state) => state.user);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [data, setData] = useState(null);
-
-  // through this we are fetching single vehicle data
-  useEffect(() => {
-    if (id) {
-      fetchVehicleMasterById(dispatch, id, token, "/getBookings");
-    }
-  }, []);
 
   // combining data for use
   useEffect(() => {
-    if (vehicleMaster?.length == 1) {
+    if (vehicleMaster?.length === 1) {
       const data = {
         user: [
           {
@@ -91,7 +79,7 @@ const BookingDetail = () => {
     }
   }, [vehicleMaster]);
 
-  return !loading && data != null ? (
+  return data != null ? (
     <>
       <div className="flex gap-4 flex-wrap">
         <div className="bg-white shadow-md rounded-xl flex-1 px-6 py-4">

@@ -13,6 +13,7 @@ import {
 import PreLoader from "../components/Skeleton/PreLoader.jsx";
 import { endPointBasedOnURL, forms } from "../Data/commonData.js";
 import { removeTempIds } from "../Redux/VehicleSlice/VehicleSlice.js";
+import { tableIcons } from "../Data/Icons.jsx";
 
 const CreateNewAndUpdateForm = () => {
   const navigate = useNavigate();
@@ -20,7 +21,9 @@ const CreateNewAndUpdateForm = () => {
   const [formLoading, setFormLoading] = useState(false);
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
-  const { loading, tempIds } = useSelector((state) => state.vehicles);
+  const { loading, vehicleMaster, tempIds } = useSelector(
+    (state) => state.vehicles
+  );
 
   // fetch data based on id taking from url
   useEffect(() => {
@@ -36,7 +39,7 @@ const CreateNewAndUpdateForm = () => {
 
   // Dynamically select the form to render based on the URL
   const getFormType = () => {
-    const formType = location.pathname.split("/")[1]; // Assuming the first part of the URL defines the form type
+    const formType = location.pathname.split("/")[1];
     return forms[formType];
   };
 
@@ -45,27 +48,24 @@ const CreateNewAndUpdateForm = () => {
   return !loading ? (
     <>
       <div className="flex items-center gap-2 mb-5">
+        {/* back button visiable on mobile screen  */}
         <button
           className="flex lg:hidden items-center gap-1 p-2 rounded-lg border-2 border-theme bg-theme text-gray-100"
           type="button"
           onClick={() => handlePreviousPage(navigate)}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M19 12H6M12 5l-7 7 7 7" />
-          </svg>
+          {tableIcons?.backArrow}
           <span className="text-sm">Back</span>
         </button>
+        {/* heading render dynamically based on url  */}
         <h1 className="text-xl lg:text-2xl uppercase font-bold text-theme">
-          {id ? "Edit" : "Add"} {formatPathNameToTitle(location.pathname)}
+          {location.pathname.includes("/all-bookings/")
+            ? `${id ? "Edit" : "Add"} Booking${
+                id ? `: #${vehicleMaster[0]?.bookingId}` : ""
+              }`
+            : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
+                location.pathname
+              )}`}
         </h1>
       </div>
       <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-5 mx-auto bg-white">

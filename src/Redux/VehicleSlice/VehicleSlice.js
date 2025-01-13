@@ -31,6 +31,13 @@ const vehicleSlice = createSlice({
     handleIsHeaderChecked: (state, action) => {
       state.isHeaderChecked = action.payload;
     },
+    handleUpdateFlags: (state, action) => {
+      const data = action.payload;
+      const updatedData = state.vehicleMaster.map((item) =>
+        item._id === data._id ? { ...item, ...data } : item
+      );
+      state.vehicleMaster = updatedData;
+    },
     handleUpdateStatus: (state, action) => {
       const { id, newStatus, flag } = action.payload;
       const data = state?.vehicleMaster?.data?.find((item) => item._id === id);
@@ -157,5 +164,6 @@ export const {
   restvehicleMaster,
   changeTempLoadingTrue,
   changeTempLoadingFalse,
+  handleUpdateFlags,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

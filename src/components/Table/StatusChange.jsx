@@ -2,16 +2,18 @@ const StatusChange = ({ item, column }) => {
   return (
     <div
       className={`py-1.5 px-2.5 ${
-        item[column] == "active" ||
-        item[column] == "available" ||
+        item[column] === "active" ||
+        item[column] === "available" ||
         item[column] == "done" ||
-        item[column] == "paid" ||
-        item[column] == "partially_paid" ||
-        item[column] == "partiallyPay" ||
-        item[column] == "completed"
+        item[column] === "paid" ||
+        item[column] === "partially_paid" ||
+        item[column] === "partiallyPay" ||
+        item[column] === "completed"
           ? "bg-emerald-50"
-          : item[column] == "ongoing"
+          : item[column] === "ongoing" || item[column] === "pending"
           ? "bg-orange-50"
+          : item[column] === "refunded"
+          ? "bg-gray-300"
           : "bg-red-50"
       } rounded-full flex justify-center w-24 items-center gap-1`}
     >
@@ -35,8 +37,10 @@ const StatusChange = ({ item, column }) => {
             item[column] === "partiallyPay" ||
             item[column] === "completed"
               ? "#059669"
-              : item[column] == "ongoing"
+              : item[column] == "ongoing" || item[column] === "pending"
               ? "#FFA500"
+              : item[column] === "refunded"
+              ? "#727D73"
               : "#E23844"
           }`}
         ></circle>
@@ -51,8 +55,10 @@ const StatusChange = ({ item, column }) => {
           item[column] === "partiallyPay" ||
           item[column] === "completed"
             ? "text-emerald-600"
-            : item[column] == "ongoing"
+            : item[column] === "ongoing" || item[column] === "pending"
             ? "text-orange-600"
+            : item[column] === "refunded"
+            ? "text-[#727D73]"
             : "text-red-600"
         }`}
       >

@@ -30,6 +30,7 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "discountPrice" &&
                   key !== "discountTotalPrice" &&
                   key !== "isInvoiceCreated" &&
+                  key !== "isPickupImageAdded" &&
                   !(key === "extraAddonPrice" && value === 0)
               ) // Exclude totalPrice
               .map(([key, value]) => (
@@ -181,6 +182,34 @@ const BookingFareDetails = ({ rides }) => {
                 </li>
               </>
             )}
+            {/* for refund process  */}
+            {(rides?.paymentStatus === "refundInt" ||
+              rides?.paymentStatus === "refunded") && (
+              <li className="flex items-center justify-between pt-1 mt-1 border-t-2">
+                <p className="text-sm font-semibold uppercase text-left">
+                  Refund Amount
+                  <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
+                    (
+                    {`${
+                      rides?.paymentStatus === "refundInt"
+                        ? "Refund Request Received"
+                        : "Refunded"
+                    }`}
+                    )
+                  </small>
+                </p>
+                <p className="text-sm font-bold text-right">
+                  {rides?.bookingPrice?.userPaid
+                    ? `- ₹${formatPrice(rides?.bookingPrice?.userPaid)}`
+                    : rides?.bookingPrice?.discountTotalPrice > 0
+                    ? `- ₹${formatPrice(
+                        rides?.bookingPrice?.discountTotalPrice
+                      )}`
+                    : `- ₹${formatPrice(rides?.bookingPrice?.totalPrice)}`}
+                </p>
+              </li>
+            )}
+            {/* refunded amount  */}
             <li className="flex items-center justify-between pt-1 mt-1 border-t-2">
               <p className="text-sm font-semibold uppercase text-left">
                 Refundable Deposit Amount

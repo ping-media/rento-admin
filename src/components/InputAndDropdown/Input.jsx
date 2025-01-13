@@ -21,7 +21,7 @@ const Input = ({
     <div className="w-full">
       <label
         htmlFor={item}
-        className="block text-gray-800 font-semibold text-sm capitalize"
+        className="block text-gray-800 font-semibold text-sm capitalize text-left"
       >
         Enter {camelCaseToSpaceSeparated(item)}{" "}
         {require && <span className="text-red-500">*</span>}

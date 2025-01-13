@@ -9,8 +9,9 @@ import {
   handleInvoiceCreated,
   removeTempVehicleData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
+import Input from "../InputAndDropdown/Input";
 
-const UploadPickupImageModal = () => {
+const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const { token } = useSelector((state) => state.user);
   const { tempVehicleData, vehicleMaster } = useSelector(
@@ -26,10 +27,10 @@ const UploadPickupImageModal = () => {
     event.preventDefault();
     const formData = new FormData();
     const images = Array.from(event.target.elements.images?.files || []);
-    // const formElements = event.target.elements;
-    // const userId = formElements?.userId[0]?.value;
-    // const bookingId = formElements?.bookingId?.value;
-    // const odometerReading = formElements?.vehicleMeterReading?.value;
+    const formElements = event.target.elements;
+    const odometerReading = formElements?.vehicleMeterReading?.value;
+
+    console.log(images);
 
     if (!tempVehicleData)
       return handleAsyncError(dispatch, "All fields required.");
@@ -37,7 +38,7 @@ const UploadPickupImageModal = () => {
     formData.append("userId", tempVehicleData?.userId?._id);
     formData.append("bookingId", tempVehicleData?.bookingId);
     formData.append("_id", tempVehicleData?._id);
-    // formData.append("vehicleMeterReading", odometerReading);
+    formData.append("vehicleMeterReading", odometerReading);
 
     if (images.length > 0) {
       // Append images to the FormData
@@ -53,15 +54,20 @@ const UploadPickupImageModal = () => {
       );
     }
 
-    let currentBooking = vehicleMaster?.data?.find(
+    // changing the data based on id is present or not
+    let currentData = !isBookingIdPresent ? vehicleMaster?.data : vehicleMaster;
+
+    let currentBooking = currentData?.find(
       (item) => item?._id == tempVehicleData?._id
     );
+
     const updatedBooking = {
       ...currentBooking,
       bookingPrice: {
         ...currentBooking.bookingPrice,
         isPickupImageAdded: true,
       },
+      rideStatus: "ongoing",
     };
 
     setLoading(true);
@@ -141,6 +147,9 @@ const UploadPickupImageModal = () => {
                 </p>
               )}
             </div>
+            <div>
+              <Input type="number" item="vehicleMeterReading" require={true} />
+            </div>
             <button
               className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
               type="submit"
@@ -148,11 +157,7 @@ const UploadPickupImageModal = () => {
                 loading || imagesUrl.length == 0 || imagesUrl.length > 6
               }
             >
-              {!loading ? (
-                "Upload Images"
-              ) : (
-                <Spinner message={"uploading..."} />
-              )}
+              {!loading ? "Start Ride" : <Spinner message={"updating..."} />}
             </button>
           </form>
         </div>

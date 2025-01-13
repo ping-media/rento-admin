@@ -1,9 +1,7 @@
 export const tableIcons = {
   edit: (
     <svg
-      className="cursor-pointer"
-      width="20"
-      height="20"
+      className="cursor-pointer size-5"
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -17,9 +15,7 @@ export const tableIcons = {
   ),
   delete: (
     <svg
-      className=""
-      width="20"
-      height="20"
+      className="size-5"
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -65,8 +61,7 @@ export const tableIcons = {
   ),
   threeDots: (
     <svg
-      width="20"
-      height="20"
+      className="size-5"
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -147,6 +142,20 @@ export const tableIcons = {
         strokeLinejoin="round"
         d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
       />
+    </svg>
+  ),
+  backArrow: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M19 12H6M12 5l-7 7 7 7" />
     </svg>
   ),
 };

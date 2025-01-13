@@ -23,10 +23,11 @@ const TableActions = ({
       {!(
         location.pathname == "/users-documents" ||
         location.pathname == "/payments" ||
-        location.pathname == "/all-invoices"
+        location.pathname == "/all-invoices" ||
+        location.pathname == "/all-bookings"
       ) && (
         <Link
-          className="p-3 rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
+          className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
           to={`${item?._id}`}
         >
           {tableIcons.edit}
@@ -49,7 +50,7 @@ const TableActions = ({
         location.pathname == "/location-master"
       ) && (
         <button
-          className="p-3 rounded-full bg-white group transition-all duration-500 hover:bg-red-600 flex item-center"
+          className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:bg-red-600 flex item-center"
           onClick={() => handleDeleteVehicle(item?._id)}
         >
           {tableIcons.delete}

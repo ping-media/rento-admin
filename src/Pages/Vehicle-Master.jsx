@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVehicleMasterWithPagination } from "../Data/Function";
 import { endPointBasedOnURL } from "../Data/commonData";
@@ -17,13 +17,13 @@ const VehicleMaster = () => {
   );
   const { page, limit, searchTerm } = useSelector((state) => state.pagination);
 
-  useEffect(() => {
-    // fetch data based on url
-    const searchBasedOnPage =
-      (location.pathname === "/all-users" && "userType=customer") ||
-      (location.pathname === "/all-managers" && "userType=manager") ||
-      "";
+  const searchBasedOnPage = useMemo(() => {
+    if (location.pathname === "/all-users") return "userType=customer";
+    if (location.pathname === "/all-managers") return "userType=manager";
+    return "";
+  }, [location.pathname]);
 
+  useEffect(() => {
     if (!tempLoading?.loading && deletevehicleId === "") {
       fetchVehicleMasterWithPagination(
         dispatch,
@@ -35,7 +35,38 @@ const VehicleMaster = () => {
         searchBasedOnPage
       );
     }
-  }, [location.href, deletevehicleId, page, limit, searchTerm, tempLoading]);
+  }, [
+    location.pathname,
+    deletevehicleId,
+    page,
+    limit,
+    searchTerm,
+    tempLoading?.loading,
+    dispatch,
+    token,
+    endPointBasedOnURL,
+    searchBasedOnPage,
+  ]);
+
+  // useEffect(() => {
+  //   // fetch data based on url
+  //   const searchBasedOnPage =
+  //     (location.pathname === "/all-users" && "userType=customer") ||
+  //     (location.pathname === "/all-managers" && "userType=manager") ||
+  //     "";
+
+  //   if (!tempLoading?.loading && deletevehicleId === "") {
+  //     fetchVehicleMasterWithPagination(
+  //       dispatch,
+  //       token,
+  //       endPointBasedOnURL[location.pathname.replace("/", "")],
+  //       searchTerm,
+  //       page,
+  //       limit,
+  //       searchBasedOnPage
+  //     );
+  //   }
+  // }, [location.href, deletevehicleId, page, limit, searchTerm, tempLoading]);
 
   // clear data after page change
   useEffect(() => {

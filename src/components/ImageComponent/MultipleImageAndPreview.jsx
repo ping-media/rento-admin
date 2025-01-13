@@ -10,8 +10,10 @@ const MultipleImageAndPreview = ({
 }) => {
   const imagesRef = useRef(null);
 
+  // change images
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
+    console.log(files);
     if (files.length > 0) {
       const imageFiles = files.map((file) => {
         const url = URL.createObjectURL(file);
@@ -29,6 +31,7 @@ const MultipleImageAndPreview = ({
     }
   };
 
+  // remove images
   const handleRemoveImage = (index) => {
     if (!imagesUrl && !image) return;
     setImageChanger((prev) => prev.filter((_, i) => i !== index));
@@ -37,17 +40,16 @@ const MultipleImageAndPreview = ({
 
   //   for remove the images if there any left
   useEffect(() => {
-    if (imagesRef) {
+    if (imagesRef.current) {
       imagesRef.current.value = "";
     }
   }, []);
 
-  //   console.log(image, imagesUrl);
-
   return (
     <>
       <p className="block text-gray-800 font-semibold text-sm mb-2 text-left">
-        Pickup Image
+        Pickup Image{" "}
+        <span className="italic font-medium">(Max 6 Images Allowed)</span>
       </p>
       <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md px-6 py-6 md:py-5 lg:py-4 text-center mb-5">
         <input
