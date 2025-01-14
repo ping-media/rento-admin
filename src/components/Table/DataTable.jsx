@@ -332,7 +332,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   <TableImage
                                     item={item}
                                     column={column}
-                                    columnIndex={columnIndex}
+                                    key={columnIndex}
                                   />
                                 ) : typeof item[column] === "object" ? (
                                   <td

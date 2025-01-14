@@ -22,8 +22,11 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
       return setImageUrl(vehicleMaster[0]?.vehicleImage);
   }, [vehicleMaster]);
 
-  return vehicleMaster?.length > 0 ? (
+  return (
     <>
+      {/* preloading  */}
+      {id && vehicleMaster && vehicleMaster?.length === 0 && <PreLoader />}
+      {/* form  */}
       <form onSubmit={handleFormSubmit}>
         <div className="flex flex-wrap gap-4">
           <div className="w-full lg:flex-1">
@@ -64,8 +67,6 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
         </div>
       </form>
     </>
-  ) : (
-    <PreLoader />
   );
 };
 
