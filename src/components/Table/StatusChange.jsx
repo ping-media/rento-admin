@@ -13,7 +13,9 @@ const StatusChange = ({ item, column }) => {
           : item[column] === "ongoing" || item[column] === "pending"
           ? "bg-orange-50"
           : item[column] === "refunded"
-          ? "bg-gray-300"
+          ? "bg-orange-100"
+          : item[column] === "failed"
+          ? "bg-red-100"
           : "bg-red-50"
       } rounded-full flex justify-center w-24 items-center gap-1`}
     >
@@ -40,7 +42,9 @@ const StatusChange = ({ item, column }) => {
               : item[column] == "ongoing" || item[column] === "pending"
               ? "#FFA500"
               : item[column] === "refunded"
-              ? "#727D73"
+              ? "#FFC145"
+              : item[column] === "failed"
+              ? "#C62300"
               : "#E23844"
           }`}
         ></circle>
@@ -58,7 +62,9 @@ const StatusChange = ({ item, column }) => {
             : item[column] === "ongoing" || item[column] === "pending"
             ? "text-orange-600"
             : item[column] === "refunded"
-            ? "text-[#727D73]"
+            ? "text-orange-700"
+            : item[column] === "failed"
+            ? "text-red-700"
             : "text-red-600"
         }`}
       >

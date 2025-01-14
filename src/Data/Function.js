@@ -274,7 +274,8 @@ const handleGenerateInvoice = async (
 ) => {
   if (!id && !bookingData)
     return handleAsyncError(dispatch, "failed to create Invoice! try again.");
-  let currentBooking = bookingData?.find((item) => item?._id == id);
+  // let currentBooking = bookingData?.find((item) => item?._id == id);
+  let currentBooking = bookingData;
   if (!currentBooking)
     return handleAsyncError(dispatch, "failed to create Invoice! try again");
   const updatedBooking = {
@@ -294,7 +295,7 @@ const handleGenerateInvoice = async (
       { currentBookingId: id },
       token
     );
-    if (response?.status == 200) {
+    if (response?.status === 200) {
       dispatch(handleInvoiceCreated(updatedBooking));
       handleAsyncError(dispatch, response?.message, "success");
     } else {

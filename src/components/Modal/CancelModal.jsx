@@ -1,8 +1,16 @@
 import { useDispatch, useSelector } from "react-redux";
 import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Spinner from "../Spinner/Spinner";
+import Input from "../../components/InputAndDropdown/Input";
 
-const CancelModal = ({ title, handleDelete, loading }) => {
+const CancelModal = ({
+  title,
+  handleDelete,
+  loading,
+  isNoteRequired = false,
+  value,
+  setValueChange,
+}) => {
   const dispatch = useDispatch();
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
 
@@ -53,10 +61,19 @@ const CancelModal = ({ title, handleDelete, loading }) => {
           <h3 className="text-xl font-normal text-gray-500 mt-5 mb-6">
             {`Are you sure you want to ${title}?`}
           </h3>
+          {isNoteRequired && setValueChange && (
+            <div className="mb-3">
+              <Input
+                item={`Reason for ${title}`}
+                require={true}
+                setValueChange={setValueChange}
+              />
+            </div>
+          )}
           <button
             className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2"
             onClick={handleDelete}
-            disabled={loading || false}
+            disabled={value?.length < 10 || loading || false}
           >
             {!loading ? "Yes, I'm sure" : <Spinner message={"updating..."} />}
           </button>

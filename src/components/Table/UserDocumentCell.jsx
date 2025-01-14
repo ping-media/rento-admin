@@ -5,6 +5,17 @@ import { deleteDataById } from "../../Data/index";
 import { useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { handleUpdateImageData } from "../../Redux/VehicleSlice/VehicleSlice";
+import LightGallery from "lightgallery/react";
+
+// Plugins for lightgallery
+import lgThumbnail from "lightgallery/plugins/thumbnail";
+import lgZoom from "lightgallery/plugins/zoom";
+
+// Import CSS for lightgallery
+import "lightgallery/css/lightgallery.css";
+import "lightgallery/css/lg-thumbnail.css";
+import "lightgallery/css/lg-zoom.css";
+import { Link } from "react-router-dom";
 
 const UserDocumentCell = ({ item }) => {
   const [loading, setLoading] = useState(false);
@@ -53,11 +64,18 @@ const UserDocumentCell = ({ item }) => {
               >
                 {tableIcons.delete}
               </button>
-              <img
-                src={item.files[index].imageUrl}
-                alt={item.files[index].fileName}
-                className="w-full h-20 object-contain"
-              />
+              <LightGallery
+                plugins={[lgThumbnail, lgZoom]}
+                speed={500} // Animation speed
+              >
+                <Link to={item.files[index].imageUrl}>
+                  <img
+                    src={item.files[index].imageUrl}
+                    alt={item.files[index].fileName}
+                    className="w-full h-20 object-contain"
+                  />
+                </Link>
+              </LightGallery>
             </>
           ) : (
             "N/A"

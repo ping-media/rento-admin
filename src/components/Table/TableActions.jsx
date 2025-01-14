@@ -33,7 +33,7 @@ const TableActions = ({
           {tableIcons.edit}
         </Link>
       )}
-      {location.pathname == "/all-bookings" && (
+      {/* {location.pathname == "/all-bookings" && (
         <>
           <MoreActionCell
             item={item}
@@ -41,7 +41,7 @@ const TableActions = ({
             setLoadingStates={setLoadingStates}
           />
         </>
-      )}
+      )} */}
       {!(
         location.pathname == "/users-documents" ||
         location.pathname == "/all-bookings" ||

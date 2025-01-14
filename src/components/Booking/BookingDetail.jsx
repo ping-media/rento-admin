@@ -7,6 +7,7 @@ import BookingFareDetails from "./BookingFareDetails";
 import BookingUserDetails from "./BookingUserDetail";
 import BookingStatusFlag from "./BookingStatusFlag";
 import BookingMoreInfo from "./BookingMoreInfo";
+import CopyButton from "../../components/Buttons/CopyButton";
 
 const BookingDetail = () => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -35,6 +36,33 @@ const BookingDetail = () => {
             value:
               (vehicleMaster[0] && vehicleMaster[0]?.userId?.email) ||
               "example@gmail.com",
+          },
+          {
+            key: "Document Status",
+            value:
+              (vehicleMaster[0] &&
+                vehicleMaster[0]?.userId?.isDocumentVerified) ||
+              "no",
+          },
+        ],
+        managerInfo: [
+          {
+            key: "Full Name",
+            value:
+              vehicleMaster &&
+              `${vehicleMaster[0]?.stationMasterUserId?.firstName} ${vehicleMaster[0]?.stationMasterUserId?.lastName}`,
+          },
+          {
+            key: "Mobile Number",
+            value: `${
+              vehicleMaster && vehicleMaster[0]?.stationMasterUserId?.contact
+            }`,
+          },
+          {
+            key: "Email",
+            value:
+              vehicleMaster &&
+              `${vehicleMaster[0]?.stationMasterUserId?.email}`,
           },
         ],
         moreInfo: [
@@ -83,9 +111,13 @@ const BookingDetail = () => {
     <>
       <div className="flex gap-4 flex-wrap">
         <div className="bg-white shadow-md rounded-xl flex-1 px-6 py-4">
+          {vehicleMaster[0]?.notes && (
+            <p className="text-sm text-end italic text-gray-400 mb-1">{`cancel note by ${vehicleMaster[0]?.notes?.key}: (${vehicleMaster[0]?.notes?.value})`}</p>
+          )}
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-md lg:text-lg font-semibold text-gray-500">
-              {`BookingId: #${vehicleMaster[0]?.bookingId}`}
+            <h2 className="text-md lg:text-lg font-semibold text-gray-500 flex items-center">
+              {`BookingId: #${vehicleMaster[0]?.bookingId}`}{" "}
+              <CopyButton textToCopy={`#${vehicleMaster[0]?.bookingId}`} />
             </h2>
             <BookingStatusFlag
               title={"Booking Status"}
@@ -93,8 +125,21 @@ const BookingDetail = () => {
               flag={"bookingStatus"}
             />
           </div>
-          <div className="border-2 p-2 border-gray-300 rounded-lg mb-8">
+          <div className="border-2 p-2 border-gray-300 rounded-lg mb-4">
             <BookingUserDetails data={data} />
+          </div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-md lg:text-lg font-semibold text-gray-500">
+              Manager Information
+            </h2>
+            <BookingStatusFlag
+              title={"Manager Status"}
+              rides={vehicleMaster[0]?.stationMasterUserId}
+              flag={"status"}
+            />
+          </div>
+          <div className="border-2 p-2 border-gray-300 rounded-lg mb-4">
+            <BookingMoreInfo data={data} datatype={"managerInfo"} />
           </div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
@@ -107,7 +152,7 @@ const BookingDetail = () => {
             />
           </div>
           <div className="border-2 p-2 border-gray-300 rounded-lg">
-            <BookingMoreInfo data={data} />
+            <BookingMoreInfo data={data} datatype={"moreInfo"} />
           </div>
         </div>
         <div className="flex-1 px-6 py-4 bg-white shadow-md rounded-lg">

@@ -11,14 +11,14 @@ const GenerateInvoiceButton = ({ item, loadingStates, setLoadingStates }) => {
   return (
     <button
       type="button"
-      className="w-full px-3 py-1 text-left disabled:bg-gray-300 disabled:bg-opacity-50"
+      className="bg-theme text-gray-100 rounded-md font-medium p-1.5 text-sm lg:px-2.5 lg:py-1.5 text-left disabled:bg-gray-400"
       onClick={() =>
         handleGenerateInvoice(
           dispatch,
           item?._id,
           token,
           setLoadingStates,
-          vehicleMaster?.data,
+          item,
           handleInvoiceCreated
         )
       }

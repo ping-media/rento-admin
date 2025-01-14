@@ -1,3 +1,5 @@
+import CopyButton from "../../components/Buttons/CopyButton";
+
 const BookingUserDetails = ({ data }) => {
   return (
     <>
@@ -10,11 +12,20 @@ const BookingUserDetails = ({ data }) => {
         >
           <span className="font-semibold uppercase text-sm">{item?.key}</span>{" "}
           <span
-            className={`text-gray-500 text-sm ${
+            className={`text-gray-500 flex items-center text-sm ${
               item?.key === "Email" ? "" : "capitalize"
             }`}
           >
-            {item?.value}
+            {/* copy button  */}
+            {(item?.key === "Mobile Number" || item?.key === "Email") && (
+              <CopyButton textToCopy={item?.value} />
+            )}
+            {/* data  */}
+            {item.key === "Document Status"
+              ? item?.value === "yes"
+                ? "verified"
+                : "not verified"
+              : item?.value}
           </span>
         </div>
       ))}

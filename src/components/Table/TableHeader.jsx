@@ -84,6 +84,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           item === "BookingEndDateAndTime" ||
           item === "state" ||
           item === "isContactVerified" ||
+          item === "isDocumentVerified" ||
           item === "kycApproved"
         ) {
           return null;

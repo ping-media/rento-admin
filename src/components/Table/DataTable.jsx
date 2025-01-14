@@ -27,6 +27,8 @@ import BookingDateAndCityCell from "./BookingDateAndCityCell.jsx";
 import TablePageHeader from "./TablePageHeader.jsx";
 import UserStatusCell from "./UserStatusCell.jsx";
 import UserDocumentCell from "./UserDocumentCell.jsx";
+import CopyButton from "../../components/Buttons/CopyButton.jsx";
+import TableImage from "./TableImageWithPopupShow.jsx";
 
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
@@ -138,6 +140,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             "stationName",
             "paymentMethod",
             "payInitFrom",
+            "notes",
           ].includes(item)
       );
     }
@@ -186,7 +189,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     // let modifiedData = [...Data].sort((a, b) => {
     //   return new Date(b.updatedAt) - new Date(a.updatedAt);
     // });
-
     setNewUpdatedData(Data);
     setSortedData(Data);
   };
@@ -307,25 +309,34 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     />
                                   );
                                 }
+                                if (column === "couponName") {
+                                  return (
+                                    <td
+                                      className="p-3 max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
+                                      key={columnIndex}
+                                    >
+                                      {item[column]}{" "}
+                                      <CopyButton textToCopy={item[column]} />
+                                    </td>
+                                  );
+                                }
                                 // Skip rendering `BookingEndDateAndTime` data to avoid duplication
                                 if (
                                   column === "BookingEndDateAndTime" ||
                                   column === "state" ||
                                   column === "isContactVerified" ||
+                                  column === "isDocumentVerified" ||
                                   column === "kycApproved"
                                 ) {
                                   return null;
                                 }
                                 // Default behavior for other columns
                                 return column.includes("Image") ? (
-                                  <td className="p-3" key={columnIndex}>
-                                    <div className="flex items-center gap-3 text-center">
-                                      <img
-                                        src={item[column]}
-                                        className="w-28 h-20 object-contain"
-                                      />
-                                    </div>
-                                  </td>
+                                  <TableImage
+                                    item={item}
+                                    column={column}
+                                    columnIndex={columnIndex}
+                                  />
                                 ) : typeof item[column] === "object" ? (
                                   <td
                                     className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"

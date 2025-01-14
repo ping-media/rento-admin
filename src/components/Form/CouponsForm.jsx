@@ -12,6 +12,10 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
 
   return (
     <form onSubmit={handleFormSubmit}>
+      <p className="mb-2 text-sm italic text-gray-400">
+        <span className="font-semibold text-gray-600">Note:</span> (Enter -1 in
+        coupon count field for infinite coupon usage)
+      </p>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one & for creating new one */}
         <>
@@ -44,7 +48,7 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
             <Input
               type="number"
               item={"couponCount"}
-              value={id ? vehicleMaster[0]?.couponCount : ""}
+              value={id ? vehicleMaster[0]?.couponCount : "-1"}
               setValueChange={setCouponCount}
             />
           </div>

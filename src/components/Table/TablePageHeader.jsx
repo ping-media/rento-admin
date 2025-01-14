@@ -15,6 +15,8 @@ const TablePageHeader = ({ setInputSearchQuery }) => {
         <h1 className="text-xl xl:text-2xl uppercase font-bold text-theme">
           {location.pathname === "/station-master"
             ? formatPathNameToTitle(location.pathname).replace("Master", "")
+            : location.pathname === "/all-users"
+            ? "All Customers"
             : formatPathNameToTitle(location.pathname)}
         </h1>
         {!(

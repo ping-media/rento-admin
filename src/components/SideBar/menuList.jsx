@@ -50,7 +50,7 @@ const menuList = [
     nestedLink: [
       {
         menuImg: <AdjustRoundedIcon />,
-        menuTitle: "All Users",
+        menuTitle: "All Customers",
         menuLink: "/all-users",
       },
       {

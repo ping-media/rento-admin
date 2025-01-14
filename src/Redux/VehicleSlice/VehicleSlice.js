@@ -103,7 +103,7 @@ const vehicleSlice = createSlice({
     },
     handleInvoiceCreated: (state, action) => {
       const newData = action.payload;
-      state.vehicleMaster.data.forEach((item) => {
+      state.vehicleMaster.forEach((item) => {
         if (item._id === newData._id) {
           Object.assign(item, newData);
         }
