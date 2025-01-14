@@ -65,11 +65,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     setNewUpdatedData([]);
   }, [location.href]);
 
-  // for loading filters
-  useEffect(() => {
-    loadFiltersAndData();
-  }, [Data]);
-
   // Sorting function
   const sortData = (key) => {
     if (newUpdatedData) {
@@ -83,6 +78,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
         return 0;
       });
       setSortedData(sorted);
+      setNewUpdatedData(sorted);
       setSortConfig({ key, direction });
     }
   };
@@ -199,6 +195,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
       if (searchTermQuery == null) {
         getTableHeader(Data);
       }
+      loadFiltersAndData();
       // clear the previous data
       setNewUpdatedData([]);
       getTableValue(Data);
