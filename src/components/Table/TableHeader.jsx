@@ -52,6 +52,20 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </th>
           );
         }
+        if (location.pathname === "/all-invoices") {
+          if (item === "firstName") {
+            <th
+              scope="col"
+              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              key={"userId"}
+            >
+              User Name & Phone
+            </th>;
+          }
+          if (item === "lastName" || item === "contact") {
+            return null;
+          }
+        }
         if (item === "BookingStartDateAndTime" || item === "city") {
           return (
             <th

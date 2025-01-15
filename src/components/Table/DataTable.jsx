@@ -154,10 +154,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
       // location.pathname == "/users-documents"
     ) {
       filteredKeys = filteredKeys.filter(
-        (item) =>
-          !["userId", "firstName", "lastName", "contact", "email"].includes(
-            item
-          )
+        (item) => !["userId", "email", "paidInvoice"].includes(item)
       );
     }
 
@@ -317,6 +314,24 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       <CopyButton textToCopy={item[column]} />
                                     </td>
                                   );
+                                }
+                                if (location.pathname === "/all-invoices") {
+                                  if (column === "firstName") {
+                                    return (
+                                      <UserDisplayCell
+                                        key={`${item?._id}_userDisplayCell`}
+                                        firstName={item?.firstName}
+                                        lastName={item?.lastName}
+                                        Contact={item?.contact}
+                                      />
+                                    );
+                                  }
+                                  if (
+                                    column === "lastName" ||
+                                    column === "contact"
+                                  ) {
+                                    return null;
+                                  }
                                 }
                                 // Skip rendering `BookingEndDateAndTime` data to avoid duplication
                                 if (
