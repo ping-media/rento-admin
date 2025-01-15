@@ -17,6 +17,8 @@ const TablePageHeader = ({ setInputSearchQuery }) => {
             ? formatPathNameToTitle(location.pathname).replace("Master", "")
             : location.pathname === "/all-users"
             ? "All Customers"
+            : location.pathname === "/all-plans"
+            ? "Plan Master"
             : formatPathNameToTitle(location.pathname)}
         </h1>
         {!(

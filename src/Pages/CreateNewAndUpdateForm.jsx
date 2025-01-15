@@ -63,6 +63,14 @@ const CreateNewAndUpdateForm = () => {
             ? `${id ? "Edit" : "Add"} Booking${
                 id ? `: #${vehicleMaster[0]?.bookingId}` : ""
               }`
+            : location.pathname.includes("/all-plans/")
+            ? `${id ? "Edit" : "Add"} Plan Master`
+            : location.pathname.includes("/all-vehicles/")
+            ? `${id ? "Edit" : "Add"} Vehicle`
+            : location.pathname.includes("/all-users/")
+            ? `${id ? "Edit" : "Add"} User`
+            : location.pathname.includes("/all-coupons/")
+            ? `${id ? "Edit" : "Add"} Coupon`
             : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
                 location.pathname
               )}`}
