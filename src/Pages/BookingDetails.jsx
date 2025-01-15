@@ -54,8 +54,18 @@ const BookingDetails = () => {
     if (Note?.length > 10 && Note?.length <= 35) {
       setVehicleLoading(true);
       try {
+        let paymentStatusToSend = "failed";
+        if (
+          (vehicleMaster && vehicleMaster[0]?.paymentStatus === "paid") ||
+          (vehicleMaster &&
+            vehicleMaster[0]?.paymentStatus === "partiallyPay") ||
+          (vehicleMaster &&
+            vehicleMaster[0]?.paymentStatus === "partially_paid")
+        ) {
+          paymentStatusToSend = "refunded";
+        }
         const data = {
-          paymentStatus: "refunded",
+          paymentStatus: paymentStatusToSend,
           bookingStatus: "canceled",
           rideStatus: "canceled",
           _id: id,
@@ -149,6 +159,7 @@ const BookingDetails = () => {
               fn={handleEndBooking}
               // customClass={"bg-orange-500 bg-opacity-90 hover:bg-orange-600"}
               disable={vehicleMaster[0]?.bookingStatus === "canceled"}
+              loading={vehicleLoading}
             />
           )}
           {/* for cancel the ride  */}

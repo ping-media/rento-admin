@@ -17,6 +17,13 @@ const Input = ({
     setValueChange && setValueChange(e.target.value);
   };
 
+  // Prevent increment and decrement via arrow keys
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="w-full">
       <label
@@ -43,6 +50,7 @@ const Input = ({
               : inputValue
           }
           onChange={(e) => handleChangeValue(e)}
+          onKeyDown={handleKeyDown}
           name={item}
           placeholder={`${item}`}
           disabled={disabled}

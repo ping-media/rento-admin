@@ -60,9 +60,16 @@ const VehiclePlan = ({ collectedData, data }) => {
     if (data && data.length > 0) {
       dispatch(addTempIdsAll(data));
       data.map((item) => handleCheckboxChange(item?._id));
-      setFirstLoad(true);
     }
+    setFirstLoad(true);
   }, [data]);
+
+  // Prevent increment and decrement via arrow keys
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault();
+    }
+  };
 
   return (
     <>
@@ -97,6 +104,7 @@ const VehiclePlan = ({ collectedData, data }) => {
                 placeholder="Enter Plan Price"
                 value={data && Number(data[index]?.planPrice)}
                 onChange={(e) => handleEditPlanId(plan?._id, e)}
+                onKeyDown={handleKeyDown}
               />
             </div>
           ))

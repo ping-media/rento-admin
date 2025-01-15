@@ -12,9 +12,8 @@ import { handleDeleteAndEditAllData } from "../../Data/Function";
 import { useState } from "react";
 
 const BulkActionButtons = () => {
-  const { isHeaderChecked, tempIds, tempLoading } = useSelector(
-    (state) => state.vehicles
-  );
+  const { isHeaderChecked, isOneOrMoreHeaderChecked, tempIds, tempLoading } =
+    useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [isOtpions, setIsOtpions] = useState(false);
@@ -74,16 +73,22 @@ const BulkActionButtons = () => {
   return (
     <>
       {location.pathname == "/all-vehicles" &&
-        isHeaderChecked &&
-        isHeaderChecked === true &&
-        tempIds &&
-        tempIds?.length > 0 && (
+        ((isHeaderChecked &&
+          isHeaderChecked === true &&
+          tempIds &&
+          tempIds?.length > 0) ||
+          (isOneOrMoreHeaderChecked &&
+            isOneOrMoreHeaderChecked === true &&
+            tempIds &&
+            tempIds?.length > 0)) && (
           <>
             <button
               className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap relative"
               onClick={toggleOptions}
             >
-              Edit All Status
+              {isHeaderChecked && isHeaderChecked === true
+                ? "Edit All Status"
+                : "Edit Status"}
               {isOtpions && (
                 <div className="absolute top-10 w-full left-0 bg-white block rounded-xl shadow-md">
                   <input
@@ -110,8 +115,10 @@ const BulkActionButtons = () => {
             >
               {!tempLoading?.loading && tempLoading?.operation === "delete" ? (
                 <Spinner message={"deleting..."} />
-              ) : (
+              ) : isHeaderChecked && isHeaderChecked === true ? (
                 "Delete All"
+              ) : (
+                "Delete"
               )}
             </button>
           </>

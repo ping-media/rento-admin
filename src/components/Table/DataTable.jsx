@@ -303,6 +303,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     <UserStatusCell
                                       item={item}
                                       index={columnIndex}
+                                      key={`UserVerification_${columnIndex}`}
                                     />
                                   );
                                 }
@@ -373,6 +374,10 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                         : ""
                                       : column?.includes("bookingId")
                                       ? `#${item[column]}`
+                                      : column?.includes("paymentMethod")
+                                      ? item[column] === "partiallyPay"
+                                        ? "online"
+                                        : item[column]
                                       : item[column]}
                                   </td>
                                 );

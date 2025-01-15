@@ -10,6 +10,7 @@ const vehicleSlice = createSlice({
     tempIds: [],
     tempLoading: { loading: false, operation: "" },
     isHeaderChecked: false,
+    isOneOrMoreHeaderChecked: false,
     loading: false,
     error: null,
   },
@@ -30,6 +31,9 @@ const vehicleSlice = createSlice({
     },
     handleIsHeaderChecked: (state, action) => {
       state.isHeaderChecked = action.payload;
+    },
+    handleIsOneOrMoreHeaderChecked: (state, action) => {
+      state.isOneOrMoreHeaderChecked = action.payload;
     },
     handleUpdateFlags: (state, action) => {
       const data = action.payload;
@@ -164,6 +168,7 @@ export const {
   restvehicleMaster,
   changeTempLoadingTrue,
   changeTempLoadingFalse,
+  handleIsOneOrMoreHeaderChecked,
   handleUpdateFlags,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

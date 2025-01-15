@@ -70,8 +70,6 @@ const StatusChange = ({ item, column }) => {
       >
         {item[column] === "partially_paid"
           ? item[column].replace("_", " ")
-          : column === "paymentMethod" && item[column] === "partiallyPay"
-          ? "online"
           : item[column]}
       </span>
     </div>

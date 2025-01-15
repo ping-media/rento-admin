@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
   addTempIds,
+  handleIsOneOrMoreHeaderChecked,
   removeSingleTempIdById,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { useEffect, useRef } from "react";
@@ -13,8 +14,10 @@ const CheckBoxInput = ({ isId }) => {
   const toggleSelectOne = (id) => {
     if (!id) return;
     if (isCheckedRef.current && isCheckedRef.current.checked) {
+      dispatch(handleIsOneOrMoreHeaderChecked(true));
       return dispatch(addTempIds([id]));
     } else {
+      dispatch(handleIsOneOrMoreHeaderChecked(false));
       return dispatch(removeSingleTempIdById(id));
     }
   };

@@ -59,7 +59,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
-      setFormLoading(false); // Ensure loading is turned off even if an error occurs
+      setFormLoading(false);
     }
   };
 
