@@ -31,6 +31,7 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "discountTotalPrice" &&
                   key !== "isInvoiceCreated" &&
                   key !== "isPickupImageAdded" &&
+                  key !== "isDiscountZero" &&
                   !(key === "extraAddonPrice" && value === 0)
               ) // Exclude totalPrice
               .map(([key, value]) => (
@@ -126,7 +127,8 @@ const BookingFareDetails = ({ rides }) => {
             )}
 
             {/* total price  */}
-            {rides?.bookingPrice?.discountTotalPrice > 0 && (
+            {(rides?.bookingPrice?.isDiscountZero === true ||
+              rides?.bookingPrice?.discountTotalPrice > 0) && (
               <li
                 className={`flex items-center justify-between mt-1 my-1 ${
                   rides?.bookingPrice?.userPaid ? "border-b-2" : ""
@@ -139,6 +141,8 @@ const BookingFareDetails = ({ rides }) => {
                     rides?.paySuccessId !== "NA"
                       ? "(Full Paid)"
                       : rides?.paymentMethod == "partiallyPay"
+                      ? ""
+                      : rides?.bookingPrice?.isDiscountZero === true
                       ? ""
                       : "(Need to pay at pickup)"}
                   </small>

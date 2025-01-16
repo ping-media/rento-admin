@@ -358,9 +358,11 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     {column.includes("files")
                                       ? null
                                       : `₹${formatPrice(
-                                          item[column]?.discountTotalPrice &&
-                                            item[column]?.discountTotalPrice !=
-                                              0
+                                          item[column]?.isDiscountZero ===
+                                            true ||
+                                            (item[column]?.discountTotalPrice &&
+                                              item[column]
+                                                ?.discountTotalPrice != 0)
                                             ? item[column]?.discountTotalPrice
                                             : item[column]?.totalPrice
                                         )}`}

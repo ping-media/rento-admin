@@ -76,6 +76,7 @@ const BookingDetails = () => {
         };
         const isCanceled = await cancelBookingById(id, data, token);
         if (isCanceled === true) {
+          handleAsyncError(dispatch, "Ride cancelled successfully", "success");
           dispatch(handleUpdateFlags(data));
           return dispatch(toggleDeleteModal());
         }
@@ -102,6 +103,7 @@ const BookingDetails = () => {
       };
       const isCanceled = await cancelBookingById(id, data, token);
       if (isCanceled === true) {
+        handleAsyncError(dispatch, "Ride completed successfully", "success");
         return dispatch(handleUpdateFlags(data));
       }
       if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
@@ -168,6 +170,7 @@ const BookingDetails = () => {
             fn={handleCancelBooking}
             disable={
               vehicleMaster[0]?.bookingStatus === "canceled" ||
+              vehicleMaster[0]?.rideStatus === "ongoing" ||
               vehicleMaster[0]?.rideStatus === "completed"
             }
           />

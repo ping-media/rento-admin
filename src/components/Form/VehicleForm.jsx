@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner.jsx";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
@@ -12,7 +12,6 @@ import {
   tenYearBeforeCurrentYear,
 } from "../../Data/Function";
 import VehiclePlan from "./VehicleComponents/VehiclePlan";
-import { addTempIdsAll } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const VehicleForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -20,7 +19,6 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   const [stationData, setStationData] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [isLocationSelected, setIsLocationSelected] = useState("");
-  const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
 
@@ -67,13 +65,6 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
     fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
   }, []);
 
-  // pushing the old data
-  useEffect(() => {
-    if (id && vehicleMaster && vehicleMaster?.length > 0) {
-      dispatch(addTempIdsAll(vehicleMaster[0]?.vehiclePlan));
-    }
-  }, [vehicleMaster]);
-
   return (!formLoading && vehicleMaster?.length === 1) ||
     collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
@@ -81,16 +72,19 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         <h2 className="font-bold">
           {!id
             ? "Select Package"
-            : `Package Applied: ${vehicleMaster[0]?.vehiclePlan?.length} Plan`}
+            : `Package Applied: ${
+                vehicleMaster && vehicleMaster[0]?.vehiclePlan?.length
+              } Plan`}
         </h2>
-        {!id && (
-          <div className="w-full pb-2">
-            <VehiclePlan
-              collectedData={collectedData}
-              data={(id && vehicleMaster[0]?.vehiclePlan) || null}
-            />
-          </div>
-        )}
+
+        <div className="w-full pb-2">
+          <VehiclePlan
+            collectedData={collectedData}
+            data={
+              (id && vehicleMaster && vehicleMaster[0]?.vehiclePlan) || null
+            }
+          />
+        </div>
       </div>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}

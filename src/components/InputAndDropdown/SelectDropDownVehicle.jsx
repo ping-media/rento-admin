@@ -23,6 +23,7 @@ const SelectDropDownVehicle = ({
       setSelectedChanger(newSelectedOption);
     }
   };
+
   return (
     <div className="w-full">
       <label
@@ -53,7 +54,8 @@ const SelectDropDownVehicle = ({
                   key={items?._id}
                   className="capitalize"
                 >
-                  {items?.vehicleNumber} | {items?.vehicleName}
+                  {items?.vehicleNumber} | {items?.vehicleName} |{" "}
+                  {item?.stationName}
                 </option>
               );
             })}
