@@ -35,7 +35,7 @@ const CreateNewAndUpdateForm = () => {
         endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")]
       );
     }
-  }, [dispatch, id, token, location.pathname]);
+  }, [dispatch, id, token]);
 
   // Dynamically select the form to render based on the URL
   const getFormType = () => {

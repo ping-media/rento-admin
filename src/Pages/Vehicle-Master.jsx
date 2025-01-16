@@ -48,26 +48,6 @@ const VehicleMaster = () => {
     searchBasedOnPage,
   ]);
 
-  // useEffect(() => {
-  //   // fetch data based on url
-  //   const searchBasedOnPage =
-  //     (location.pathname === "/all-users" && "userType=customer") ||
-  //     (location.pathname === "/all-managers" && "userType=manager") ||
-  //     "";
-
-  //   if (!tempLoading?.loading && deletevehicleId === "") {
-  //     fetchVehicleMasterWithPagination(
-  //       dispatch,
-  //       token,
-  //       endPointBasedOnURL[location.pathname.replace("/", "")],
-  //       searchTerm,
-  //       page,
-  //       limit,
-  //       searchBasedOnPage
-  //     );
-  //   }
-  // }, [location.href, deletevehicleId, page, limit, searchTerm, tempLoading]);
-
   // clear data after page change
   useEffect(() => {
     dispatch(restvehicleMaster());

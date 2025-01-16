@@ -369,10 +369,14 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   </td>
                                 ) : (
                                   <td
-                                    className={`p-3 whitespace-nowrap text-sm font-medium text-gray-900 ${
+                                    className={`p-3 text-sm font-medium text-gray-900 ${
                                       column?.includes("email")
                                         ? ""
                                         : "capitalize"
+                                    } ${
+                                      column?.includes("address")
+                                        ? "max-w-40"
+                                        : "whitespace-nowrap"
                                     }`}
                                     key={columnIndex}
                                   >

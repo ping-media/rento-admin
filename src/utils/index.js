@@ -342,6 +342,34 @@ const getDurationInDays = (date1Str, date2Str) => {
   return days;
 };
 
+const formatDateTimeISTForUser = (input) => {
+  const date = new Date(input);
+
+  // Convert to IST
+  const IST_OFFSET = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
+  const istDate = new Date(date.getTime() + IST_OFFSET);
+
+  const year = istDate.getUTCFullYear();
+  const month = istDate.toLocaleString("en-US", { month: "short" }); // Get short month name
+  const day = istDate.getUTCDate().toString().padStart(2, "0");
+
+  const hours = istDate.getUTCHours();
+  const minutes = istDate.getUTCMinutes();
+  const timeOptions = { hour: "2-digit", minute: "2-digit", hour12: true };
+
+  // Format the time as per IST
+  const formattedTime = new Date(
+    Date.UTC(year, istDate.getUTCMonth(), day, hours, minutes)
+  )
+    .toLocaleTimeString("en-US", {
+      ...timeOptions,
+      timeZone: "UTC", // Explicitly use IST offset calculated
+    })
+    .toUpperCase();
+
+  return `${month} ${day} ${year} : ${formattedTime}`;
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -367,4 +395,5 @@ export {
   getDurationBetweenDates,
   formatReadableDateTime,
   getDurationInDays,
+  formatDateTimeISTForUser,
 };

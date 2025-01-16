@@ -90,53 +90,59 @@ const fetchVehicleMaster = async (dispatch, token, endpoint) => {
   }
 };
 
-const fetchVehicleMasterWithPagination = async (
-  dispatch,
-  token,
-  endpoint,
-  isSearchTermPresent,
-  page,
-  limit,
-  searchBasedOnFilter = ""
-) => {
-  try {
-    dispatch(fetchVehicleStart());
-    // setting dynamic route
-    const dynamicEndpoint =
-      isSearchTermPresent !== null
-        ? searchBasedOnFilter === ""
-          ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
-          : `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${page}&limit=${limit}`
-        : searchBasedOnFilter === ""
-        ? `${endpoint}?page=${page}&limit=${limit}`
-        : `${endpoint}?${searchBasedOnFilter}&page=${page}&limit=${limit}`;
+const fetchVehicleMasterWithPagination = debounce(
+  async (
+    dispatch,
+    token,
+    endpoint,
+    isSearchTermPresent,
+    page,
+    limit,
+    searchBasedOnFilter = ""
+  ) => {
+    try {
+      dispatch(fetchVehicleStart());
+      // setting dynamic route
+      const dynamicEndpoint =
+        isSearchTermPresent !== null
+          ? searchBasedOnFilter === ""
+            ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
+            : `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${page}&limit=${limit}`
+          : searchBasedOnFilter === ""
+          ? `${endpoint}?page=${page}&limit=${limit}`
+          : `${endpoint}?${searchBasedOnFilter}&page=${page}&limit=${limit}`;
 
-    const response = await getFullData(dynamicEndpoint, token);
-    if (response?.status == 200) {
-      dispatch(fetchVehicleMasterData(response?.data));
-    } else {
+      const response = await getFullData(dynamicEndpoint, token);
+      if (response?.status == 200) {
+        dispatch(fetchVehicleMasterData(response?.data));
+      } else {
+        dispatch(fetchVehicleEnd());
+      }
+    } catch (error) {
       dispatch(fetchVehicleEnd());
+      handleAsyncError(dispatch, error?.message);
     }
-  } catch (error) {
-    dispatch(fetchVehicleEnd());
-    handleAsyncError(dispatch, error?.message);
-  }
-};
+  },
+  50
+);
 
-const fetchVehicleMasterById = async (dispatch, id, token, endpoint) => {
-  try {
-    dispatch(fetchVehicleStart());
-    const response = await getData(`${endpoint}?_id=${id}`, token);
-    if (response?.status == 200) {
-      dispatch(fetchVehicleMasterData(response?.data));
-    } else {
+const fetchVehicleMasterById = debounce(
+  async (dispatch, id, token, endpoint) => {
+    try {
+      dispatch(fetchVehicleStart());
+      const response = await getData(`${endpoint}?_id=${id}`, token);
+      if (response?.status == 200) {
+        dispatch(fetchVehicleMasterData(response?.data));
+      } else {
+        dispatch(fetchVehicleEnd());
+      }
+    } catch (error) {
       dispatch(fetchVehicleEnd());
+      handleAsyncError(dispatch, error?.message);
     }
-  } catch (error) {
-    dispatch(fetchVehicleEnd());
-    handleAsyncError(dispatch, error?.message);
-  }
-};
+  },
+  60
+);
 
 const handleCreateAndUpdateVehicle = async (
   event,
@@ -177,7 +183,7 @@ const handleCreateAndUpdateVehicle = async (
   // console.log(endpoint, result);
   try {
     const response = await postData(endpoint, result, token);
-    console.log(response);
+    // console.log(response);
     if (response?.status !== 200) {
       handleAsyncError(dispatch, response?.message);
     } else {

@@ -2,7 +2,10 @@ import { useSelector } from "react-redux";
 import VehicleInfo from "../VehicleDetails/VehicleInfo";
 import { useEffect, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
-import { formatFullDateAndTime } from "../../utils/index";
+import {
+  formatDateTimeISTForUser,
+  formatFullDateAndTime,
+} from "../../utils/index";
 import BookingFareDetails from "./BookingFareDetails";
 import BookingUserDetails from "./BookingUserDetail";
 import BookingStatusFlag from "./BookingStatusFlag";
@@ -96,7 +99,7 @@ const BookingDetail = () => {
             key: "Booking Date",
             value: `${
               vehicleMaster &&
-              formatFullDateAndTime(
+              formatDateTimeISTForUser(
                 vehicleMaster && vehicleMaster[0]?.createdAt
               )
             }`,
