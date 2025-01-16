@@ -18,7 +18,10 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
       )}
       {/* Render headers for columns that do not include "Status" or "Active" */}
       {Columns.filter(
-        (item) => !item.includes("Status") && !item.includes("Active")
+        (item) =>
+          !item.includes("status") &&
+          !item.includes("Status") &&
+          !item.includes("Active")
       ).map((item, index) => {
         if (item === "files") {
           const maxFiles =
@@ -119,7 +122,10 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
 
       {/* Render headers for columns containing "Status" or "Active" */}
       {Columns.filter(
-        (item) => item.includes("Status") || item.includes("Active")
+        (item) =>
+          item.includes("status") ||
+          item.includes("Status") ||
+          item.includes("Active")
       ).map((item, index) => (
         <th
           scope="col"
