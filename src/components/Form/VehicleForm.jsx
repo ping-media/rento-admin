@@ -163,6 +163,14 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
+              item={"lastMeterReading"}
+              type="number"
+              value={id && vehicleMaster[0]?.lastMeterReading}
+              require={true}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
               item={"kmsRun"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.kmsRun) : 1000}

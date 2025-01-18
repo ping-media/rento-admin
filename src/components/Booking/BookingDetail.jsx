@@ -164,6 +164,10 @@ const BookingDetail = () => {
               <h2 className="font-bold uppercase text-md lg:text-lg">
                 {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
               </h2>
+              <small className="text-sm text-gray-400">
+                Vehicle Number: ({vehicleMaster[0]?.vehicleBasic?.vehicleNumber}
+                )
+              </small>
             </div>
             <div>
               <h2 className="font-semibold uppercase hidden lg:block text-sm">

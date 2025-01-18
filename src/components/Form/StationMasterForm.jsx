@@ -8,6 +8,7 @@ import { endPointBasedOnKey, States } from "../../Data/commonData";
 import PreLoader from "../Skeleton/PreLoader";
 import { useParams } from "react-router-dom";
 import InputSearch from "../InputAndDropdown/InputSearch";
+import { formatHourToTime } from "../../utils/index";
 
 const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -74,6 +75,20 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"locationId"}
               options={collectedData?.locationId}
               value={id && vehicleMaster[0]?.locationId}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"openStartTime"}
+              type="time"
+              value={id && formatHourToTime(vehicleMaster[0]?.openStartTime)}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"openEndTime"}
+              type="time"
+              value={id && formatHourToTime(vehicleMaster[0]?.openEndTime)}
             />
           </div>
           <div className="w-full lg:w-[48%]">

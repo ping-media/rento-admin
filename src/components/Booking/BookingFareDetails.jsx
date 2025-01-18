@@ -102,7 +102,7 @@ const BookingFareDetails = ({ rides }) => {
                       : "(need to pay at pickup)"}
                   </small>
                 </p>
-                <p className="text-sm font-bold text-right">
+                <p className="text-sm font-extrabold text-right text-theme">
                   {`₹${formatPrice(rides?.bookingPrice?.totalPrice)}`}
                 </p>
               </li>
@@ -147,7 +147,7 @@ const BookingFareDetails = ({ rides }) => {
                       : "(Need to pay at pickup)"}
                   </small>
                 </p>
-                <p className="text-sm font-bold text-right">
+                <p className="text-sm font-extrabold text-right text-theme">
                   {`₹${formatPrice(rides?.bookingPrice?.discountTotalPrice)}`}
                 </p>
               </li>

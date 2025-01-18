@@ -6,7 +6,10 @@ import SideBar from "../SideBar/SideBar";
 import Alert from "../Alert/Alert";
 import ScrollToTopButton from "../ScrollButton/ScrollToTopButton";
 import PreLoader from "../Skeleton/PreLoader";
-import { handleCurrentUser } from "../../Redux/UserSlice/UserSlice";
+import {
+  handleCurrentUser,
+  handleSignOut,
+} from "../../Redux/UserSlice/UserSlice";
 import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
 import {
   handleIsHeaderChecked,
@@ -26,7 +29,9 @@ const Layout = () => {
   const { is_open } = useSelector((state) => state.sideBar);
   const mainRef = useRef(null);
   const [visible, setVisible] = useState(false);
-  const { token, user, loading } = useSelector((state) => state.user);
+  const { currentUser, token, user, loading } = useSelector(
+    (state) => state.user
+  );
 
   //scrolltotop function
   const handleScrollToTop = () => {
@@ -66,6 +71,8 @@ const Layout = () => {
   // if user is not found or inactive then logout for first time
   useEffect(() => {
     (async () => {
+      if (currentUser && currentUser?.userType === "customer")
+        return dispatch(handleSignOut());
       await validateUser(token, handleLogoutUser, dispatch);
     })();
   }, []);

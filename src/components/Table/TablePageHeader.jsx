@@ -25,7 +25,7 @@ const TablePageHeader = ({ setInputSearchQuery }) => {
           location.pathname == "/payments" ||
           location.pathname == "/all-invoices" ||
           location.pathname == "/users-documents" ||
-          location.pathname == "/all-managers"
+          location.pathname == "/all-users"
         ) && (
           <Link
             className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"

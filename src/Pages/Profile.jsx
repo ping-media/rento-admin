@@ -55,6 +55,7 @@ const Profile = () => {
                     dispatch,
                     setFormLoading,
                     currentUser?._id,
+                    currentUser?.userType,
                     token,
                     navigate
                   )

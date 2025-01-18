@@ -201,6 +201,7 @@ const handleUpdateAdminProfile = async (
   dispatch,
   setFormLoading,
   id,
+  userType,
   token,
   navigate
 ) => {
@@ -210,7 +211,7 @@ const handleUpdateAdminProfile = async (
   let result = Object.fromEntries(response.entries());
   // if there is id that means it we are updating the data and if there is not id than creating new data
   if (id) {
-    result = Object.assign(result, { _id: id });
+    result = Object.assign(result, { _id: id, userType: userType });
   }
 
   const endpoint = `/signup?_id=${id}`;

@@ -130,7 +130,17 @@ const App = () => {
               element={<CreateNewAndUpdateForm />}
             />
             <Route
+              path="all-managers/add-new"
+              exact
+              element={<CreateNewAndUpdateForm />}
+            />
+            <Route
               path="all-users/:id"
+              exact
+              element={<CreateNewAndUpdateForm />}
+            />
+            <Route
+              path="all-managers/:id"
               exact
               element={<CreateNewAndUpdateForm />}
             />

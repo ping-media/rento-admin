@@ -1,5 +1,6 @@
 import DropDownComponent from "../DropDown/DropDownComponent.jsx";
 import {
+  changeNumberIntoTime,
   formatFullDateAndTime,
   formatPathNameToTitle,
   formatPrice,
@@ -29,6 +30,7 @@ import UserStatusCell from "./UserStatusCell.jsx";
 import UserDocumentCell from "./UserDocumentCell.jsx";
 import CopyButton from "../../components/Buttons/CopyButton.jsx";
 import TableImage from "./TableImageWithPopupShow.jsx";
+import { Link } from "react-router-dom";
 
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
@@ -284,7 +286,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   );
                                 }
                                 if (
-                                  column === "BookingStartDateAndTime" ||
+                                  // column === "BookingStartDateAndTime" ||
                                   column === "city"
                                 ) {
                                   return (
@@ -315,6 +317,22 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     </td>
                                   );
                                 }
+                                if (column === "openStartTime") {
+                                  return (
+                                    <td
+                                      className="p-3 max-w-24 whitespace-nowrap text-sm font-medium text-gray-900"
+                                      key={columnIndex}
+                                    >
+                                      <p className="">
+                                        {`${changeNumberIntoTime(
+                                          item?.openStartTime
+                                        )} - ${changeNumberIntoTime(
+                                          item?.openEndTime
+                                        )}`}
+                                      </p>
+                                    </td>
+                                  );
+                                }
                                 if (location.pathname === "/all-invoices") {
                                   if (column === "firstName") {
                                     return (
@@ -335,11 +353,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 }
                                 // Skip rendering `BookingEndDateAndTime` data to avoid duplication
                                 if (
-                                  column === "BookingEndDateAndTime" ||
+                                  // column === "BookingEndDateAndTime" ||
                                   column === "state" ||
                                   column === "isContactVerified" ||
                                   column === "isDocumentVerified" ||
-                                  column === "kycApproved"
+                                  column === "kycApproved" ||
+                                  column === "openEndTime"
                                 ) {
                                   return null;
                                 }

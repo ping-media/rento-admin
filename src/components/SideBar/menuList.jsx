@@ -58,11 +58,11 @@ const menuList = [
         menuTitle: "All Managers",
         menuLink: "/all-managers",
       },
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "Users Documents",
-        menuLink: "/users-documents",
-      },
+      // {
+      //   menuImg: <AdjustRoundedIcon />,
+      //   menuTitle: "Users Documents",
+      //   menuLink: "/users-documents",
+      // },
     ],
   },
   {

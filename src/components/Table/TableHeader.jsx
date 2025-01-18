@@ -55,6 +55,17 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </th>
           );
         }
+        if (item === "openStartTime") {
+          return (
+            <th
+              scope="col"
+              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              key={"openingHour"}
+            >
+              Opening Hours
+            </th>
+          );
+        }
         if (location.pathname === "/all-invoices") {
           if (item === "firstName") {
             <th
@@ -69,7 +80,8 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             return null;
           }
         }
-        if (item === "BookingStartDateAndTime" || item === "city") {
+        // if (item === "BookingStartDateAndTime" || item === "city") {
+        if (item === "city") {
           return (
             <th
               scope="col"
@@ -98,11 +110,12 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           );
         }
         if (
-          item === "BookingEndDateAndTime" ||
+          // item === "BookingEndDateAndTime" ||
           item === "state" ||
           item === "isContactVerified" ||
           item === "isDocumentVerified" ||
-          item === "kycApproved"
+          item === "kycApproved" ||
+          item === "openEndTime"
         ) {
           return null;
         }

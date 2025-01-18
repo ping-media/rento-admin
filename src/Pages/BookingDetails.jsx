@@ -98,6 +98,7 @@ const BookingDetails = () => {
     setVehicleLoading(true);
     try {
       const data = {
+        rideOtp: "",
         rideStatus: "completed",
         _id: id,
       };
@@ -133,12 +134,6 @@ const BookingDetails = () => {
         </h1>
         {/* actions for cancel & start ride  */}
         <div className="flex flex-wrap gap-2">
-          {/* for invoice generate  */}
-          <GenerateInvoiceButton
-            item={vehicleMaster && vehicleMaster[0]}
-            loadingStates={loadingStates}
-            setLoadingStates={setLoadingStates}
-          />
           {/* for starting & completing ride  */}
           {vehicleMaster[0]?.rideStatus !== "ongoing" && (
             <Button
@@ -182,6 +177,12 @@ const BookingDetails = () => {
               vehicleMaster[0]?.bookingStatus === "canceled" ||
               vehicleMaster[0]?.rideStatus === "completed"
             }
+          />
+          {/* for invoice generate  */}
+          <GenerateInvoiceButton
+            item={vehicleMaster && vehicleMaster[0]}
+            loadingStates={loadingStates}
+            setLoadingStates={setLoadingStates}
           />
         </div>
       </div>

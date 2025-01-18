@@ -13,7 +13,7 @@ const MultipleImageAndPreview = ({
   // change images
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    console.log(files);
+    // console.log(files);
     if (files.length > 0) {
       const imageFiles = files.map((file) => {
         const url = URL.createObjectURL(file);

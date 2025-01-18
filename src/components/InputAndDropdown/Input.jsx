@@ -45,7 +45,7 @@ const Input = ({
               : ""
           } disabled:bg-gray-400 disabled:bg-opacity-20`}
           value={
-            item == "vehicleNumber" || item == "couponName"
+            item === "vehicleNumber" || item === "couponName"
               ? inputValue.toUpperCase()
               : inputValue
           }

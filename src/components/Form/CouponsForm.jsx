@@ -43,7 +43,13 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
             <input
               type="hidden"
               name="allowedUsersCount"
-              value={id ? vehicleMaster[0]?.allowedUsersCount : couponCount}
+              value={
+                id
+                  ? couponCount > 0 || couponCount === "-1"
+                    ? couponCount
+                    : vehicleMaster[0]?.allowedUsersCount
+                  : couponCount
+              }
             />
             <Input
               type="number"

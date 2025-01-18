@@ -121,6 +121,7 @@ const forms = {
   "all-users": UserForm,
   "all-plans": PlanForm,
   "all-bookings": BookingForm,
+  "all-managers": UserForm,
   "all-coupons": CouponForm,
 };
 

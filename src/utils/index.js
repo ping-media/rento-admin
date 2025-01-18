@@ -370,6 +370,31 @@ const formatDateTimeISTForUser = (input) => {
   return `${month} ${day} ${year} : ${formattedTime}`;
 };
 
+const changeNumberIntoTime = (hour) => {
+  // Validate input
+  if (hour < 0 || hour > 23 || isNaN(hour)) {
+    throw new Error("Invalid hour. Please provide a number between 0 and 23.");
+  }
+
+  // Determine AM or PM
+  const period = hour >= 12 ? "PM" : "AM";
+
+  // Convert hour to 12-hour format
+  const formattedHour = hour % 12 || 12; // 0 becomes 12 in 12-hour format
+
+  // Return the formatted time
+  return `${formattedHour.toString().padStart(2, "0")}:00 ${period}`;
+};
+
+const formatHourToTime = (hour) => {
+  // Ensure hour is between 0 and 23
+  if (hour < 0 || hour > 23 || isNaN(hour)) {
+    throw new Error("Invalid hour. Please provide a number between 0 and 23.");
+  }
+  const formattedHour = hour.toString().padStart(2, "0"); // Ensure 2 digits
+  return `${formattedHour}:00`; // Append ":00" for minutes
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -396,4 +421,6 @@ export {
   formatReadableDateTime,
   getDurationInDays,
   formatDateTimeISTForUser,
+  changeNumberIntoTime,
+  formatHourToTime,
 };

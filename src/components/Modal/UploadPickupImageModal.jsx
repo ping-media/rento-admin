@@ -28,9 +28,9 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     const formData = new FormData();
     const images = Array.from(event.target.elements.images?.files || []);
     const formElements = event.target.elements;
-    const odometerReading = formElements?.vehicleMeterReading?.value;
-
-    console.log(images);
+    const startOdometerReading = formElements?.newMeterReading?.value;
+    const endOdometerReading = formElements?.oldMeterReading?.value;
+    const startOtp = formElements?.rideOtp?.value;
 
     if (!tempVehicleData)
       return handleAsyncError(dispatch, "All fields required.");
@@ -38,7 +38,9 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     formData.append("userId", tempVehicleData?.userId?._id);
     formData.append("bookingId", tempVehicleData?.bookingId);
     formData.append("_id", tempVehicleData?._id);
-    formData.append("vehicleMeterReading", odometerReading);
+    formData.append("newMeterReading", startOdometerReading);
+    formData.append("oldMeterReading", endOdometerReading);
+    formData.append("rideOtp", startOtp);
 
     if (images.length > 0) {
       // Append images to the FormData
@@ -60,12 +62,18 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     let currentBooking = currentData?.find(
       (item) => item?._id == tempVehicleData?._id
     );
+    // end ride otp
+    const endRideOtp = Math.floor(1000 + Math.random() * 9000);
 
     const updatedBooking = {
       ...currentBooking,
       bookingPrice: {
         ...currentBooking.bookingPrice,
         isPickupImageAdded: true,
+      },
+      vehicleBasic: {
+        ...currentBooking.vehicleBasic,
+        endRide: endRideOtp,
       },
       rideStatus: "ongoing",
     };
@@ -147,9 +155,15 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                 </p>
               )}
             </div>
-            <div>
-              <Input type="number" item="vehicleMeterReading" require={true} />
+            <div className="flex items-center gap-4 mb-3">
+              <div className="w-[48%]">
+                <Input type="number" item="newMeterReading" require={true} />
+              </div>
+              <div className="w-[48%]">
+                <Input type="number" item="oldMeterReading" require={true} />
+              </div>
             </div>
+            <Input type="number" item="rideOtp" require={true} />
             <button
               className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
               type="submit"
