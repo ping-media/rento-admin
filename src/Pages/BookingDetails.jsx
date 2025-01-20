@@ -69,10 +69,9 @@ const BookingDetails = () => {
           bookingStatus: "canceled",
           rideStatus: "canceled",
           _id: id,
-          notes: {
-            key: currentUser?.userType,
-            value: Note,
-          },
+          notes: [
+            { key: currentUser?.userType, value: Note, noteType: "cancel" },
+          ],
         };
         const isCanceled = await cancelBookingById(id, data, token);
         if (isCanceled === true) {
@@ -93,6 +92,46 @@ const BookingDetails = () => {
       );
     }
   };
+  // for undoing the cancel booking
+  const handleUndoCancelBooking = async () => {
+    // this is to undo cancel booking
+    setVehicleLoading(true);
+    try {
+      let paymentStatusToSend = "paid";
+      if (
+        vehicleMaster &&
+        vehicleMaster[0]?.bookingPrice?.userPaid &&
+        vehicleMaster[0]?.bookingPrice?.userPaid !== 0
+      ) {
+        paymentStatusToSend = "partiallyPay";
+      }
+      let rideStatus = "pending";
+      const data = {
+        paymentStatus: paymentStatusToSend,
+        bookingStatus: "done",
+        rideStatus: rideStatus,
+        _id: id,
+        notes: {
+          key: "",
+          value: "",
+        },
+      };
+      const isCanceledUndo = await cancelBookingById(id, data, token);
+      if (isCanceledUndo === true) {
+        handleAsyncError(
+          dispatch,
+          "Undo cancelled Ride successfully",
+          "success"
+        );
+        dispatch(handleUpdateFlags(data));
+      }
+      if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
+    } catch (error) {
+      return handleAsyncError(dispatch, error?.message);
+    } finally {
+      setVehicleLoading(false);
+    }
+  };
   // for completing the booking
   const handleEndBooking = async () => {
     setVehicleLoading(true);
@@ -105,6 +144,30 @@ const BookingDetails = () => {
       const isCanceled = await cancelBookingById(id, data, token);
       if (isCanceled === true) {
         handleAsyncError(dispatch, "Ride completed successfully", "success");
+        return dispatch(handleUpdateFlags(data));
+      }
+      if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
+    } catch (error) {
+      return handleAsyncError(dispatch, error?.message);
+    } finally {
+      setVehicleLoading(false);
+    }
+  };
+  // for undoing the completed booking
+  const handleUndoEndBooking = async () => {
+    setVehicleLoading(true);
+    try {
+      const data = {
+        rideStatus: "ongoing",
+        _id: id,
+      };
+      const isCanceled = await cancelBookingById(id, data, token);
+      if (isCanceled === true) {
+        handleAsyncError(
+          dispatch,
+          "Undo completed ride successfully",
+          "success"
+        );
         return dispatch(handleUpdateFlags(data));
       }
       if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
@@ -150,7 +213,9 @@ const BookingDetails = () => {
             />
           )}
           {/* for completing ride  */}
-          {vehicleMaster[0]?.rideStatus === "ongoing" && (
+          {vehicleMaster[0]?.rideStatus === "completed" ? (
+            <Button title={"Undo Finish"} fn={handleUndoEndBooking} />
+          ) : (
             <Button
               title={"Finish Ride"}
               fn={handleEndBooking}
@@ -160,15 +225,23 @@ const BookingDetails = () => {
             />
           )}
           {/* for cancel the ride  */}
-          <Button
-            title={"Cancel Booking"}
-            fn={handleCancelBooking}
-            disable={
-              vehicleMaster[0]?.bookingStatus === "canceled" ||
-              vehicleMaster[0]?.rideStatus === "ongoing" ||
-              vehicleMaster[0]?.rideStatus === "completed"
-            }
-          />
+          {vehicleMaster[0]?.rideStatus === "canceled" ? (
+            <Button
+              title={"Undo Cancel"}
+              fn={handleUndoCancelBooking}
+              disable={vehicleMaster}
+            />
+          ) : (
+            <Button
+              title={"Cancel Booking"}
+              fn={handleCancelBooking}
+              disable={
+                vehicleMaster[0]?.bookingStatus === "canceled" ||
+                vehicleMaster[0]?.rideStatus === "ongoing" ||
+                vehicleMaster[0]?.rideStatus === "completed"
+              }
+            />
+          )}
           {/* for sending reminder  */}
           <Button
             title={"Send Reminder"}

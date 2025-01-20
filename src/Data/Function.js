@@ -130,7 +130,14 @@ const fetchVehicleMasterById = debounce(
   async (dispatch, id, token, endpoint) => {
     try {
       dispatch(fetchVehicleStart());
-      const response = await getData(`${endpoint}?_id=${id}`, token);
+      const response = await getData(
+        `${endpoint}${
+          location.pathname !== "/profile" && endpoint.includes("?userId")
+            ? ""
+            : "?_id="
+        }${id}`,
+        token
+      );
       if (response?.status == 200) {
         dispatch(fetchVehicleMasterData(response?.data));
       } else {

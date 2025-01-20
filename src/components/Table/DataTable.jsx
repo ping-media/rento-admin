@@ -30,7 +30,7 @@ import UserStatusCell from "./UserStatusCell.jsx";
 import UserDocumentCell from "./UserDocumentCell.jsx";
 import CopyButton from "../../components/Buttons/CopyButton.jsx";
 import TableImage from "./TableImageWithPopupShow.jsx";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
@@ -49,6 +49,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [inputSearchQuery, setInputSearchQuery] = useState("");
   const searchTerm = useDebounce(inputSearchQuery, 500);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const loadFiltersAndData = () => {
     if (newUpdatedData && pagination) {
@@ -253,6 +254,13 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                           <tr
                             className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh]"
                             key={item?._id}
+                            // onClick={() =>
+                            //   navigate(
+                            //     location.pathname === "/all-bookings"
+                            //       ? `details/${item?._id}`
+                            //       : "#"
+                            //   )
+                            // }
                           >
                             {location.pathname == "/all-vehicles" && (
                               <td className="p-3 whitespace-nowrap text-sm font-medium text-gray-900">

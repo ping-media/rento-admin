@@ -18,7 +18,7 @@ const BookingFareDetails = ({ rides }) => {
               )} days Package Applied)`}
             </div>
           )}
-          <ul className="w-full leading-8">
+          <ul className="w-full leading-8 mb-2">
             {Object.entries(rides?.bookingPrice)
               .filter(
                 ([key, value]) =>

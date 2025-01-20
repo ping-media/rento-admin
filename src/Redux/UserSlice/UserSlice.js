@@ -7,6 +7,7 @@ const UserSlice = createSlice({
     token: null,
     user: null,
     currentUser: null,
+    userDocument: null,
     loading: false,
     error: null,
   },
@@ -28,6 +29,9 @@ const UserSlice = createSlice({
       state.currentUser = decryptedUser;
       state.loading = false;
     },
+    addUserDocument: (state, action) => {
+      state.userDocument = action.payload;
+    },
     handleLoadingUserDataFalse: (state) => {
       state.loading = false;
     },
@@ -47,6 +51,7 @@ export const {
   handleSignIn,
   handleCurrentUser,
   handleLoadingUserDataFalse,
+  addUserDocument,
   handleSignOut,
 } = UserSlice.actions;
 

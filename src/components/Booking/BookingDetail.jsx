@@ -11,6 +11,7 @@ import BookingUserDetails from "./BookingUserDetail";
 import BookingStatusFlag from "./BookingStatusFlag";
 import BookingMoreInfo from "./BookingMoreInfo";
 import CopyButton from "../../components/Buttons/CopyButton";
+import BookingNote from "./BookingNote";
 
 const BookingDetail = () => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -115,7 +116,16 @@ const BookingDetail = () => {
       <div className="flex gap-4 flex-wrap">
         <div className="bg-white shadow-md rounded-xl flex-1 px-6 py-4">
           {vehicleMaster[0]?.notes && (
-            <p className="text-sm text-end italic text-gray-400 mb-1">{`cancel note by ${vehicleMaster[0]?.notes?.key}: (${vehicleMaster[0]?.notes?.value})`}</p>
+            <p className="text-sm text-end italic text-gray-400 mb-1">
+              {/* here we will show only notes with noteType cancel  */}
+              {vehicleMaster[0]?.notes
+                ?.filter((note) => note.noteType === "cancel") // Filter notes with noteType "cancel"
+                .map((note, index) => (
+                  <div key={note._id || index}>
+                    {`Cancel note by ${note.key}: (${note.value})`}
+                  </div>
+                ))}
+            </p>
           )}
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500 flex items-center">
@@ -194,6 +204,12 @@ const BookingDetail = () => {
             />
           </div>
           <BookingFareDetails rides={vehicleMaster && vehicleMaster[0]} />
+          <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
+            <h2 className="text-md lg:text-lg font-semibold text-gray-500">
+              Add Note
+            </h2>
+          </div>
+          <BookingNote />
         </div>
       </div>
     </>

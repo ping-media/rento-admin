@@ -8,6 +8,8 @@ const Input = ({
   disabled = false,
   require = false,
   setValueChange,
+  customClass = "w-full px-5 py-3",
+  bodyWidth = "w-full",
 }) => {
   const [inputValue, setInputValue] = useState(value);
 
@@ -25,19 +27,22 @@ const Input = ({
   };
 
   return (
-    <div className="w-full">
+    <div className={`${bodyWidth}`}>
       <label
         htmlFor={item}
         className="block text-gray-800 font-semibold text-sm capitalize text-left"
       >
-        Enter {camelCaseToSpaceSeparated(item)}{" "}
+        Enter{" "}
+        {item.includes("Proof")
+          ? camelCaseToSpaceSeparated(item).replace("Proof", "")
+          : camelCaseToSpaceSeparated(item)}{" "}
         {require && <span className="text-red-500">*</span>}
       </label>
       <div className="mt-2">
         <input
           type={type}
           id={item}
-          className={`block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none ${
+          className={`block ${customClass} rounded-md ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none ${
             item != "email"
               ? item == "vehicleNumber"
                 ? "uppercase"

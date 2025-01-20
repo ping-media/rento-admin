@@ -51,12 +51,22 @@ const vehicleSlice = createSlice({
     },
     handleUpdateImageData: (state, action) => {
       const { id } = action.payload;
-      state.vehicleMaster.data = state.vehicleMaster.data.map((doc) => {
-        return {
-          ...doc,
-          files: doc.files.filter((file) => file._id !== id),
-        };
-      });
+      state.vehicleMaster[0] = {
+        ...state.vehicleMaster[0],
+        files: state.vehicleMaster[0].files.filter((file) => file._id !== id),
+      };
+    },
+    handleUpdateNotes: (state, action) => {
+      state.vehicleMaster[0] = {
+        ...state.vehicleMaster[0],
+        notes: [...state.vehicleMaster[0].notes, action.payload],
+      };
+    },
+    handleUpdateUserStatus: (state, action) => {
+      state.vehicleMaster[0] = {
+        ...state.vehicleMaster[0],
+        userId: [...state.vehicleMaster[0].userId, action.payload],
+      };
     },
     addTempVehicleData: (state, action) => {
       state.loading = false;
@@ -169,6 +179,8 @@ export const {
   changeTempLoadingTrue,
   changeTempLoadingFalse,
   handleIsOneOrMoreHeaderChecked,
+  handleUpdateNotes,
+  handleUpdateUserStatus,
   handleUpdateFlags,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

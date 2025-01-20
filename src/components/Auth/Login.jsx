@@ -59,7 +59,7 @@ const Login = () => {
             </div>
             <div className="mb-8">
               <h1 className="text-2xl lg:text-4xl font-black uppercase text-gray-100 lg:text-black mb-2">
-                Welcome to <span className="lg:text-theme">Rento</span>
+                Welcome to <span className="lg:text-theme">Rento Bikes.</span>
               </h1>
               <p className="capitalize text-xs lg:text-sm text-gray-200 lg:text-gray-400">
                 Welcome back! Please enter your credentials to continue.
