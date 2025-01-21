@@ -32,6 +32,7 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "isInvoiceCreated" &&
                   key !== "isPickupImageAdded" &&
                   key !== "isDiscountZero" &&
+                  key !== "diffAmount" &&
                   !(key === "extraAddonPrice" && value === 0)
               ) // Exclude totalPrice
               .map(([key, value]) => (
@@ -210,6 +211,26 @@ const BookingFareDetails = ({ rides }) => {
                         rides?.bookingPrice?.discountTotalPrice
                       )}`
                     : `- ₹${formatPrice(rides?.bookingPrice?.totalPrice)}`}
+                </p>
+              </li>
+            )}
+            {/* difference amount  */}
+            {rides?.bookingPrice?.diffAmount && (
+              <li className="flex items-center justify-between pt-1 mt-1 border-t-2">
+                <p className="text-sm font-semibold uppercase text-left">
+                  Difference Amount
+                  <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
+                    (
+                    {rides?.extent?.bookingPrice?.discountTotalPrice > 0
+                      ? `₹${rides?.extent?.bookingPrice?.discountTotalPrice} -
+                        ₹${rides?.bookingPrice?.discountTotalPrice}`
+                      : `₹${rides?.extent?.bookingPrice?.totalPrice} -
+                        ₹${rides?.bookingPrice?.totalPrice}`}
+                    )
+                  </small>
+                </p>
+                <p className="text-sm font-bold text-right">
+                  {`₹${formatPrice(Number(rides?.bookingPrice?.diffAmount))}`}
                 </p>
               </li>
             )}

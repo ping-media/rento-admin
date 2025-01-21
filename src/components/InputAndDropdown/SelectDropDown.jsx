@@ -6,6 +6,7 @@ const SelectDropDown = ({
   value = "",
   setIsLocationSelected,
   require = false,
+  onChangeFn,
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
   // for giving custom title
@@ -23,6 +24,9 @@ const SelectDropDown = ({
     if (setIsLocationSelected) {
       setIsLocationSelected(e.target.value);
     }
+    if (onChangeFn) {
+      onChangeFn(e.target.value);
+    }
   };
 
   useEffect(() => {
@@ -35,7 +39,7 @@ const SelectDropDown = ({
     <div className="w-full">
       <label
         htmlFor={item}
-        className="block text-gray-800 font-semibold text-sm capitalize"
+        className="block text-gray-800 font-semibold text-sm capitalize text-left"
       >
         Select {title[item] || item}
         {require && <span className="ml-1 text-red-500">*</span>}
@@ -82,7 +86,11 @@ const SelectDropDown = ({
                     {items?.firstName} | {items?.userType}
                   </option>
                 );
-              } else if (isId && isStationName) {
+              } else if (
+                !location.pathname.includes("/all-bookings/details/") &&
+                isId &&
+                isStationName
+              ) {
                 return (
                   <option
                     value={items?.stationId}
@@ -109,7 +117,9 @@ const SelectDropDown = ({
                     key={items?._id}
                     className="capitalize"
                   >
-                    {items?.vehicleName}
+                    {items?.vehicleName}{" "}
+                    {location.pathname.includes("/all-bookings/details/") &&
+                      `| ${items?.vehicleNumber}`}
                   </option>
                 );
               } else {

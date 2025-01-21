@@ -1,10 +1,58 @@
 import Input from "../../components/InputAndDropdown/Input";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleVehicleServiceModal } from "Redux/SideBarSlice/SideBarSlice";
+import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
+import { useParams } from "react-router-dom";
+import { formatLocalTimeIntoISO } from "../../utils/index";
+import { postData } from "../../Data/index";
+import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import { useState } from "react";
+import Spinner from "../../components/Spinner/Spinner";
 
 const AddVehicleForServiceModal = ({ loading }) => {
   const dispatch = useDispatch();
+  const { id } = useParams();
   const { isVehicleForServiceActive } = useSelector((state) => state.sideBar);
+  const [formLoading, setFormLoading] = useState(false);
+  const { token } = useSelector((state) => state.user);
+
+  // apply vehicle for Maintenance
+  const handleSendVehicleToService = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const vehicleTableId = id;
+    let startDate = formData.get("startDate");
+    startDate = formatLocalTimeIntoISO(startDate);
+    let endDate = formData.get("endDate");
+    endDate = formatLocalTimeIntoISO(endDate);
+
+    const data = {
+      vehicleTableId,
+      startDate,
+      endDate,
+    };
+
+    if (!data)
+      return handleAsyncError(
+        dispatch,
+        "unable to apply for maintenance! try again."
+      );
+
+    try {
+      setFormLoading(true);
+      const response = await postData("/maintenanceVehicle", data, token);
+      if (response?.status === 200) {
+        dispatch(toggleVehicleServiceModal());
+        return handleAsyncError(dispatch, response?.message, "success");
+      } else {
+        return handleAsyncError(dispatch, response?.message);
+      }
+    } catch (error) {
+      return handleAsyncError(dispatch, error?.message);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
   return (
     <div
       className={`fixed ${
@@ -12,7 +60,10 @@ const AddVehicleForServiceModal = ({ loading }) => {
       } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-40 mx-auto shadow-xl rounded-md bg-white max-w-md">
-        <div className="flex justify-end p-2">
+        <div className="flex justify-between p-2">
+          <h2 className="text-theme font-semibold text-lg uppercase">
+            Shedule Maintenance
+          </h2>
           <button
             onClick={() => dispatch(toggleVehicleServiceModal())}
             type="button"
@@ -36,8 +87,23 @@ const AddVehicleForServiceModal = ({ loading }) => {
 
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handleSendVehicleToService}>
-            <Input type="date-time" />
-            <Input type="date-time" />
+            <div className="mb-2">
+              <Input item={"startDate"} type="datetime-local" />
+            </div>
+            <div className="mb-2">
+              <Input item={"endDate"} type="datetime-local" />
+            </div>
+            <button
+              type="submit"
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
+              disabled={formLoading}
+            >
+              {!formLoading ? (
+                "Add vehicle"
+              ) : (
+                <Spinner message={"loading..."} />
+              )}
+            </button>
           </form>
         </div>
       </div>

@@ -56,6 +56,13 @@ const vehicleSlice = createSlice({
         files: state.vehicleMaster[0].files.filter((file) => file._id !== id),
       };
     },
+    handleChangesInBooking: (state, action) => {
+      const data = action.payload;
+      state.vehicleMaster[0] = {
+        ...state.vehicleMaster[0],
+        data,
+      };
+    },
     handleUpdateNotes: (state, action) => {
       state.vehicleMaster[0] = {
         ...state.vehicleMaster[0],
@@ -179,6 +186,7 @@ export const {
   changeTempLoadingTrue,
   changeTempLoadingFalse,
   handleIsOneOrMoreHeaderChecked,
+  handleChangesInBooking,
   handleUpdateNotes,
   handleUpdateUserStatus,
   handleUpdateFlags,

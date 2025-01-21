@@ -140,6 +140,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             "paymentMethod",
             "payInitFrom",
             "notes",
+            "extent",
           ].includes(item)
       );
     }

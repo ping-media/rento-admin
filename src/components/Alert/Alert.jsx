@@ -12,7 +12,7 @@ const Alert = ({ error, errorType = "error" }) => {
   }, []);
 
   return (
-    <div className="fixed right-2 z-10 top-10 w-72">
+    <div className="fixed right-2 z-50 top-10 w-72">
       <div
         className={`relative w-full flex flex-wrap items-center justify-center py-3 pl-4 pr-14 rounded-lg text-base font-medium [transition:all_0.5s_ease] text-gray-100 [&amp;_svg]:text-[#b22b2b] group ${
           errorType == "error" ? "bg-red-500" : "bg-green-500"

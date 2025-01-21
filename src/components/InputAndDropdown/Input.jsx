@@ -33,7 +33,7 @@ const Input = ({
         className="block text-gray-800 font-semibold text-sm capitalize text-left"
       >
         Enter{" "}
-        {item.includes("Proof")
+        {item?.includes("Proof")
           ? camelCaseToSpaceSeparated(item).replace("Proof", "")
           : camelCaseToSpaceSeparated(item)}{" "}
         {require && <span className="text-red-500">*</span>}

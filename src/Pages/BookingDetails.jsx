@@ -2,6 +2,7 @@ import Button from "../components/Buttons/Button";
 import BookingDetail from "../components/Booking/BookingDetail";
 import { useParams } from "react-router-dom";
 import {
+  toggleBookingExtendModal,
   toggleDeleteModal,
   togglePickupImageModal,
 } from "../Redux/SideBarSlice/SideBarSlice";
@@ -216,13 +217,18 @@ const BookingDetails = () => {
           {vehicleMaster[0]?.rideStatus === "completed" ? (
             <Button title={"Undo Finish"} fn={handleUndoEndBooking} />
           ) : (
-            <Button
-              title={"Finish Ride"}
-              fn={handleEndBooking}
-              // customClass={"bg-orange-500 bg-opacity-90 hover:bg-orange-600"}
-              disable={vehicleMaster[0]?.bookingStatus === "canceled"}
-              loading={vehicleLoading}
-            />
+            vehicleMaster[0]?.rideStatus !== "pending" && (
+              <Button
+                title={"Finish Ride"}
+                fn={handleEndBooking}
+                // customClass={"bg-orange-500 bg-opacity-90 hover:bg-orange-600"}
+                disable={
+                  vehicleMaster[0]?.rideStatus === "pending" ||
+                  vehicleMaster[0]?.bookingStatus === "canceled"
+                }
+                loading={vehicleLoading}
+              />
+            )
           )}
           {/* for cancel the ride  */}
           {vehicleMaster[0]?.rideStatus === "canceled" ? (
@@ -250,6 +256,14 @@ const BookingDetails = () => {
               vehicleMaster[0]?.bookingStatus === "canceled" ||
               vehicleMaster[0]?.rideStatus === "completed"
             }
+          />
+          {/* for sending reminder  */}
+          <Button
+            customClass={
+              "border-2 border-theme text-theme hover:text-gray-100 hover:border-theme-dark"
+            }
+            title={"Extend Booking"}
+            fn={() => dispatch(toggleBookingExtendModal())}
           />
           {/* for invoice generate  */}
           <GenerateInvoiceButton

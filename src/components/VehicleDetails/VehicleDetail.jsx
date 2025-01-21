@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import VehicleInfo from "./VehicleInfo";
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchVehicleMasterById } from "../../Data/Function";
 import PreLoader from "../Skeleton/PreLoader";
@@ -8,6 +8,11 @@ import { NotFound } from "../../Pages";
 import { getData } from "../../Data";
 import { endPointBasedOnKey } from "../../Data/commonData";
 import { camelCaseToSpaceSeparated } from "../../utils/index";
+import { tableIcons } from "../../Data/Icons";
+import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
+const AddVehicleForServiceModal = lazy(() =>
+  import("../../components/Modal/AddVehicleForServiceModal")
+);
 
 const VehicleDetail = () => {
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
@@ -51,30 +56,27 @@ const VehicleDetail = () => {
     !loading && collectedData != null ? (
       vehicleMaster?.length == 1 ? (
         <>
+          <AddVehicleForServiceModal />
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-2xl uppercase font-bold text-theme">
               Vehicle Details
             </h1>
-            <Link
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
-              to={`/all-vehicles/${id}`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="stroke-white"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <div className="flex items-center gap-2">
+              <button
+                className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
+                type="button"
+                onClick={() => dispatch(toggleVehicleServiceModal())}
               >
-                <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
-                <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
-              </svg>
-              <span>Edit</span>
-            </Link>
+                Shedule Maintenance
+              </button>
+              <Link
+                className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
+                to={`/all-vehicles/${id}`}
+              >
+                {tableIcons["common-edit"]}
+                <span>Edit</span>
+              </Link>
+            </div>
           </div>
           <div className="mt-5">
             <div className="flex gap-4 flex-wrap">

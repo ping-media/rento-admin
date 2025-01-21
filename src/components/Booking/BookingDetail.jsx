@@ -1,6 +1,6 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import VehicleInfo from "../VehicleDetails/VehicleInfo";
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
   formatDateTimeISTForUser,
@@ -12,10 +12,19 @@ import BookingStatusFlag from "./BookingStatusFlag";
 import BookingMoreInfo from "./BookingMoreInfo";
 import CopyButton from "../../components/Buttons/CopyButton";
 import BookingNote from "./BookingNote";
+import { toggleChangeVehicleModal } from "../../Redux/SideBarSlice/SideBarSlice";
+import BookingTimeLine from "./BookingTimeLine";
+const ChangeVehicleModal = lazy(() =>
+  import("../../components/Modal/ChangeVehicleModal")
+);
+const ExtendBookingModal = lazy(() =>
+  import("../../components/Modal/ExtendBookingModal")
+);
 
 const BookingDetail = () => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [data, setData] = useState(null);
+  const dispatch = useDispatch();
 
   // combining data for use
   useEffect(() => {
@@ -113,6 +122,8 @@ const BookingDetail = () => {
 
   return data != null ? (
     <>
+      <ChangeVehicleModal bookingData={vehicleMaster && vehicleMaster[0]} />
+      <ExtendBookingModal />
       <div className="flex gap-4 flex-wrap">
         <div className="bg-white shadow-md rounded-xl flex-1 px-6 py-4">
           {vehicleMaster[0]?.notes && (
@@ -139,7 +150,10 @@ const BookingDetail = () => {
             />
           </div>
           <div className="border-2 p-2 border-gray-300 rounded-lg mb-4">
-            <BookingUserDetails data={data} />
+            <BookingUserDetails
+              data={data}
+              userId={vehicleMaster[0]?.userId?._id}
+            />
           </div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
@@ -167,16 +181,35 @@ const BookingDetail = () => {
           <div className="border-2 p-2 border-gray-300 rounded-lg">
             <BookingMoreInfo data={data} datatype={"moreInfo"} />
           </div>
+          <div>
+            <h2 className="text-md lg:text-lg font-semibold text-gray-500 mt-5">
+              Booking Timeline
+            </h2>
+            <BookingTimeLine />
+          </div>
         </div>
         <div className="flex-1 px-6 py-4 bg-white shadow-md rounded-lg">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="font-bold uppercase text-md lg:text-lg">
+              <h2 className="font-bold uppercase text-md lg:text-lg flex items-center gap-2">
                 {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
+                <button
+                  className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"
+                  type="button"
+                  onClick={() => dispatch(toggleChangeVehicleModal())}
+                >
+                  Change Vehicle
+                </button>
               </h2>
               <small className="text-sm text-gray-400">
                 Vehicle Number: ({vehicleMaster[0]?.vehicleBasic?.vehicleNumber}
-                )
+                ){" "}
+                {vehicleMaster[0]?.vehicleBasic?.isChanged &&
+                  vehicleMaster[0]?.vehicleBasic?.isChanged === true && (
+                    <span className="mx-1 bg-green-400 p-1 rounded-md">
+                      Vehicle Changed
+                    </span>
+                  )}
               </small>
             </div>
             <div>

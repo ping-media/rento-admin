@@ -10,6 +10,8 @@ const initialState = {
   isVehicleBulkModalActive: false,
   isVehicleForServiceActive: false,
   isKycModalActive: false,
+  isChangeVehicleModalActive: false,
+  isBookingExtendModalActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -49,6 +51,14 @@ const SideBarSlice = createSlice({
     toogleKycModalActive: (state) => {
       state.isKycModalActive = state.isKycModalActive === false ? true : false;
     },
+    toggleChangeVehicleModal: (state) => {
+      state.isChangeVehicleModalActive =
+        state.isChangeVehicleModalActive === false ? true : false;
+    },
+    toggleBookingExtendModal: (state) => {
+      state.isBookingExtendModalActive =
+        state.isBookingExtendModalActive === false ? true : false;
+    },
     toggleClearModals: () => initialState,
   },
 });
@@ -64,6 +74,8 @@ export const {
   toogleBulkVehicleEditModal,
   toggleVehicleServiceModal,
   toogleKycModalActive,
+  toggleChangeVehicleModal,
+  toggleBookingExtendModal,
 } = SideBarSlice.actions;
 
 export default SideBarSlice.reducer;
