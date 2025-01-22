@@ -1,45 +1,121 @@
 import axios from "axios";
 
-const getData = async (url, token) => {
+// const getData = async (url, token) => {
+//   const headers = {
+//     "Content-Type": "application/json",
+//     Accept: "application/json",
+//   };
+//   if (token) {
+//     headers["Authorization"] = `Bearer ${token}`;
+//     headers["token"] = `${token}`;
+//   }
+
+//   const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
+//     headers,
+//   });
+
+//   if (response.status == 200) {
+//     return response?.data;
+//   } else {
+//     return response?.message;
+//   }
+// };
+
+const getData = async (url, token, retries = 3, delay = 500) => {
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
     headers["token"] = `${token}`;
   }
 
-  const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
-    headers,
-  });
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASED_URL}${url}`,
+        {
+          headers,
+        }
+      );
 
-  if (response.status == 200) {
-    return response?.data;
-  } else {
-    return response?.message;
+      if (response.status === 200) {
+        return response?.data;
+      } else {
+        throw new Error(response?.message || "Unexpected response");
+      }
+    } catch (error) {
+      if (attempt < retries) {
+        console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      } else {
+        console.error("All retry attempts failed.");
+        throw error;
+      }
+    }
   }
 };
 
-const getFullData = async (url, token) => {
+// const getFullData = async (url, token) => {
+//   const headers = {
+//     "Content-Type": "application/json",
+//     Accept: "application/json",
+//   };
+//   if (token) {
+//     headers["Authorization"] = `Bearer ${token}`;
+//     headers["token"] = `${token}`;
+//   } else {
+//     return "Error fetching Data. Try Again!";
+//   }
+//   const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
+//     headers,
+//   });
+
+//   if (response.status == 200) {
+//     return response;
+//   } else {
+//     return response?.message;
+//   }
+// };
+
+const getFullData = async (url, token, retries = 3, delay = 500) => {
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-    headers["token"] = `${token}`;
-  } else {
-    return "Error fetching Data. Try Again!";
-  }
-  const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
-    headers,
-  });
 
-  if (response.status == 200) {
-    return response;
-  } else {
-    return response?.message;
+  if (!token) {
+    return "Error fetching Data. No token provided.";
+  }
+
+  headers["Authorization"] = `Bearer ${token}`;
+  headers["token"] = `${token}`;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASED_URL}${url}`,
+        {
+          headers,
+        }
+      );
+
+      if (response.status === 200) {
+        return response;
+      } else {
+        throw new Error(response?.message || "Unexpected response");
+      }
+    } catch (error) {
+      if (attempt < retries) {
+        console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      } else {
+        console.error("All retry attempts failed.");
+        return `Error fetching Data: ${error.message}`;
+      }
+    }
   }
 };
 

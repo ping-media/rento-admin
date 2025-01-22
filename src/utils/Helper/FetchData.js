@@ -13,6 +13,7 @@ function useFetch(url, dispatchFn) {
   useEffect(() => {
     if (!url) return;
 
+    let isMounted = true; // Prevent state updates after unmounting
     const fetchData = async () => {
       setHookLoading(true);
       setError(null);
@@ -23,17 +24,27 @@ function useFetch(url, dispatchFn) {
           return handleAsyncError(dispatch, response?.message);
         }
         const result = response?.data;
-        dispatchFn && dispatch(dispatchFn(result));
-        setData(result);
+        if (isMounted) {
+          dispatchFn && dispatch(dispatchFn(result));
+          setData(result);
+        }
       } catch (err) {
-        return handleAsyncError(dispatch, err?.message);
+        if (isMounted) {
+          handleAsyncError(dispatch, err?.message);
+        }
       } finally {
-        setHookLoading(false);
+        if (isMounted) {
+          setHookLoading(false);
+        }
       }
     };
 
     fetchData();
-  }, [url]);
+
+    return () => {
+      isMounted = false; // Cleanup
+    };
+  }, [url, token, dispatch, dispatchFn]);
 
   return { data, error, hookLoading };
 }

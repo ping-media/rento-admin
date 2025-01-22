@@ -64,7 +64,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
       startDate?.slice(0, 10),
       endDate?.slice(0, 10)
     );
-    console.log(startDate?.slice(0, 10), endDate?.slice(0, 10), daysLeft);
+    // console.log(startDate?.slice(0, 10), endDate?.slice(0, 10), daysLeft);
     const bookingPrice =
       Number(changeToNewVehicle?.perDayCost) * Number(daysLeft);
     const tax = calculateTax(bookingPrice, 18);
@@ -95,7 +95,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
         rentAmount: Number(changeToNewVehicle?.perDayCost),
         diffAmount: diffAmount <= 0 ? 0 : diffAmount,
       },
-      extent: {
+      changeVehicle: {
         vehicleMasterId: bookingData?.vehicleMasterId,
         vehicleTableId: bookingData?._id,
         bookingPrice: bookingData?.bookingPrice,
@@ -136,11 +136,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
         const timeLineData = {
           currentBooking_id: bookingData?._id,
           timeLine: {
-            vehicleChange: response?.data?.updatedAt,
+            "Vehicle Changed": new Date().toLocaleString(),
           },
         };
         // updating the redux state
         dispatch(handleChangesInBooking(selectedVehicle));
+        // pushing the data for upating the timeline
         postData("/createTimeline", timeLineData, token);
         handleAsyncError(dispatch, "vehicle Change Successfully", "success");
         return dispatch(toggleChangeVehicleModal());

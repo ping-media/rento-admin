@@ -3,13 +3,83 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleBookingExtendModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
 import { useState } from "react";
+import {
+  addDaysToDate,
+  calculatePriceForExtendBooking,
+  formatFullDateAndTime,
+} from "../../utils/index";
+import { postData } from "../../Data/index";
+import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import { handleUpdateExtendVehicle } from "../../Redux/VehicleSlice/VehicleSlice";
 
-const ExtendBookingModal = () => {
+const ExtendBookingModal = ({ bookingData }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
+  const { token } = useSelector((state) => state.user);
+  const [extensionDays, setExtensionDays] = useState(0);
+  const [newDate, setNewDate] = useState("");
+
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
 
-  const handleChangeVehicle = () => {};
+  // extend bookng function
+  const handleExtendBooking = async (event) => {
+    event.preventDefault();
+    if (!newDate) return;
+    const data = {
+      _id: bookingData?._id,
+      vehicleTableId: bookingData?.vehicleTableId,
+      BookingStartDateAndTime: bookingData?.BookingEndDateAndTime,
+      BookingEndDateAndTime: newDate,
+      bookingPrice: bookingData?.bookingPrice,
+      extendBooking: bookingData?.extendBooking,
+      oldBookings: {
+        BookingStartDateAndTime: bookingData?.BookingStartDateAndTime,
+        BookingEndDateAndTime: bookingData?.BookingEndDateAndTime,
+      },
+      extendAmount: calculatePriceForExtendBooking(
+        bookingData?.bookingPrice?.rentAmount,
+        extensionDays
+      ),
+    };
+    if (!data) return;
+    try {
+      setFormLoading(true);
+      const response = await postData(
+        `/extendBooking?BookingStartDateAndTime=${bookingData?.BookingEndDateAndTime}&BookingEndDateAndTime=${newDate}&stationId=${bookingData?.stationId}`,
+        data,
+        token
+      );
+      if (response?.status === 200) {
+        setExtensionDays(0);
+        setNewDate("");
+        dispatch(handleUpdateExtendVehicle(data));
+        // updating the timeline for booking
+        const timeLineData = {
+          currentBooking_id: bookingData?._id,
+          timeLine: {
+            "Booking Extended": new Date().toLocaleString(),
+          },
+        };
+        postData("/createTimeline", timeLineData, token);
+        dispatch(toggleBookingExtendModal());
+        return handleAsyncError(dispatch, response?.message, "success");
+      } else {
+        return handleAsyncError(dispatch, response?.message);
+      }
+    } catch (error) {
+      return handleAsyncError(dispatch, error?.message);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  // after closing the modal clear all the state to default
+  const handleCloseModal = () => {
+    setExtensionDays(0);
+    setNewDate("");
+    dispatch(toggleBookingExtendModal());
+  };
+
   return (
     <div
       className={`fixed ${
@@ -22,7 +92,7 @@ const ExtendBookingModal = () => {
             Extend Booking
           </h2>
           <button
-            onClick={() => dispatch(toggleBookingExtendModal())}
+            onClick={handleCloseModal}
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
             disabled={formLoading || false}
@@ -43,10 +113,36 @@ const ExtendBookingModal = () => {
         </div>
 
         <div className="p-6 pt-0 text-center">
-          <form onSubmit={handleChangeVehicle}>
+          <form onSubmit={handleExtendBooking}>
             <div className="mb-2">
-              <Input item={"extension day's"} type="number" />
+              <p className="text-gray-400 text-left">
+                <span className="font-semibold text-black mr-1">
+                  Current End Date:
+                </span>
+                {formatFullDateAndTime(bookingData?.BookingEndDateAndTime)}
+              </p>
             </div>
+            <div className="mb-2">
+              <Input
+                item={"extension day's"}
+                type="number"
+                setValueChange={setExtensionDays}
+                onChangeFun={addDaysToDate}
+                dateToBeAdd={bookingData?.BookingEndDateAndTime}
+                setDateChange={setNewDate}
+                isModalClose={isBookingExtendModalActive}
+              />
+            </div>
+            {newDate !== "" && (
+              <div className="mb-2">
+                <p className="text-gray-400 text-left">
+                  <span className="font-semibold text-black mr-1">
+                    New End Date:
+                  </span>
+                  {formatFullDateAndTime(newDate)}
+                </p>
+              </div>
+            )}
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"

@@ -161,7 +161,7 @@ const formatFullDateAndTime = (dateString) => {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true, // Use 12-hour format
-    timeZone: "UTC", // Ensure UTC time zone
+    timeZone: "IST", // Ensure IST time zone
   });
 
   return formatter.format(date);
@@ -414,6 +414,33 @@ const formatDateToISO = (date) => {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
 };
 
+const addDaysToDate = (dateString, days) => {
+  const date = new Date(dateString); // Parse the input date string
+  if (isNaN(date)) {
+    throw new Error(
+      "Invalid date format. Please use a valid ISO 8601 date string."
+    );
+  }
+
+  // Add the specified number of days to the date's timestamp
+  const updatedDate = new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+
+  // Return the updated date in UTC ISO 8601 format
+  return updatedDate.toISOString().replace(".000Z", "Z");
+};
+
+const calculatePriceForExtendBooking = (
+  perDayCost,
+  extensionDays,
+  extraAddonPrice = 0
+) => {
+  const bookingPrice = Number(perDayCost) * Number(extensionDays);
+  const tax = calculateTax(bookingPrice, 18);
+  const extendAmount =
+    Number(bookingPrice) + Number(tax) + Number(extraAddonPrice);
+  return extendAmount;
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -444,4 +471,6 @@ export {
   formatHourToTime,
   formatLocalTimeIntoISO,
   formatDateToISO,
+  addDaysToDate,
+  calculatePriceForExtendBooking,
 };

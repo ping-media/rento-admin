@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { camelCaseToSpaceSeparated } from "../../utils";
 
 const Input = ({
@@ -10,6 +10,10 @@ const Input = ({
   setValueChange,
   customClass = "w-full px-5 py-3",
   bodyWidth = "w-full",
+  onChangeFun,
+  dateToBeAdd,
+  setDateChange,
+  isModalClose,
 }) => {
   const [inputValue, setInputValue] = useState(value);
 
@@ -17,6 +21,12 @@ const Input = ({
   const handleChangeValue = (e) => {
     setInputValue(e.target.value);
     setValueChange && setValueChange(e.target.value);
+    // this is to change the date based on number of day's
+    const newDate =
+      onChangeFun &&
+      dateToBeAdd &&
+      onChangeFun(dateToBeAdd, Number(e.target.value));
+    setDateChange && setDateChange(newDate);
   };
 
   // Prevent increment and decrement via arrow keys
@@ -25,6 +35,13 @@ const Input = ({
       e.preventDefault();
     }
   };
+
+  // resetting the value
+  useEffect(() => {
+    if (isModalClose === false) {
+      setInputValue("");
+    }
+  }, [isModalClose]);
 
   return (
     <div className={`${bodyWidth}`}>

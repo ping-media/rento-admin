@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   is_open: true,
+  isFilterOpen: false,
   isModelActive: false,
   isRechargeModelActive: false,
   isVerifyUserModalActive: false,
@@ -10,6 +11,7 @@ const initialState = {
   isVehicleBulkModalActive: false,
   isVehicleForServiceActive: false,
   isKycModalActive: false,
+  isRideEndModalActive: false,
   isChangeVehicleModalActive: false,
   isBookingExtendModalActive: false,
 };
@@ -20,6 +22,9 @@ const SideBarSlice = createSlice({
   reducers: {
     toggleSideBar: (state) => {
       state.is_open = state.is_open === true ? false : true;
+    },
+    toggleFilterSideBar: (state) => {
+      state.isFilterOpen = state.isFilterOpen === true ? false : true;
     },
     toggleModal: (state) => {
       state.isModelActive = state.isModelActive === false ? true : false;
@@ -55,6 +60,10 @@ const SideBarSlice = createSlice({
       state.isChangeVehicleModalActive =
         state.isChangeVehicleModalActive === false ? true : false;
     },
+    toggleRideEndModal: (state) => {
+      state.isRideEndModalActive =
+        state.isRideEndModalActive === false ? true : false;
+    },
     toggleBookingExtendModal: (state) => {
       state.isBookingExtendModalActive =
         state.isBookingExtendModalActive === false ? true : false;
@@ -64,6 +73,7 @@ const SideBarSlice = createSlice({
 });
 
 export const {
+  toggleFilterSideBar,
   toggleSideBar,
   toggleModal,
   toggleRechargeModal,
@@ -76,6 +86,7 @@ export const {
   toogleKycModalActive,
   toggleChangeVehicleModal,
   toggleBookingExtendModal,
+  toggleRideEndModal,
 } = SideBarSlice.actions;
 
 export default SideBarSlice.reducer;

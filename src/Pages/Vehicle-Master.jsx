@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { lazy, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVehicleMasterWithPagination } from "../Data/Function";
 import { endPointBasedOnURL } from "../Data/commonData";
@@ -8,6 +8,7 @@ import {
   restvehicleMaster,
 } from "../Redux/VehicleSlice/VehicleSlice";
 import { handleRestSearchTerm } from "../Redux/PaginationSlice/PaginationSlice";
+const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
 
 const VehicleMaster = () => {
   const dispatch = useDispatch();
@@ -57,6 +58,9 @@ const VehicleMaster = () => {
 
   return (
     <>
+      {/* filters and sorting  */}
+      <FilterSideBar />
+      {/* table data  */}
       <CustomTableComponent
         Data={vehicleMaster?.data}
         pagination={vehicleMaster?.pagination}

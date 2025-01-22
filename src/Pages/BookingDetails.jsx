@@ -5,6 +5,7 @@ import {
   toggleBookingExtendModal,
   toggleDeleteModal,
   togglePickupImageModal,
+  toggleRideEndModal,
 } from "../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { lazy, useCallback, useEffect, useState } from "react";
@@ -20,6 +21,7 @@ const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
 );
+const RideEndModal = lazy(() => import("../components/Modal/RideEndModal"));
 
 const BookingDetails = () => {
   const { id } = useParams();
@@ -76,6 +78,14 @@ const BookingDetails = () => {
         };
         const isCanceled = await cancelBookingById(id, data, token);
         if (isCanceled === true) {
+          // updating the timeline for booking
+          const timeLineData = {
+            currentBooking_id: id,
+            timeLine: {
+              cancelBooking: new Date().toLocaleString(),
+            },
+          };
+          postData("/createTimeline", timeLineData, token);
           handleAsyncError(dispatch, "Ride cancelled successfully", "success");
           dispatch(handleUpdateFlags(data));
           return dispatch(toggleDeleteModal());
@@ -133,27 +143,6 @@ const BookingDetails = () => {
       setVehicleLoading(false);
     }
   };
-  // for completing the booking
-  const handleEndBooking = async () => {
-    setVehicleLoading(true);
-    try {
-      const data = {
-        rideOtp: "",
-        rideStatus: "completed",
-        _id: id,
-      };
-      const isCanceled = await cancelBookingById(id, data, token);
-      if (isCanceled === true) {
-        handleAsyncError(dispatch, "Ride completed successfully", "success");
-        return dispatch(handleUpdateFlags(data));
-      }
-      if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
-    } catch (error) {
-      return handleAsyncError(dispatch, error?.message);
-    } finally {
-      setVehicleLoading(false);
-    }
-  };
   // for undoing the completed booking
   const handleUndoEndBooking = async () => {
     setVehicleLoading(true);
@@ -191,6 +180,7 @@ const BookingDetails = () => {
         setValueChange={setNote}
       />
       <UploadPickupImageModal isBookingIdPresent={id ? true : false} />
+      <RideEndModal id={id} />
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">
         <h1 className="text-2xl uppercase font-bold text-theme">
@@ -220,7 +210,7 @@ const BookingDetails = () => {
             vehicleMaster[0]?.rideStatus !== "pending" && (
               <Button
                 title={"Finish Ride"}
-                fn={handleEndBooking}
+                fn={() => dispatch(toggleRideEndModal())}
                 // customClass={"bg-orange-500 bg-opacity-90 hover:bg-orange-600"}
                 disable={
                   vehicleMaster[0]?.rideStatus === "pending" ||

@@ -2,8 +2,11 @@ import { Link } from "react-router-dom";
 import { formatPathNameToTitle } from "../../utils/index";
 import { tableIcons } from "../../Data/Icons";
 import BulkActionButtons from "./BulkActionButtons";
+import { toggleFilterSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
+import { useDispatch } from "react-redux";
 
 const TablePageHeader = ({ setInputSearchQuery }) => {
+  const dispatch = useDispatch();
   // stopping to reload the page
   const handleControlSubmit = (e) => {
     e.preventDefault();
@@ -39,25 +42,34 @@ const TablePageHeader = ({ setInputSearchQuery }) => {
         <BulkActionButtons />
       </div>
       {!(location.pathname == "/users-documents") && (
-        <div className="w-full lg:w-[30%] bg-white rounded-md shadow-lg">
-          <form
-            onSubmit={handleControlSubmit}
-            className="flex items-center justify-center p-2"
-          >
-            <input
-              type="text"
-              placeholder="Search Here.."
-              name="searchQuery"
-              className="w-full rounded-md px-2 py-1 focus:outline-none focus:border-transparent"
-              onChange={(e) => setInputSearchQuery(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="bg-gray-800 text-white rounded-md px-4 py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
+        <div className="flex items-center gap-2">
+          <div className="w-full bg-white rounded-md shadow-lg">
+            <form
+              onSubmit={handleControlSubmit}
+              className="flex items-center justify-center p-2"
             >
-              {tableIcons.search}
-            </button>
-          </form>
+              <input
+                type="text"
+                placeholder="Search Here.."
+                name="searchQuery"
+                className="w-full rounded-md px-2 py-1 focus:outline-none focus:border-transparent"
+                onChange={(e) => setInputSearchQuery(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="bg-gray-800 text-white rounded-md px-4 py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
+              >
+                {tableIcons.search}
+              </button>
+            </form>
+          </div>
+          <button
+            className="border-2 border-gray-300 rounded-md shadow p-2"
+            title="filters"
+            onClick={() => dispatch(toggleFilterSideBar())}
+          >
+            {tableIcons?.filter}
+          </button>
         </div>
       )}
     </div>

@@ -53,8 +53,7 @@ const BookingDetail = () => {
           {
             key: "Document Status",
             value:
-              (vehicleMaster[0] &&
-                vehicleMaster[0]?.userId?.isDocumentVerified) ||
+              (vehicleMaster[0] && vehicleMaster[0]?.userId?.kycApproved) ||
               "no",
           },
         ],
@@ -123,7 +122,8 @@ const BookingDetail = () => {
   return data != null ? (
     <>
       <ChangeVehicleModal bookingData={vehicleMaster && vehicleMaster[0]} />
-      <ExtendBookingModal />
+      <ExtendBookingModal bookingData={vehicleMaster && vehicleMaster[0]} />
+
       <div className="flex gap-4 flex-wrap">
         <div className="bg-white shadow-md rounded-xl flex-1 px-6 py-4">
           {vehicleMaster[0]?.notes && (
@@ -185,7 +185,9 @@ const BookingDetail = () => {
             <h2 className="text-md lg:text-lg font-semibold text-gray-500 mt-5">
               Booking Timeline
             </h2>
-            <BookingTimeLine />
+            {vehicleMaster[0] && (
+              <BookingTimeLine bookingId={vehicleMaster[0]?.bookingId} />
+            )}
           </div>
         </div>
         <div className="flex-1 px-6 py-4 bg-white shadow-md rounded-lg">

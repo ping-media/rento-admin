@@ -140,7 +140,8 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             "paymentMethod",
             "payInitFrom",
             "notes",
-            "extent",
+            "extendBooking",
+            "changeVehicle",
           ].includes(item)
       );
     }

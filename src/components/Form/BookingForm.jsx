@@ -82,6 +82,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       if (paymentMethodStatus === "partiallyPay") {
         userPaid = (Number(formData?.stepTwoData?.totalPrice) * 20) / 100;
       }
+      // ride starting otp
+      const startRideOtp = Math.floor(1000 + Math.random() * 9000);
       // creating bookking data
       let data = {
         vehicleMasterId:
@@ -106,6 +108,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           rentAmount: formData?.stepTwoData?.rentAmount,
           isPackageApplied: false,
           userPaid: userPaid,
+          extendAmount: [],
         },
         vehicleBasic: {
           refundableDeposit:
@@ -116,6 +119,11 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           lateFee: formData?.stepOneData?.selectedVehicle?.lateFee,
           extraKmCharge:
             formData?.stepOneData?.selectedVehicle?.extraKmsCharges,
+          startRide: Number(startRideOtp),
+          endRide: 0,
+        },
+        extendBooking: {
+          oldBooking: [],
         },
         payInitFrom: "Razorpay",
         paySuccessId: "",
@@ -144,6 +152,17 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
 
       const response = await postData("/createBooking", data);
       if (response?.status == 200) {
+        // updating the timeline for booking
+        const timeLineData = {
+          userId: formData?.stepOneData?.userId,
+          bookingId: response?.data?.bookingId,
+          currentBooking_id: response?.data?._id,
+          isStart: true,
+          timeLine: {
+            "Booking Created": new Date().toLocaleString(),
+          },
+        };
+        postData("/createTimeline", timeLineData, token);
         navigate("/all-bookings");
         handleAsyncError(dispatch, response?.message, "success");
       } else {

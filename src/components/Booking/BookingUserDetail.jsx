@@ -21,6 +21,7 @@ const BookingUserDetails = ({ data, userId }) => {
   const { token } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
   const [userDocument, setUserDocument] = useState([]);
+  const [isDocumentCheck, setIsDocumentCheck] = useState(false);
   const dispatch = useDispatch();
 
   // fetchDocument data
@@ -29,6 +30,7 @@ const BookingUserDetails = ({ data, userId }) => {
       setLoading(true);
       const response = await getData(`/getDocument?userId=${userId}`, token);
       if (response?.status !== 200) {
+        setIsDocumentCheck(true);
         return handleAsyncError(dispatch, response?.message);
       }
       return setUserDocument(response?.data);
@@ -76,28 +78,31 @@ const BookingUserDetails = ({ data, userId }) => {
           </span>
         </div>
       ))}
-      <div className="flex items-center gap-2">
-        {(userDocument && userDocument[0]?.files?.length > 0) ||
-        (userDocument && userDocument?.files) ? (
-          userDocument[0]?.files?.map((item) => (
-            <div className="border-2 rounded-md p-1 h-full" key={item?._id}>
-              <LightGallery
-                plugins={[lgThumbnail, lgZoom]}
-                speed={500} // Animation speed
-              >
-                <Link to={item.imageUrl} className="flex items-center gap-1">
-                  {tableIcons?.image}
-                  {item?.fileName.split("_")[3]}
-                </Link>
-              </LightGallery>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-400 italic text-sm mt-1">
-            No Documents Found.
-          </p>
-        )}
-      </div>
+      {/* user documents  */}
+      {isDocumentCheck && (
+        <div className="flex items-center gap-2">
+          {(userDocument && userDocument[0]?.files?.length > 0) ||
+          (userDocument && userDocument?.files) ? (
+            userDocument[0]?.files?.map((item) => (
+              <div className="border-2 rounded-md p-1 h-full" key={item?._id}>
+                <LightGallery
+                  plugins={[lgThumbnail, lgZoom]}
+                  speed={500} // Animation speed
+                >
+                  <Link to={item.imageUrl} className="flex items-center gap-1">
+                    {tableIcons?.image}
+                    {item?.fileName.split("_")[3]}
+                  </Link>
+                </LightGallery>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-400 italic text-sm mt-1">
+              No Documents Found.
+            </p>
+          )}
+        </div>
+      )}
     </>
   );
 };

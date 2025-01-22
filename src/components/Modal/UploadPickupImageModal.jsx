@@ -3,7 +3,7 @@ import { togglePickupImageModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useState } from "react";
 import MultipleImageAndPreview from "../ImageComponent/MultipleImageAndPreview";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { postMultipleData } from "../../Data";
+import { postData, postMultipleData } from "../../Data";
 import Spinner from "../Spinner/Spinner";
 import {
   handleInvoiceCreated,
@@ -91,6 +91,14 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
         setImageUrl([]);
         dispatch(togglePickupImageModal());
         dispatch(handleInvoiceCreated(updatedBooking));
+        // updating the timeline for booking
+        const timeLineData = {
+          currentBooking_id: vehicleMaster && vehicleMaster[0]?._id,
+          timeLine: {
+            "Ride Started": new Date().toLocaleString(),
+          },
+        };
+        postData("/createTimeline", timeLineData, token);
         handleAsyncError(dispatch, responseImage?.message, "success");
       } else {
         handleAsyncError(dispatch, responseImage?.message);

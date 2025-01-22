@@ -49,6 +49,32 @@ const vehicleSlice = createSlice({
         data[flag] = newStatus;
       }
     },
+    handleUpdateExtendVehicle: (state, action) => {
+      const {
+        BookingStartDateAndTime,
+        BookingEndDateAndTime,
+        oldBookings,
+        extendAmount,
+      } = action.payload;
+      state.vehicleMaster[0] = {
+        ...state.vehicleMaster[0],
+        BookingStartDateAndTime,
+        BookingEndDateAndTime,
+        bookingPrice: {
+          ...state.vehicleMaster[0]?.bookingPrice,
+          extendAmount: [
+            ...state.vehicleMaster[0]?.bookingPrice?.extendAmount,
+            extendAmount,
+          ],
+        },
+        extendBooking: {
+          oldBookings: [
+            ...state.vehicleMaster[0]?.extendBooking?.oldBookings,
+            oldBookings,
+          ],
+        },
+      };
+    },
     handleUpdateImageData: (state, action) => {
       const { id } = action.payload;
       state.vehicleMaster[0] = {
@@ -190,5 +216,6 @@ export const {
   handleUpdateNotes,
   handleUpdateUserStatus,
   handleUpdateFlags,
+  handleUpdateExtendVehicle,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

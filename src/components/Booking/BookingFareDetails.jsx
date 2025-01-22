@@ -32,7 +32,8 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "isInvoiceCreated" &&
                   key !== "isPickupImageAdded" &&
                   key !== "isDiscountZero" &&
-                  key !== "diffAmount" &&
+                  key !== "isChanged" &&
+                  key !== "extendAmount" &&
                   !(key === "extraAddonPrice" && value === 0)
               ) // Exclude totalPrice
               .map(([key, value]) => (
@@ -221,16 +222,36 @@ const BookingFareDetails = ({ rides }) => {
                   Difference Amount
                   <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
                     (
-                    {rides?.extent?.bookingPrice?.discountTotalPrice > 0
-                      ? `₹${rides?.extent?.bookingPrice?.discountTotalPrice} -
+                    {rides?.changeVehicle?.bookingPrice?.discountTotalPrice > 0
+                      ? `₹${rides?.changeVehicle?.bookingPrice?.discountTotalPrice} -
                         ₹${rides?.bookingPrice?.discountTotalPrice}`
-                      : `₹${rides?.extent?.bookingPrice?.totalPrice} -
+                      : `₹${rides?.changeVehicle?.bookingPrice?.totalPrice} -
                         ₹${rides?.bookingPrice?.totalPrice}`}
                     )
                   </small>
                 </p>
                 <p className="text-sm font-bold text-right">
                   {`₹${formatPrice(Number(rides?.bookingPrice?.diffAmount))}`}
+                </p>
+              </li>
+            )}
+            {/* extend amount  */}
+            {rides?.bookingPrice?.extendAmount?.length > 0 && (
+              <li className="flex items-center justify-between pt-1 mt-1 border-t-2">
+                <p className="text-sm font-semibold uppercase text-left">
+                  Extend Amount
+                  <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
+                    (New Price For Extend booking )
+                  </small>
+                </p>
+                <p className="text-sm font-bold text-right text-theme">
+                  {`₹${formatPrice(
+                    Number(
+                      rides?.bookingPrice?.extendAmount[
+                        rides?.bookingPrice?.extendAmount?.length - 1
+                      ]
+                    )
+                  )}`}
                 </p>
               </li>
             )}
