@@ -92,7 +92,7 @@ const CreateNewAndUpdateForm = () => {
         {(location.pathname.includes("/all-users/") ||
           location.pathname.includes("/all-managers/")) && (
           <button
-            className="bg-theme text-gray-100 px-3 py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+            className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
             onClick={() => dispatch(toogleKycModalActive())}
             disabled={
               (vehicleMaster &&

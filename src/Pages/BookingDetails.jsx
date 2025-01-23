@@ -189,20 +189,21 @@ const BookingDetails = () => {
         {/* actions for cancel & start ride  */}
         <div className="flex flex-wrap gap-2">
           {/* for starting & completing ride  */}
-          {vehicleMaster[0]?.rideStatus !== "ongoing" && (
-            <Button
-              title={
-                vehicleMaster[0]?.rideStatus === "completed"
-                  ? "Ride Finished"
-                  : "Start Ride"
-              }
-              fn={handleStartRideAndAddImages}
-              disable={
-                vehicleMaster[0]?.bookingStatus === "canceled" ||
-                vehicleMaster[0]?.rideStatus === "completed"
-              }
-            />
-          )}
+          {vehicleMaster[0]?.rideStatus !== "ongoing" &&
+            vehicleMaster[0]?.rideStatus !== "completed" && (
+              <Button
+                title={
+                  vehicleMaster[0]?.rideStatus === "completed"
+                    ? "Ride Finished"
+                    : "Start Ride"
+                }
+                fn={handleStartRideAndAddImages}
+                disable={
+                  vehicleMaster[0]?.bookingStatus === "canceled" ||
+                  vehicleMaster[0]?.rideStatus === "completed"
+                }
+              />
+            )}
           {/* for completing ride  */}
           {vehicleMaster[0]?.rideStatus === "completed" ? (
             <Button title={"Undo Finish"} fn={handleUndoEndBooking} />
@@ -228,15 +229,17 @@ const BookingDetails = () => {
               disable={vehicleMaster}
             />
           ) : (
-            <Button
-              title={"Cancel Booking"}
-              fn={handleCancelBooking}
-              disable={
-                vehicleMaster[0]?.bookingStatus === "canceled" ||
-                vehicleMaster[0]?.rideStatus === "ongoing" ||
-                vehicleMaster[0]?.rideStatus === "completed"
-              }
-            />
+            vehicleMaster[0]?.rideStatus !== "completed" && (
+              <Button
+                title={"Cancel Booking"}
+                fn={handleCancelBooking}
+                disable={
+                  vehicleMaster[0]?.bookingStatus === "canceled" ||
+                  vehicleMaster[0]?.rideStatus === "ongoing" ||
+                  vehicleMaster[0]?.rideStatus === "completed"
+                }
+              />
+            )
           )}
           {/* for sending reminder  */}
           <Button

@@ -125,7 +125,7 @@ const BookingDetail = () => {
       <ExtendBookingModal bookingData={vehicleMaster && vehicleMaster[0]} />
 
       <div className="flex gap-4 flex-wrap">
-        <div className="bg-white shadow-md rounded-xl flex-1 px-6 py-4">
+        <div className="bg-white shadow-md rounded-xl flex-1 px-3 lg:px-6 py-4">
           {vehicleMaster[0]?.notes && (
             <p className="text-sm text-end italic text-gray-400 mb-1">
               {/* here we will show only notes with noteType cancel  */}
@@ -191,9 +191,9 @@ const BookingDetail = () => {
           </div>
         </div>
         <div className="flex-1 px-6 py-4 bg-white shadow-md rounded-lg">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex lg:items-center justify-between mb-5">
             <div>
-              <h2 className="font-bold uppercase text-md lg:text-lg flex items-center gap-2">
+              <h2 className="font-bold uppercase text-md lg:text-lg flex flex-wrap items-center gap-2">
                 {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
                 <button
                   className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"

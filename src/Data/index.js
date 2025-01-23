@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 // const getData = async (url, token) => {
 //   const headers = {
@@ -21,7 +22,7 @@ import axios from "axios";
 //   }
 // };
 
-const getData = async (url, token, retries = 3, delay = 500) => {
+const getData = async (url, token, retries = 5, delay = 500) => {
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -48,10 +49,12 @@ const getData = async (url, token, retries = 3, delay = 500) => {
       }
     } catch (error) {
       if (attempt < retries) {
-        console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+        // console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
         console.error("All retry attempts failed.");
+        const navigate = useNavigate(); // React Router navigation
+        navigate("*");
         throw error;
       }
     }
@@ -80,7 +83,7 @@ const getData = async (url, token, retries = 3, delay = 500) => {
 //   }
 // };
 
-const getFullData = async (url, token, retries = 3, delay = 500) => {
+const getFullData = async (url, token, retries = 5, delay = 500) => {
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -109,10 +112,12 @@ const getFullData = async (url, token, retries = 3, delay = 500) => {
       }
     } catch (error) {
       if (attempt < retries) {
-        console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+        // console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
         console.error("All retry attempts failed.");
+        const navigate = useNavigate(); // React Router navigation
+        navigate("*");
         return `Error fetching Data: ${error.message}`;
       }
     }

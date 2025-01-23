@@ -16,9 +16,6 @@ import CheckBoxInput from "../InputAndDropdown/CheckBoxInput.jsx";
 import StatusChange from "./StatusChange.jsx";
 import TableNotFound from "../Skeleton/TableNotFound.jsx";
 import TableHeader from "./TableHeader.jsx";
-const UploadPickupImageModal = lazy(() =>
-  import("../../components/Modal/UploadPickupImageModal")
-);
 import { useDebounce } from "../../utils/Helper/debounce.js";
 import { handleChangeSearchTerm } from "../../Redux/PaginationSlice/PaginationSlice.js";
 import TableDataLoading from "../../components/Skeleton/TableDataLoading.jsx";
@@ -219,6 +216,15 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     dispatch(toggleDeleteModal());
   };
 
+  const handleViewData = (id) => {
+    navigate(
+      location.pathname === "/all-bookings" ||
+        location.pathname === "/all-vehicles"
+        ? `details/${id}`
+        : "#"
+    );
+  };
+
   return (
     <>
       <div
@@ -228,8 +234,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             : "justify-end"
         } mt-5 gap-4`}
       >
-        {/* show this modal on specific page  */}
-        {location.pathname == "/all-bookings" && <UploadPickupImageModal />}
         <TablePageHeader setInputSearchQuery={setInputSearchQuery} />
       </div>
 
@@ -256,17 +260,14 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                           <tr
                             className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh]"
                             key={item?._id}
-                            // onClick={() =>
-                            //   navigate(
-                            //     location.pathname === "/all-bookings"
-                            //       ? `details/${item?._id}`
-                            //       : "#"
-                            //   )
-                            // }
+                            onClick={() => handleViewData(item?._id)}
                           >
                             {location.pathname == "/all-vehicles" && (
                               <td className="p-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                                <CheckBoxInput isId={item?._id} />
+                                <CheckBoxInput
+                                  isId={item?._id}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
                               </td>
                             )}
                             {/* dynamically rendering */}
@@ -330,7 +331,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 if (column === "openStartTime") {
                                   return (
                                     <td
-                                      className="p-3 max-w-24 whitespace-nowrap text-sm font-medium text-gray-900"
+                                      className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
                                       key={columnIndex}
                                     >
                                       <p className="">

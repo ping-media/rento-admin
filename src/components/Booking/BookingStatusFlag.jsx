@@ -18,6 +18,7 @@ const BookingStatusFlag = ({ title, rides, flag }) => {
             (rides[flag] === "active" && "bg-green-500 bg-opacity-80") ||
             (rides[flag] === "done" && "bg-green-500 bg-opacity-80") ||
             (rides[flag] === "completed" && "bg-green-500 bg-opacity-80") ||
+            (rides[flag] === "extended" && "bg-green-500 bg-opacity-80") ||
             (rides[flag] === "ongoing" && "bg-orange-600 bg-opacity-80")
           } text-gray-100 px-4 py-1 rounded-full cursor-pointer capitalize ml-2`}
         >

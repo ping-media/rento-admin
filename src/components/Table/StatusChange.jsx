@@ -8,7 +8,8 @@ const StatusChange = ({ item, column }) => {
         item[column] === "paid" ||
         item[column] === "partially_paid" ||
         item[column] === "partiallyPay" ||
-        item[column] === "completed"
+        item[column] === "completed" ||
+        item[column] === "extended"
           ? "bg-emerald-50"
           : item[column] === "ongoing" || item[column] === "pending"
           ? "bg-orange-50"
@@ -37,7 +38,8 @@ const StatusChange = ({ item, column }) => {
             item[column] === "paid" ||
             item[column] === "partially_paid" ||
             item[column] === "partiallyPay" ||
-            item[column] === "completed"
+            item[column] === "completed" ||
+            item[column] === "extended"
               ? "#059669"
               : item[column] == "ongoing" || item[column] === "pending"
               ? "#FFA500"
@@ -57,7 +59,8 @@ const StatusChange = ({ item, column }) => {
           item[column] === "paid" ||
           item[column] === "partially_paid" ||
           item[column] === "partiallyPay" ||
-          item[column] === "completed"
+          item[column] === "completed" ||
+          item[column] === "extended"
             ? "text-emerald-600"
             : item[column] === "ongoing" || item[column] === "pending"
             ? "text-orange-600"

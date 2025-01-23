@@ -11,6 +11,7 @@ const Input = ({
   customClass = "w-full px-5 py-3",
   bodyWidth = "w-full",
   onChangeFun,
+  onChangeFilterFun,
   dateToBeAdd,
   setDateChange,
   isModalClose,
@@ -27,6 +28,10 @@ const Input = ({
       dateToBeAdd &&
       onChangeFun(dateToBeAdd, Number(e.target.value));
     setDateChange && setDateChange(newDate);
+    // this is to change the date based on filters
+    if (onChangeFilterFun) {
+      onChangeFilterFun(e.target.value);
+    }
   };
 
   // Prevent increment and decrement via arrow keys

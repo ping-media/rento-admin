@@ -9,6 +9,7 @@ import PreLoader from "../Skeleton/PreLoader";
 import { useParams } from "react-router-dom";
 import InputSearch from "../InputAndDropdown/InputSearch";
 import { formatHourToTime } from "../../utils/index";
+import GoogleSearchLocation from "../../components/InputAndDropdown/GoogleSearchLocation";
 
 const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -100,6 +101,9 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <Input item={"address"} value={id && vehicleMaster[0]?.address} />
           </div>
+          {/* <div className="w-full lg:w-[48%]">
+            <GoogleSearchLocation />
+          </div> */}
           <div className="w-full lg:w-[48%]">
             <Input item={"city"} value={id && vehicleMaster[0]?.city} />
           </div>
@@ -158,7 +162,13 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
           type="submit"
           disabled={loading}
         >
-          {loading ? <Spinner message={"uploading"} /> : "Publish"}
+          {loading ? (
+            <Spinner message={"uploading"} />
+          ) : id ? (
+            "Update"
+          ) : (
+            "Add New"
+          )}
         </button>
       </div>
     </form>

@@ -63,13 +63,18 @@ const TablePageHeader = ({ setInputSearchQuery }) => {
               </button>
             </form>
           </div>
-          <button
-            className="border-2 border-gray-300 rounded-md shadow p-2"
-            title="filters"
-            onClick={() => dispatch(toggleFilterSideBar())}
-          >
-            {tableIcons?.filter}
-          </button>
+          {/* filters  */}
+          {(location.pathname === "/all-users" ||
+            location.pathname === "/all-managers" ||
+            location.pathname === "/all-bookings") && (
+            <button
+              className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2.5 flex items-center transition-all duration-200 ease-in"
+              title="filters"
+              onClick={() => dispatch(toggleFilterSideBar())}
+            >
+              {tableIcons?.filter} <span className="ml-1">Filters</span>
+            </button>
+          )}
         </div>
       )}
     </div>

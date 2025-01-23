@@ -12,7 +12,7 @@ const SideBar = () => {
   const dispatch = useDispatch();
   const isMobile = useIsMobile();
   const { is_open } = useSelector((state) => state.sideBar);
-  const { theme } = useSelector((state) => state.theme);
+  // const { theme } = useSelector((state) => state.theme);
   // const [imageLoading, setImageLoading] = useState(true);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ const SideBar = () => {
         </div>
       </div>
       <div
-        className="px-3.5 py-3 overflow-y-scroll no-scrollbar"
+        className="px-3.5 py-3 overflow-y-scroll no-scrollbar w-full"
         style={{ height: "calc(100vh - 88px)" }}
       >
         <ul className="leading-9">

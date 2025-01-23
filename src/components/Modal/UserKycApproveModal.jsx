@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
 import { toogleKycModalActive } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
-import { postData } from "../../Data/index";
+import { getData, postData } from "../../Data/index";
 import { useParams } from "react-router-dom";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Spinner from "../../components/Spinner/Spinner";
 import { handleUpdateUserStatus } from "../../Redux/VehicleSlice/VehicleSlice";
 
@@ -13,6 +13,8 @@ const UserKycApproveModal = () => {
   const { isKycModalActive } = useSelector((state) => state.sideBar);
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
+  const [userDocument, setUserDocument] = useState([]);
+  const [userDocumentLoading, setUserDocumentLoading] = useState([]);
   const [loading, setLoading] = useState(false);
 
   //   approval of kyc
@@ -39,13 +41,36 @@ const UserKycApproveModal = () => {
     }
   };
 
+  // fetchDocument data
+  const handleFetchDocuments = async () => {
+    try {
+      setUserDocumentLoading(true);
+      const response = await getData(`/getDocument?userId=${id}`, token);
+      if (response?.status !== 200) {
+        return handleAsyncError(dispatch, response?.message);
+      }
+      return setUserDocument(response?.data);
+    } catch (error) {
+      return handleAsyncError(dispatch, error?.message);
+    } finally {
+      setUserDocumentLoading(false);
+    }
+  };
+
+  // fetching user documents
+  useEffect(() => {
+    if (id) {
+      handleFetchDocuments();
+    }
+  }, [id]);
+
   return (
     <div
       className={`fixed ${
         !isKycModalActive ? "hidden" : ""
       } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-40 mx-auto shadow-xl rounded-md bg-white max-w-md">
+      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white w-full">
         <div className="flex justify-between p-2">
           <h2 className="text-theme text-lg uppercase font-semibold">
             Kyc Verify
@@ -72,6 +97,30 @@ const UserKycApproveModal = () => {
         </div>
 
         <div className="p-6 pt-0 text-center">
+          {/* user documents  */}
+          <div className="mb-3">
+            {(userDocument && userDocument[0]?.files?.length > 0) ||
+            (userDocument && userDocument?.files) ? (
+              userDocument[0]?.files?.map((item, index) => {
+                if (index % 2 !== 0) {
+                  return null;
+                }
+                return (
+                  <div className="w-full h-48 mb-3" key={item?._id}>
+                    <img
+                      src={item.imageUrl}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-gray-400 italic text-sm mt-1">
+                No Images Found.
+              </p>
+            )}
+          </div>
+          {/* continue form  */}
           <form onSubmit={handleSubmitAndChangeKYCStatus}>
             <div className="mb-2">
               <Input item={"aadharNumber"} require={true} />

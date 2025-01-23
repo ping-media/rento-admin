@@ -5,6 +5,7 @@ import Input from "../../components/InputAndDropdown/Input";
 import { useState } from "react";
 import {
   addDaysToDate,
+  addOneMinute,
   calculatePriceForExtendBooking,
   formatFullDateAndTime,
 } from "../../utils/index";
@@ -28,7 +29,7 @@ const ExtendBookingModal = ({ bookingData }) => {
     const data = {
       _id: bookingData?._id,
       vehicleTableId: bookingData?.vehicleTableId,
-      BookingStartDateAndTime: bookingData?.BookingEndDateAndTime,
+      BookingStartDateAndTime: addOneMinute(bookingData?.BookingEndDateAndTime),
       BookingEndDateAndTime: newDate,
       bookingPrice: bookingData?.bookingPrice,
       extendBooking: bookingData?.extendBooking,
@@ -40,12 +41,17 @@ const ExtendBookingModal = ({ bookingData }) => {
         bookingData?.bookingPrice?.rentAmount,
         extensionDays
       ),
+      bookingStatus: "extended",
     };
     if (!data) return;
     try {
       setFormLoading(true);
       const response = await postData(
-        `/extendBooking?BookingStartDateAndTime=${bookingData?.BookingEndDateAndTime}&BookingEndDateAndTime=${newDate}&stationId=${bookingData?.stationId}`,
+        `/extendBooking?BookingStartDateAndTime=${addOneMinute(
+          bookingData?.BookingEndDateAndTime
+        )}&BookingEndDateAndTime=${newDate}&stationId=${
+          bookingData?.stationId
+        }`,
         data,
         token
       );
@@ -119,7 +125,9 @@ const ExtendBookingModal = ({ bookingData }) => {
                 <span className="font-semibold text-black mr-1">
                   Current End Date:
                 </span>
-                {formatFullDateAndTime(bookingData?.BookingEndDateAndTime)}
+                {formatFullDateAndTime(
+                  addOneMinute(bookingData?.BookingEndDateAndTime)
+                )}
               </p>
             </div>
             <div className="mb-2">
@@ -128,7 +136,7 @@ const ExtendBookingModal = ({ bookingData }) => {
                 type="number"
                 setValueChange={setExtensionDays}
                 onChangeFun={addDaysToDate}
-                dateToBeAdd={bookingData?.BookingEndDateAndTime}
+                dateToBeAdd={addOneMinute(bookingData?.BookingEndDateAndTime)}
                 setDateChange={setNewDate}
                 isModalClose={isBookingExtendModalActive}
               />

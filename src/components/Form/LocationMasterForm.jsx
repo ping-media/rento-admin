@@ -41,7 +41,13 @@ const LocationMasterForm = ({ handleFormSubmit, loading }) => {
           type="submit"
           disabled={loading}
         >
-          {loading ? <Spinner message={"uploading"} /> : "Publish"}
+          {loading ? (
+            <Spinner message={"uploading"} />
+          ) : id ? (
+            "Update"
+          ) : (
+            "Add New"
+          )}
         </button>
       </div>
     </form>

@@ -206,8 +206,10 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         >
           {formLoading || loading ? (
             <Spinner message={"uploading"} />
+          ) : id ? (
+            "Update"
           ) : (
-            "Publish"
+            "Add New"
           )}
         </button>
       )}

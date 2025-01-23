@@ -441,6 +441,54 @@ const calculatePriceForExtendBooking = (
   return extendAmount;
 };
 
+const addOneMinute = (dateTimeString) => {
+  // Parse the input date-time string into a Date object
+  const date = new Date(dateTimeString);
+
+  // Add 1 minute (60,000 milliseconds) to the date
+  date.setTime(date.getTime() + 60 * 1000);
+
+  // Return the updated date in ISO 8601 format with 'Z'
+  return date.toISOString();
+};
+
+function timelineFormatDate(input) {
+  // Parse the input date string into a Date object
+  const date = new Date(input);
+
+  // Array of month names for formatting
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Extract the required components
+  const day = date.getDate(); // Get the day of the month
+  const month = months[date.getMonth()]; // Get the month name
+  const year = date.getFullYear(); // Get the year
+
+  // Format the hours and minutes
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const amPm = hours >= 12 ? "PM" : "AM";
+
+  // Convert hours to 12-hour format
+  hours = hours % 12 || 12;
+
+  // Construct the final formatted string
+  return `${day}, ${month} ${year}, ${hours}:${minutes} ${amPm}`;
+}
+
 export {
   formatDate,
   useIsMobile,
@@ -473,4 +521,6 @@ export {
   formatDateToISO,
   addDaysToDate,
   calculatePriceForExtendBooking,
+  addOneMinute,
+  timelineFormatDate,
 };

@@ -17,6 +17,7 @@ const TableActions = ({
           <Link
             className="p-2 text-purple-500 hover:underline"
             to={`details/${item?._id}`}
+            onClick={(e) => e.stopPropagation()}
           >
             view
           </Link>
@@ -30,6 +31,7 @@ const TableActions = ({
           <Link
             className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
             to={`${item?._id}`}
+            onClick={(e) => e.stopPropagation()}
           >
             {tableIcons.edit}
           </Link>
