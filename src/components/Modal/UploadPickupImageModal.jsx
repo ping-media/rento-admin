@@ -10,6 +10,7 @@ import {
   removeTempVehicleData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import Input from "../InputAndDropdown/Input";
+import { Link } from "react-router-dom";
 
 const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
@@ -21,6 +22,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const [imagesUrl, setImageUrl] = useState([]);
   const [image, setImage] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isKycApproved, setIsKycApproved] = useState(false);
 
   //upload images
   const handleUploadPickupImages = async (event) => {
@@ -101,6 +103,9 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
         postData("/createTimeline", timeLineData, token);
         handleAsyncError(dispatch, responseImage?.message, "success");
       } else {
+        if (responseImage?.isKyc === false) {
+          setIsKycApproved(true);
+        }
         handleAsyncError(dispatch, responseImage?.message);
       }
     } catch (error) {
@@ -149,6 +154,16 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
 
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handleUploadPickupImages}>
+            {isKycApproved && (
+              <div className="mb-2">
+                <Link
+                  to={`/all-customers/${vehicleMaster[0]?.userId?._id}`}
+                  className="text-theme underline"
+                >
+                  Verify KYC
+                </Link>
+              </div>
+            )}
             <div>
               <MultipleImageAndPreview
                 image={image}

@@ -6,15 +6,15 @@ import {
   toggleSideBar,
 } from "../../Redux/SideBarSlice/SideBarSlice";
 import { Link } from "react-router-dom";
-// import { toggleTheme } from "../../Redux/ThemeSlice/ThemeSlice";
-import Search from "../SearchBar/Search";
+import { tableIcons } from "../../Data/Icons";
 
 const Header = () => {
   const [isVisible, setIsVisible] = useState(false);
   const dispatch = useDispatch();
   const adminRef = useRef(null);
-  const { currentUser } = useSelector((state) => state.user);
-  const { theme } = useSelector((state) => state.theme);
+  const { currentUser, loggedInRole, userStation } = useSelector(
+    (state) => state.user
+  );
 
   //for dropdown menu
   useEffect(() => {
@@ -73,6 +73,11 @@ const Header = () => {
         </div>
         {/* user menu */}
         <div className="flex gap-2 items-center">
+          {loggedInRole && loggedInRole === "manager" && (
+            <div className="relative hover:shadow-none shadow-md rounded-xl cursor-pointer flex items-center gap-2 px-4 py-2.5 lg:py-4 dark:bg-gray-700">
+              {tableIcons?.map} {userStation?.stationName}
+            </div>
+          )}
           <button
             className="relative hover:shadow-none shadow-md rounded-xl cursor-pointer flex items-center gap-2 px-4 py-1 dark:bg-gray-700"
             ref={adminRef}
@@ -118,42 +123,6 @@ const Header = () => {
               </div>
             )}
           </button>
-          {/* theme button  */}
-          {/* <button
-            className="rounded-xl items-center gap-2 bg-white p-1.5 md:p-3 lg:p-4 shadow-md hover:shadow-none dark:bg-gray-800"
-            onClick={() => dispatch(toggleTheme())}
-          >
-            {theme == "light" ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="stroke-black"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="5" />
-                <path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="stroke-white"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-              </svg>
-            )}
-          </button> */}
         </div>
       </div>
     </header>

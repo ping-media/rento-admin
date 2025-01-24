@@ -3,6 +3,7 @@ import CreateNewAndUpdateForm from "./CreateNewAndUpdateForm";
 import Dashboard from "./Dashboard";
 import CommingSoon from "./CommingSoon";
 import NotFound from "./NotFound";
+import Unauthorized from "./Unauthorized";
 import VehicleDetails from "./VehicleDetails";
 import BookingDetails from "./BookingDetails";
 import VehicleMaster from "./Vehicle-Master";
@@ -14,6 +15,7 @@ export {
   Dashboard,
   CommingSoon,
   NotFound,
+  Unauthorized,
   VehicleDetails,
   BookingDetails,
   VehicleMaster,

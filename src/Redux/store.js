@@ -16,7 +16,7 @@ const userPersistConfig = {
   key: "user",
   version: "1",
   storage,
-  whitelist: ["token", "user"],
+  whitelist: ["token", "user", "loggedInRole", "userStation"],
   blacklist: ["currentUser", "loading", "error"],
 };
 

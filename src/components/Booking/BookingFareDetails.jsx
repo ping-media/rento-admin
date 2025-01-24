@@ -10,7 +10,7 @@ const BookingFareDetails = ({ rides }) => {
       {rides && (
         <>
           {rides?.bookingPrice.isPackageApplied && (
-            <div className="text-gray-500 -mb-2.5">
+            <div className="text-gray-500 mb-1.5">
               <span className="font-bold">Package:</span>
               {`(${getDurationInDays(
                 rides?.BookingStartDateAndTime,

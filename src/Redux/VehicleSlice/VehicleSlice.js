@@ -55,6 +55,7 @@ const vehicleSlice = createSlice({
         BookingEndDateAndTime,
         oldBookings,
         extendAmount,
+        bookingStatus,
       } = action.payload;
       state.vehicleMaster[0] = {
         ...state.vehicleMaster[0],
@@ -68,11 +69,12 @@ const vehicleSlice = createSlice({
           ],
         },
         extendBooking: {
-          oldBookings: [
-            ...state.vehicleMaster[0]?.extendBooking?.oldBookings,
+          oldBooking: [
+            ...state.vehicleMaster[0]?.extendBooking?.oldBooking,
             oldBookings,
           ],
         },
+        bookingStatus,
       };
     },
     handleUpdateImageData: (state, action) => {

@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
-import { getData, getGeoData } from "../../Data";
+import { getData } from "../../Data";
 import { endPointBasedOnKey, States } from "../../Data/commonData";
 import PreLoader from "../Skeleton/PreLoader";
 import { useParams } from "react-router-dom";
@@ -15,8 +15,8 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [collectedData, setCollectedData] = useState(null);
   const [zipCodeValue, setZipcodeValue] = useState(null);
-  const [zipCodeData, setZipCodeData] = useState(null);
-  const [zipLoading, setZipLoading] = useState(false);
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
 
@@ -41,21 +41,6 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
   useEffect(() => {
     fetchCollectedData("locationId", "stationId");
   }, []);
-
-  useEffect(() => {
-    (async () => {
-      if (zipCodeValue?.length == 6) {
-        setZipLoading(true);
-        const response = await getGeoData(zipCodeValue);
-        if (response) {
-          setZipCodeData(response?.results[0]?.geometry);
-        }
-        setZipLoading(false);
-      } else if (zipCodeValue?.length == 0) {
-        setZipCodeData(null);
-      }
-    })();
-  }, [zipCodeValue]);
 
   return collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
@@ -99,11 +84,25 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input item={"address"} value={id && vehicleMaster[0]?.address} />
+            {/* sending lat & long in backend  */}
+            <input
+              type="hidden"
+              name="latitude"
+              value={id ? Number(vehicleMaster[0]?.latitude) : latitude}
+            />
+            <input
+              type="hidden"
+              name="longitude"
+              value={id ? Number(vehicleMaster[0]?.longitude) : longitude}
+            />
+            {/* seaching address & lat & long  */}
+            <GoogleSearchLocation
+              item={"address"}
+              setLatitude={setLatitude}
+              setLongitude={setLongitude}
+              value={id && vehicleMaster[0]?.address}
+            />
           </div>
-          {/* <div className="w-full lg:w-[48%]">
-            <GoogleSearchLocation />
-          </div> */}
           <div className="w-full lg:w-[48%]">
             <Input item={"city"} value={id && vehicleMaster[0]?.city} />
           </div>
@@ -127,34 +126,6 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               setValueChange={setZipcodeValue}
             />
           </div>
-          {zipLoading == false ? (
-            (zipCodeData != null || vehicleMaster?.length == 1) && (
-              <>
-                <div className="w-full lg:w-[48%]">
-                  <Input
-                    item={"latitude"}
-                    type="number"
-                    value={
-                      id ? Number(vehicleMaster[0]?.latitude) : zipCodeData?.lat
-                    }
-                  />
-                </div>
-                <div className="w-full lg:w-[48%]">
-                  <Input
-                    item={"longitude"}
-                    type="number"
-                    value={
-                      id
-                        ? Number(vehicleMaster[0]?.longitude)
-                        : zipCodeData?.lng
-                    }
-                  />
-                </div>
-              </>
-            )
-          ) : (
-            <PreLoader />
-          )}
         </>
 
         <button

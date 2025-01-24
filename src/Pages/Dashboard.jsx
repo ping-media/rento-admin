@@ -23,15 +23,20 @@ const Dashboard = () => {
   const { dasboardDataCount, loading } = useSelector(
     (state) => state.dashboard
   );
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole, userStation } = useSelector(
+    (state) => state.user
+  );
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dataCountResult, setDataCountResult] = useState([]);
   const dispatch = useDispatch();
 
   //fetching dashboard data
   useEffect(() => {
+    // for manager role
+    const roleBaseFilter =
+      loggedInRole === "manager" ? `?stationId=${userStation?.stationId}` : "";
     if (token) {
-      fetchDashboardData(dispatch, token);
+      fetchDashboardData(dispatch, token, roleBaseFilter);
     }
   }, []);
 

@@ -29,7 +29,9 @@ const ExtendBookingModal = ({ bookingData }) => {
     const data = {
       _id: bookingData?._id,
       vehicleTableId: bookingData?.vehicleTableId,
-      BookingStartDateAndTime: addOneMinute(bookingData?.BookingEndDateAndTime),
+      BookingStartDateAndTime: addOneMinute(
+        bookingData?.BookingEndDateAndTime
+      ).replace(".000Z", "Z"),
       BookingEndDateAndTime: newDate,
       bookingPrice: bookingData?.bookingPrice,
       extendBooking: bookingData?.extendBooking,
@@ -61,7 +63,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         dispatch(handleUpdateExtendVehicle(data));
         // updating the timeline for booking
         const timeLineData = {
-          currentBooking_id: bookingData?._id,
+          currentBooking_id: response?.data?._id,
           timeLine: {
             "Booking Extended": new Date().toLocaleString(),
           },

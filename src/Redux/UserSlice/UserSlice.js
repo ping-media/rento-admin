@@ -6,6 +6,8 @@ const UserSlice = createSlice({
   initialState: {
     token: null,
     user: null,
+    loggedInRole: "",
+    userStation: null,
     currentUser: null,
     userDocument: null,
     loading: false,
@@ -18,6 +20,11 @@ const UserSlice = createSlice({
     handleSetToken: (state, action) => {
       state.token = action.payload;
       state.loading = false;
+    },
+    SetLoggedInRole: (state, action) => {
+      const { loggedInRole, userStation } = action.payload;
+      state.loggedInRole = loggedInRole;
+      state.userStation = userStation;
     },
     handleSignIn: (state, action) => {
       const encryptedUser = encryptData(action.payload);
@@ -39,6 +46,8 @@ const UserSlice = createSlice({
       state.token = null;
       state.user = null;
       state.currentUser = null;
+      state.loggedInRole = "";
+      state.userStation = null;
       state.loading = false;
       state.error = null;
     },
@@ -47,6 +56,7 @@ const UserSlice = createSlice({
 
 export const {
   handleLoadingUserData,
+  SetLoggedInRole,
   handleSetToken,
   handleSignIn,
   handleCurrentUser,

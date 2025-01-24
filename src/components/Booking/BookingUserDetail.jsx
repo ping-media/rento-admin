@@ -56,9 +56,11 @@ const BookingUserDetails = ({ data, userId }) => {
           } border-gray-300`}
           key={index}
         >
-          <span className="font-semibold uppercase text-sm">{item?.key}</span>{" "}
+          <span className="font-semibold uppercase text-xs lg:text-sm">
+            {item?.key}
+          </span>{" "}
           <span
-            className={`text-gray-500 flex items-center text-sm ${
+            className={`text-gray-500 flex items-center text-xs lg:text-sm ${
               item?.key === "Email" ? "" : "capitalize"
             }`}
           >
@@ -85,11 +87,14 @@ const BookingUserDetails = ({ data, userId }) => {
         </div>
       ))}
       {/* user documents  */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center flex-wrap gap-2">
         {(userDocument && userDocument[0]?.files?.length > 0) ||
         (userDocument && userDocument?.files) ? (
           userDocument[0]?.files?.map((item) => (
-            <div className="border-2 rounded-md p-1 h-full" key={item?._id}>
+            <div
+              className="border-2 border-theme text-theme hover:bg-theme hover:text-white transition-all duration-200 ease-in-out  rounded-md p-1 h-full"
+              key={item?._id}
+            >
               <LightGallery
                 plugins={[lgThumbnail, lgZoom]}
                 speed={500} // Animation speed

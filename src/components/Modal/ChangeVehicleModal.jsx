@@ -35,7 +35,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
           `/getVehicleTblData?stationId=${
             bookingData?.stationId
           }&BookingStartDateAndTime=${formatDateToISO(
-            new Date()
+            new Date().replace(".000Z", "Z")
           )}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}`,
           token
         );
@@ -58,13 +58,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
       (item) => item?._id == vehicleId
     );
     // calculating the duration
-    const startDate = formatDateToISO(new Date());
+    const startDate = formatDateToISO(new Date()).replace(".000Z", "Z");
     const endDate = bookingData?.BookingEndDateAndTime;
     const daysLeft = getDurationInDays(
       startDate?.slice(0, 10),
       endDate?.slice(0, 10)
     );
-    // console.log(startDate?.slice(0, 10), endDate?.slice(0, 10), daysLeft);
     const bookingPrice =
       Number(changeToNewVehicle?.perDayCost) * Number(daysLeft);
     const tax = calculateTax(bookingPrice, 18);

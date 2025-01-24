@@ -12,8 +12,7 @@ const SideBar = () => {
   const dispatch = useDispatch();
   const isMobile = useIsMobile();
   const { is_open } = useSelector((state) => state.sideBar);
-  // const { theme } = useSelector((state) => state.theme);
-  // const [imageLoading, setImageLoading] = useState(true);
+  const { loggedInRole } = useSelector((state) => state.user);
 
   useEffect(() => {
     if (isMobile) {
@@ -64,45 +63,61 @@ const SideBar = () => {
         style={{ height: "calc(100vh - 88px)" }}
       >
         <ul className="leading-9">
-          {menuList.map((item, index) => {
-            if (item.nestedLink) {
-              return <SideBarDropDown item={item} key={index} />;
-            } else {
-              return (
-                <Link to={`${item?.menuLink}`} key={index}>
-                  <li
-                    className={`px-4 py-1 group capitalize text-md ${
-                      location.pathname.includes(
-                        item?.menuLink.toLowerCase()
-                      ) ||
-                      location.pathname.includes(item?.moreLink?.toLowerCase())
-                        ? "bg-theme text-gray-100"
-                        : ""
-                    } hover:bg-theme transition duration-300 ease-in-out rounded-md flex items-center gap-2 mb-2 dark:text-gray-100`}
-                  >
-                    <div
-                      className={`w-7 h-7 group-hover:text-gray-100 text-lg ${
+          {menuList
+            .filter((item) => {
+              // Replace "userRole" with the actual role of the logged-in user
+              if (item.roles?.includes(loggedInRole)) {
+                if (item.nestedLink) {
+                  // Filter nested links as well
+                  item.nestedLink = item.nestedLink.filter((nestedItem) =>
+                    nestedItem.roles?.includes(loggedInRole)
+                  );
+                }
+                return true;
+              }
+              return false;
+            })
+            .map((item, index) => {
+              if (item.nestedLink) {
+                return <SideBarDropDown item={item} key={index} />;
+              } else {
+                return (
+                  <Link to={`${item?.menuLink}`} key={index}>
+                    <li
+                      className={`px-4 py-1 group capitalize text-md ${
                         location.pathname.includes(
-                          item?.menuLink?.toLowerCase()
+                          item?.menuLink.toLowerCase()
                         ) ||
                         location.pathname.includes(
                           item?.moreLink?.toLowerCase()
                         )
-                          ? "text-gray-100"
+                          ? "bg-theme text-gray-100"
                           : ""
-                      }`}
+                      } hover:bg-theme transition duration-300 ease-in-out rounded-md flex items-center gap-2 mb-2 dark:text-gray-100`}
                     >
-                      {/* menuItem icon  */}
-                      {item?.menuImg}
-                    </div>
-                    <span className="group-hover:text-gray-100">
-                      {item?.menuTitle}
-                    </span>
-                  </li>
-                </Link>
-              );
-            }
-          })}
+                      <div
+                        className={`w-7 h-7 group-hover:text-gray-100 text-lg ${
+                          location.pathname.includes(
+                            item?.menuLink?.toLowerCase()
+                          ) ||
+                          location.pathname.includes(
+                            item?.moreLink?.toLowerCase()
+                          )
+                            ? "text-gray-100"
+                            : ""
+                        }`}
+                      >
+                        {/* menuItem icon  */}
+                        {item?.menuImg}
+                      </div>
+                      <span className="group-hover:text-gray-100">
+                        {item?.menuTitle}
+                      </span>
+                    </li>
+                  </Link>
+                );
+              }
+            })}
         </ul>
       </div>
     </div>

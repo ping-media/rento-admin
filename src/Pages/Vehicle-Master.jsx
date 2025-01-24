@@ -17,10 +17,16 @@ const VehicleMaster = () => {
     (state) => state.vehicles
   );
   const { page, limit, searchTerm } = useSelector((state) => state.pagination);
+  const { loggedInRole, userStation } = useSelector((state) => state.user);
 
   const searchBasedOnPage = useMemo(() => {
+    //this is  for usertype
     if (location.pathname === "/all-users") return "userType=customer";
     if (location.pathname === "/all-managers") return "userType=manager";
+    // this is for user role
+    if (loggedInRole !== "" && loggedInRole === "manager") {
+      return `stationId=${userStation?.stationId}`;
+    }
     return "";
   }, [location.pathname]);
 

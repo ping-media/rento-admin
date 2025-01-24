@@ -56,7 +56,11 @@ const BookingTimeLine = ({ bookingId }) => {
             >
               <div className="order-1 w-5/12"></div>
               <div className="z-20 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full"></div>
-              <div className="order-1 w-5/12">
+              <div
+                className={`order-1 w-5/12 ${
+                  (index + 1) % 2 === 0 ? "text-left" : "text-right"
+                }`}
+              >
                 <h3 className="mb-1 font-bold text-gray-800 text-sm">{key}</h3>
                 <p className="text-gray-700 leading-tight text-xs">
                   {timelineFormatDate(value)}

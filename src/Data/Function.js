@@ -10,6 +10,7 @@ import {
   handleSetToken,
   handleSignIn,
   handleSignOut,
+  SetLoggedInRole,
 } from "../Redux/UserSlice/UserSlice";
 import {
   fetchVehicleEnd,
@@ -34,7 +35,16 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
       dispatch(handleLoadingUserData());
       const response = await handleAdminLogin("/adminLogin", result);
       if (response?.status == 200) {
-        handleAsyncError(dispatch, response?.message, "success");
+        // return console.log(response?.data);
+        // setting roles
+        dispatch(
+          SetLoggedInRole({
+            loggedInRole: response?.data?.userType,
+            userStation: response?.Station,
+          })
+        );
+        handleAsyncError(dispatch, "Login Successfully", "success");
+        // decrypting the user data and setting data
         dispatch(handleSetToken(response?.token));
         dispatch(handleSignIn(response?.data));
         navigate("/dashboard");
@@ -51,13 +61,12 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
 };
 
 // for fetching data & posting data
-const fetchDashboardData = async (dispatch, token) => {
+const fetchDashboardData = async (dispatch, token, roleBaseFilter) => {
   try {
     dispatch(handleLoadingDashboardData());
     const [dashboardResponse, paymentResponse] = await Promise.all([
-      getData("/getAllDataCount", token),
-      getData("/getGraphData", token),
-      // getData("/getAllUsers", token),
+      getData(`/getAllDataCount${roleBaseFilter}`, token),
+      getData(`/getGraphData${roleBaseFilter}`, token),
     ]);
 
     dispatch(
@@ -173,6 +182,12 @@ const handleCreateAndUpdateVehicle = async (
     result = Object.assign(result, { vehiclePlan: tempIds });
     dispatch(removeTempIds());
   }
+
+  // for (const [key, value] of Object.entries(result)) {
+  //   console.log(`${key}: ${value}`);
+  // }
+
+  // return;
 
   const endpoint = id
     ? `${

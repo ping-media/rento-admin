@@ -448,8 +448,8 @@ const addOneMinute = (dateTimeString) => {
   // Add 1 minute (60,000 milliseconds) to the date
   date.setTime(date.getTime() + 60 * 1000);
 
-  // Return the updated date in ISO 8601 format with 'Z'
-  return date.toISOString();
+  // Return the updated date in ISO 8601 format without milliseconds
+  return date.toISOString().split(".")[0] + "Z";
 };
 
 function timelineFormatDate(input) {

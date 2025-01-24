@@ -192,20 +192,6 @@ const postMultipleData = async (url, data, token) => {
   }
 };
 
-const getGeoData = async (zipCode) => {
-  try {
-    let response = await axios.get(
-      `https://api.opencagedata.com/geocode/v1/json?q=${zipCode}&key=${
-        import.meta.env.VITE_GEO_KEY
-      }`
-    );
-    // console.log(response);
-    return response?.data;
-  } catch (error) {
-    return `Error :${error?.message}`;
-  }
-};
-
 const deleteData = async (url) => {
   try {
     const response = await axios.delete(
@@ -282,6 +268,5 @@ export {
   handleAdminLogin,
   deleteData,
   deleteDataById,
-  getGeoData,
   createOrderId,
 };
