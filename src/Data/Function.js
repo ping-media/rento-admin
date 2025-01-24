@@ -186,7 +186,6 @@ const handleCreateAndUpdateVehicle = async (
   // for (const [key, value] of Object.entries(result)) {
   //   console.log(`${key}: ${value}`);
   // }
-
   // return;
 
   const endpoint = id
@@ -209,6 +208,10 @@ const handleCreateAndUpdateVehicle = async (
     if (response?.status !== 200) {
       handleAsyncError(dispatch, response?.message);
     } else {
+      // sending payment link in timeline
+      if (location.pathname.includes("/all-bookings/")) {
+        updateTimeLine(result, token, response?.data);
+      }
       handleAsyncError(dispatch, response?.message, "success");
       navigate(removeAfterSecondSlash(location?.pathname));
     }
@@ -408,6 +411,30 @@ const cancelBookingById = async (id, data, token) => {
   }
 };
 
+const updateTimeLine = async (result, token, response) => {
+  const { _id, paymentStatus, paymentgatewayOrderId, bookingPrice, userId } =
+    response;
+  const finalAmount =
+    bookingPrice?.userPaid > 0
+      ? bookingPrice?.userPaid
+      : bookingPrice?.discountTotalPrice > 0
+      ? bookingPrice?.discountTotalPrice
+      : bookingPrice?.totalPrice;
+
+  const userResponse = await getData(`/getAllUser?_id=${userId}`, token);
+  const fullName = `${userResponse?.data?.firstName} ${userResponse?.data?.lastName}`;
+
+  // updating the timeline for booking
+  const timeLineData = {
+    currentBooking_id: _id,
+    timeLine: {
+      "Payment Link Created": new Date().toLocaleString(),
+      "Payment Link": `rentobikes.com/payment?bookingId=${bookingId}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}&orderId=${paymentgatewayOrderId}&fullName=${fullName}&email=${userResponse?.data?.email}&contact=${userResponse?.data?.contact}`,
+    },
+  };
+  postData("/createTimeline", timeLineData, token);
+};
+
 export {
   handleOtpLogin,
   fetchDashboardData,
@@ -424,4 +451,5 @@ export {
   handleLogoutUser,
   handleDeleteAndEditAllData,
   cancelBookingById,
+  updateTimeLine,
 };
