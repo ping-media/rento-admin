@@ -3,12 +3,23 @@ import Input from "../InputAndDropdown/Input";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import Spinner from "../Spinner/Spinner";
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const PlanForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [couponCount, setCouponCount] = useState(0);
   const { id } = useParams();
+
+  // setting default value when creating new coupon
+  const handleChangeCouponCount = () => {
+    if (!id) {
+      setCouponCount(-1);
+    }
+  };
+  // updating the state
+  useEffect(() => {
+    handleChangeCouponCount();
+  }, []);
 
   return (
     <form onSubmit={handleFormSubmit}>
@@ -45,14 +56,18 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
               name="allowedUsersCount"
               value={
                 id
-                  ? couponCount > 0 || couponCount === "-1"
-                    ? couponCount
+                  ? couponCount > 0 || couponCount == -1 || couponCount == "-1"
+                    ? couponCount != "-1" || couponCount != -1
+                      ? Number(couponCount) -
+                        Number(vehicleMaster[0]?.allowedUsersCount)
+                      : couponCount
                     : vehicleMaster[0]?.allowedUsersCount
                   : couponCount
               }
             />
             <Input
               type="number"
+              isCouponInput={true}
               item={"couponCount"}
               value={id ? vehicleMaster[0]?.couponCount : "-1"}
               setValueChange={setCouponCount}

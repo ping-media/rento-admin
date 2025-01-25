@@ -66,7 +66,11 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </th>
           );
         }
-        if (location.pathname === "/all-invoices") {
+        if (
+          location.pathname === "/all-invoices" ||
+          location?.pathname === "/all-users" ||
+          location?.pathname === "/all-managers"
+        ) {
           if (item === "firstName") {
             <th
               scope="col"
@@ -157,7 +161,8 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
         !(
           location?.pathname === "/payments" ||
           location?.pathname === "/all-pickup-image" ||
-          location?.pathname === "/users-documents"
+          location?.pathname === "/users-documents" ||
+          location.pathname == "/all-bookings"
         ) && (
           <th
             scope="col"

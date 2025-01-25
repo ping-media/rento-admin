@@ -15,11 +15,20 @@ const Input = ({
   dateToBeAdd,
   setDateChange,
   isModalClose,
+  isCouponInput = false,
 }) => {
   const [inputValue, setInputValue] = useState(value);
 
   // changing the value
   const handleChangeValue = (e) => {
+    // this will block negative value and only allow for coupon field
+    if (
+      isCouponInput === false &&
+      typeof e.target.value == "number" &&
+      Number(e.target.value) < 0
+    )
+      return;
+
     setInputValue(e.target.value);
     setValueChange && setValueChange(e.target.value);
     // this is to change the date based on number of day's

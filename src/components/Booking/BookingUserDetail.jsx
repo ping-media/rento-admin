@@ -102,6 +102,9 @@ const BookingUserDetails = ({ data, userId }) => {
                 <Link to={item.imageUrl} className="flex items-center gap-1">
                   {tableIcons?.image}
                   {item?.fileName.split("_")[3]}
+                  {/* {`${item?.fileName.split("_")[3]} ${
+                    item?.fileName.split("_")[2] == 0 ? "front" : "back"
+                  }`} */}
                 </Link>
               </LightGallery>
             </div>

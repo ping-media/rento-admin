@@ -208,10 +208,6 @@ const handleCreateAndUpdateVehicle = async (
     if (response?.status !== 200) {
       handleAsyncError(dispatch, response?.message);
     } else {
-      // sending payment link in timeline
-      if (location.pathname.includes("/all-bookings/")) {
-        updateTimeLine(result, token, response?.data);
-      }
       handleAsyncError(dispatch, response?.message, "success");
       navigate(removeAfterSecondSlash(location?.pathname));
     }
@@ -411,28 +407,38 @@ const cancelBookingById = async (id, data, token) => {
   }
 };
 
-const updateTimeLine = async (result, token, response) => {
-  const { _id, paymentStatus, paymentgatewayOrderId, bookingPrice, userId } =
-    response;
-  const finalAmount =
-    bookingPrice?.userPaid > 0
-      ? bookingPrice?.userPaid
-      : bookingPrice?.discountTotalPrice > 0
+const updateTimeLine = async (data, token) => {
+  const { _id, bookingId, paymentgatewayOrderId, bookingPrice, userId } = data;
+  // checking whether user applied Discount or not
+  const subAmount =
+    bookingPrice?.discountTotalPrice && bookingPrice?.discountTotalPrice > 0
       ? bookingPrice?.discountTotalPrice
       : bookingPrice?.totalPrice;
+  // checking whether user is paying full payment or half
+  const finalAmount =
+    bookingPrice?.userPaid && bookingPrice?.userPaid > 0
+      ? bookingPrice?.userPaid
+      : subAmount;
+  // setting paymentStatus
+  const paymentStatus =
+    bookingPrice?.userPaid && bookingPrice?.userPaid > 0
+      ? "partiallyPay"
+      : "paid";
 
-  const userResponse = await getData(`/getAllUser?_id=${userId}`, token);
-  const fullName = `${userResponse?.data?.firstName} ${userResponse?.data?.lastName}`;
+  const userResponse = await getData(`/getAllUsers?_id=${userId}`, token);
+  const fullName = `${userResponse?.data[0]?.firstName} ${userResponse?.data[0]?.lastName}`;
+  const email = userResponse?.data[0]?.email;
+  const contact = userResponse?.data[0]?.contact;
 
   // updating the timeline for booking
   const timeLineData = {
     currentBooking_id: _id,
     timeLine: {
       "Payment Link Created": new Date().toLocaleString(),
-      "Payment Link": `rentobikes.com/payment?bookingId=${bookingId}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}&orderId=${paymentgatewayOrderId}&fullName=${fullName}&email=${userResponse?.data?.email}&contact=${userResponse?.data?.contact}`,
+      "Payment Link": `rentobikes.com/payment?id=${_id}&bookingId=${bookingId}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}&orderId=${paymentgatewayOrderId}&fullName=${fullName}&email=${email}&contact=${contact}`,
     },
   };
-  postData("/createTimeline", timeLineData, token);
+  await postData("/createTimeline", timeLineData, token);
 };
 
 export {

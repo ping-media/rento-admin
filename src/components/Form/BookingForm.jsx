@@ -8,6 +8,7 @@ import BookingStepTwo from "./BookingComponents/BookingStepTwo";
 import BookingStepThree from "./BookingComponents/BookingStepThree";
 import { createOrderId, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import { updateTimeLine } from "../../Data/Function";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
@@ -84,7 +85,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       }
       // ride starting otp
       const startRideOtp = Math.floor(1000 + Math.random() * 9000);
-      // creating bookking data
+      // creating booking data
       let data = {
         vehicleMasterId:
           formData?.stepOneData?.selectedVehicle?.vehicleMasterId,
@@ -139,34 +140,59 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         paymentStatus: result?.paymentStatus,
         rideStatus: result?.rideStatus,
       };
-      if (!data)
-        return handleAsyncError(dispatch, "unable to make booking! try again.");
-      const generateOrder = await createOrderId(data);
-      // updating the data but order id
-      data = {
-        ...data,
-        paySuccessId: generateOrder?.id,
-        paymentgatewayReceiptId: generateOrder?.receipt,
-        paymentInitiatedDate: generateOrder?.created_at,
-      };
 
-      const response = await postData("/createBooking", data);
-      if (response?.status == 200) {
+      const bookingResponse = await postData("/createBooking", data, token);
+      if (bookingResponse?.status === 200) {
         // updating the timeline for booking
         const timeLineData = {
-          userId: formData?.stepOneData?.userId,
-          bookingId: response?.data?.bookingId,
-          currentBooking_id: response?.data?._id,
+          userId: bookingResponse?.data?.userId,
+          bookingId: bookingResponse?.data?.bookingId,
+          currentBooking_id: bookingResponse?.data?._id,
           isStart: true,
           timeLine: {
             "Booking Created": new Date().toLocaleString(),
           },
         };
-        postData("/createTimeline", timeLineData, token);
-        navigate("/all-bookings");
-        handleAsyncError(dispatch, response?.message, "success");
+        // for creating booking
+        await postData("/createTimeline", timeLineData, token);
+        // for updating sending link in it
+        await updateTimeLine(response?.data, token);
       } else {
-        handleAsyncError(dispatch, response?.message);
+        return handleAsyncError(dispatch, response?.message);
+      }
+
+      if (bookingResponse?.status !== 200)
+        return handleAsyncError(dispatch, "unable to make booking! try again.");
+      const generateOrder = await createOrderId(bookingResponse?.data);
+      // updating the data but order id
+      data = {
+        ...bookingResponse?.data,
+        paySuccessId: generateOrder?.id,
+        paymentgatewayReceiptId: generateOrder?.receipt,
+        paymentInitiatedDate: generateOrder?.created_at,
+      };
+
+      const UpdatedBookingResponse = await postData(
+        `/createBooking?_id=${bookingResponse?.data?._id}`,
+        data,
+        token
+      );
+      if (UpdatedBookingResponse?.status === 200) {
+        // updating the timeline for booking
+        const timeLineData = {
+          currentBooking_id: UpdatedBookingResponse?.data?._id,
+          timeLine: {
+            "Payment Initiated": new Date().toLocaleString(),
+          },
+        };
+        // for creating booking
+        postData("/createTimeline", timeLineData, token);
+        // for updating sending link in it
+        await updateTimeLine(UpdatedBookingResponse?.data, token);
+        handleAsyncError(dispatch, response?.message, "success");
+        navigate(`/all-bookings/details/${response?.data?._id}`);
+      } else {
+        return handleAsyncError(dispatch, response?.message);
       }
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);

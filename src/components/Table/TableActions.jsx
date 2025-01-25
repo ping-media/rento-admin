@@ -12,7 +12,7 @@ const TableActions = ({
     <td className="p-3 whitespace-nowrap text-sm items-center gap-1">
       <div className="flex">
         {(location.pathname == "/all-vehicles" ||
-          location.pathname == "/all-bookings" ||
+          // location.pathname == "/all-bookings" ||
           location.pathname == "/all-invoices") && (
           <Link
             className="p-2 text-purple-500 hover:underline"

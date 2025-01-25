@@ -8,11 +8,11 @@ import { useDispatch, useSelector } from "react-redux";
 import PreLoader from "../../Skeleton/PreLoader";
 import { endPointBasedOnKey } from "../../../Data/commonData";
 import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
+import { fetchStationBasedOnLocation } from "../../../Data/Function";
 
 const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
   const [userId, setUserId] = useState("");
   const [vehicleId, setVehicleId] = useState("");
-  const [locationId, setLocationId] = useState("");
   const [stationId, setStationId] = useState("");
   const [bookingStartDate, setBookingStartDate] = useState("");
   const [bookingEndDate, setBookingEndDate] = useState("");
@@ -21,6 +21,8 @@ const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
   //vehicle suggestion list
   const [suggestedData, setSuggestionData] = useState(null);
   const [collectedData, setCollectedData] = useState(null);
+  const [stationData, setStationData] = useState(null);
+  const [isLocationSelected, setIsLocationSelected] = useState("");
   const { loggedInRole, userStation } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
@@ -34,13 +36,25 @@ const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
     });
   };
 
+  //updating station based on location id
+  useEffect(() => {
+    if (vehicleMaster?.length == 1 || isLocationSelected !== "") {
+      fetchStationBasedOnLocation(
+        vehicleMaster,
+        isLocationSelected,
+        setStationData,
+        token
+      );
+    }
+  }, [isLocationSelected, vehicleMaster]);
+
   // getting free vehicle through this
   useEffect(() => {
     if (
       (loggedInRole === "admin" &&
         bookingStartDate !== "" &&
         bookingEndDate !== "" &&
-        locationId !== "" &&
+        isLocationSelected !== "" &&
         stationId !== "") ||
       (loggedInRole === "manager" &&
         bookingStartDate !== "" &&
@@ -52,7 +66,7 @@ const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
           const changeEndPointBasedOnRole =
             loggedInRole === "manager"
               ? `stationId=${userStation?.stationId}`
-              : `locationId=${locationId}&stationId=${stationId}`;
+              : `locationId=${isLocationSelected}&stationId=${stationId}`;
 
           const response = await getData(
             `/getVehicleTblData?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}`
@@ -69,7 +83,7 @@ const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
         }
       })();
     }
-  }, [bookingStartDate, bookingEndDate, vehicleId, locationId]);
+  }, [bookingStartDate, bookingEndDate, vehicleId, isLocationSelected]);
 
   // fetching stationId and LocationId
   const fetchCollectedData = async (locationUrl, stationUrl) => {
@@ -107,6 +121,22 @@ const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
             <SelectDropDown
               item={"locationId"}
               options={collectedData?.locationId}
+              setIsLocationSelected={setIsLocationSelected}
+              require={true}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"stationId"}
+              options={stationData && stationData}
+              setIsLocationSelected={setStationId}
+              require={true}
+            />
+          </div>
+          {/* <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"locationId"}
+              options={collectedData?.locationId}
               setIsLocationSelected={setLocationId}
             />
           </div>
@@ -116,7 +146,7 @@ const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
               options={collectedData?.stationId}
               setIsLocationSelected={setStationId}
             />
-          </div>
+          </div> */}
         </>
       )}
       <div className="w-full lg:w-[48%]">

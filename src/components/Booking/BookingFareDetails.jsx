@@ -97,7 +97,7 @@ const BookingFareDetails = ({ rides }) => {
                     : "Total Price"}
                   <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
                     {rides?.paymentMethod == "online" &&
-                    rides?.paySuccessId != "NA"
+                    rides?.paymentgatewayOrderId != "NA"
                       ? "(Full Paid)"
                       : rides?.paymentMethod == "partiallyPay"
                       ? ""

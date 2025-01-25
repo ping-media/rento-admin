@@ -118,6 +118,10 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "condition",
           "lastServiceDate",
           "country",
+          "altContact",
+          "dateofbirth",
+          "gender",
+          "addressProof",
           // "userId",
         ].includes(key)
     );
@@ -139,6 +143,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             "notes",
             "extendBooking",
             "changeVehicle",
+            "paymentStatus",
           ].includes(item)
       );
     }
@@ -216,12 +221,16 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     dispatch(toggleDeleteModal());
   };
 
+  // let user enter in view page or edit page when click on table row
   const handleViewData = (id) => {
     navigate(
       location.pathname === "/all-bookings" ||
-        location.pathname === "/all-vehicles"
+        location.pathname === "/all-vehicles" ||
+        location.pathname === "/all-invoices"
         ? `details/${id}`
-        : "#"
+        : location?.pathname === "/payments"
+        ? "#"
+        : `${id}`
     );
   };
 
@@ -344,7 +353,11 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     </td>
                                   );
                                 }
-                                if (location.pathname === "/all-invoices") {
+                                if (
+                                  location.pathname === "/all-invoices" ||
+                                  location?.pathname === "/all-users" ||
+                                  location?.pathname === "/all-managers"
+                                ) {
                                   if (column === "firstName") {
                                     return (
                                       <UserDisplayCell

@@ -10,7 +10,7 @@ import {
   removeTempVehicleData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import Input from "../InputAndDropdown/Input";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
@@ -19,6 +19,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     (state) => state.vehicles
   );
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [imagesUrl, setImageUrl] = useState([]);
   const [image, setImage] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -123,6 +124,12 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     return dispatch(togglePickupImageModal());
   };
 
+  // close modal and send to kyc page
+  const handleCloseModalAndVerifyUser = (id) => {
+    dispatch(togglePickupImageModal());
+    return navigate(`/all-users/${id}`);
+  };
+
   return (
     <div
       className={`fixed ${
@@ -155,13 +162,17 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handleUploadPickupImages}>
             {isKycApproved && (
-              <div className="mb-2">
-                <Link
-                  to={`/all-customers/${vehicleMaster[0]?.userId?._id}`}
+              <div className="flex items-center justify-end gap-2 mb-2">
+                <p className="text-gray-400">User KYC is Pending:</p>
+                <button
+                  type="button"
                   className="text-theme underline"
+                  onClick={() =>
+                    handleCloseModalAndVerifyUser(vehicleMaster[0]?.userId?._id)
+                  }
                 >
                   Verify KYC
-                </Link>
+                </button>
               </div>
             )}
             <div>
