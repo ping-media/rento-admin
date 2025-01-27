@@ -27,6 +27,7 @@ import UserStatusCell from "./UserStatusCell.jsx";
 import UserDocumentCell from "./UserDocumentCell.jsx";
 import CopyButton from "../../components/Buttons/CopyButton.jsx";
 import TableImage from "./TableImageWithPopupShow.jsx";
+const BookingCard = lazy(() => import("../../components/Card/BookingCard.jsx"));
 import { useNavigate } from "react-router-dom";
 
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
@@ -246,7 +247,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
         <TablePageHeader setInputSearchQuery={setInputSearchQuery} />
       </div>
 
-      <div className="mt-5">
+      {/* table view  */}
+      <div
+        className={`${
+          location.pathname === "/all-bookings" ? "hidden lg:block" : ""
+        } mt-5`}
+      >
         <div className="flex flex-col">
           <div className=" overflow-x-auto pb-4 no-scrollbar">
             <div className="min-w-full inline-block align-middle">
@@ -497,6 +503,23 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* card view for bookings page  */}
+      <div
+        className={`${
+          location.pathname === "/all-bookings" ? "lg:hidden" : ""
+        } mt-5`}
+      >
+        {!dataLoading && Data ? (
+          newUpdatedData && newUpdatedData.length > 0 ? (
+            newUpdatedData.map((item) => <BookingCard item={item} />)
+          ) : (
+            <TableNotFound />
+          )
+        ) : (
+          <TableDataLoading />
+        )}
       </div>
 
       {pagination?.limit >= 10 && newUpdatedData?.length > 0 && (

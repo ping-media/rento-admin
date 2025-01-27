@@ -1,7 +1,7 @@
 const StatusChange = ({ item, column }) => {
   return (
     <div
-      className={`py-1.5 px-2.5 ${
+      className={`p-1 lg:py-1.5 lg:px-2.5 ${
         item[column] === "active" ||
         item[column] === "available" ||
         item[column] == "done" ||

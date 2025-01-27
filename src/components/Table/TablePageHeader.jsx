@@ -14,7 +14,7 @@ const TablePageHeader = ({ setInputSearchQuery }) => {
 
   return (
     <div className="flex items-center flex-wrap justify-between gap-2 w-full">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between lg:justify-start gap-2">
         <h1 className="text-xl xl:text-2xl uppercase font-bold text-theme">
           {location.pathname === "/station-master"
             ? formatPathNameToTitle(location.pathname).replace("Master", "")
@@ -39,25 +39,25 @@ const TablePageHeader = ({ setInputSearchQuery }) => {
           </Link>
         )}
         {/* this button is to perform bulk action */}
-        <BulkActionButtons />
+        {location?.pathname === "/all-vehicles" && <BulkActionButtons />}
       </div>
       {!(location.pathname == "/users-documents") && (
         <div className="flex items-center gap-2">
           <div className="w-full bg-white rounded-md shadow-lg">
             <form
               onSubmit={handleControlSubmit}
-              className="flex items-center justify-center p-2"
+              className="flex items-center justify-center p-1 lg:p-2"
             >
               <input
                 type="text"
                 placeholder="Search Here.."
                 name="searchQuery"
-                className="w-full rounded-md px-2 py-1 focus:outline-none focus:border-transparent"
+                className="w-full rounded-md p-1 lg:px-2 lg:py-1 focus:outline-none focus:border-transparent"
                 onChange={(e) => setInputSearchQuery(e.target.value)}
               />
               <button
                 type="submit"
-                className="bg-gray-800 text-white rounded-md px-4 py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
+                className="bg-gray-800 text-white rounded-md px-3 py-1 lg:px-4 lg:py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
               >
                 {tableIcons.search}
               </button>
@@ -68,7 +68,7 @@ const TablePageHeader = ({ setInputSearchQuery }) => {
             location.pathname === "/all-managers" ||
             location.pathname === "/all-bookings") && (
             <button
-              className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2.5 flex items-center transition-all duration-200 ease-in"
+              className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-1.5 lg:p-2.5 flex items-center transition-all duration-200 ease-in"
               title="filters"
               onClick={() => dispatch(toggleFilterSideBar())}
             >
