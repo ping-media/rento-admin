@@ -70,7 +70,7 @@ const UserKycApproveModal = () => {
         !isKycModalActive ? "hidden" : ""
       } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white w-full">
+      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white w-full lg:max-w-xl">
         <div className="flex justify-between p-2">
           <h2 className="text-theme text-lg uppercase font-semibold">
             Kyc Verify
@@ -98,7 +98,7 @@ const UserKycApproveModal = () => {
 
         <div className="p-6 pt-0 text-center">
           {/* user documents  */}
-          <div className="mb-3">
+          <div className="lg:flex items-center gap-2 mb-3">
             {(userDocument && userDocument[0]?.files?.length > 0) ||
             (userDocument && userDocument?.files) ? (
               userDocument[0]?.files?.map((item, index) => {
@@ -106,7 +106,7 @@ const UserKycApproveModal = () => {
                   return null;
                 }
                 return (
-                  <div className="w-full h-48 mb-3" key={item?._id}>
+                  <div className="w-full flex-1 h-48 mb-3" key={item?._id}>
                     <img
                       src={item.imageUrl}
                       className="w-full h-full object-cover"

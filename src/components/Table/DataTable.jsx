@@ -125,7 +125,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "dateofbirth",
           "gender",
           "addressProof",
-          "drivinglicence",
+          "drivingLicence",
           // "userId",
         ].includes(key)
     );
