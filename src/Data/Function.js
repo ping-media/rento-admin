@@ -150,6 +150,7 @@ const fetchVehicleMasterById = debounce(
       if (response?.status == 200) {
         dispatch(fetchVehicleMasterData(response?.data));
       } else {
+        dispatch(fetchVehicleMasterData([]));
         dispatch(fetchVehicleEnd());
       }
     } catch (error) {
@@ -256,22 +257,30 @@ const fetchStationBasedOnLocation = async (
   vehicleMaster,
   isLocationSelected,
   setStationData,
-  token
+  token,
+  setLoading
 ) => {
-  let stationResponse;
-  if (vehicleMaster && vehicleMaster?.length == 1) {
-    stationResponse = await getData(
-      `/getStationData?locationId=${isLocationSelected}`,
-      token
-    );
-  } else {
-    stationResponse = await getData(
-      `/getStationData?locationId=${isLocationSelected}`,
-      token
-    );
-  }
-  if (stationResponse?.status == 200) {
-    return setStationData(stationResponse?.data);
+  try {
+    setLoading && setLoading(true);
+    let stationResponse;
+    if (vehicleMaster && vehicleMaster?.length == 1) {
+      stationResponse = await getData(
+        `/getStationData?locationId=${isLocationSelected}`,
+        token
+      );
+    } else {
+      stationResponse = await getData(
+        `/getStationData?locationId=${isLocationSelected}`,
+        token
+      );
+    }
+    if (stationResponse?.status == 200) {
+      return setStationData(stationResponse?.data);
+    }
+  } catch (error) {
+    return console.error(error?.message);
+  } finally {
+    setLoading && setLoading(false);
   }
 };
 

@@ -127,7 +127,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           oldBooking: [],
         },
         payInitFrom: "Razorpay",
-        paySuccessId: "",
+        paySuccessId: "NA",
         paymentgatewayOrderId: "",
         paymentgatewayReceiptId: "",
         paymentInitiatedDate: "",
@@ -156,9 +156,9 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         // for creating booking
         await postData("/createTimeline", timeLineData, token);
         // for updating sending link in it
-        await updateTimeLine(response?.data, token);
+        await updateTimeLine(bookingResponse?.data, token);
       } else {
-        return handleAsyncError(dispatch, response?.message);
+        return handleAsyncError(dispatch, bookingResponse?.message);
       }
 
       if (bookingResponse?.status !== 200)
@@ -167,7 +167,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       // updating the data but order id
       data = {
         ...bookingResponse?.data,
-        paySuccessId: generateOrder?.id,
+        paymentgatewayOrderId: generateOrder?.id,
         paymentgatewayReceiptId: generateOrder?.receipt,
         paymentInitiatedDate: generateOrder?.created_at,
       };
@@ -189,10 +189,10 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         postData("/createTimeline", timeLineData, token);
         // for updating sending link in it
         await updateTimeLine(UpdatedBookingResponse?.data, token);
-        handleAsyncError(dispatch, response?.message, "success");
-        navigate(`/all-bookings/details/${response?.data?._id}`);
+        handleAsyncError(dispatch, UpdatedBookingResponse?.message, "success");
+        navigate(`/all-bookings/details/${UpdatedBookingResponse?.data?._id}`);
       } else {
-        return handleAsyncError(dispatch, response?.message);
+        return handleAsyncError(dispatch, UpdatedBookingResponse?.message);
       }
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
@@ -203,11 +203,20 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
 
   return (
     <form onSubmit={id ? handleFormSubmit : handleFormSubmitForNew}>
+      <h2 className="text-theme-dark font-semibold text-md lg:text-xl mb-3 uppercase border-b-2 pb-2">
+        {(currentStep === 1 && "Basic Info") ||
+          (currentStep === 2 && "Booking Pricing") ||
+          (currentStep === 3 && "Confirm Booking")}
+      </h2>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one & for creating new one */}
         <>
           {currentStep === 1 && (
-            <BookingStepOne token={token} onNext={handleNext} />
+            <BookingStepOne
+              data={formData?.stepOneData}
+              token={token}
+              onNext={handleNext}
+            />
           )}
 
           {currentStep === 2 && (

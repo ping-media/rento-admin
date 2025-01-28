@@ -205,13 +205,7 @@ const BookingDetail = () => {
               </h2>
               <small className="text-sm text-gray-400">
                 Vehicle Number: ({vehicleMaster[0]?.vehicleBasic?.vehicleNumber}
-                ){" "}
-                {/* {vehicleMaster[0]?.vehicleBasic?.isChanged &&
-                  vehicleMaster[0]?.vehicleBasic?.isChanged === true && (
-                    <span className="mx-1 bg-green-400 p-1 rounded-md">
-                      Vehicle Changed
-                    </span>
-                  )} */}
+                )
               </small>
             </div>
             <div>

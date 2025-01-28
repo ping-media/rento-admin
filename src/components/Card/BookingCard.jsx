@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const BookingCard = ({ item }) => {
   return (
-    <Link to={`details/${item?._id}`}>
+    <Link to={`details/${item?._id}`} key={item?._id}>
       <div className="bg-white rounded-md shadow-md px-2 py-2 mb-5">
         {/* top header for booking */}
         <div className="flex items-center justify-between pb-1 mb-1 border-b-2">
@@ -64,13 +64,15 @@ const BookingCard = ({ item }) => {
           <p className="flex items-center text-xs">
             {tableIcons?.dateCalender}{" "}
             <span className="ml-1">
-              {formatFullDateAndTime(item?.BookingStartDateAndTime)}
+              {item?.BookingStartDateAndTime &&
+                formatFullDateAndTime(item?.BookingStartDateAndTime)}
             </span>
           </p>
           <p className="flex items-center text-xs">
             {tableIcons?.dateCalender}{" "}
             <span className="ml-1">
-              {formatFullDateAndTime(item?.BookingEndDateAndTime)}
+              {item?.BookingEndDateAndTime &&
+                formatFullDateAndTime(item?.BookingEndDateAndTime)}
             </span>
           </p>
         </div>

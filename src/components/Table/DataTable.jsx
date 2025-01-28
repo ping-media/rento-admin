@@ -273,7 +273,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                       newUpdatedData && newUpdatedData.length > 0 ? (
                         newUpdatedData.map((item) => (
                           <tr
-                            className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh]"
+                            className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"
                             key={item?._id}
                             onClick={() => handleViewData(item?._id)}
                           >
@@ -506,21 +506,29 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
       </div>
 
       {/* card view for bookings page  */}
-      <div
-        className={`${
-          location.pathname === "/all-bookings" ? "lg:hidden" : ""
-        } mt-5`}
-      >
-        {!dataLoading && Data ? (
-          newUpdatedData && newUpdatedData.length > 0 ? (
-            newUpdatedData.map((item) => <BookingCard item={item} />)
+      {location.pathname === "/all-bookings" && (
+        <div
+          className={`${
+            location.pathname === "/all-bookings" ? "lg:hidden" : ""
+          } mt-5`}
+        >
+          {!dataLoading && Data ? (
+            newUpdatedData && newUpdatedData.length > 0 ? (
+              newUpdatedData.map((item) => (
+                <BookingCard item={item} key={item?._id} />
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-52 bg-white rounded-xl">
+                <TableNotFound />
+              </div>
+            )
           ) : (
-            <TableNotFound />
-          )
-        ) : (
-          <TableDataLoading />
-        )}
-      </div>
+            <div className="flex items-center justify-center h-52 bg-white rounded-xl">
+              <TableDataLoading />
+            </div>
+          )}
+        </div>
+      )}
 
       {pagination?.limit >= 10 && newUpdatedData?.length > 0 && (
         <div className="flex flex-wrap items-center justify-start lg:justify-between gap-4 lg:gap-2">

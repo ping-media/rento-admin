@@ -4,6 +4,7 @@ import { getData } from "../../Data/index";
 import { useDispatch, useSelector } from "react-redux";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { timelineFormatDate } from "../../utils/index";
+import CopyButton from "../../components/Buttons/CopyButton";
 
 const BookingTimeLine = ({ bookingId }) => {
   const { token } = useSelector((state) => state.user);
@@ -61,10 +62,25 @@ const BookingTimeLine = ({ bookingId }) => {
                   (index + 1) % 2 === 0 ? "text-left" : "text-right"
                 }`}
               >
-                <h3 className="mb-1 font-bold text-gray-800 text-sm">{key}</h3>
-                <p className="text-gray-700 leading-tight text-xs">
-                  {timelineFormatDate(value)}
-                </p>
+                {key !== "Payment Link" ? (
+                  <>
+                    <h3 className="mb-1 font-bold text-gray-800 text-sm">
+                      {key}
+                    </h3>
+                    <p className="text-gray-700 leading-tight text-xs">
+                      {timelineFormatDate(value)}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="mb-1 font-bold text-gray-800 text-sm flex items-center justify-end">
+                      {key}
+                      <span className="ml-1">
+                        <CopyButton textToCopy={value} />
+                      </span>
+                    </h3>
+                  </>
+                )}
               </div>
             </div>
           ))}

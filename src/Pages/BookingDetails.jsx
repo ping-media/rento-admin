@@ -18,6 +18,7 @@ import {
 } from "../Redux/VehicleSlice/VehicleSlice";
 import GenerateInvoiceButton from "../components/Table/GenerateInvoiceButton";
 import { postData } from "../Data/index";
+import { NotFound } from "../Pages/index";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
@@ -122,8 +123,10 @@ const BookingDetails = () => {
         paymentStatus: paymentStatusToSend,
         bookingStatus: "done",
         rideStatus: rideStatus,
+        isCancelled: true,
         _id: id,
       };
+
       const isCanceledUndo = await cancelBookingById(id, data, token);
       if (isCanceledUndo === true) {
         handleAsyncError(
@@ -131,7 +134,14 @@ const BookingDetails = () => {
           "Undo cancelled Ride successfully",
           "success"
         );
-        dispatch(handleUpdateFlags(data));
+        dispatch(
+          handleUpdateFlags({
+            paymentStatus: paymentStatusToSend,
+            bookingStatus: "done",
+            rideStatus: rideStatus,
+            _id: id,
+          })
+        );
       }
       if (isCanceledUndo !== true)
         return handleAsyncError(dispatch, "unable to undo booking! try again.");
@@ -273,8 +283,10 @@ const BookingDetails = () => {
         <BookingDetail />
       </div>
     </>
-  ) : (
+  ) : !loading && vehicleMaster?.isEmpty && vehicleMaster?.isEmpty !== true ? (
     <PreLoader />
+  ) : (
+    <NotFound />
   );
 };
 

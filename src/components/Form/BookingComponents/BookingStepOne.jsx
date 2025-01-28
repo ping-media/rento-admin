@@ -10,7 +10,7 @@ import { endPointBasedOnKey } from "../../../Data/commonData";
 import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
 import { fetchStationBasedOnLocation } from "../../../Data/Function";
 
-const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
+const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
   const [userId, setUserId] = useState("");
   const [vehicleId, setVehicleId] = useState("");
   const [stationId, setStationId] = useState("");
@@ -22,6 +22,7 @@ const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
   const [suggestedData, setSuggestionData] = useState(null);
   const [collectedData, setCollectedData] = useState(null);
   const [stationData, setStationData] = useState(null);
+  const [stationLoading, setStationLoading] = useState(null);
   const [isLocationSelected, setIsLocationSelected] = useState("");
   const { loggedInRole, userStation } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -43,12 +44,13 @@ const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
         vehicleMaster,
         isLocationSelected,
         setStationData,
-        token
+        token,
+        setStationLoading
       );
     }
   }, [isLocationSelected, vehicleMaster]);
 
-  // getting free vehicle through this
+  // getting free vehicle btw two dates through this
   useEffect(() => {
     if (
       (loggedInRole === "admin" &&
@@ -113,7 +115,7 @@ const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
 
   return (
     <>
-      {loading && <PreLoader />}
+      {(loading || stationLoading) && <PreLoader />}
       {/* continue  */}
       {loggedInRole === "admin" && (
         <>
@@ -133,20 +135,6 @@ const BookingStepOne = ({ vehicleMaster, token, onNext }) => {
               require={true}
             />
           </div>
-          {/* <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"locationId"}
-              options={collectedData?.locationId}
-              setIsLocationSelected={setLocationId}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"stationId"}
-              options={collectedData?.stationId}
-              setIsLocationSelected={setStationId}
-            />
-          </div> */}
         </>
       )}
       <div className="w-full lg:w-[48%]">
