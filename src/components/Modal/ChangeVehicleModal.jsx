@@ -34,8 +34,9 @@ const ChangeVehicleModal = ({ bookingData }) => {
         const response = await getData(
           `/getVehicleTblData?stationId=${
             bookingData?.stationId
-          }&BookingStartDateAndTime=${formatDateToISO(
-            new Date().replace(".000Z", "Z")
+          }&BookingStartDateAndTime=${formatDateToISO(new Date()).replace(
+            ".000Z",
+            "Z"
           )}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}`,
           token
         );
