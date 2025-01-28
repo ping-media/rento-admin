@@ -18,7 +18,6 @@ import {
 } from "../Redux/VehicleSlice/VehicleSlice";
 import GenerateInvoiceButton from "../components/Table/GenerateInvoiceButton";
 import { postData } from "../Data/index";
-import { NotFound } from "../Pages/index";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
@@ -283,10 +282,8 @@ const BookingDetails = () => {
         <BookingDetail />
       </div>
     </>
-  ) : !loading && vehicleMaster?.isEmpty && vehicleMaster?.isEmpty !== true ? (
-    <PreLoader />
   ) : (
-    <NotFound />
+    <PreLoader />
   );
 };
 

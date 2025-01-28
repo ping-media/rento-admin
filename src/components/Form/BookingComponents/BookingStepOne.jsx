@@ -9,6 +9,7 @@ import PreLoader from "../../Skeleton/PreLoader";
 import { endPointBasedOnKey } from "../../../Data/commonData";
 import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
 import { fetchStationBasedOnLocation } from "../../../Data/Function";
+import { isDuration24Hours } from "../../../utils/index";
 
 const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
   const [userId, setUserId] = useState("");
@@ -23,6 +24,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
   const [collectedData, setCollectedData] = useState(null);
   const [stationData, setStationData] = useState(null);
   const [stationLoading, setStationLoading] = useState(null);
+  const [error, setError] = useState("");
   const [isLocationSelected, setIsLocationSelected] = useState("");
   const { loggedInRole, userStation } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -65,6 +67,15 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
       (async () => {
         try {
           setLoading(true);
+          const isDateValid = isDuration24Hours(
+            bookingStartDate,
+            bookingEndDate
+          );
+          if (isDateValid === false) {
+            setBookingStartDate("");
+            setBookingEndDate("");
+            return setError("there should be gap of 1 day between day's");
+          }
           const changeEndPointBasedOnRole =
             loggedInRole === "manager"
               ? `stationId=${userStation?.stationId}`
@@ -153,6 +164,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
           require={true}
           setValueChanger={setBookingStartDate}
         />
+        {error && <p className="italic text-sm text-theme my-1">{error}</p>}
       </div>
       <div className="w-full lg:w-[48%]">
         <InputDateAndTime
@@ -161,6 +173,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
           require={true}
           setValueChanger={setBookingEndDate}
         />
+        {error && <p className="italic text-sm text-theme my-1">{error}</p>}
       </div>
       <div className="w-full lg:w-[48%]">
         <SelectDropDownVehicle

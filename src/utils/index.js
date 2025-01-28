@@ -161,7 +161,7 @@ const formatFullDateAndTime = (dateString) => {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true, // Use 12-hour format
-    timeZone: "IST", // Ensure IST time zone
+    timeZone: "UTC", // Ensure IST time zone
   });
 
   return formatter.format(date);
@@ -184,23 +184,53 @@ const camelCaseToSpaceSeparatedMapped = (str) => {
   });
 };
 
+// const convertDateFormat = (dateStr) => {
+//   // Check if the input date is in the format "yyyy-MM-ddTHH:mm"
+//   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(dateStr)) {
+//     // Convert "2024-12-20T17:00" to "2025-01-22T14:00:00Z" (UTC)
+//     const date = new Date(dateStr); // Parse to Date object (local time)
+//     const utcString = date.toISOString(); // Convert to UTC ISO string
+//     return utcString.slice(0, 19) + "Z"; // Remove milliseconds and add Z for UTC
+//   }
+//   // Check if the input date is in the format "yyyy-MM-ddTHH:mm:ssZ" (UTC)
+//   else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(dateStr)) {
+//     // Convert "2025-01-22T14:00:00Z" (UTC) to local time "2024-12-20T17:00"
+//     const date = new Date(dateStr); // Parse to Date object (UTC)
+//     const year = date.getFullYear();
+//     const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+//     const day = String(date.getDate()).padStart(2, "0");
+//     const hour = String(date.getHours()).padStart(2, "0");
+//     const minute = String(date.getMinutes()).padStart(2, "0");
+
+//     // Format as "yyyy-MM-ddTHH:mm"
+//     return `${year}-${month}-${day}T${hour}:${minute}`;
+//   } else {
+//     throw new Error("Invalid date format");
+//   }
+// };
+
 const convertDateFormat = (dateStr) => {
   // Check if the input date is in the format "yyyy-MM-ddTHH:mm"
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(dateStr)) {
-    // Convert "2024-12-20T17:00" to "2025-01-22T14:00:00Z" (UTC)
-    const date = new Date(dateStr); // Parse to Date object (local time)
-    const utcString = date.toISOString(); // Convert to UTC ISO string
-    return utcString.slice(0, 19) + "Z"; // Remove milliseconds and add Z for UTC
+    // Parse the input date string to a Date object
+    const date = new Date(dateStr);
+    // Add IST offset (5 hours and 30 minutes)
+    const istDate = new Date(date.getTime() + 5.5 * 60 * 60 * 1000);
+    // Format IST date as "yyyy-MM-ddTHH:mm:ssZ"
+    const istString = istDate.toISOString().slice(0, 19) + "Z";
+    return istString;
   }
   // Check if the input date is in the format "yyyy-MM-ddTHH:mm:ssZ" (UTC)
   else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(dateStr)) {
-    // Convert "2025-01-22T14:00:00Z" (UTC) to local time "2024-12-20T17:00"
-    const date = new Date(dateStr); // Parse to Date object (UTC)
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-    const day = String(date.getDate()).padStart(2, "0");
-    const hour = String(date.getHours()).padStart(2, "0");
-    const minute = String(date.getMinutes()).padStart(2, "0");
+    // Parse the UTC date string
+    const date = new Date(dateStr);
+    // Add IST offset (5 hours and 30 minutes)
+    const istDate = new Date(date.getTime() + 5.5 * 60 * 60 * 1000);
+    const year = istDate.getFullYear();
+    const month = String(istDate.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const day = String(istDate.getDate()).padStart(2, "0");
+    const hour = String(istDate.getHours()).padStart(2, "0");
+    const minute = String(istDate.getMinutes()).padStart(2, "0");
 
     // Format as "yyyy-MM-ddTHH:mm"
     return `${year}-${month}-${day}T${hour}:${minute}`;
@@ -489,6 +519,21 @@ function timelineFormatDate(input) {
   return `${day}, ${month} ${year}, ${hours}:${minutes} ${amPm}`;
 }
 
+const isDuration24Hours = (startDate, endDate) => {
+  // Parse the dates
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  // Calculate the difference in milliseconds
+  const durationInMilliseconds = end - start;
+
+  // Convert milliseconds to hours
+  const durationInHours = durationInMilliseconds / (1000 * 60 * 60);
+
+  // Check if the duration is exactly 24 hours
+  return durationInHours === 24;
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -523,4 +568,5 @@ export {
   calculatePriceForExtendBooking,
   addOneMinute,
   timelineFormatDate,
+  isDuration24Hours,
 };

@@ -4,8 +4,9 @@ import React, { useState } from "react";
 const CopyButton = ({ textToCopy, onCopy }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async () => {
+  const handleCopy = async (e) => {
     try {
+      e.stopPropagation();
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       if (onCopy) onCopy();
@@ -18,7 +19,7 @@ const CopyButton = ({ textToCopy, onCopy }) => {
   return (
     <button
       className="mx-1 text-sm text-gray-400 lowercase"
-      onClick={handleCopy}
+      onClick={(e) => handleCopy(e)}
       style={{ cursor: "pointer" }}
     >
       {copied ? "Copied!" : tableIcons.copy}

@@ -29,6 +29,8 @@ import CopyButton from "../../components/Buttons/CopyButton.jsx";
 import TableImage from "./TableImageWithPopupShow.jsx";
 const BookingCard = lazy(() => import("../../components/Card/BookingCard.jsx"));
 import { useNavigate } from "react-router-dom";
+import CardNotFound from "../../components/Skeleton/CardNotFound.jsx";
+import CardDataLoading from "../../components/Skeleton/CardDataLoading.jsx";
 
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
@@ -123,6 +125,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "dateofbirth",
           "gender",
           "addressProof",
+          "drivinglicence",
           // "userId",
         ].includes(key)
     );
@@ -519,12 +522,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
               ))
             ) : (
               <div className="flex items-center justify-center h-52 bg-white rounded-xl">
-                <TableNotFound />
+                <CardNotFound />
               </div>
             )
           ) : (
             <div className="flex items-center justify-center h-52 bg-white rounded-xl">
-              <TableDataLoading />
+              <CardDataLoading />
             </div>
           )}
         </div>

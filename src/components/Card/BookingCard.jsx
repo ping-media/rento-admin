@@ -2,6 +2,7 @@ import { formatFullDateAndTime, formatPrice } from "../../utils/index";
 import StatusChange from "../../components/Table/StatusChange";
 import { tableIcons } from "../../Data/Icons";
 import { Link } from "react-router-dom";
+import CopyButton from "../../components/Buttons/CopyButton";
 
 const BookingCard = ({ item }) => {
   return (
@@ -52,11 +53,14 @@ const BookingCard = ({ item }) => {
           </p>
           <p className="flex items-center text-sm">
             {tableIcons?.phone}
-            <Link to={`tel:${item?.userId?.contact}`}>
-              <span className="ml-1 capitalize text-theme">
-                {item?.userId?.contact}
-              </span>
-            </Link>
+            {/* <a href={`tel:${item?.userId?.contact}`}> */}
+            <span className="ml-1 capitalize text-theme">
+              {item?.userId?.contact}{" "}
+            </span>
+            <span>
+              <CopyButton textToCopy={item?.userId?.contact} />
+            </span>
+            {/* </a> */}
           </p>
         </div>
         {/* time between booking  */}

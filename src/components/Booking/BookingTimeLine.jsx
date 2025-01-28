@@ -3,7 +3,7 @@ import PreLoader from "../../components/Skeleton/PreLoader";
 import { getData } from "../../Data/index";
 import { useDispatch, useSelector } from "react-redux";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { timelineFormatDate } from "../../utils/index";
+// import { timelineFormatDate } from "../../utils/index";
 import CopyButton from "../../components/Buttons/CopyButton";
 
 const BookingTimeLine = ({ bookingId }) => {
@@ -68,7 +68,8 @@ const BookingTimeLine = ({ bookingId }) => {
                       {key}
                     </h3>
                     <p className="text-gray-700 leading-tight text-xs">
-                      {timelineFormatDate(value)}
+                      {/* {timelineFormatDate(value)} */}
+                      {value}
                     </p>
                   </>
                 ) : (
