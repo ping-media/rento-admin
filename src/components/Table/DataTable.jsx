@@ -27,7 +27,7 @@ import UserStatusCell from "./UserStatusCell.jsx";
 import UserDocumentCell from "./UserDocumentCell.jsx";
 import CopyButton from "../../components/Buttons/CopyButton.jsx";
 import TableImage from "./TableImageWithPopupShow.jsx";
-const BookingCard = lazy(() => import("../../components/Card/BookingCard.jsx"));
+import BookingCard from "../../components/Card/BookingCard.jsx";
 import { useNavigate } from "react-router-dom";
 import CardNotFound from "../../components/Skeleton/CardNotFound.jsx";
 import CardDataLoading from "../../components/Skeleton/CardDataLoading.jsx";
