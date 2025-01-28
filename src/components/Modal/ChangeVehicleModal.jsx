@@ -65,18 +65,34 @@ const ChangeVehicleModal = ({ bookingData }) => {
       startDate?.slice(0, 10),
       endDate?.slice(0, 10)
     );
-    const bookingPrice =
-      Number(changeToNewVehicle?.perDayCost) * Number(daysLeft);
-    const tax = calculateTax(bookingPrice, 18);
-    const totalPrice =
-      Number(bookingPrice) +
-      Number(tax) +
-      Number(bookingData?.bookingPrice?.extraAddonPrice);
+    const bookingPriceWithHelmet = Number(changeToNewVehicle?.perDayCost);
+    const bookingPrice = Number(bookingPriceWithHelmet) * Number(daysLeft);
+    const bokokingPriceplusHelmet =
+      Number(bookingData?.bookingPrice?.extraAddonPrice || 0) + bookingPrice;
+    const tax = calculateTax(bokokingPriceplusHelmet, 18);
+    const totalPrice = Number(bokokingPriceplusHelmet) + Number(tax);
+    const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
+    const oldTotalPrice = bookingData?.bookingPrice?.totalPrice;
     const diffAmount =
       bookingData?.bookingPrice?.discountTotalPrice > 0
-        ? Number(bookingData?.bookingPrice?.discountTotalPrice) -
-          Number(totalPrice)
-        : Number(bookingData?.bookingPrice?.totalPrice) - Number(totalPrice);
+        ? totalPrice <
+          (oldDiscountPrice != 0 ? oldDiscountPrice : oldTotalPrice)
+          ? Number(bookingData?.bookingPrice?.discountTotalPrice) -
+            Number(totalPrice)
+          : Number(totalPrice) -
+            Number(bookingData?.bookingPrice?.discountTotalPrice)
+        : totalPrice <
+          (oldDiscountPrice != 0 ? oldDiscountPrice : oldTotalPrice)
+        ? Number(bookingData?.bookingPrice?.totalPrice) - Number(totalPrice)
+        : Number(totalPrice) - Number(bookingData?.bookingPrice?.totalPrice);
+
+    console.log(
+      daysLeft,
+      bookingPriceWithHelmet,
+      bookingPrice,
+      tax,
+      totalPrice
+    );
 
     const data = {
       _id: bookingData?._id,

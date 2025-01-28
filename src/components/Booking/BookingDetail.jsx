@@ -195,13 +195,15 @@ const BookingDetail = () => {
             <div>
               <h2 className="font-bold uppercase text-md lg:text-lg flex flex-wrap items-center gap-2">
                 {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
-                <button
-                  className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"
-                  type="button"
-                  onClick={() => dispatch(toggleChangeVehicleModal())}
-                >
-                  Change Vehicle
-                </button>
+                {vehicleMaster[0]?.rideStatus !== "completed" && (
+                  <button
+                    className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"
+                    type="button"
+                    onClick={() => dispatch(toggleChangeVehicleModal())}
+                  >
+                    Change Vehicle
+                  </button>
+                )}
               </h2>
               <small className="text-sm text-gray-400">
                 Vehicle Number: ({vehicleMaster[0]?.vehicleBasic?.vehicleNumber}
