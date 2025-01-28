@@ -36,6 +36,7 @@ const RideEndModal = ({ id }) => {
           },
         };
         postData("/createTimeline", timeLineData, token);
+        handleCloseModal();
         return dispatch(handleUpdateFlags(data));
       }
       if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
