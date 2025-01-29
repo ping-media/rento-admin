@@ -14,6 +14,7 @@ const initialState = {
   isRideEndModalActive: false,
   isChangeVehicleModalActive: false,
   isBookingExtendModalActive: false,
+  isPaymentUpdateModalActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -68,6 +69,10 @@ const SideBarSlice = createSlice({
       state.isBookingExtendModalActive =
         state.isBookingExtendModalActive === false ? true : false;
     },
+    togglePaymentUpdateModal: (state) => {
+      state.isPaymentUpdateModalActive =
+        state.isPaymentUpdateModalActive === false ? true : false;
+    },
     toggleClearModals: () => initialState,
   },
 });
@@ -87,6 +92,7 @@ export const {
   toggleChangeVehicleModal,
   toggleBookingExtendModal,
   toggleRideEndModal,
+  togglePaymentUpdateModal,
 } = SideBarSlice.actions;
 
 export default SideBarSlice.reducer;

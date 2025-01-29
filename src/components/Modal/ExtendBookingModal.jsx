@@ -11,7 +11,10 @@ import {
 } from "../../utils/index";
 import { postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { handleUpdateExtendVehicle } from "../../Redux/VehicleSlice/VehicleSlice";
+import {
+  handleUpdateExtendVehicle,
+  updateTimeLineData,
+} from "../../Redux/VehicleSlice/VehicleSlice";
 
 const ExtendBookingModal = ({ bookingData }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
@@ -69,6 +72,8 @@ const ExtendBookingModal = ({ bookingData }) => {
           },
         };
         postData("/createTimeline", timeLineData, token);
+        // for updating timeline redux data
+        dispatch(updateTimeLineData(timeLineData));
         dispatch(toggleBookingExtendModal());
         return handleAsyncError(dispatch, response?.message, "success");
       } else {
@@ -92,7 +97,7 @@ const ExtendBookingModal = ({ bookingData }) => {
     <div
       className={`fixed ${
         !isBookingExtendModalActive ? "hidden" : ""
-      } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
+      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-xl">
         <div className="flex justify-between p-2">

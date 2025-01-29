@@ -10,9 +10,8 @@ const UserDisplayCell = ({ item, firstName, lastName, Contact }) => {
         item?.userId?.lastName || lastName || "User"
       }`}</p>
       <p className="text-xs hover:text-theme">
-        <Link to={`tel:${item?.userId?.contact || Contact || "#"}`}>
-          ({item?.userId?.contact || Contact || "NA"})
-        </Link>
+        {/* <Link to={`tel:${item?.userId?.contact || Contact || "#"}`}> */}(
+        {item?.userId?.contact || Contact || "NA"}){/* </Link> */}
       </p>
     </td>
   );

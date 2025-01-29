@@ -68,7 +68,7 @@ const UserKycApproveModal = () => {
     <div
       className={`fixed ${
         !isKycModalActive ? "hidden" : ""
-      } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
+      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white w-full lg:max-w-xl">
         <div className="flex justify-between p-2">

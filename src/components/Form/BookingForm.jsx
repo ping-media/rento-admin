@@ -80,8 +80,13 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       setFormLoading(true);
       const paymentMethodStatus = result["paymentMethod"];
       let userPaid = 0;
+      let AmountLeftAfterUserPaid = 0;
       if (paymentMethodStatus === "partiallyPay") {
-        userPaid = (Number(formData?.stepTwoData?.totalPrice) * 20) / 100;
+        const needToPay =
+          (Number(formData?.stepTwoData?.totalPrice) * 20) / 100;
+        userPaid = Number(needToPay);
+        AmountLeftAfterUserPaid =
+          Number(formData?.stepTwoData?.totalPrice) - Number(userPaid);
       }
       // ride starting otp
       const startRideOtp = Math.floor(1000 + Math.random() * 9000);
@@ -109,6 +114,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           rentAmount: formData?.stepTwoData?.rentAmount,
           isPackageApplied: false,
           userPaid: userPaid,
+          AmountLeftAfterUserPaid: AmountLeftAfterUserPaid,
           extendAmount: [],
         },
         vehicleBasic: {

@@ -1,48 +1,77 @@
 import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleRideEndModal } from "../../Redux/SideBarSlice/SideBarSlice";
+import { togglePaymentUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
 import { useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { cancelBookingById } from "../../Data/Function";
 import { postData } from "../../Data/index";
 import {
+  handleUpdateDateForPayment,
   handleUpdateFlags,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
+import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
 
-const RideEndModal = ({ id }) => {
-  const { isRideEndModalActive } = useSelector((state) => state.sideBar);
+const UpdateBookingPayment = ({ id }) => {
+  const { isPaymentUpdateModalActive } = useSelector((state) => state.sideBar);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
-  const [endRide, SetEndRide] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(0);
+  const [paymentMode, setPaymentMode] = useState("");
   const dispatch = useDispatch();
 
-  // for completing the booking
-  const handleEndBooking = async (event) => {
+  // for updating the payment for specific booking
+  const handlUpdateBookingPaymentRecord = async (event) => {
     event.preventDefault();
     setFormLoading(true);
     try {
+      if (finalAmount === 0 && paymentMode === "")
+        return handleAsyncError(dispatch, "All fields required!");
+      const paymentStatus =
+        vehicleMaster[0]?.paymentStatus === "partiallyPay" ||
+        vehicleMaster[0]?.paymentStatus === "partially_paid"
+          ? "paid"
+          : vehicleMaster[0]?.paymentStatus;
+
+      //   dynamically create a key
+      const paymentKey =
+        vehicleMaster[0]?.paymentStatus === "partiallyPay" ||
+        vehicleMaster[0]?.paymentStatus === "partially_paid"
+          ? "paymentDone"
+          : vehicleMaster[0]?.bookingPrice?.diffAmount &&
+            vehicleMaster[0]?.bookingPrice?.diffAmount > 0
+          ? "vehicleChange"
+          : "extentend";
+
       const data = {
-        rideOtp: endRide,
-        rideStatus: "completed",
+        paymentUpdates: {
+          [paymentKey]: { amount: finalAmount, paymentMode: paymentMode },
+        },
+        paymentStatus: paymentStatus,
         _id: id,
       };
+
       const isCanceled = await cancelBookingById(id, data, token);
       if (isCanceled === true) {
-        handleAsyncError(dispatch, "Ride completed successfully", "success");
+        handleAsyncError(
+          dispatch,
+          "Payment record save successfully",
+          "success"
+        );
         // updating the timeline for booking
         const timeLineData = {
           currentBooking_id: id,
           timeLine: {
-            "Booking Completed": new Date().toLocaleString(),
+            "Payment Updated": new Date().toLocaleString(),
           },
         };
         postData("/createTimeline", timeLineData, token);
+        handleCloseModal();
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
-        handleCloseModal();
-        return dispatch(handleUpdateFlags(data));
+        return dispatch(handleUpdateDateForPayment(data));
       }
       if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
     } catch (error) {
@@ -54,20 +83,19 @@ const RideEndModal = ({ id }) => {
 
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {
-    SetEndRide(0);
-    dispatch(toggleRideEndModal());
+    dispatch(togglePaymentUpdateModal());
   };
 
   return (
     <div
       className={`fixed ${
-        !isRideEndModalActive ? "hidden" : ""
+        !isPaymentUpdateModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-40 mx-auto shadow-xl rounded-md bg-white max-w-md">
         <div className="flex justify-between p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
-            Finish Ride
+            Update Payment
           </h2>
           <button
             onClick={handleCloseModal}
@@ -91,16 +119,33 @@ const RideEndModal = ({ id }) => {
         </div>
 
         <div className="p-6 pt-0 text-center">
-          <form onSubmit={handleEndBooking}>
+          <form onSubmit={handlUpdateBookingPaymentRecord}>
             <div className="mb-2">
-              <Input item={"OTP"} setValueChange={SetEndRide} type="number" />
+              <Input
+                item={"finalAmount"}
+                type="number"
+                require={true}
+                setValueChange={setFinalAmount}
+              />
+            </div>
+            <div className="mb-2">
+              <SelectDropDown
+                item={"finalAmount"}
+                options={["online", "cash"]}
+                setIsLocationSelected={setPaymentMode}
+                require={true}
+              />
             </div>
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
               disabled={formLoading}
             >
-              {!formLoading ? "End Ride" : <Spinner message={"loading..."} />}
+              {!formLoading ? (
+                "Update Payment"
+              ) : (
+                <Spinner message={"loading..."} />
+              )}
             </button>
           </form>
         </div>
@@ -109,4 +154,4 @@ const RideEndModal = ({ id }) => {
   );
 };
 
-export default RideEndModal;
+export default UpdateBookingPayment;

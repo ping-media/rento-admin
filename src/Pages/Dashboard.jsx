@@ -112,14 +112,6 @@ const Dashboard = () => {
             type={"bar"}
           />
         </div>
-        {/* <div className="flex-1 shadow-lg p-3 lg:p-5 rounded-2xl bg-white">
-            <h2 className="text-xl mb-3 font-semibold">Payments</h2>
-            <BarChart
-              data={dasboardDataCount && dasboardDataCount?.payments}
-              type={"bar"}
-            />
-          </div> */}
-        {/* </div> */}
       </>
     ) : (
       <NotFound />

@@ -139,24 +139,30 @@ const BarChart = ({ data }) => {
       {/* View Mode Buttons */}
       <div className="mb-5 flex items-center gap-2">
         <button
-          className={`border-2 hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-lg ${
-            viewMode === "Daily" && "bg-theme text-gray-100 border-theme"
+          className={`border-2 border-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-md ${
+            viewMode === "Daily"
+              ? "bg-theme text-gray-100 border-theme"
+              : "text-theme"
           }`}
           onClick={() => setViewMode("Daily")}
         >
           Daily
         </button>
         <button
-          className={`border-2 border-theme text-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-lg ${
-            viewMode === "Weekly" && "bg-theme text-gray-100 border-theme"
+          className={`border-2 border-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-md ${
+            viewMode === "Weekly"
+              ? "bg-theme text-gray-100 border-theme"
+              : "text-theme"
           }`}
           onClick={() => setViewMode("Weekly")}
         >
           Weekly
         </button>
         <button
-          className={`border-2 border-theme text-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-lg ${
-            viewMode === "Monthly" && "bg-theme text-gray-100 border-theme"
+          className={`border-2 border-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-md ${
+            viewMode === "Monthly"
+              ? "bg-theme text-gray-100 border-theme"
+              : "text-theme"
           }`}
           onClick={() => setViewMode("Monthly")}
         >
@@ -164,7 +170,7 @@ const BarChart = ({ data }) => {
         </button>
       </div>
 
-      <div className="flex items-center flex-wrap gap-2 w-full">
+      <div className="flex items-center flex-wrap gap-1 lg:gap-2 w-full">
         {/* Booking Count Chart */}
         <div className="flex-1">
           <h2 className="text-lg font-bold mb-3">{`Booking Count (${viewMode})`}</h2>

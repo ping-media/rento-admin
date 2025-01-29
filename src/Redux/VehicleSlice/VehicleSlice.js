@@ -4,6 +4,7 @@ const vehicleSlice = createSlice({
   name: "vehicles",
   initialState: {
     vehicleMaster: null,
+    timeLineData: null,
     Vehicle: {},
     deletevehicleId: "",
     tempVehicleData: null,
@@ -29,6 +30,16 @@ const vehicleSlice = createSlice({
       state.vehicleMaster = action.payload;
       state.loading = false;
     },
+    addTimeLineData: (state, action) => {
+      state.timeLineData = action.payload;
+    },
+    updateTimeLineData: (state, action) => {
+      const { timeLine } = action.payload;
+      state.timeLineData = {
+        ...state.timeLineData,
+        timeLine: { ...state.tempVehicleData, timeLine },
+      };
+    },
     handleIsHeaderChecked: (state, action) => {
       state.isHeaderChecked = action.payload;
     },
@@ -41,6 +52,17 @@ const vehicleSlice = createSlice({
         item._id === data._id ? { ...item, ...data } : item
       );
       state.vehicleMaster = updatedData;
+    },
+    handleUpdateDateForPayment: (state, action) => {
+      const { paymentUpdates, paymentStatus } = action.payload;
+      state.vehicleMaster[0] = {
+        ...state.vehicleMaster[0],
+        paymentUpdates: {
+          ...state.vehicleMaster[0].paymentUpdates,
+          paymentUpdates,
+        },
+        paymentStatus,
+      };
     },
     handleUpdateStatus: (state, action) => {
       const { id, newStatus, flag } = action.payload;
@@ -217,7 +239,10 @@ export const {
   handleChangesInBooking,
   handleUpdateNotes,
   handleUpdateUserStatus,
+  handleUpdateDateForPayment,
   handleUpdateFlags,
+  addTimeLineData,
+  updateTimeLineData,
   handleUpdateExtendVehicle,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

@@ -13,7 +13,10 @@ import {
 import Input from "../../components/InputAndDropdown/Input";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import Spinner from "../../components/Spinner/Spinner";
-import { handleChangesInBooking } from "../../Redux/VehicleSlice/VehicleSlice";
+import {
+  handleChangesInBooking,
+  updateTimeLineData,
+} from "../../Redux/VehicleSlice/VehicleSlice";
 
 const ChangeVehicleModal = ({ bookingData }) => {
   const dispatch = useDispatch();
@@ -59,18 +62,28 @@ const ChangeVehicleModal = ({ bookingData }) => {
       (item) => item?._id == vehicleId
     );
     // calculating the duration
-    const startDate = formatDateToISO(new Date()).replace(".000Z", "Z");
+    const startDate =
+      bookingData?.BookingStartDateAndTime <=
+      formatDateToISO(new Date()).replace(".000Z", "Z")
+        ? formatDateToISO(new Date()).replace(".000Z", "Z")
+        : bookingData?.BookingStartDateAndTime;
     const endDate = bookingData?.BookingEndDateAndTime;
     const daysLeft = getDurationInDays(
       startDate?.slice(0, 10),
       endDate?.slice(0, 10)
     );
-    const bookingPriceWithHelmet = Number(changeToNewVehicle?.perDayCost);
-    const bookingPrice = Number(bookingPriceWithHelmet) * Number(daysLeft);
-    const bokokingPriceplusHelmet =
-      Number(bookingData?.bookingPrice?.extraAddonPrice || 0) + bookingPrice;
-    const tax = calculateTax(bokokingPriceplusHelmet, 18);
-    const totalPrice = Number(bokokingPriceplusHelmet) + Number(tax);
+    // calculate the price
+    const bookingPriceWithoutHelmet = Number(changeToNewVehicle?.perDayCost);
+    const bookingPrice = Number(bookingPriceWithoutHelmet) * Number(daysLeft);
+    const bookingPricePlusHelmet =
+      Number(
+        bookingData?.bookingPrice?.extraAddonPrice < 200
+          ? Number(bookingData?.bookingPrice?.extraAddonPrice) *
+              Number(daysLeft < 4 ? daysLeft : 4)
+          : bookingData?.bookingPrice?.extraAddonPrice || 0
+      ) + Number(bookingPrice);
+    const tax = calculateTax(bookingPricePlusHelmet, 18);
+    const totalPrice = Number(bookingPricePlusHelmet) + Number(tax);
     const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
     const oldTotalPrice = bookingData?.bookingPrice?.totalPrice;
     const diffAmount =
@@ -86,13 +99,15 @@ const ChangeVehicleModal = ({ bookingData }) => {
         ? Number(bookingData?.bookingPrice?.totalPrice) - Number(totalPrice)
         : Number(totalPrice) - Number(bookingData?.bookingPrice?.totalPrice);
 
-    console.log(
-      daysLeft,
-      bookingPriceWithHelmet,
-      bookingPrice,
-      tax,
-      totalPrice
-    );
+    // console.log(
+    //   daysLeft,
+    //   bookingPriceWithoutHelmet,
+    //   bookingPrice,
+    //   tax,
+    //   totalPrice,
+    //   startDate?.slice(0, 10),
+    //   endDate?.slice(0, 10)
+    // );
 
     const data = {
       _id: bookingData?._id,
@@ -159,6 +174,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
         dispatch(handleChangesInBooking(selectedVehicle));
         // pushing the data for upating the timeline
         postData("/createTimeline", timeLineData, token);
+        // for updating timeline redux data
+        dispatch(updateTimeLineData(timeLineData));
         handleAsyncError(dispatch, "vehicle Change Successfully", "success");
         return dispatch(toggleChangeVehicleModal());
       } else {
@@ -195,7 +212,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
     <div
       className={`fixed ${
         !isChangeVehicleModalActive ? "hidden" : ""
-      } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
+      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-xl">
         <div className="flex justify-between p-2">

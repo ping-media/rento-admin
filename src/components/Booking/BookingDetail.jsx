@@ -195,7 +195,8 @@ const BookingDetail = () => {
             <div>
               <h2 className="font-bold uppercase text-md lg:text-lg flex flex-wrap items-center gap-2">
                 {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
-                {vehicleMaster[0]?.rideStatus !== "completed" && (
+                {(vehicleMaster[0]?.rideStatus !== "completed" ||
+                  vehicleMaster[0]?.bookingStatus !== "canceled") && (
                   <button
                     className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"
                     type="button"

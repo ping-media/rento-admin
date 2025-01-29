@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { camelCaseToSpaceSeparated } from "../../utils";
+import { useDebounce } from "../../utils/Helper/debounce";
 
 const Input = ({
   item,
@@ -18,6 +19,10 @@ const Input = ({
   isCouponInput = false,
 }) => {
   const [inputValue, setInputValue] = useState(value);
+  // for debouncing state
+  const [isDebounceValue, setIsDebounceValue] = useState("");
+  const debouncedDate = useDebounce(isDebounceValue, 500);
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
   // changing the value
   const handleChangeValue = (e) => {
@@ -38,10 +43,26 @@ const Input = ({
       onChangeFun(dateToBeAdd, Number(e.target.value));
     setDateChange && setDateChange(newDate);
     // this is to change the date based on filters
-    if (onChangeFilterFun) {
-      onChangeFilterFun(e.target.value);
-    }
+    onChangeFilterFun && setIsDebounceValue(e.target.value);
   };
+
+  // for running function after there is a valid value
+  useEffect(() => {
+    // stopping this to run first time
+    if (isFirstRender === true) {
+      setIsFirstRender(false);
+      return;
+    }
+
+    console.log("first");
+
+    if (!onChangeFilterFun) return;
+    if (onChangeFilterFun) {
+      if (debouncedDate.length === 10 || debouncedDate.length === 0) {
+        onChangeFilterFun(debouncedDate);
+      }
+    }
+  }, [debouncedDate]);
 
   // Prevent increment and decrement via arrow keys
   const handleKeyDown = (e) => {
@@ -57,8 +78,25 @@ const Input = ({
     }
   }, [isModalClose]);
 
+  // for clearing the input's
+  const handleClearInput = () => {
+    setIsDebounceValue("");
+    setInputValue("");
+  };
+
   return (
-    <div className={`${bodyWidth}`}>
+    <div className={`${bodyWidth} relative`}>
+      {/* this button is only for filter input  */}
+      {onChangeFilterFun && debouncedDate?.length > 5 && (
+        <button
+          type="button"
+          className="absolute right-2 top-0 border-2 border-theme rounded text-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out px-1"
+          onClick={handleClearInput}
+        >
+          clear
+        </button>
+      )}
+      {/* main input  */}
       <label
         htmlFor={item}
         className="block text-gray-800 font-semibold text-sm capitalize text-left"

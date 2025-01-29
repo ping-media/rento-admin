@@ -5,10 +5,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 // import { timelineFormatDate } from "../../utils/index";
 import CopyButton from "../../components/Buttons/CopyButton";
+import { addTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const BookingTimeLine = ({ bookingId }) => {
   const { token } = useSelector((state) => state.user);
-  const [data, setData] = useState(null);
+  const { timeLineData } = useSelector((state) => state.vehicles);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
@@ -24,7 +25,7 @@ const BookingTimeLine = ({ bookingId }) => {
         if (response?.status !== 200) {
           return handleAsyncError(dispatch, response?.message);
         }
-        return setData(response?.data);
+        return dispatch(addTimeLineData(response?.data));
       } catch (error) {
         return handleAsyncError(dispatch, response?.message);
       } finally {
@@ -39,13 +40,13 @@ const BookingTimeLine = ({ bookingId }) => {
       <div className="relative wrap overflow-hidden">
         <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-1/2"></div>
         {!loading &&
-          data &&
-          Object.entries(data?.timeLine)?.map(([key, value], index) => (
+          timeLineData != null &&
+          Object.entries(timeLineData?.timeLine)?.map(([key, value], index) => (
             <div
               className={`mb-2 flex justify-between ${
                 index === 0
                   ? "items-start"
-                  : index === Object.entries(data?.timeLine)?.length - 1
+                  : index === Object.entries(timeLineData?.timeLine)?.length - 1
                   ? "items-end"
                   : "items-center"
               } w-full ${

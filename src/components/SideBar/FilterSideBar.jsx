@@ -7,6 +7,7 @@ import { fetchVehicleMasterData } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { useEffect, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
+import { useDebounce } from "../../utils/Helper/debounce";
 
 const FilterSideBar = () => {
   const dispatch = useDispatch();
@@ -61,7 +62,7 @@ const FilterSideBar = () => {
     } else {
       setMenuList(filterUserMenuList);
     }
-  }, []);
+  }, [location?.href]);
 
   //   search data based on flags
   const searchDataBasedOnFilters = async (searchTerm) => {
@@ -72,18 +73,20 @@ const FilterSideBar = () => {
         location?.pathname === "/all-users"
           ? "userType=customer"
           : "userType=manager";
-      const endpoint =
-        location?.pathname === "/all-bookings"
-          ? searchTerm !== ""
-            ? `/getBooking?${
-                searchTerm?.includes("Status=") ? "" : "search="
-              }${searchTerm}&page=${page}&limit=${limit}`
-            : `/getBooking?page=${page}&limit=${limit}`
-          : searchTerm !== ""
+      let endpoint;
+      if (location?.pathname === "/all-bookings") {
+        endpoint = searchTerm
+          ? `/getBooking?${
+              searchTerm?.includes("Status=") ? "" : "search="
+            }${searchTerm}&page=${page}&limit=${limit}`
+          : `/getBooking?page=${page}&limit=${limit}`;
+      } else {
+        endpoint = searchTerm
           ? `/getAllUsers?${
               searchTerm?.includes("=") ? "" : "search="
             }${searchTerm}&${userType}&page=${page}&limit=${limit}`
           : `/getBooking?${userType}&page=${page}&limit=${limit}`;
+      }
       // getting response
       const response = await getData(endpoint, token);
       if (response?.status === 200) {
@@ -146,7 +149,9 @@ const FilterSideBar = () => {
               <Input
                 item={"startDateAndTime"}
                 type="date"
-                onChangeFilterFun={searchDataBasedOnFilters}
+                onChangeFilterFun={
+                  searchDataBasedOnFilters && searchDataBasedOnFilters
+                }
               />
             </div>
           )}

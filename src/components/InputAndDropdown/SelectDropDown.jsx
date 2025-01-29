@@ -87,6 +87,7 @@ const SelectDropDown = ({
                   </option>
                 );
               } else if (
+                !location.pathname.includes("/all-bookings/add-new") &&
                 !location.pathname.includes("/all-bookings/details/") &&
                 isId &&
                 isStationName

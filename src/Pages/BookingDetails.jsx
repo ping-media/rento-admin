@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import {
   toggleBookingExtendModal,
   toggleDeleteModal,
+  togglePaymentUpdateModal,
   togglePickupImageModal,
   toggleRideEndModal,
 } from "../Redux/SideBarSlice/SideBarSlice";
@@ -15,9 +16,11 @@ import { cancelBookingById, fetchVehicleMasterById } from "../Data/Function";
 import {
   addTempVehicleData,
   handleUpdateFlags,
+  updateTimeLineData,
 } from "../Redux/VehicleSlice/VehicleSlice";
 import GenerateInvoiceButton from "../components/Table/GenerateInvoiceButton";
 import { postData } from "../Data/index";
+import UpdateBookingPayment from "../components/Modal/UpdateBookingPayment";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
@@ -87,6 +90,8 @@ const BookingDetails = () => {
             },
           };
           await postData("/createTimeline", timeLineData, token);
+          // for updating timeline redux data
+          dispatch(updateTimeLineData(timeLineData));
           handleAsyncError(dispatch, "Ride cancelled successfully", "success");
           dispatch(handleUpdateFlags(data));
           return dispatch(toggleDeleteModal());
@@ -177,7 +182,7 @@ const BookingDetails = () => {
 
   return !loading && vehicleMaster?.length === 1 ? (
     <>
-      {/* cancel modal  */}
+      {/* modal  */}
       <CancelModal
         title={"cancel booking"}
         handleDelete={handleCancelBooking}
@@ -187,6 +192,7 @@ const BookingDetails = () => {
         setValueChange={setNote}
       />
       <UploadPickupImageModal isBookingIdPresent={id ? true : false} />
+      <UpdateBookingPayment id={id} />
       <RideEndModal id={id} />
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">
@@ -265,6 +271,15 @@ const BookingDetails = () => {
               }
               title={"Extend Booking"}
               fn={() => dispatch(toggleBookingExtendModal())}
+            />
+          )}
+          {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
+            vehicleMaster[0]?.bookingPrice?.diffAmount > 0) ||
+            vehicleMaster[0]?.bookingStatus === "extended" ||
+            vehicleMaster[0]?.paymentStatus === "partiallyPay") && (
+            <Button
+              title={"Update Payment"}
+              fn={() => dispatch(togglePaymentUpdateModal())}
             />
           )}
           {/* for invoice generate  */}

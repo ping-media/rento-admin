@@ -126,6 +126,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "gender",
           "addressProof",
           "drivingLicence",
+          "paymentUpdates",
           // "userId",
         ].includes(key)
     );
@@ -311,6 +312,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     <UserDisplayCell
                                       key={`${item?._id}_userDisplayCell`}
                                       item={item}
+                                      onClick={(e) => e.stopPropagation()}
                                     />
                                   );
                                 }

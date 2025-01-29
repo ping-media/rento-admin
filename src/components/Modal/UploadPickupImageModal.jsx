@@ -8,6 +8,7 @@ import Spinner from "../Spinner/Spinner";
 import {
   handleInvoiceCreated,
   removeTempVehicleData,
+  updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import Input from "../InputAndDropdown/Input";
 import { useNavigate } from "react-router-dom";
@@ -102,6 +103,8 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
           },
         };
         postData("/createTimeline", timeLineData, token);
+        // for updating timeline redux data
+        dispatch(updateTimeLineData(timeLineData));
         handleAsyncError(dispatch, responseImage?.message, "success");
       } else {
         if (responseImage?.isKyc === false) {
@@ -134,7 +137,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     <div
       className={`fixed ${
         !isUploadPickupImageActive ? "hidden" : ""
-      } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
+      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white max-w-xl">
         <div className="flex justify-end p-2">

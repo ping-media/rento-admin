@@ -8,6 +8,7 @@ const BookingStatusFlag = ({ title, rides, flag }) => {
         <span
           className={`${
             (rides[flag] === "partially_paid" && "bg-orange-400") ||
+            (rides[flag] === "partiallyPay" && "bg-orange-400") ||
             (rides[flag] === "pending" && "bg-theme") ||
             (rides[flag] === "inactive" && "bg-theme") ||
             (rides[flag] === "failed" && "bg-theme") ||
