@@ -1,185 +1,33 @@
 import { useDispatch, useSelector } from "react-redux";
-import { toggleChangeVehicleModal } from "../../Redux/SideBarSlice/SideBarSlice";
-import { useEffect, useState } from "react";
-import { getData, postData } from "../../Data/index";
+import { toggleForgetPasswordModal } from "../../Redux/SideBarSlice/SideBarSlice";
+import { useState } from "react";
+import { handleSendOtp, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
-import {
-  calculateTax,
-  camelCaseToSpaceSeparated,
-  formatDateToISO,
-  getDurationInDays,
-} from "../../utils/index";
 import Input from "../../components/InputAndDropdown/Input";
-import PreLoader from "../../components/Skeleton/PreLoader";
 import Spinner from "../../components/Spinner/Spinner";
-import {
-  handleChangesInBooking,
-  updateTimeLineData,
-} from "../../Redux/VehicleSlice/VehicleSlice";
+import { isValidEmail } from "../../utils/index";
 
-const ForgetPasswordModal = ({ bookingData }) => {
+const ForgetPasswordModal = ({ userType = "", email = "" }) => {
   const dispatch = useDispatch();
   const { isForgetModalActive } = useSelector((state) => state.sideBar);
   const [formLoading, setFormLoading] = useState(false);
-  const [vehicleLoading, setVehicleLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
-  const [freeVehicles, setFreeVehicles] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [emailInput, setEmailInput] = useState(email);
   const { token } = useSelector((state) => state.user);
-
-  //   for fetching vehicle based on  dynamic date and time
-  useEffect(() => {
-    if (!isChangeVehicleModalActive) return;
-    (async () => {
-      try {
-        setVehicleLoading(true);
-        const response = await getData(
-          `/getVehicleTblData?stationId=${
-            bookingData?.stationId
-          }&BookingStartDateAndTime=${formatDateToISO(new Date()).replace(
-            ".000Z",
-            "Z"
-          )}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}`,
-          token
-        );
-        if (response?.status === 200) {
-          setFreeVehicles(response?.data);
-        } else {
-          return handleAsyncError(dispatch, response?.message);
-        }
-      } catch (error) {
-        return handleAsyncError(dispatch, error?.message);
-      } finally {
-        setVehicleLoading(false);
-      }
-    })();
-  }, [isChangeVehicleModalActive]);
-
-  //   selecting and making the data for updating booking
-  const handleChangeSelectedVehicle = (vehicleId) => {
-    const changeToNewVehicle = freeVehicles?.find(
-      (item) => item?._id == vehicleId
-    );
-    // calculating the duration
-    const startDate =
-      bookingData?.BookingStartDateAndTime <=
-      formatDateToISO(new Date()).replace(".000Z", "Z")
-        ? formatDateToISO(new Date()).replace(".000Z", "Z")
-        : bookingData?.BookingStartDateAndTime;
-    const endDate = bookingData?.BookingEndDateAndTime;
-    const daysLeft = getDurationInDays(
-      startDate?.slice(0, 10),
-      endDate?.slice(0, 10)
-    );
-    // calculate the price
-    const bookingPriceWithoutHelmet = Number(changeToNewVehicle?.perDayCost);
-    const bookingPrice = Number(bookingPriceWithoutHelmet) * Number(daysLeft);
-    const bookingPricePlusHelmet =
-      Number(
-        bookingData?.bookingPrice?.extraAddonPrice < 200
-          ? Number(bookingData?.bookingPrice?.extraAddonPrice) *
-              Number(daysLeft < 4 ? daysLeft : 4)
-          : bookingData?.bookingPrice?.extraAddonPrice || 0
-      ) + Number(bookingPrice);
-    const tax = calculateTax(bookingPricePlusHelmet, 18);
-    const totalPrice = Number(bookingPricePlusHelmet) + Number(tax);
-    const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
-    const oldTotalPrice = bookingData?.bookingPrice?.totalPrice;
-    const diffAmount =
-      bookingData?.bookingPrice?.discountTotalPrice > 0
-        ? totalPrice <
-          (oldDiscountPrice != 0 ? oldDiscountPrice : oldTotalPrice)
-          ? Number(bookingData?.bookingPrice?.discountTotalPrice) -
-            Number(totalPrice)
-          : Number(totalPrice) -
-            Number(bookingData?.bookingPrice?.discountTotalPrice)
-        : totalPrice <
-          (oldDiscountPrice != 0 ? oldDiscountPrice : oldTotalPrice)
-        ? Number(bookingData?.bookingPrice?.totalPrice) - Number(totalPrice)
-        : Number(totalPrice) - Number(bookingData?.bookingPrice?.totalPrice);
-
-    // console.log(
-    //   daysLeft,
-    //   bookingPriceWithoutHelmet,
-    //   bookingPrice,
-    //   tax,
-    //   totalPrice,
-    //   startDate?.slice(0, 10),
-    //   endDate?.slice(0, 10)
-    // );
-
-    const data = {
-      _id: bookingData?._id,
-      vehicleMasterId: changeToNewVehicle?.vehicleMasterId,
-      vehicleTableId: changeToNewVehicle?._id,
-      bookingPrice: {
-        bookingPrice: bookingPrice,
-        vehiclePrice: bookingPrice,
-        extraAddonPrice: bookingData?.bookingPrice?.extraAddonPrice,
-        discountPrice: bookingData?.bookingPrice?.discountPrice || 0,
-        discountTotalPrice: bookingData?.bookingPrice?.discountTotalPrice || 0,
-        isDiscountZero: bookingData?.bookingPrice?.isDiscountZero || false,
-        isPackageApplied: bookingData?.bookingPrice?.isPackageApplied || false,
-        tax: tax,
-        totalPrice: totalPrice,
-        rentAmount: Number(changeToNewVehicle?.perDayCost),
-        diffAmount: diffAmount <= 0 ? 0 : diffAmount,
-      },
-      changeVehicle: {
-        vehicleMasterId: bookingData?.vehicleMasterId,
-        vehicleTableId: bookingData?._id,
-        bookingPrice: bookingData?.bookingPrice,
-      },
-      vehicleBasic: {
-        isChanged: true,
-        refundableDeposit: changeToNewVehicle?.refundableDeposit,
-        speedLimit: changeToNewVehicle?.speedLimit,
-        vehicleNumber: changeToNewVehicle?.vehicleNumber,
-        freeLimit: changeToNewVehicle?.freeLimit,
-        lateFee: changeToNewVehicle?.lateFee,
-        extraKmCharge: changeToNewVehicle?.extraKmCharge,
-        startRide: bookingData?.vehicleBasic?.startRide,
-        endRide: bookingData?.vehicleBasic?.endRide,
-      },
-    };
-
-    setSelectedVehicle(data);
-  };
 
   // apply vehicle for Maintenance
   const handleChangeVehicle = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const otp = formData.get("OTP");
-    const data = {
-      ...selectedVehicle,
-      otp,
-      contact: bookingData?.userId?.contact,
-    };
-    if (!data)
-      return handleAsyncError(dispatch, "unable to change vehicle! try again.");
+    formData.append("userType", userType);
     try {
       setFormLoading(true);
-      const response = await postData("/vehicleChange", data, token);
+      const response = await postData("/forgetPassword", formData, token);
       if (response?.status === 200) {
-        // updating timeline
-        const timeLineData = {
-          currentBooking_id: bookingData?._id,
-          timeLine: {
-            "Vehicle Changed": new Date().toLocaleString(),
-          },
-        };
-        // updating the redux state
-        dispatch(handleChangesInBooking(selectedVehicle));
-        // pushing the data for upating the timeline
-        postData("/createTimeline", timeLineData, token);
-        // for updating timeline redux data
-        dispatch(updateTimeLineData(timeLineData));
-        handleAsyncError(dispatch, "vehicle Change Successfully", "success");
-        return dispatch(toggleChangeVehicleModal());
+        dispatch(toggleForgetPasswordModal());
+        return handleAsyncError(dispatch, response?.message, "success");
       } else {
-        handleAsyncError(dispatch, response?.message);
+        return handleAsyncError(dispatch, response?.message);
       }
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
@@ -189,23 +37,20 @@ const ForgetPasswordModal = ({ bookingData }) => {
   };
 
   //   for sending the otp
-  const handleSendOtp = async () => {
-    try {
-      setOtpLoading(true);
-      const data = {
-        contact: bookingData?.userId?.contact,
-      };
-      const response = await postData("/otpGenerat", data, token);
-      if (response?.status === 200) {
-        return handleAsyncError(dispatch, response?.message, "success");
-      } else {
-        return handleAsyncError(dispatch, response?.message);
-      }
-    } catch (error) {
-      return handleAsyncError(dispatch, error?.message);
-    } finally {
-      setOtpLoading(false);
-    }
+  const handleSendEmailOtp = async () => {
+    if (emailInput && emailInput === "")
+      return handleAsyncError(dispatch, "email should not empty");
+    const data = {
+      email: emailInput,
+    };
+    return handleSendOtp(
+      "/emailOtp",
+      data,
+      token,
+      dispatch,
+      handleAsyncError,
+      setOtpLoading
+    );
   };
 
   return (
@@ -214,13 +59,15 @@ const ForgetPasswordModal = ({ bookingData }) => {
         !isForgetModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-xl">
+      <div className="relative top-20 lg:top-40 mx-auto shadow-xl rounded-md bg-white max-w-lg">
         <div className="flex justify-between p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
-            Change Vehicle
+            {`${
+              location.pathname.includes("/all-users/") ? "Change" : "Forget"
+            } Password`}
           </h2>
           <button
-            onClick={() => dispatch(toggleChangeVehicleModal())}
+            onClick={() => dispatch(toggleForgetPasswordModal())}
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
             disabled={formLoading || false}
@@ -241,93 +88,49 @@ const ForgetPasswordModal = ({ bookingData }) => {
         </div>
 
         <div className="p-6 pt-0 text-center">
-          {vehicleLoading && <PreLoader />}
           <form onSubmit={handleChangeVehicle}>
             <div className="mb-2">
-              <SelectDropDown
-                item={"vehicleTableId"}
-                onChangeFn={handleChangeSelectedVehicle}
-                options={freeVehicles}
+              <Input
+                item={"email"}
+                type="email"
+                value={emailInput}
+                setValueChange={setEmailInput}
                 require={true}
               />
-              {selectedVehicle && selectedVehicle?.length === 0 && (
-                <p className="italic text-gray-100 mt-1">No vehicle Found.</p>
-              )}
             </div>
-            {selectedVehicle !== null && (
-              <div className="w-full bg-gray-300 rounded-lg bg-opacity-75 py-2 px-2.5 mb-2">
-                <h2 className="text-left">Old Vehicle</h2>
-                <ul className="leading-7 text-left mb-1">
-                  {["rentAmount", "tax", "totalPrice"].map((key, index) => {
-                    const value = bookingData?.bookingPrice?.[key];
-                    if (value !== undefined) {
-                      return (
-                        <li
-                          className={`capitalize ${
-                            key === "totalPrice" ? "font-semibold" : ""
-                          }`}
-                          key={index}
-                        >
-                          {camelCaseToSpaceSeparated(key)}: ₹{value}
-                        </li>
-                      );
-                    } else {
-                      return null;
-                    }
-                  })}
-                </ul>
-                <h2 className="text-left">New Vehicle</h2>
-                <ul className="leading-7 text-left mb-1">
-                  {["rentAmount", "tax", "totalPrice"].map((key, index) => {
-                    const value = selectedVehicle?.bookingPrice?.[key];
-                    if (value !== undefined) {
-                      return (
-                        <li
-                          className={`capitalize ${
-                            key === "totalPrice" ? "font-semibold" : ""
-                          }`}
-                          key={index}
-                        >
-                          {camelCaseToSpaceSeparated(key)}: ₹{value}
-                        </li>
-                      );
-                    } else {
-                      return null;
-                    }
-                  })}
-                </ul>
-                {selectedVehicle && (
-                  <p className="font-semibold text-left">
-                    Amount need to pay: ₹
-                    {selectedVehicle?.bookingPrice?.diffAmount}
-                  </p>
-                )}
+            <div className="mb-2">
+              <Input item={"password"} type="password" require={true} />
+            </div>
+            {userType !== "admin" && isValidEmail(emailInput) === true && (
+              <div className="mb-2">
+                <Input item={"otp"} type="number" require={true} />
+                <div className="text-left mt-2">
+                  <button
+                    type="button"
+                    className="border-2 rounded-md text-theme hover:bg-theme hover:text-gray-100 border-theme p-1 disabled:border-gray-400 disabled:text-gray-400"
+                    disabled={otpLoading}
+                    onClick={handleSendEmailOtp}
+                  >
+                    {!otpLoading ? (
+                      "Send OTP"
+                    ) : (
+                      <Spinner textColor="black" message={"sending..."} />
+                    )}
+                  </button>
+                </div>
               </div>
             )}
-            <div className="mb-2">
-              <Input item={"OTP"} type="number" require={true} />
-              <div className="text-left mt-2">
-                <button
-                  type="button"
-                  className="border-2 rounded-md text-theme hover:bg-theme hover:text-gray-100 border-theme p-1 disabled:border-gray-400 disabled:text-gray-400"
-                  disabled={otpLoading || selectedVehicle === null}
-                  onClick={handleSendOtp}
-                >
-                  {!otpLoading ? (
-                    "Send OTP"
-                  ) : (
-                    <Spinner textColor="black" message={"sending..."} />
-                  )}
-                </button>
-              </div>
-            </div>
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
-              disabled={formLoading || selectedVehicle === null}
+              disabled={formLoading}
             >
               {!formLoading ? (
-                "Change vehicle"
+                `${
+                  location.pathname.includes("/all-users/")
+                    ? "Change"
+                    : "Forget"
+                } Password`
               ) : (
                 <Spinner message={"loading..."} />
               )}

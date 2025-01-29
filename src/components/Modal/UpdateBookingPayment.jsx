@@ -8,7 +8,6 @@ import { cancelBookingById } from "../../Data/Function";
 import { postData } from "../../Data/index";
 import {
   handleUpdateDateForPayment,
-  handleUpdateFlags,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";

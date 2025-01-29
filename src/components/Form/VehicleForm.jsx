@@ -19,7 +19,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   const [stationData, setStationData] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [isLocationSelected, setIsLocationSelected] = useState("");
-  const { token } = useSelector((state) => state.user);
+  const { token, userStation } = useSelector((state) => state.user);
   const { id } = useParams();
 
   //updating station based on location id
@@ -89,23 +89,39 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
         <>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"locationId"}
-              options={collectedData?.locationId}
-              value={id && vehicleMaster[0]?.locationId}
-              setIsLocationSelected={setIsLocationSelected}
-              require={true}
+          {userStation ? (
+            <input
+              type="hidden"
+              name="locationId"
+              value={userStation?.locationId}
             />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"stationId"}
-              options={stationData && stationData}
-              value={id && vehicleMaster[0]?.stationId}
-              require={true}
+          ) : (
+            <div className="w-full lg:w-[48%]">
+              <SelectDropDown
+                item={"locationId"}
+                options={collectedData?.locationId}
+                value={id && vehicleMaster[0]?.locationId}
+                setIsLocationSelected={setIsLocationSelected}
+                require={true}
+              />
+            </div>
+          )}
+          {userStation ? (
+            <input
+              type="hidden"
+              name="stationId"
+              value={userStation?.stationId}
             />
-          </div>
+          ) : (
+            <div className="w-full lg:w-[48%]">
+              <SelectDropDown
+                item={"stationId"}
+                options={stationData && stationData}
+                value={id && vehicleMaster[0]?.stationId}
+                require={true}
+              />
+            </div>
+          )}
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"vehicleMasterId"}

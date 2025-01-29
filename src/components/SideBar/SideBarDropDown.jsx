@@ -9,7 +9,8 @@ const SideBarDropDown = ({ item }) => {
         open={
           location.pathname === "/all-users" ||
           location.pathname === "/all-managers" ||
-          location.pathname === "/users-documents"
+          location.pathname.includes("/all-users/") ||
+          location.pathname.includes("/all-managers/")
         }
       >
         <summary

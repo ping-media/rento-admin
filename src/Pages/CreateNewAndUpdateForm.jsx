@@ -14,7 +14,13 @@ import PreLoader from "../components/Skeleton/PreLoader.jsx";
 import { endPointBasedOnURL, forms } from "../Data/commonData.js";
 import { removeTempIds } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { tableIcons } from "../Data/Icons.jsx";
-import { toogleKycModalActive } from "../Redux/SideBarSlice/SideBarSlice.js";
+import {
+  toggleForgetPasswordModal,
+  toogleKycModalActive,
+} from "../Redux/SideBarSlice/SideBarSlice.js";
+const ForgetPasswordModal = lazy(() =>
+  import("../components/Modal/ForgetPasswordModal.jsx")
+);
 const UserKycApproveModal = lazy(() =>
   import("../components/Modal/UserKycApproveModal.jsx")
 );
@@ -58,6 +64,12 @@ const CreateNewAndUpdateForm = () => {
         location.pathname.includes("/all-managers/")) && (
         <UserKycApproveModal />
       )}
+      {location.pathname.includes("/all-managers/") && (
+        <ForgetPasswordModal
+          userType={"admin"}
+          email={vehicleMaster?.email || vehicleMaster[0]?.userId?.email}
+        />
+      )}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           {/* back button visiable on mobile screen  */}
@@ -91,19 +103,29 @@ const CreateNewAndUpdateForm = () => {
         {/* for kyc approval  */}
         {(location.pathname.includes("/all-users/") ||
           location.pathname.includes("/all-managers/")) && (
-          <button
-            className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
-            onClick={() => dispatch(toogleKycModalActive())}
-            disabled={
-              (vehicleMaster &&
-                vehicleMaster[0]?.userId?.kycApproved === "yes") ||
-              false
-            }
-          >
-            {vehicleMaster && vehicleMaster[0]?.userId?.kycApproved === "yes"
-              ? "Verified"
-              : "Verify User"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+              onClick={() => dispatch(toogleKycModalActive())}
+              disabled={
+                (vehicleMaster &&
+                  vehicleMaster[0]?.userId?.kycApproved === "yes") ||
+                false
+              }
+            >
+              {vehicleMaster && vehicleMaster[0]?.userId?.kycApproved === "yes"
+                ? "Verified"
+                : "Verify User"}
+            </button>
+            {location.pathname.includes("/all-managers/") && (
+              <button
+                className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+                onClick={() => dispatch(toggleForgetPasswordModal())}
+              >
+                Change Password
+              </button>
+            )}
+          </div>
         )}
       </div>
       <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-5 mx-auto bg-white">

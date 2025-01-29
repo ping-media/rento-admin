@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { lazy, useRef, useState } from "react";
 import Alert from "../Alert/Alert";
 import loginImage from "../../assets/logo/login.svg";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,6 +7,10 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { handleOtpLogin } from "../../Data/Function";
 import webLogo from "../../assets/logo/rento-logo.png";
 import { tableIcons } from "../../Data/Icons";
+import { toggleForgetPasswordModal } from "../../Redux/SideBarSlice/SideBarSlice";
+const ForgetPasswordModal = lazy(() =>
+  import("../../components/Modal/ForgetPasswordModal.jsx")
+);
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -34,6 +38,7 @@ const Login = () => {
     <div className="min-h-screen login relative">
       {/* alert or error showing  */}
       {message && <Alert error={message} errorType={type} />}
+      <ForgetPasswordModal />
       {/* login  */}
       <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-gradient-to-t from-theme-dark from-20% via-theme via-40% to-theme-seconday-dark to-90% rounded-bl-[18rem] lg:bg-none">
         {/* login image section */}
@@ -89,7 +94,7 @@ const Login = () => {
                     />
                   </div>
                 </div>
-                <div className="mb-8">
+                <div className="mb-4">
                   <div className="relative mt-2 text-gray-100 lg:text-gray-500">
                     <div className="absolute inset-y-0 left-3 my-auto h-6 flex items-center border-r pr-2">
                       {tableIcons.lock}
@@ -114,6 +119,15 @@ const Login = () => {
                         : tableIcons.eyeOpen}
                     </button>
                   </div>
+                </div>
+                <div className="mb-4 text-end">
+                  <button
+                    type="button"
+                    className="text-theme hover:underline transition-all duration-200 ease-in-out"
+                    onClick={() => dispatch(toggleForgetPasswordModal())}
+                  >
+                    Forget Password?
+                  </button>
                 </div>
                 <button
                   type="submit"

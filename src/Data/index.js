@@ -260,6 +260,29 @@ const createOrderId = async (data) => {
   }
 };
 
+const handleSendOtp = async (
+  endpoint,
+  data,
+  token,
+  dispatch,
+  handleAsyncError,
+  setLoading
+) => {
+  try {
+    setLoading(true);
+    const response = await postData(endpoint, data, token);
+    if (response?.status === 200) {
+      return handleAsyncError(dispatch, response?.message, "success");
+    } else {
+      return handleAsyncError(dispatch, response?.message);
+    }
+  } catch (error) {
+    return handleAsyncError(dispatch, error?.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 export {
   getData,
   getFullData,
@@ -269,4 +292,5 @@ export {
   deleteData,
   deleteDataById,
   createOrderId,
+  handleSendOtp,
 };
