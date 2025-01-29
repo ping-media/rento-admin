@@ -276,7 +276,8 @@ const BookingDetails = () => {
           {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
             vehicleMaster[0]?.bookingPrice?.diffAmount > 0) ||
             vehicleMaster[0]?.bookingStatus === "extended" ||
-            vehicleMaster[0]?.paymentStatus === "partiallyPay") && (
+            vehicleMaster[0]?.paymentStatus === "partiallyPay" ||
+            vehicleMaster[0]?.paymentStatus === "partially_paid") && (
             <Button
               title={"Update Payment"}
               fn={() => dispatch(togglePaymentUpdateModal())}
