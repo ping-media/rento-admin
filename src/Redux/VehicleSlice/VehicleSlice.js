@@ -37,7 +37,7 @@ const vehicleSlice = createSlice({
       const { timeLine } = action.payload;
       state.timeLineData = {
         ...state.timeLineData,
-        timeLine: { ...state.timeLineData.timeLine, ...timeLine },
+        timeLine: [(prev) => ({ ...prev, ...timeLine[0] })],
       };
     },
     handleIsHeaderChecked: (state, action) => {

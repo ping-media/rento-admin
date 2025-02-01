@@ -442,10 +442,14 @@ const updateTimeLine = async (data, token) => {
   // updating the timeline for booking
   const timeLineData = {
     currentBooking_id: _id,
-    timeLine: {
-      "Payment Link Created": new Date().toLocaleString(),
-      "Payment Link": `rentobikes.com/payment?id=${_id}&bookingId=${bookingId}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}&orderId=${paymentgatewayOrderId}&fullName=${fullName}&email=${email}&contact=${contact}`,
-    },
+    timeLine: [
+      {
+        title: "Payment Link Created",
+        date: new Date().toLocaleString(),
+        PaymentLink: `rentobikes.com/payment?id=${_id}&bookingId=${bookingId}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}&orderId=${paymentgatewayOrderId}&fullName=${fullName}&email=${email}&contact=${contact}`,
+        paymentAmount: finalAmount,
+      },
+    ],
   };
   await postData("/createTimeline", timeLineData, token);
 };

@@ -124,7 +124,7 @@ const getFullData = async (url, token, retries = 5, delay = 500) => {
   }
 };
 
-const postData = async (url, data, token) => {
+const postData = async (url, data, token, requestType = "post") => {
   try {
     let headers = {
       "Content-Type": "application/json",
@@ -143,7 +143,7 @@ const postData = async (url, data, token) => {
     }
 
     let response;
-    if (data?._id && url?.includes("update")) {
+    if ((data?._id && url?.includes("update")) || requestType === "put") {
       response = await axios.put(
         `${import.meta.env.VITE_BASED_URL}${url}`,
         data,

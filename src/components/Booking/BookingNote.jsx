@@ -9,6 +9,7 @@ import Spinner from "../../components/Spinner/Spinner";
 const BookingNote = () => {
   const { currentUser, token } = useSelector((state) => state.user);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
+  const [Note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   //   submitting the note
@@ -39,6 +40,7 @@ const BookingNote = () => {
       }
       //   updating the redux state after successfully adding the note in booking
       dispatch(handleUpdateNotes(pushDataInRedux));
+      setNote("");
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
     } finally {
@@ -74,6 +76,8 @@ const BookingNote = () => {
           bodyWidth="w-2/4"
           customClass="w-[98%] px-3 py-1.5"
           item={"notes"}
+          value={Note}
+          setValueChange={setNote}
           require={true}
         />
         <button

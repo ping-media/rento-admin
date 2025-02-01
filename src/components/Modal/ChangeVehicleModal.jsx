@@ -61,6 +61,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const changeToNewVehicle = freeVehicles?.find(
       (item) => item?._id == vehicleId
     );
+    console.log(changeToNewVehicle);
     // calculating the duration
     const startDate =
       bookingData?.BookingStartDateAndTime <=
@@ -99,20 +100,13 @@ const ChangeVehicleModal = ({ bookingData }) => {
         ? Number(bookingData?.bookingPrice?.totalPrice) - Number(totalPrice)
         : Number(totalPrice) - Number(bookingData?.bookingPrice?.totalPrice);
 
-    // console.log(
-    //   daysLeft,
-    //   bookingPriceWithoutHelmet,
-    //   bookingPrice,
-    //   tax,
-    //   totalPrice,
-    //   startDate?.slice(0, 10),
-    //   endDate?.slice(0, 10)
-    // );
-
     const data = {
       _id: bookingData?._id,
       vehicleMasterId: changeToNewVehicle?.vehicleMasterId,
       vehicleTableId: changeToNewVehicle?._id,
+      vehicleImage: changeToNewVehicle?.vehicleImage,
+      vehicleBrand: changeToNewVehicle?.vehicleBrand,
+      vehicleName: changeToNewVehicle?.vehicleName,
       bookingPrice: {
         bookingPrice: bookingPrice,
         vehiclePrice: bookingPrice,
@@ -144,7 +138,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
       },
     };
 
-    setSelectedVehicle(data);
+    return setSelectedVehicle(data);
   };
 
   // apply vehicle for Maintenance
@@ -166,9 +160,13 @@ const ChangeVehicleModal = ({ bookingData }) => {
         // updating timeline
         const timeLineData = {
           currentBooking_id: bookingData?._id,
-          timeLine: {
-            "Vehicle Changed": new Date().toLocaleString(),
-          },
+          timeLine: [
+            {
+              title: "Vehicle Changed",
+              date: new Date().toLocaleString(),
+              changedTo: `vehicle Change from ${bookingData?.vehicleName}(${bookingData?.vehicleBasic?.vehicleNumber}) to ${changeToNewVehicle?.vehicleName}(${changeToNewVehicle?.vehicleNumber})`,
+            },
+          ],
         };
         // updating the redux state
         dispatch(handleChangesInBooking(selectedVehicle));

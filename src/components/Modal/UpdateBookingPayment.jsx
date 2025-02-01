@@ -62,9 +62,13 @@ const UpdateBookingPayment = ({ id }) => {
         // updating the timeline for booking
         const timeLineData = {
           currentBooking_id: id,
-          timeLine: {
-            "Payment Updated": new Date().toLocaleString(),
-          },
+          timeLine: [
+            {
+              title: "Payment Updated",
+              date: new Date().toLocaleString(),
+              paymentAmount: finalAmount,
+            },
+          ],
         };
         postData("/createTimeline", timeLineData, token);
         handleCloseModal();

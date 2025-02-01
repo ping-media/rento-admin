@@ -38,7 +38,7 @@ const BookingDetails = () => {
   const dispatch = useDispatch();
 
   // through this we are fetching single vehicle data
-  const fetchSingleVehicle = useCallback(() => {
+  const fetchSingleVehicle = useCallback(async () => {
     if (id) {
       fetchVehicleMasterById(dispatch, id, token, "/getBookings");
     }
@@ -85,9 +85,13 @@ const BookingDetails = () => {
           // updating the timeline for booking
           const timeLineData = {
             currentBooking_id: id,
-            timeLine: {
-              "Booking Cancelled": new Date().toLocaleString(),
-            },
+            timeLine: [
+              {
+                title: "Booking Cancelled",
+                date: new Date().toLocaleString(),
+                cancelNote: Note,
+              },
+            ],
           };
           await postData("/createTimeline", timeLineData, token);
           // for updating timeline redux data

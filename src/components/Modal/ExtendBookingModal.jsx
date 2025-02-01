@@ -67,9 +67,13 @@ const ExtendBookingModal = ({ bookingData }) => {
         // updating the timeline for booking
         const timeLineData = {
           currentBooking_id: response?.data?._id,
-          timeLine: {
-            "Booking Extended": new Date().toLocaleString(),
-          },
+          timeLine: [
+            {
+              title: "Booking Extended",
+              date: new Date().toLocaleString(),
+              extendedTill: newDate,
+            },
+          ],
         };
         postData("/createTimeline", timeLineData, token);
         // for updating timeline redux data

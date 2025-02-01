@@ -255,7 +255,9 @@ const BookingFareDetails = ({ rides }) => {
                 </small>
               </p>
               <p className="text-sm font-bold text-right">
-                {`₹${formatPrice(Number(1000))}`}
+                {`₹${formatPrice(
+                  Number(rides?.vehicleBasic?.refundableDeposit)
+                )}`}
               </p>
             </li>
           </ul>

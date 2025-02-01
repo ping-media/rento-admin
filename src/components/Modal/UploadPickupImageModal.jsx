@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { togglePickupImageModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useState } from "react";
-import MultipleImageAndPreview from "../ImageComponent/MultipleImageAndPreview";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postData, postMultipleData } from "../../Data";
 import Spinner from "../Spinner/Spinner";
@@ -12,6 +11,7 @@ import {
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import Input from "../InputAndDropdown/Input";
 import { useNavigate } from "react-router-dom";
+import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
 
 const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
@@ -21,37 +21,35 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [imagesUrl, setImageUrl] = useState([]);
-  const [image, setImage] = useState([]);
+  const [imagesUrl, setImageUrl] = useState({
+    vehicleFront: "",
+    vehicleLeft: "",
+    vehicleRight: "",
+    vehicleBack: "",
+    odoMeterReading: "",
+    others: "",
+  });
+  const [image, setImage] = useState({
+    vehicleFront: null,
+    vehicleLeft: null,
+    vehicleRight: null,
+    vehicleBack: null,
+    odoMeterReading: null,
+    others: null,
+  });
   const [loading, setLoading] = useState(false);
   const [isKycApproved, setIsKycApproved] = useState(false);
 
   //upload images
   const handleUploadPickupImages = async (event) => {
     event.preventDefault();
-    const formData = new FormData();
-    const images = Array.from(event.target.elements.images?.files || []);
-    const formElements = event.target.elements;
-    const startOdometerReading = formElements?.newMeterReading?.value;
-    const endOdometerReading = formElements?.oldMeterReading?.value;
-    const startOtp = formElements?.rideOtp?.value;
-
+    const formData = new FormData(event.target);
     if (!tempVehicleData)
       return handleAsyncError(dispatch, "All fields required.");
 
     formData.append("userId", tempVehicleData?.userId?._id);
     formData.append("bookingId", tempVehicleData?.bookingId);
     formData.append("_id", tempVehicleData?._id);
-    formData.append("newMeterReading", startOdometerReading);
-    formData.append("oldMeterReading", endOdometerReading);
-    formData.append("rideOtp", startOtp);
-
-    if (images.length > 0) {
-      // Append images to the FormData
-      images.forEach((file) => {
-        formData.append("images", file);
-      });
-    }
 
     if (!formData.has("images")) {
       return handleAsyncError(
@@ -98,9 +96,14 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
         // updating the timeline for booking
         const timeLineData = {
           currentBooking_id: vehicleMaster && vehicleMaster[0]?._id,
-          timeLine: {
-            "Ride Started": new Date().toLocaleString(),
-          },
+          timeLine: [
+            {
+              title: "Ride Started",
+              date: new Date().toLocaleString(),
+              vehicleName: vehicleMaster[0]?.vehicleName,
+              vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
+            },
+          ],
         };
         postData("/createTimeline", timeLineData, token);
         // for updating timeline redux data
@@ -121,8 +124,22 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
 
   //   close modal and clear value
   const handleClearAndClose = () => {
-    setImage([]);
-    setImageUrl([]);
+    setImage({
+      vehicleFront: null,
+      vehicleLeft: null,
+      vehicleRight: null,
+      vehicleBack: null,
+      odoMeterReading: null,
+      others: null,
+    });
+    setImageUrl({
+      vehicleFront: "",
+      vehicleLeft: "",
+      vehicleRight: "",
+      vehicleBack: "",
+      odoMeterReading: "",
+      others: "",
+    });
     dispatch(removeTempVehicleData());
     return dispatch(togglePickupImageModal());
   };
@@ -132,6 +149,16 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     dispatch(togglePickupImageModal());
     return navigate(`/all-users/${id}`);
   };
+
+  // for giving different title to image modal
+  const rideVehicleImages = [
+    { title: "vehicleFront" },
+    { title: "vehicleLeft" },
+    { title: "vehicleRight" },
+    { title: "vehicleBack" },
+    { title: "odoMeterReading" },
+    { title: "others" },
+  ];
 
   return (
     <div
@@ -163,7 +190,10 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
         </div>
 
         <div className="p-6 pt-0 text-center">
-          <form onSubmit={handleUploadPickupImages}>
+          <form
+            onSubmit={handleUploadPickupImages}
+            className="lg:h-[30rem] overflow-y-hidden overflow-y-scroll px-0 lg:px-2"
+          >
             {isKycApproved && (
               <div className="flex items-center justify-end gap-2 mb-2">
                 <p className="text-gray-400">User KYC is Pending:</p>
@@ -179,34 +209,38 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
               </div>
             )}
             <div>
-              <MultipleImageAndPreview
-                image={image}
-                setImageChanger={setImage}
-                imagesUrl={imagesUrl}
-                setImageUrlChanger={setImageUrl}
-                loading={loading}
-              />
               {imagesUrl && imagesUrl?.length > 6 && (
                 <p className="text-theme text-sm text-left">
                   Max Upload Limit is 6 Images
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-4 mb-3">
-              <div className="w-[48%]">
-                <Input type="number" item="newMeterReading" require={true} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-2">
+              {rideVehicleImages.map((item, index) => (
+                <div key={index}>
+                  <ImageUploadAndPreview
+                    title={item?.title}
+                    image={image[item?.title]}
+                    setImageMultiChanger={setImage}
+                    imagesUrl={imagesUrl[item?.title]}
+                    setImageUrlMultiChanger={setImageUrl}
+                    name="images"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center flex-wrap gap-4 mb-3">
+              <div className="w-full lg:w-[48%]">
+                <Input type="number" item="startMeterReading" require={true} />
               </div>
-              <div className="w-[48%]">
-                <Input type="number" item="oldMeterReading" require={true} />
+              <div className="w-full lg:w-[48%]">
+                <Input type="number" item="rideOtp" require={true} />
               </div>
             </div>
-            <Input type="number" item="rideOtp" require={true} />
             <button
               className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
               type="submit"
-              disabled={
-                loading || imagesUrl.length == 0 || imagesUrl.length > 6
-              }
+              disabled={loading}
             >
               {!loading ? "Start Ride" : <Spinner message={"updating..."} />}
             </button>

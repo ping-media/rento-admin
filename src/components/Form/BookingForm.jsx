@@ -155,9 +155,12 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           bookingId: bookingResponse?.data?.bookingId,
           currentBooking_id: bookingResponse?.data?._id,
           isStart: true,
-          timeLine: {
-            "Booking Created": new Date().toLocaleString(),
-          },
+          timeLine: [
+            {
+              title: "Booking Created",
+              date: new Date().toLocaleString(),
+            },
+          ],
         };
         // for creating booking
         await postData("/createTimeline", timeLineData, token);
@@ -187,9 +190,12 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         // updating the timeline for booking
         const timeLineData = {
           currentBooking_id: UpdatedBookingResponse?.data?._id,
-          timeLine: {
-            "Payment Initiated": new Date().toLocaleString(),
-          },
+          timeLine: [
+            {
+              title: "Payment Initiated",
+              date: new Date().toLocaleString(),
+            },
+          ],
         };
         // for creating booking
         postData("/createTimeline", timeLineData, token);

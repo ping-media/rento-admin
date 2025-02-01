@@ -4,7 +4,6 @@ import { toggleRideEndModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
 import { useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { cancelBookingById } from "../../Data/Function";
 import { postData } from "../../Data/index";
 import {
   handleUpdateFlags,
@@ -13,9 +12,11 @@ import {
 
 const RideEndModal = ({ id }) => {
   const { isRideEndModalActive } = useSelector((state) => state.sideBar);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
   const [endRide, SetEndRide] = useState(0);
+  const [EndMeterReading, SetEndMeterReading] = useState(0);
   const dispatch = useDispatch();
 
   // for completing the booking
@@ -24,19 +25,25 @@ const RideEndModal = ({ id }) => {
     setFormLoading(true);
     try {
       const data = {
+        _id: vehicleMaster[0]?._id,
+        userId: vehicleMaster[0]?.userId?._id,
+        endMeterReading: EndMeterReading,
         rideOtp: endRide,
         rideStatus: "completed",
         _id: id,
       };
-      const isCanceled = await cancelBookingById(id, data, token);
-      if (isCanceled === true) {
+      const response = await postData("/rideUpdate", data, token, "put");
+      if (response.status === 200) {
         handleAsyncError(dispatch, "Ride completed successfully", "success");
         // updating the timeline for booking
         const timeLineData = {
           currentBooking_id: id,
-          timeLine: {
-            "Booking Completed": new Date().toLocaleString(),
-          },
+          timeLine: [
+            {
+              title: "Booking Completed",
+              date: new Date().toLocaleString(),
+            },
+          ],
         };
         postData("/createTimeline", timeLineData, token);
         // for updating timeline redux data
@@ -44,7 +51,8 @@ const RideEndModal = ({ id }) => {
         handleCloseModal();
         return dispatch(handleUpdateFlags(data));
       }
-      if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
+      if (response?.status !== 200)
+        return handleAsyncError(dispatch, response?.message);
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
     } finally {
@@ -92,6 +100,13 @@ const RideEndModal = ({ id }) => {
 
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handleEndBooking}>
+            <div className="mb-2">
+              <Input
+                item={"endMeterReading"}
+                setValueChange={SetEndMeterReading}
+                type="number"
+              />
+            </div>
             <div className="mb-2">
               <Input item={"OTP"} setValueChange={SetEndRide} type="number" />
             </div>
