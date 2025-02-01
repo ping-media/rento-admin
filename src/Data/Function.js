@@ -11,6 +11,7 @@ import {
   handleSignIn,
   handleSignOut,
   SetLoggedInRole,
+  updateCurrentUser,
 } from "../Redux/UserSlice/UserSlice";
 import {
   fetchVehicleEnd,
@@ -237,13 +238,13 @@ const handleUpdateAdminProfile = async (
   }
 
   const endpoint = `/signup?_id=${id}`;
-  // console.log(endpoint, result);
   try {
     const response = await postData(endpoint, result, token);
-    // console.log(response);
     if (response?.status != 200) {
       handleAsyncError(dispatch, response?.message);
     } else {
+      dispatch(updateCurrentUser(result));
+      dispatch(handleSignIn(response?.data));
       handleAsyncError(dispatch, response?.message, "success");
       navigate(removeAfterSecondSlash(location?.pathname));
     }
@@ -417,7 +418,7 @@ const cancelBookingById = async (id, data, token) => {
 };
 
 const updateTimeLine = async (data, token) => {
-  const { _id, bookingId, paymentgatewayOrderId, bookingPrice, userId } = data;
+  const { _id, bookingPrice } = data;
   // checking whether user applied Discount or not
   const subAmount =
     bookingPrice?.discountTotalPrice && bookingPrice?.discountTotalPrice > 0
@@ -434,11 +435,6 @@ const updateTimeLine = async (data, token) => {
       ? "partiallyPay"
       : "paid";
 
-  const userResponse = await getData(`/getAllUsers?_id=${userId}`, token);
-  const fullName = `${userResponse?.data[0]?.firstName} ${userResponse?.data[0]?.lastName}`;
-  const email = userResponse?.data[0]?.email;
-  const contact = userResponse?.data[0]?.contact;
-
   // updating the timeline for booking
   const timeLineData = {
     currentBooking_id: _id,
@@ -446,12 +442,35 @@ const updateTimeLine = async (data, token) => {
       {
         title: "Payment Link Created",
         date: new Date().toLocaleString(),
-        PaymentLink: `rentobikes.com/payment?id=${_id}&bookingId=${bookingId}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}&orderId=${paymentgatewayOrderId}&fullName=${fullName}&email=${email}&contact=${contact}`,
+        PaymentLink: `rentobikes.com/payment?id=${_id}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}`,
         paymentAmount: finalAmount,
       },
     ],
   };
   await postData("/createTimeline", timeLineData, token);
+  return timeLineData;
+};
+
+const updateTimeLineForPayment = async (data, token, title) => {
+  const { _id, extendAmount, bookingPrice } = data;
+  const finalAmount =
+    (extendAmount && extendAmount) ||
+    (bookingPrice && Number(bookingPrice?.diffAmount));
+
+  // updating the timeline for booking
+  const timeLineData = {
+    currentBooking_id: _id,
+    timeLine: [
+      {
+        title: title,
+        date: new Date().toLocaleString(),
+        PaymentLink: `rentobikes.com/payment?id=${_id}&finalAmount=${finalAmount}`,
+        paymentAmount: finalAmount,
+      },
+    ],
+  };
+  await postData("/createTimeline", timeLineData, token);
+  return timeLineData;
 };
 
 export {
@@ -471,4 +490,5 @@ export {
   handleDeleteAndEditAllData,
   cancelBookingById,
   updateTimeLine,
+  updateTimeLineForPayment,
 };

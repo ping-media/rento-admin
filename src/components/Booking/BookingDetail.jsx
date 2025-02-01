@@ -238,6 +238,29 @@ const BookingDetail = () => {
           <BookingFareDetails rides={vehicleMaster && vehicleMaster[0]} />
           <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
+              Ride Information
+            </h2>
+          </div>
+          <div className="mb-3">
+            <p className="text-gray-400 flex items-center">
+              <span className="font-semibold mr-1">Start Ride Otp:</span>
+              {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
+              <CopyButton
+                textToCopy={vehicleMaster[0]?.vehicleBasic?.startRide}
+              />
+            </p>
+            {vehicleMaster[0]?.vehicleBasic?.endRide > 0 && (
+              <p className="text-gray-400 flex items-center">
+                <span className="font-semibold mr-1">End Ride Otp:</span>
+                {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
+                <CopyButton
+                  textToCopy={vehicleMaster[0]?.vehicleBasic?.endRide}
+                />
+              </p>
+            )}
+          </div>
+          <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
+            <h2 className="text-md lg:text-lg font-semibold text-gray-500">
               Add Note
             </h2>
           </div>

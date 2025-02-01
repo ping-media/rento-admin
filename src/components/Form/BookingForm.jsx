@@ -9,6 +9,7 @@ import BookingStepThree from "./BookingComponents/BookingStepThree";
 import { createOrderId, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { updateTimeLine } from "../../Data/Function";
+import { updateTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
@@ -131,6 +132,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         },
         extendBooking: {
           oldBooking: [],
+          transactionIds: [],
         },
         payInitFrom: "Razorpay",
         paySuccessId: "NA",
@@ -200,7 +202,11 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         // for creating booking
         postData("/createTimeline", timeLineData, token);
         // for updating sending link in it
-        await updateTimeLine(UpdatedBookingResponse?.data, token);
+        const updateTimeLine = await updateTimeLine(
+          UpdatedBookingResponse?.data,
+          token
+        );
+        dispatch(updateTimeLineData(updateTimeLine));
         handleAsyncError(dispatch, UpdatedBookingResponse?.message, "success");
         navigate(`/all-bookings/details/${UpdatedBookingResponse?.data?._id}`);
       } else {

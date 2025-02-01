@@ -17,6 +17,7 @@ import {
   handleChangesInBooking,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
+import { updateTimeLineForPayment } from "../../Data/Function";
 
 const ChangeVehicleModal = ({ bookingData }) => {
   const dispatch = useDispatch();
@@ -157,21 +158,14 @@ const ChangeVehicleModal = ({ bookingData }) => {
       setFormLoading(true);
       const response = await postData("/vehicleChange", data, token);
       if (response?.status === 200) {
-        // updating timeline
-        const timeLineData = {
-          currentBooking_id: bookingData?._id,
-          timeLine: [
-            {
-              title: "Vehicle Changed",
-              date: new Date().toLocaleString(),
-              changedTo: `vehicle Change from ${bookingData?.vehicleName}(${bookingData?.vehicleBasic?.vehicleNumber}) to ${changeToNewVehicle?.vehicleName}(${changeToNewVehicle?.vehicleNumber})`,
-            },
-          ],
-        };
         // updating the redux state
         dispatch(handleChangesInBooking(selectedVehicle));
         // pushing the data for upating the timeline
-        postData("/createTimeline", timeLineData, token);
+        const timeLineData = await updateTimeLineForPayment(
+          data,
+          token,
+          "Vehicle Changed"
+        );
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
         handleAsyncError(dispatch, "vehicle Change Successfully", "success");

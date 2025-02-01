@@ -15,6 +15,7 @@ import {
   handleUpdateExtendVehicle,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
+import { updateTimeLineForPayment } from "../../Data/Function";
 
 const ExtendBookingModal = ({ bookingData }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
@@ -65,17 +66,11 @@ const ExtendBookingModal = ({ bookingData }) => {
         setNewDate("");
         dispatch(handleUpdateExtendVehicle(data));
         // updating the timeline for booking
-        const timeLineData = {
-          currentBooking_id: response?.data?._id,
-          timeLine: [
-            {
-              title: "Booking Extended",
-              date: new Date().toLocaleString(),
-              extendedTill: newDate,
-            },
-          ],
-        };
-        postData("/createTimeline", timeLineData, token);
+        const timeLineData = await updateTimeLineForPayment(
+          data,
+          token,
+          "Booking Extended"
+        );
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
         dispatch(toggleBookingExtendModal());

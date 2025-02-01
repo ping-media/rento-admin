@@ -21,7 +21,13 @@ const BookingNote = () => {
       return handleAsyncError(dispatch, "Note cannot be empty!.");
     const data = {
       _id: vehicleMaster[0]?._id,
-      notes: [{ key: currentUser?.userType, value: note, noteType: "general" }],
+      notes: [
+        {
+          key: `${currentUser?.firstName} (${currentUser?.userType})`,
+          value: note,
+          noteType: "general",
+        },
+      ],
     };
     try {
       setLoading(true);
@@ -31,7 +37,7 @@ const BookingNote = () => {
         token
       );
       const pushDataInRedux = {
-        key: currentUser?.userType,
+        key: `${currentUser?.firstName} (${currentUser?.userType})`,
         value: note,
         noteType: "general",
       };

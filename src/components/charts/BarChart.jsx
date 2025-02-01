@@ -53,11 +53,11 @@ const BarChart = ({ data }) => {
     },
     colors: ["#c32d3b"],
     dataLabels: {
-      enabled: true,
-      style: {
-        fontSize: "12px",
-        fontWeight: "bold",
-      },
+      enabled: false,
+      // style: {
+      //   fontSize: "12px",
+      //   fontWeight: "bold",
+      // },
     },
   };
 
@@ -115,12 +115,12 @@ const BarChart = ({ data }) => {
     },
     colors: ["#e23844"], // Red color for total price
     dataLabels: {
-      enabled: true,
-      style: {
-        fontSize: "12px",
-        fontWeight: "bold",
-      },
-      formatter: (val) => `₹${val.toLocaleString()}`, // Add Rupee sign for data labels
+      enabled: false,
+      // style: {
+      //   fontSize: "12px",
+      //   fontWeight: "bold",
+      // },
+      // formatter: (val) => `₹${val.toLocaleString()}`, // Add Rupee sign for data labels
     },
     tooltip: {
       enabled: true,

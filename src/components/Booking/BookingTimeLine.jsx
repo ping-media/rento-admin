@@ -65,7 +65,11 @@ const BookingTimeLine = ({ bookingId }) => {
                       (index + 1) % 2 === 0 ? "text-left" : "text-right"
                     }`}
                   >
-                    {item?.title !== "Payment Link Created" ? (
+                    {!(
+                      item?.title.includes("Link") ||
+                      item?.title?.includes("Extended") ||
+                      item?.title?.includes("Changed")
+                    ) ? (
                       <>
                         <h3 className="mb-1 font-bold text-gray-800 text-sm">
                           {item?.title}
@@ -92,15 +96,20 @@ const BookingTimeLine = ({ bookingId }) => {
                       </>
                     ) : (
                       <div>
-                        <h3 className="mb-1 font-bold text-gray-800 text-sm flex items-center justify-end">
+                        <h3 className="mb-1 font-bold text-gray-800 text-sm flex justify-start">
                           {item?.title}
                           <span className="ml-1">
                             <CopyButton textToCopy={item?.PaymentLink} />
                           </span>
-                          <span className="block">
-                            ₹{formatPrice(item?.paymentAmount)}
-                          </span>
                         </h3>
+                        <p
+                          className={`text-gray-700 leading-tight text-md font-semibold`}
+                        >
+                          ₹{formatPrice(item?.paymentAmount)}
+                        </p>
+                        <p className="text-gray-700 leading-tight text-xs">
+                          {item?.date}
+                        </p>
                       </div>
                     )}
                   </div>

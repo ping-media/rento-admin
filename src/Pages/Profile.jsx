@@ -17,9 +17,8 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!currentUser) return;
     fetchVehicleMasterById(dispatch, currentUser?._id, token, `/getAllUsers`);
-  }, [currentUser]);
+  }, []);
 
   return !loading ? (
     <>

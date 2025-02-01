@@ -39,7 +39,11 @@ const AddVehicleForServiceModal = ({ loading }) => {
 
     try {
       setFormLoading(true);
-      const response = await postData("/maintenanceVehicle", data, token);
+      const response = await postData(
+        `/maintenanceVehicle?vehicleTableId=${vehicleTableId}&startDate=${startDate}&endDate=${endDate}`,
+        data,
+        token
+      );
       if (response?.status === 200) {
         dispatch(toggleVehicleServiceModal());
         return handleAsyncError(dispatch, response?.message, "success");

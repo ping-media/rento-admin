@@ -54,8 +54,6 @@ const Input = ({
       return;
     }
 
-    console.log("first");
-
     if (!onChangeFilterFun) return;
     if (onChangeFilterFun) {
       if (debouncedDate.length === 10 || debouncedDate.length === 0) {

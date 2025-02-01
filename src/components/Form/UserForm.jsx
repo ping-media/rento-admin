@@ -27,6 +27,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                         vehicleMaster[0]?.firstName
                       : ""
                   }
+                  require={true}
                 />
               </div>
               <div className="w-full lg:w-[48%]">
@@ -39,6 +40,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                         vehicleMaster[0]?.lastName
                       : ""
                   }
+                  require={true}
                 />
               </div>
               <div className="w-full lg:w-[48%]">
@@ -52,7 +54,22 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                         Number(vehicleMaster[0]?.contact)
                       : ""
                   }
+                  require={true}
                   disabled={location?.pathname == "/profile" ? true : false}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  item={"altContact"}
+                  type="number"
+                  value={
+                    id || location.pathname == "/profile"
+                      ? Number(vehicleMaster[0]?.userId?.altContact) ||
+                        Number(vehicleMaster?.altContact) ||
+                        Number(vehicleMaster[0]?.altContact)
+                      : ""
+                  }
+                  require={true}
                 />
               </div>
               <div className="w-full lg:w-[48%]">
@@ -66,6 +83,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                         vehicleMaster[0]?.email
                       : ""
                   }
+                  require={true}
                 />
               </div>
               {location.pathname !== "/profile" && (
@@ -101,6 +119,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                           vehicleMaster[0]?.userType
                         : ""
                     }
+                    require={true}
                   />
                 </div>
                 {/* <div className="w-full lg:w-[48%]">
@@ -121,6 +140,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                           vehicleMaster[0]?.isContactVerified
                         : "no"
                     }
+                    require={true}
                   />
                 </div>
                 <div className="w-full lg:w-[48%]">
@@ -134,6 +154,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                           vehicleMaster[0]?.isEmailVerified
                         : "no"
                     }
+                    require={true}
                   />
                 </div>
                 <div className="w-full lg:w-[48%]">
@@ -147,6 +168,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                           vehicleMaster[0]?.status
                         : "active"
                     }
+                    require={true}
                   />
                 </div>
               </>
