@@ -94,19 +94,18 @@ const Dashboard = () => {
   return !loading && !dashboardLoading ? (
     dataCountResult && dataCountResult?.length > 0 ? (
       <>
-        <h1 className="text-xl lg:text-2xl uppercase font-bold text-theme mb-5">
+        <h1 className="text-xl uppercase font-bold text-theme mb-5">
           Dashboard
         </h1>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-5">
           {dataCountResult?.map((item, index) => (
             <InfoCard key={index} item={item} />
           ))}
         </div>
-        {/* <div className="flex items-center justify-between flex-wrap gap-6"> */}
+        <h2 className="text-xl mb-5 font-bold uppercase text-theme">
+          Booking &amp; Payments
+        </h2>
         <div className="shadow-lg p-3 lg:p-5 rounded-2xl bg-white">
-          <h2 className="text-xl mb-5 font-bold uppercase text-theme">
-            Booking &amp; Payments
-          </h2>
           <BarChart
             data={dasboardDataCount && dasboardDataCount?.payments}
             type={"bar"}

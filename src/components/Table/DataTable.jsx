@@ -24,7 +24,6 @@ import UserDisplayCell from "./UserDisplayCell.jsx";
 import BookingDateAndCityCell from "./BookingDateAndCityCell.jsx";
 import TablePageHeader from "./TablePageHeader.jsx";
 import UserStatusCell from "./UserStatusCell.jsx";
-import UserDocumentCell from "./UserDocumentCell.jsx";
 import CopyButton from "../../components/Buttons/CopyButton.jsx";
 import TableImage from "./TableImageWithPopupShow.jsx";
 import BookingCard from "../../components/Card/BookingCard.jsx";
@@ -282,11 +281,11 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                             onClick={() => handleViewData(item?._id)}
                           >
                             {location.pathname == "/all-vehicles" && (
-                              <td className="p-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                                <CheckBoxInput
-                                  isId={item?._id}
-                                  onClick={(e) => e.stopPropagation()}
-                                />
+                              <td
+                                className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <CheckBoxInput isId={item?._id} />
                               </td>
                             )}
                             {/* dynamically rendering */}
@@ -296,167 +295,156 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 !column.includes("status") &&
                                 !column.includes("Active") &&
                                 !column.includes("Invoice")
-                            )
-                              // .slice(0, Columns.length - 1)
-                              .map((column, columnIndex) => {
-                                if (column === "files") {
-                                  return (
-                                    <UserDocumentCell
-                                      item={item}
-                                      key={columnIndex}
-                                    />
-                                  );
-                                }
-                                if (column === "userId") {
-                                  return (
-                                    <UserDisplayCell
-                                      key={`${item?._id}_userDisplayCell`}
-                                      item={item}
-                                      onClick={(e) => e.stopPropagation()}
-                                    />
-                                  );
-                                }
-                                if (
-                                  // column === "BookingStartDateAndTime" ||
-                                  column === "city"
-                                ) {
-                                  return (
-                                    <BookingDateAndCityCell
-                                      key={item?._id}
-                                      item={item}
-                                      column={column}
-                                    />
-                                  );
-                                }
-                                if (column === "isEmailVerified") {
-                                  return (
-                                    <UserStatusCell
-                                      item={item}
-                                      index={columnIndex}
-                                      key={`UserVerification_${columnIndex}`}
-                                    />
-                                  );
-                                }
-                                if (column === "couponName") {
-                                  return (
-                                    <td
-                                      className="p-3 max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
-                                      key={columnIndex}
-                                    >
-                                      {item[column]}{" "}
-                                      <CopyButton textToCopy={item[column]} />
-                                    </td>
-                                  );
-                                }
-                                if (column === "openStartTime") {
-                                  return (
-                                    <td
-                                      className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                      key={columnIndex}
-                                    >
-                                      <p className="">
-                                        {`${changeNumberIntoTime(
-                                          item?.openStartTime
-                                        )} - ${changeNumberIntoTime(
-                                          item?.openEndTime
-                                        )}`}
-                                      </p>
-                                    </td>
-                                  );
-                                }
-                                if (
-                                  location.pathname === "/all-invoices" ||
-                                  location?.pathname === "/all-users" ||
-                                  location?.pathname === "/all-managers"
-                                ) {
-                                  if (column === "firstName") {
-                                    return (
-                                      <UserDisplayCell
-                                        key={`${item?._id}_userDisplayCell`}
-                                        firstName={item?.firstName}
-                                        lastName={item?.lastName}
-                                        Contact={item?.contact}
-                                      />
-                                    );
-                                  }
-                                  if (
-                                    column === "lastName" ||
-                                    column === "contact"
-                                  ) {
-                                    return null;
-                                  }
-                                }
-                                // Skip rendering `BookingEndDateAndTime` data to avoid duplication
-                                if (
-                                  // column === "BookingEndDateAndTime" ||
-                                  column === "state" ||
-                                  column === "isContactVerified" ||
-                                  column === "isDocumentVerified" ||
-                                  column === "kycApproved" ||
-                                  column === "openEndTime"
-                                ) {
-                                  return null;
-                                }
-                                // Default behavior for other columns
-                                return column.includes("Image") ? (
-                                  <TableImage
+                            ).map((column, columnIndex) => {
+                              if (column === "userId") {
+                                return (
+                                  <UserDisplayCell
+                                    key={`${item?._id}_userDisplayCell`}
+                                    item={item}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                );
+                              }
+                              if (
+                                // column === "BookingStartDateAndTime" ||
+                                column === "city"
+                              ) {
+                                return (
+                                  <BookingDateAndCityCell
+                                    key={item?._id}
                                     item={item}
                                     column={column}
-                                    key={columnIndex}
                                   />
-                                ) : typeof item[column] === "object" ? (
+                                );
+                              }
+                              if (column === "isEmailVerified") {
+                                return (
+                                  <UserStatusCell
+                                    item={item}
+                                    index={columnIndex}
+                                    key={`UserVerification_${columnIndex}`}
+                                  />
+                                );
+                              }
+                              if (column === "couponName") {
+                                return (
+                                  <td
+                                    className="p-3 max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
+                                    key={columnIndex}
+                                  >
+                                    {item[column]}{" "}
+                                    <CopyButton textToCopy={item[column]} />
+                                  </td>
+                                );
+                              }
+                              if (column === "openStartTime") {
+                                return (
                                   <td
                                     className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
                                     key={columnIndex}
                                   >
-                                    {column.includes("files")
-                                      ? null
-                                      : `₹${formatPrice(
-                                          item[column]?.isDiscountZero ===
-                                            true ||
-                                            (item[column]?.discountTotalPrice &&
-                                              item[column]
-                                                ?.discountTotalPrice != 0)
-                                            ? item[column]?.discountTotalPrice
-                                            : item[column]?.totalPrice
-                                        )}`}
-                                  </td>
-                                ) : (
-                                  <td
-                                    className={`p-3 text-sm font-medium text-gray-900 ${
-                                      column?.includes("email")
-                                        ? ""
-                                        : "capitalize"
-                                    } ${
-                                      column?.includes("address")
-                                        ? "max-w-40"
-                                        : "whitespace-nowrap"
-                                    }`}
-                                    key={columnIndex}
-                                  >
-                                    {column.includes("Charges") ||
-                                    column.includes("Deposit") ||
-                                    column.includes("Cost") ||
-                                    column.includes("Price")
-                                      ? `₹ ${formatPrice(item[column])}`
-                                      : column.includes("Duration")
-                                      ? `${item[column]} Days`
-                                      : column.includes("DateAndTime")
-                                      ? formatFullDateAndTime(item[column])
-                                      : column?.includes("InitiatedDate")
-                                      ? item[column] !== "NA"
-                                        ? formatTimeStampToDate(item[column])
-                                        : ""
-                                      : column?.includes("bookingId")
-                                      ? `#${item[column]}`
-                                      : column?.includes("paymentMethod")
-                                      ? item[column] === "partiallyPay"
-                                        ? "online"
-                                        : item[column]
-                                      : item[column]}
+                                    <p className="">
+                                      {`${changeNumberIntoTime(
+                                        item?.openStartTime
+                                      )} - ${changeNumberIntoTime(
+                                        item?.openEndTime
+                                      )}`}
+                                    </p>
                                   </td>
                                 );
-                              })}
+                              }
+                              if (
+                                location.pathname === "/all-invoices" ||
+                                location?.pathname === "/all-users" ||
+                                location?.pathname === "/all-managers"
+                              ) {
+                                if (column === "firstName") {
+                                  return (
+                                    <UserDisplayCell
+                                      key={`${item?._id}_userDisplayCell`}
+                                      firstName={item?.firstName}
+                                      lastName={item?.lastName}
+                                      Contact={item?.contact}
+                                    />
+                                  );
+                                }
+                                if (
+                                  column === "lastName" ||
+                                  column === "contact"
+                                ) {
+                                  return null;
+                                }
+                              }
+                              // Skip rendering `BookingEndDateAndTime` data to avoid duplication
+                              if (
+                                // column === "BookingEndDateAndTime" ||
+                                column === "state" ||
+                                column === "isContactVerified" ||
+                                column === "isDocumentVerified" ||
+                                column === "kycApproved" ||
+                                column === "openEndTime"
+                              ) {
+                                return null;
+                              }
+                              // Default behavior for other columns
+                              return column.includes("Image") ? (
+                                <TableImage
+                                  item={item}
+                                  column={column}
+                                  key={columnIndex}
+                                />
+                              ) : typeof item[column] === "object" ? (
+                                <td
+                                  className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
+                                  key={columnIndex}
+                                >
+                                  {column.includes("files")
+                                    ? null
+                                    : `₹${formatPrice(
+                                        item[column]?.isDiscountZero === true ||
+                                          (item[column]?.discountTotalPrice &&
+                                            item[column]?.discountTotalPrice !=
+                                              0)
+                                          ? item[column]?.discountTotalPrice
+                                          : item[column]?.totalPrice
+                                      )}`}
+                                </td>
+                              ) : (
+                                <td
+                                  className={`p-3 text-sm font-medium text-gray-900 ${
+                                    column?.includes("email")
+                                      ? ""
+                                      : "capitalize"
+                                  } ${
+                                    column?.includes("address")
+                                      ? "max-w-40"
+                                      : "whitespace-nowrap"
+                                  }`}
+                                  key={columnIndex}
+                                >
+                                  {column.includes("Charges") ||
+                                  column.includes("Deposit") ||
+                                  column.includes("Cost") ||
+                                  column.includes("Price")
+                                    ? `₹ ${formatPrice(item[column])}`
+                                    : column.includes("Duration")
+                                    ? `${item[column]} Days`
+                                    : column.includes("DateAndTime")
+                                    ? formatFullDateAndTime(item[column])
+                                    : column?.includes("InitiatedDate")
+                                    ? item[column] !== "NA"
+                                      ? formatTimeStampToDate(item[column])
+                                      : ""
+                                    : column?.includes("bookingId")
+                                    ? `#${item[column]}`
+                                    : column?.includes("paymentMethod")
+                                    ? item[column] === "partiallyPay"
+                                      ? "online"
+                                      : item[column]
+                                    : item[column]}
+                                </td>
+                              );
+                            })}
 
                             {/* Render "Status" or "Active" columns at the end */}
                             {Columns.filter(
@@ -473,6 +461,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 <td
                                   className="p-3 whitespace-nowrap text-sm font-medium text-gray-900 pl-4"
                                   key={columnIndex}
+                                  onClick={(e) => e.stopPropagation()}
                                 >
                                   <InputSwitch
                                     value={item[column]}

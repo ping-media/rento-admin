@@ -103,19 +103,19 @@ const Header = () => {
                   {currentUser?.firstName}
                 </p>
                 <Link
-                  className="py-1.5 px-1.5 hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-ou w-full"
+                  className="py-1.5 px-1.5 text-sm hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-ou w-full"
                   to={"/dashboard"}
                 >
                   View Dashboard
                 </Link>
                 <Link
-                  className="py-1.5 px-1.5 hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-out w-full"
+                  className="py-1.5 px-1.5 text-sm hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-out w-full"
                   to={"/profile"}
                 >
                   View profile
                 </Link>
                 <Link
-                  className="py-1.5 px-1.5 hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-ou w-full"
+                  className="py-1.5 px-1.5 text-sm hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-ou w-full"
                   onClick={() => dispatch(toggleModal())}
                 >
                   Logout

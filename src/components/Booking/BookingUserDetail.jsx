@@ -4,18 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../../Data";
 import { useEffect, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
-import LightGallery from "lightgallery/react";
-
-// Plugins for lightgallery
-import lgThumbnail from "lightgallery/plugins/thumbnail";
-import lgZoom from "lightgallery/plugins/zoom";
-
-// Import CSS for lightgallery
-import "lightgallery/css/lightgallery.css";
-import "lightgallery/css/lg-thumbnail.css";
-import "lightgallery/css/lg-zoom.css";
-import { Link } from "react-router-dom";
-import { tableIcons } from "../../Data/Icons";
+import UserDocuments from "../../components/Form/User Components/UserDocuments";
 
 const BookingUserDetails = ({ data, userId }) => {
   const { token } = useSelector((state) => state.user);
@@ -87,34 +76,7 @@ const BookingUserDetails = ({ data, userId }) => {
         </div>
       ))}
       {/* user documents  */}
-      <div className="flex items-center flex-wrap gap-2">
-        {(userDocument && userDocument[0]?.files?.length > 0) ||
-        (userDocument && userDocument?.files) ? (
-          userDocument[0]?.files?.map((item) => (
-            <div
-              className="border-2 border-theme text-theme hover:bg-theme hover:text-white transition-all duration-200 ease-in-out  rounded-md p-1 h-full"
-              key={item?._id}
-            >
-              <LightGallery
-                plugins={[lgThumbnail, lgZoom]}
-                speed={500} // Animation speed
-              >
-                <Link to={item.imageUrl} className="flex items-center gap-1">
-                  {tableIcons?.image}
-                  {item?.fileName.split("_")[3]}
-                  {/* {`${item?.fileName.split("_")[3]} ${
-                    item?.fileName.split("_")[2] == 0 ? "front" : "back"
-                  }`} */}
-                </Link>
-              </LightGallery>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-400 italic text-sm mt-1">
-            No Documents Found.
-          </p>
-        )}
-      </div>
+      <UserDocuments data={userDocument[0]?.files} hookLoading={loading} />
     </>
   );
 };

@@ -123,7 +123,7 @@ const Login = () => {
                 <div className="mb-4 text-end">
                   <button
                     type="button"
-                    className="text-theme hover:underline transition-all duration-200 ease-in-out"
+                    className="text-gray-100 lg:text-theme hover:underline transition-all duration-200 ease-in-out"
                     onClick={() => dispatch(toggleForgetPasswordModal())}
                   >
                     Forget Password?
@@ -131,7 +131,7 @@ const Login = () => {
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-theme-dark lg:bg-theme py-2.5 lg:py-3.5 px-6 rounded-lg text-white uppercase hover:bg-theme-dark transition duration-200 ease-in-out disabled:bg-gray-500 outline-none"
+                  className="w-full border border-gray-100 lg:border-none bg-transparent lg:bg-theme py-2.5 lg:py-3.5 px-6 rounded-lg text-white uppercase hover:bg-theme-dark transition duration-200 ease-in-out disabled:bg-gray-500 disabled:bg-opacity-40 outline-none"
                   disabled={loading}
                 >
                   {loading ? <Spinner message={"Signing In.."} /> : "Sign In"}

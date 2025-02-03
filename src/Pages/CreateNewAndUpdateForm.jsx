@@ -67,7 +67,7 @@ const CreateNewAndUpdateForm = () => {
       {location.pathname.includes("/all-managers/") && (
         <ForgetPasswordModal
           userType={"admin"}
-          email={vehicleMaster?.email || vehicleMaster[0]?.userId?.email}
+          contact={vehicleMaster?.contact || vehicleMaster[0]?.userId?.contact}
         />
       )}
       <div className="flex items-center justify-between mb-5">

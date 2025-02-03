@@ -238,7 +238,7 @@ const BookingDetail = () => {
           <BookingFareDetails rides={vehicleMaster && vehicleMaster[0]} />
           <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
-              Ride Information
+              Additional Information
             </h2>
           </div>
           <div className="mb-3">

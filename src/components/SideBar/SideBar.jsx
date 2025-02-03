@@ -24,7 +24,6 @@ const SideBar = () => {
 
   return (
     <div className="shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200">
-      {/* <div className="shadow-lg min-h-screen dark:shadow-gray-500 bg-theme-seconday-dark"> */}
       {/* close button  */}
       <div className="lg:hidden float-right px-5 py-4">
         <button
@@ -84,7 +83,7 @@ const SideBar = () => {
                 return (
                   <Link to={`${item?.menuLink}`} key={index}>
                     <li
-                      className={`px-4 py-1 group capitalize text-md ${
+                      className={`px-4 py-1.5 group capitalize text-sm ${
                         location.pathname.includes(
                           item?.menuLink.toLowerCase()
                         ) ||
@@ -93,10 +92,10 @@ const SideBar = () => {
                         )
                           ? "bg-theme text-gray-100"
                           : ""
-                      } hover:bg-theme transition duration-300 ease-in-out rounded-md flex items-center gap-2 mb-2 dark:text-gray-100`}
+                      } hover:bg-theme transition duration-300 ease-in-out rounded-md flex items-center gap-1 mb-2 dark:text-gray-100`}
                     >
                       <div
-                        className={`w-7 h-7 group-hover:text-gray-100 text-lg ${
+                        className={`w-7 h-7 group-hover:text-gray-100 text-sm ${
                           location.pathname.includes(
                             item?.menuLink?.toLowerCase()
                           ) ||

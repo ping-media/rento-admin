@@ -54,10 +54,6 @@ const BarChart = ({ data }) => {
     colors: ["#c32d3b"],
     dataLabels: {
       enabled: false,
-      // style: {
-      //   fontSize: "12px",
-      //   fontWeight: "bold",
-      // },
     },
   };
 
@@ -113,20 +109,15 @@ const BarChart = ({ data }) => {
     plotOptions: {
       bar: { columnWidth: "50%" },
     },
-    colors: ["#e23844"], // Red color for total price
+    colors: ["#e23844"],
     dataLabels: {
       enabled: false,
-      // style: {
-      //   fontSize: "12px",
-      //   fontWeight: "bold",
-      // },
-      // formatter: (val) => `₹${val.toLocaleString()}`, // Add Rupee sign for data labels
     },
     tooltip: {
       enabled: true,
       shared: false,
       y: {
-        formatter: (val) => `₹${val.toLocaleString()}`, // Add Rupee sign in tooltip
+        formatter: (val) => `₹${val.toLocaleString()}`,
       },
       style: {
         fontSize: "14px",
@@ -173,7 +164,7 @@ const BarChart = ({ data }) => {
       <div className="flex items-center flex-wrap gap-1 lg:gap-2 w-full">
         {/* Booking Count Chart */}
         <div className="flex-1">
-          <h2 className="text-lg font-bold mb-3">{`Booking Count (${viewMode})`}</h2>
+          <h2 className="text-base font-bold mb-3">{`Booking Count (${viewMode})`}</h2>
           <Chart
             options={bookingCountOptions}
             series={[{ name: "Booking Count", data: chartData.bookingCount }]}
@@ -184,7 +175,7 @@ const BarChart = ({ data }) => {
 
         {/* Total Price Chart */}
         <div className="flex-1">
-          <h2 className="text-lg font-bold mb-3">{`Total Price (${viewMode})`}</h2>
+          <h2 className="text-base font-bold mb-3">{`Total Price (${viewMode})`}</h2>
           <Chart
             options={totalPriceOptions}
             series={[{ name: "Total Price", data: chartData.totalPrice }]}

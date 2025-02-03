@@ -2,9 +2,9 @@ import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleRideEndModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { postData } from "../../Data/index";
+import { getData, postData } from "../../Data/index";
 import {
   handleUpdateFlags,
   updateTimeLineData,
@@ -16,6 +16,8 @@ const RideEndModal = ({ id }) => {
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
   const [endRide, SetEndRide] = useState(0);
+  const [oldMeterReading, setOldMeterReading] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [EndMeterReading, SetEndMeterReading] = useState(0);
   const dispatch = useDispatch();
 
@@ -60,6 +62,25 @@ const RideEndModal = ({ id }) => {
     }
   };
 
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const response = await getData(
+          `/getPickupImage?bookingId=${vehicleMaster[0]?.bookingId}`,
+          token
+        );
+        if (response?.status !== 200)
+          return handleAsyncError(dispatch, response?.message);
+        return setOldMeterReading(response?.data[0]?.startMeterReading);
+      } catch (error) {
+        return handleAsyncError(dispatch, error?.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {
     SetEndRide(0);
@@ -100,6 +121,12 @@ const RideEndModal = ({ id }) => {
 
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handleEndBooking}>
+            <div className="mb-2 text-left">
+              <p className="text-gray-400">
+                <span className="font-semibold">Start Meter Reading:</span>{" "}
+                {!loading ? oldMeterReading : "loading..."}
+              </p>
+            </div>
             <div className="mb-2">
               <Input
                 item={"endMeterReading"}

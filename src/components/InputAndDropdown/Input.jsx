@@ -102,6 +102,8 @@ const Input = ({
         Enter{" "}
         {item?.includes("Proof")
           ? camelCaseToSpaceSeparated(item).replace("Proof", "")
+          : item?.includes("_For")
+          ? camelCaseToSpaceSeparated(item).replace("_For", "")
           : camelCaseToSpaceSeparated(item)}{" "}
         {require && <span className="text-red-500">*</span>}
       </label>

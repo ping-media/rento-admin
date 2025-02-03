@@ -14,6 +14,7 @@ import {
   updateCurrentUser,
 } from "../Redux/UserSlice/UserSlice";
 import {
+  addTimeLineData,
   fetchVehicleEnd,
   fetchVehicleMasterData,
   fetchVehicleStart,
@@ -137,7 +138,7 @@ const fetchVehicleMasterWithPagination = debounce(
 );
 
 const fetchVehicleMasterById = debounce(
-  async (dispatch, id, token, endpoint) => {
+  async (dispatch, id, token, endpoint, secondEndpoint = "") => {
     try {
       dispatch(fetchVehicleStart());
       const response = await getData(
@@ -149,6 +150,13 @@ const fetchVehicleMasterById = debounce(
         token
       );
       if (response?.status == 200) {
+        if (secondEndpoint !== "") {
+          const timeLineResponse = await getData(
+            `${secondEndpoint}?bookingId=${response?.data[0]?.bookingId}`,
+            token
+          );
+          dispatch(addTimeLineData(timeLineResponse?.data));
+        }
         dispatch(fetchVehicleMasterData(response?.data));
       } else {
         dispatch(fetchVehicleMasterData([]));
@@ -159,7 +167,7 @@ const fetchVehicleMasterById = debounce(
       handleAsyncError(dispatch, error?.message);
     }
   },
-  60
+  50
 );
 
 const handleCreateAndUpdateVehicle = async (

@@ -5,14 +5,13 @@ import { handleSendOtp, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import Input from "../../components/InputAndDropdown/Input";
 import Spinner from "../../components/Spinner/Spinner";
-import { isValidEmail } from "../../utils/index";
 
-const ForgetPasswordModal = ({ userType = "", email = "" }) => {
+const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
   const dispatch = useDispatch();
   const { isForgetModalActive } = useSelector((state) => state.sideBar);
   const [formLoading, setFormLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
-  const [emailInput, setEmailInput] = useState(email);
+  const [contactInput, setContactInput] = useState(contact);
   const { token } = useSelector((state) => state.user);
 
   // apply vehicle for Maintenance
@@ -91,17 +90,17 @@ const ForgetPasswordModal = ({ userType = "", email = "" }) => {
           <form onSubmit={handleChangeVehicle}>
             <div className="mb-2">
               <Input
-                item={"email"}
-                type="email"
-                value={emailInput}
-                setValueChange={setEmailInput}
+                item={"contact_For"}
+                type="number"
+                value={contactInput}
+                setValueChange={setContactInput}
                 require={true}
               />
             </div>
             <div className="mb-2">
-              <Input item={"password"} type="password" require={true} />
+              <Input item={"password_For"} type="password" require={true} />
             </div>
-            {userType !== "admin" && isValidEmail(emailInput) === true && (
+            {userType !== "admin" && (
               <div className="mb-2">
                 <Input item={"otp"} type="number" require={true} />
                 <div className="text-left mt-2">

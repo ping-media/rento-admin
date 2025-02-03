@@ -36,7 +36,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
       try {
         setVehicleLoading(true);
         const response = await getData(
-          `/getVehicleTblData?stationId=${
+          `/getAllVehiclesAvailable?stationId=${
             bookingData?.stationId
           }&BookingStartDateAndTime=${formatDateToISO(new Date()).replace(
             ".000Z",
@@ -88,18 +88,22 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const totalPrice = Number(bookingPricePlusHelmet) + Number(tax);
     const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
     const oldTotalPrice = bookingData?.bookingPrice?.totalPrice;
+    // const diffAmount =
+    //   bookingData?.bookingPrice?.discountTotalPrice > 0
+    //     ? totalPrice <
+    //       (oldDiscountPrice != 0 ? oldDiscountPrice : oldTotalPrice)
+    //       ? Number(bookingData?.bookingPrice?.discountTotalPrice) -
+    //         Number(totalPrice)
+    //       : Number(totalPrice) -
+    //         Number(bookingData?.bookingPrice?.discountTotalPrice)
+    //     : totalPrice <
+    //       (oldDiscountPrice != 0 ? oldDiscountPrice : oldTotalPrice)
+    //     ? Number(bookingData?.bookingPrice?.totalPrice) - Number(totalPrice)
+    //     : Number(totalPrice) - Number(bookingData?.bookingPrice?.totalPrice);
     const diffAmount =
-      bookingData?.bookingPrice?.discountTotalPrice > 0
-        ? totalPrice <
-          (oldDiscountPrice != 0 ? oldDiscountPrice : oldTotalPrice)
-          ? Number(bookingData?.bookingPrice?.discountTotalPrice) -
-            Number(totalPrice)
-          : Number(totalPrice) -
-            Number(bookingData?.bookingPrice?.discountTotalPrice)
-        : totalPrice <
-          (oldDiscountPrice != 0 ? oldDiscountPrice : oldTotalPrice)
-        ? Number(bookingData?.bookingPrice?.totalPrice) - Number(totalPrice)
-        : Number(totalPrice) - Number(bookingData?.bookingPrice?.totalPrice);
+      Number(oldDiscountPrice) > 0
+        ? Number(totalPrice) - Number(oldDiscountPrice)
+        : Number(totalPrice) - Number(oldTotalPrice);
 
     const data = {
       _id: bookingData?._id,

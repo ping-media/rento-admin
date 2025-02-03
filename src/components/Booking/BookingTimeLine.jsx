@@ -1,38 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
-import { getData } from "../../Data/index";
-import { useDispatch, useSelector } from "react-redux";
-import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import { useSelector } from "react-redux";
 import CopyButton from "../../components/Buttons/CopyButton";
-import { addTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
 import { formatPrice } from "../../utils/index";
 
 const BookingTimeLine = ({ bookingId }) => {
-  const { token } = useSelector((state) => state.user);
   const { timeLineData } = useSelector((state) => state.vehicles);
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
-
-  // fetching timeline data
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const response = await getData(
-          `/getTimelineData?bookingId=${bookingId}`,
-          token
-        );
-        if (response?.status !== 200) {
-          return handleAsyncError(dispatch, response?.message);
-        }
-        return dispatch(addTimeLineData(response?.data));
-      } catch (error) {
-        return handleAsyncError(dispatch, response?.message);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [bookingId]);
 
   return (
     <>
@@ -66,7 +40,7 @@ const BookingTimeLine = ({ bookingId }) => {
                     }`}
                   >
                     {!(
-                      item?.title.includes("Link") ||
+                      item?.title?.includes("Link") ||
                       item?.title?.includes("Extended") ||
                       item?.title?.includes("Changed")
                     ) ? (

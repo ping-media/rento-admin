@@ -40,7 +40,13 @@ const BookingDetails = () => {
   // through this we are fetching single vehicle data
   const fetchSingleVehicle = useCallback(async () => {
     if (id) {
-      fetchVehicleMasterById(dispatch, id, token, "/getBookings");
+      fetchVehicleMasterById(
+        dispatch,
+        id,
+        token,
+        "/getBookings",
+        "/getTimelineData"
+      );
     }
   }, [dispatch, id, token]);
 
