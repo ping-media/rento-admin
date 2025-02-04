@@ -66,6 +66,12 @@ const BookingTimeLine = ({ bookingId }) => {
                               item?.changedTo}
                           </p>
                         )}
+                        {item?.isvehicleNumbers &&
+                          item?.isvehicleNumbers != "" && (
+                            <p className="text-gray-700 leading-tight text-xs">
+                              {item?.isvehicleNumbers}
+                            </p>
+                          )}
                         <p className="text-gray-700 leading-tight text-xs">
                           {item?.date}
                         </p>

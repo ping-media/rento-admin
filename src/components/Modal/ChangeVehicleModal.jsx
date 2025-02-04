@@ -23,6 +23,7 @@ import { updateTimeLineForPayment } from "../../Data/Function";
 const ChangeVehicleModal = ({ bookingData }) => {
   const dispatch = useDispatch();
   const { isChangeVehicleModalActive } = useSelector((state) => state.sideBar);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
@@ -169,7 +170,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
         const timeLineData = await updateTimeLineForPayment(
           data,
           token,
-          "Vehicle Changed"
+          "Vehicle Changed",
+          `From (${vehicleMaster[0]?.vehicleBasic?.vehicleNumber}) to (${selectedVehicle?.vehicleNumber})`
         );
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));

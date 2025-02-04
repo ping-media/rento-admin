@@ -459,7 +459,12 @@ const updateTimeLine = async (data, token) => {
   return timeLineData;
 };
 
-const updateTimeLineForPayment = async (data, token, title) => {
+const updateTimeLineForPayment = async (
+  data,
+  token,
+  title,
+  isvehicleNumbers
+) => {
   const { _id, extendAmount, bookingPrice, bookingId } = data;
 
   const finalAmount =
@@ -487,6 +492,7 @@ const updateTimeLineForPayment = async (data, token, title) => {
         date: new Date().toLocaleString(),
         PaymentLink: `rentobikes.com/payment?id=${_id}&order=${orderId}&finalAmount=${finalAmount}`,
         paymentAmount: finalAmount,
+        changeToVehicle: isvehicleNumbers || "",
       },
     ],
   };
