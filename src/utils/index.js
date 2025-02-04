@@ -555,6 +555,20 @@ const getDurationInDaysAndHours = (date1Str, date2Str) => {
   return { days, hours };
 };
 
+const removeSecondsFromDateAndTime = (dateStr) => {
+  const date = new Date(dateStr);
+  const formattedDate = date.toLocaleString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour12: true,
+  });
+
+  return formattedDate;
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -591,4 +605,5 @@ export {
   timelineFormatDate,
   isDuration24Hours,
   getDurationInDaysAndHours,
+  removeSecondsFromDateAndTime,
 };

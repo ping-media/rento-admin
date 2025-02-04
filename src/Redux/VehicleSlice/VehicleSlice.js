@@ -99,14 +99,28 @@ const vehicleSlice = createSlice({
         bookingPrice: {
           ...state.vehicleMaster[0]?.bookingPrice,
           extendAmount: [
-            ...state.vehicleMaster[0]?.bookingPrice?.extendAmount,
-            extendAmount,
+            ...(Array.isArray(
+              state.vehicleMaster[0]?.bookingPrice?.extendAmount
+            )
+              ? state.vehicleMaster[0].bookingPrice.extendAmount
+              : []),
+            ...(Array.isArray(extendAmount)
+              ? extendAmount
+              : extendAmount
+              ? [extendAmount]
+              : []),
           ],
         },
         extendBooking: {
           oldBooking: [
-            ...state.vehicleMaster[0]?.extendBooking?.oldBooking,
-            oldBookings,
+            ...(Array.isArray(state.vehicleMaster[0]?.extendBooking?.oldBooking)
+              ? state.vehicleMaster[0].extendBooking.oldBooking
+              : []),
+            ...(Array.isArray(oldBookings)
+              ? oldBookings
+              : oldBookings
+              ? [oldBookings]
+              : []),
           ],
         },
         bookingStatus,

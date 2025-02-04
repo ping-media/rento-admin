@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { useSelector } from "react-redux";
 import CopyButton from "../../components/Buttons/CopyButton";
-import { formatPrice } from "../../utils/index";
+import { formatPrice, removeSecondsFromDateAndTime } from "../../utils/index";
 
 const BookingTimeLine = ({ bookingId }) => {
   const { timeLineData } = useSelector((state) => state.vehicles);
@@ -19,7 +19,9 @@ const BookingTimeLine = ({ bookingId }) => {
             timeLineData?.timeLine?.map((item, index) => {
               return (
                 <div
-                  className={`mb-2 flex justify-between ${
+                  className={`${
+                    item?.title?.includes("Completed") ? "" : "mb-2"
+                  } flex justify-between ${
                     index === 0
                       ? "items-start"
                       : index === timeLineData?.timeLine?.length - 1
@@ -70,7 +72,13 @@ const BookingTimeLine = ({ bookingId }) => {
                       </>
                     ) : (
                       <div>
-                        <h3 className="mb-1 font-bold text-gray-800 text-sm flex justify-start">
+                        <h3
+                          className={`mb-1 font-bold text-gray-800 text-sm flex ${
+                            (index + 1) % 2 === 0
+                              ? "justify-start"
+                              : "justify-end"
+                          }`}
+                        >
                           {item?.title}
                           <span className="ml-1">
                             <CopyButton textToCopy={item?.PaymentLink} />
@@ -82,7 +90,7 @@ const BookingTimeLine = ({ bookingId }) => {
                           ₹{formatPrice(item?.paymentAmount)}
                         </p>
                         <p className="text-gray-700 leading-tight text-xs">
-                          {item?.date}
+                          {removeSecondsFromDateAndTime(item?.date)}
                         </p>
                       </div>
                     )}
