@@ -8,6 +8,7 @@ import {
   calculateTax,
   camelCaseToSpaceSeparated,
   formatDateToISO,
+  formatPrice,
   getDurationInDays,
 } from "../../utils/index";
 import Input from "../../components/InputAndDropdown/Input";
@@ -254,17 +255,25 @@ const ChangeVehicleModal = ({ bookingData }) => {
               <div className="w-full bg-gray-300 rounded-lg bg-opacity-75 py-2 px-2.5 mb-2">
                 <h2 className="text-left">Old Vehicle</h2>
                 <ul className="leading-7 text-left mb-1">
-                  {["rentAmount", "tax", "totalPrice"].map((key, index) => {
+                  {[
+                    "rentAmount",
+                    "tax",
+                    "totalPrice",
+                    "discountTotalPrice",
+                  ].map((key, index) => {
                     const value = bookingData?.bookingPrice?.[key];
-                    if (value !== undefined) {
+                    if (value !== undefined || value !== 0) {
                       return (
                         <li
                           className={`capitalize ${
-                            key === "totalPrice" ? "font-semibold" : ""
+                            key === "discountTotalPrice" || key === "totalPrice"
+                              ? "font-semibold"
+                              : ""
                           }`}
                           key={index}
                         >
-                          {camelCaseToSpaceSeparated(key)}: ₹{value}
+                          {camelCaseToSpaceSeparated(key)}: ₹
+                          {formatPrice(Math.floor(value))}
                         </li>
                       );
                     } else {
