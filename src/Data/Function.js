@@ -460,10 +460,23 @@ const updateTimeLine = async (data, token) => {
 };
 
 const updateTimeLineForPayment = async (data, token, title) => {
-  const { _id, extendAmount, bookingPrice } = data;
+  const { _id, extendAmount, bookingPrice, bookingId } = data;
+
   const finalAmount =
     (extendAmount && extendAmount) ||
     (bookingPrice && Number(bookingPrice?.diffAmount));
+  // creating order id for the payment
+  let orderId = "";
+  const generateOrderId = await postData(
+    "/createOrderId",
+    { amount: finalAmount, booking_id: bookingId },
+    token
+  );
+  if (generateOrderId?.status === "created") {
+    orderId = generateOrderId?.id;
+  } else {
+    return "unable to update timeline for booking";
+  }
 
   // updating the timeline for booking
   const timeLineData = {
@@ -472,7 +485,7 @@ const updateTimeLineForPayment = async (data, token, title) => {
       {
         title: title,
         date: new Date().toLocaleString(),
-        PaymentLink: `rentobikes.com/payment?id=${_id}&finalAmount=${finalAmount}`,
+        PaymentLink: `rentobikes.com/payment?id=${_id}&order=${orderId}finalAmount=${finalAmount}`,
         paymentAmount: finalAmount,
       },
     ],
