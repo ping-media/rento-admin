@@ -485,7 +485,7 @@ const updateTimeLineForPayment = async (data, token, title) => {
       {
         title: title,
         date: new Date().toLocaleString(),
-        PaymentLink: `rentobikes.com/payment?id=${_id}&order=${orderId}finalAmount=${finalAmount}`,
+        PaymentLink: `rentobikes.com/payment?id=${_id}&order=${orderId}&finalAmount=${finalAmount}`,
         paymentAmount: finalAmount,
       },
     ],
