@@ -36,6 +36,8 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "extendAmount" &&
                   key !== "diffAmount" &&
                   key !== "AmountLeftAfterUserPaid" &&
+                  key !== "lateFeeBasedOnHour" &&
+                  key !== "lateFeeBasedOnKM" &&
                   !(key === "extraAddonPrice" && value === 0)
               ) // Exclude totalPrice
               .map(([key, value]) => (

@@ -37,7 +37,7 @@ const vehicleSlice = createSlice({
       const { timeLine } = action.payload;
       state.timeLineData = {
         ...state.timeLineData,
-        timeLine: [(prev) => ({ ...prev, ...timeLine[0] })],
+        timeLine: [...(state.timeLineData?.timeLine || []), ...timeLine],
       };
     },
     handleIsHeaderChecked: (state, action) => {
@@ -62,6 +62,19 @@ const vehicleSlice = createSlice({
           ...paymentUpdates,
         },
         paymentStatus,
+      };
+    },
+    handleUpdateCompleteRide: (state, action) => {
+      const { rideStatus, lateFeeBasedOnHour, lateFeeBasedOnKM } =
+        action.payload;
+      state.vehicleMaster[0] = {
+        ...state.vehicleMaster[0],
+        bookingPrice: {
+          ...state.vehicleMaster[0]?.bookingPrice,
+          lateFeeBasedOnHour,
+          lateFeeBasedOnKM,
+        },
+        rideStatus,
       };
     },
     handleUpdateStatus: (state, action) => {
@@ -244,5 +257,6 @@ export const {
   addTimeLineData,
   updateTimeLineData,
   handleUpdateExtendVehicle,
+  handleUpdateCompleteRide,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

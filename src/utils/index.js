@@ -534,6 +534,27 @@ const isDuration24Hours = (startDate, endDate) => {
   return durationInHours === 24;
 };
 
+const getDurationInDaysAndHours = (date1Str, date2Str) => {
+  // Parse the input strings into Date objects
+  const date1 = new Date(date1Str);
+  const date2 = new Date(date2Str);
+
+  // Check if the dates are valid
+  if (isNaN(date1) || isNaN(date2)) {
+    return "Invalid date format";
+  }
+
+  // Get the difference between the two dates in milliseconds
+  const differenceInMs = Math.abs(date2 - date1);
+
+  // Convert milliseconds to days and hours
+  const totalHours = Math.floor(differenceInMs / (1000 * 60 * 60));
+  const days = Math.floor(totalHours / 24);
+  const hours = totalHours % 24; // Remaining hours after full days
+
+  return { days, hours };
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -569,4 +590,5 @@ export {
   addOneMinute,
   timelineFormatDate,
   isDuration24Hours,
+  getDurationInDaysAndHours,
 };

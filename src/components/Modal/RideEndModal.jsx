@@ -6,9 +6,15 @@ import { useEffect, useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { getData, postData } from "../../Data/index";
 import {
-  handleUpdateFlags,
+  handleUpdateCompleteRide,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
+import {
+  formatDateToISO,
+  formatPrice,
+  getDurationInDaysAndHours,
+} from "../../utils/index";
+import { useDebounce } from "../../utils/Helper/debounce";
 
 const RideEndModal = ({ id }) => {
   const { isRideEndModalActive } = useSelector((state) => state.sideBar);
@@ -19,20 +25,65 @@ const RideEndModal = ({ id }) => {
   const [oldMeterReading, setOldMeterReading] = useState(0);
   const [loading, setLoading] = useState(false);
   const [EndMeterReading, SetEndMeterReading] = useState(0);
+  const [lateFees, setLateFees] = useState({
+    lateFeeBasedOnKM: 0,
+    lateFeeBasedOnHour: 0,
+  });
+  const meterDebounceValue = useDebounce(EndMeterReading, 300);
   const dispatch = useDispatch();
+
+  const calculateLateFeeBeforeRidend = () => {
+    const { BookingStartDateAndTime, BookingEndDateAndTime, vehicleBasic } =
+      vehicleMaster[0];
+    const duration = getDurationInDaysAndHours(
+      BookingEndDateAndTime,
+      formatDateToISO(new Date()).replace(".000Z", "Z")
+    );
+
+    const lateFeeBasedOnHour =
+      vehicleBasic.lateFee * (duration?.days * 24 + duration?.hours) || 0;
+
+    const lateKm =
+      (meterDebounceValue > oldMeterReading &&
+        Number(meterDebounceValue) - Number(oldMeterReading)) ||
+      0;
+    const allowKm =
+      getDurationInDaysAndHours(BookingStartDateAndTime, BookingEndDateAndTime)
+        ?.days * vehicleBasic?.freeLimit;
+
+    const lateFeeBasedOnKM = (lateKm - allowKm) * vehicleBasic?.extraKmCharge;
+
+    setLateFees({
+      lateFeeBasedOnHour: lateFeeBasedOnHour,
+      lateFeeBasedOnKM: lateFeeBasedOnKM,
+    });
+  };
+
+  useEffect(() => {
+    if (EndMeterReading === 0) return;
+    calculateLateFeeBeforeRidend();
+  }, [meterDebounceValue]);
 
   // for completing the booking
   const handleEndBooking = async (event) => {
     event.preventDefault();
+    if (endRide === 0 && EndMeterReading === 0 && oldMeterReading === 0)
+      return handleAsyncError(dispatch, "all fields required.");
+    if (vehicleMaster[0]?.bookingStatus === "completed")
+      return handleAsyncError(dispatch, "Ride Already Completed!.Refresh Page");
     setFormLoading(true);
     try {
       const data = {
         _id: vehicleMaster[0]?._id,
         userId: vehicleMaster[0]?.userId?._id,
+        startMeterReading: oldMeterReading,
         endMeterReading: EndMeterReading,
+        rideEndDate: formatDateToISO(new Date()).replace(".000Z", "Z"),
         rideOtp: endRide,
         rideStatus: "completed",
-        _id: id,
+        bookingId: vehicleMaster[0]?.bookingId,
+        lateFeeBasedOnHour: lateFees?.lateFeeBasedOnHour,
+        lateFeeBasedOnKM: lateFees?.lateFeeBasedOnKM,
       };
       const response = await postData("/rideUpdate", data, token, "put");
       if (response.status === 200) {
@@ -51,7 +102,7 @@ const RideEndModal = ({ id }) => {
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
         handleCloseModal();
-        return dispatch(handleUpdateFlags(data));
+        return dispatch(handleUpdateCompleteRide(response?.data));
       }
       if (response?.status !== 200)
         return handleAsyncError(dispatch, response?.message);
@@ -70,8 +121,8 @@ const RideEndModal = ({ id }) => {
           `/getPickupImage?bookingId=${vehicleMaster[0]?.bookingId}`,
           token
         );
-        if (response?.status !== 200)
-          return handleAsyncError(dispatch, response?.message);
+        // if (response?.status !== 200)
+        //   return handleAsyncError(dispatch, response?.message);
         return setOldMeterReading(response?.data[0]?.startMeterReading);
       } catch (error) {
         return handleAsyncError(dispatch, error?.message);
@@ -122,10 +173,38 @@ const RideEndModal = ({ id }) => {
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handleEndBooking}>
             <div className="mb-2 text-left">
-              <p className="text-gray-400">
+              <p className="text-gray-400 mb-1">
                 <span className="font-semibold">Start Meter Reading:</span>{" "}
                 {!loading ? oldMeterReading : "loading..."}
               </p>
+              {lateFees?.lateFeeBasedOnKM > 0 && (
+                <p className="text-theme mb-1">
+                  <span className="font-semibold text-gray-400">
+                    late Fee Based On KM:
+                  </span>{" "}
+                  ₹{formatPrice(lateFees?.lateFeeBasedOnKM)}
+                </p>
+              )}
+              {lateFees?.lateFeeBasedOnHour > 0 && (
+                <p className="text-theme">
+                  <span className="font-semibold text-gray-400 mb-2">
+                    late Fee Based On Hour:
+                  </span>{" "}
+                  ₹{formatPrice(lateFees?.lateFeeBasedOnHour)}
+                </p>
+              )}
+              {lateFees?.lateFeeBasedOnKM > 0 &&
+                lateFees?.lateFeeBasedOnHour > 0 && (
+                  <p className="text-theme">
+                    <span className="font-semibold text-gray-400">
+                      Total Late Fee:
+                    </span>{" "}
+                    ₹
+                    {formatPrice(
+                      lateFees?.lateFeeBasedOnHour + lateFees?.lateFeeBasedOnKM
+                    )}
+                  </p>
+                )}
             </div>
             <div className="mb-2">
               <Input

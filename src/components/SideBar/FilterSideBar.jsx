@@ -8,6 +8,7 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { useEffect, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { useDebounce } from "../../utils/Helper/debounce";
+import { formatDateToISO } from "../../utils/index";
 
 const FilterSideBar = () => {
   const dispatch = useDispatch();
@@ -17,16 +18,32 @@ const FilterSideBar = () => {
   const [menuList, setMenuList] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const todaysDate = formatDateToISO(new Date())
+    .replace(".000Z", "Z")
+    .split("T")[0];
+
+  const tomorrowDate = formatDateToISO(new Date(Date.now() + 86400000))
+    .replace(".000Z", "Z")
+    .split("T")[0];
+
   //booking status  list
   const filterMenuList = [
     { title: "All", searchTag: "" },
-    { title: "Pending (Ride)", searchTag: "rideStatus=pending" },
-    { title: "ongoing (Ride)", searchTag: "rideStatus=ongoing" },
-    { title: "Completed (Ride)", searchTag: "rideStatus=completed" },
+    { title: "Pending Pickups", searchTag: "rideStatus=pending" },
+    {
+      title: "Today's Pickups",
+      searchTag: `search=${todaysDate}&rideStatus=pending`,
+    },
+    {
+      title: "Tomorrow's Pickups",
+      searchTag: `search=${tomorrowDate}&rideStatus=pending`,
+    },
+    { title: "ongoing", searchTag: "rideStatus=ongoing" },
+    { title: "Completed", searchTag: "rideStatus=completed" },
     { title: "cancelled (Ride)", searchTag: "rideStatus=canceled" },
     { title: "cancelled (Booking)", searchTag: "bookingStatus=canceled" },
-    { title: "Extended (Booking)", searchTag: "bookingStatus=extended" },
-    { title: "Done (Booking)", searchTag: "bookingStatus=done" },
+    { title: "Extended", searchTag: "bookingStatus=extended" },
+    { title: "Completed (Booking)", searchTag: "bookingStatus=done" },
     { title: "Failed (Payment)", searchTag: "paymentStatus=failed" },
     { title: "Refunded (Payment)", searchTag: "paymentStatus=refunded" },
     { title: "Full Paid (Payment)", searchTag: "paymentStatus=paid" },
