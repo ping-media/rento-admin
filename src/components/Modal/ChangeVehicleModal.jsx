@@ -123,7 +123,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
         tax: tax,
         totalPrice: totalPrice,
         rentAmount: Number(changeToNewVehicle?.perDayCost),
-        diffAmount: diffAmount <= 0 ? 0 : diffAmount,
+        diffAmount: diffAmount <= 0 ? 0 : Math.floor(diffAmount),
       },
       changeVehicle: {
         vehicleMasterId: bookingData?.vehicleMasterId,
