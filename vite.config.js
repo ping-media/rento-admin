@@ -18,4 +18,14 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    assetsInlineLimit: 0, // Ensures assets have unique hashes
+    rollupOptions: {
+      output: {
+        entryFileNames: "assets/[name]-[hash].js",
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
+      },
+    },
+  },
 });
