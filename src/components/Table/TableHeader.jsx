@@ -72,13 +72,15 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           location?.pathname === "/all-managers"
         ) {
           if (item === "firstName") {
-            <th
-              scope="col"
-              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
-              key={"userId"}
-            >
-              User Name & Phone
-            </th>;
+            return (
+              <th
+                scope="col"
+                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                key={"userId"}
+              >
+                User Name & Phone
+              </th>
+            );
           }
           if (item === "lastName" || item === "contact") {
             return null;
