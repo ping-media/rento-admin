@@ -147,10 +147,15 @@ const vehicleSlice = createSlice({
       };
     },
     handleUpdateUserStatus: (state, action) => {
-      state.vehicleMaster[0] = {
-        ...state.vehicleMaster[0],
-        userId: { ...state.vehicleMaster[0].userId, ...action.payload },
-      };
+      state.vehicleMaster[0]
+        ? (state.vehicleMaster[0] = {
+            ...state.vehicleMaster[0],
+            userId: { ...state.vehicleMaster[0].userId, ...action.payload },
+          })
+        : (state.vehicleMaster = {
+            ...state.vehicleMaster,
+            ...action.payload,
+          });
     },
     addTempVehicleData: (state, action) => {
       state.loading = false;

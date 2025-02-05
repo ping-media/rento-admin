@@ -108,12 +108,16 @@ const CreateNewAndUpdateForm = () => {
               className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
               onClick={() => dispatch(toogleKycModalActive())}
               disabled={
-                (vehicleMaster &&
-                  vehicleMaster[0]?.userId?.kycApproved === "yes") ||
-                false
+                (vehicleMaster && vehicleMaster[0]
+                  ? vehicleMaster[0]?.userId?.kycApproved === "yes"
+                  : vehicleMaster?.kycApproved === "yes") || false
               }
             >
-              {vehicleMaster && vehicleMaster[0]?.userId?.kycApproved === "yes"
+              {vehicleMaster && vehicleMaster[0]
+                ? vehicleMaster[0]?.userId?.kycApproved === "yes"
+                  ? "Verified"
+                  : "Verify User"
+                : vehicleMaster && vehicleMaster?.kycApproved === "yes"
                 ? "Verified"
                 : "Verify User"}
             </button>

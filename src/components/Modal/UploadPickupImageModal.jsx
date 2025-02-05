@@ -47,11 +47,25 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     if (!tempVehicleData)
       return handleAsyncError(dispatch, "All fields required.");
 
+    // if (!image) return handleAsyncError(dispatch, "all images required");
+
+    // Object.values(image).forEach((file) => {
+    //   if (file instanceof File) {
+    //     formData.append("images", file);
+    //   }
+    // });
     formData.append("userId", tempVehicleData?.userId?._id);
     formData.append("bookingId", tempVehicleData?.bookingId);
     formData.append("_id", tempVehicleData?._id);
 
-    if (!formData.has("images")) {
+    let hasFiles = false;
+    for (let value of formData.values()) {
+      if (value instanceof File) {
+        hasFiles = true;
+        break;
+      }
+    }
+    if (!hasFiles) {
       return handleAsyncError(
         dispatch,
         "Unable to upload! No images provided."

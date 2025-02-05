@@ -490,7 +490,9 @@ const updateTimeLineForPayment = async (
       {
         title: title,
         date: new Date().toLocaleString(),
-        PaymentLink: `rentobikes.com/payment?id=${_id}&order=${orderId}&finalAmount=${finalAmount}`,
+        PaymentLink: `${
+          import.meta.env.VITE_FRONTEND_URL
+        }/payment?id=${_id}&order=${orderId}&finalAmount=${finalAmount}`,
         paymentAmount: finalAmount,
         changeToVehicle: isvehicleNumbers || "",
       },

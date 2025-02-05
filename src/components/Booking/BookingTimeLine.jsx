@@ -66,12 +66,6 @@ const BookingTimeLine = ({ bookingId }) => {
                               item?.changedTo}
                           </p>
                         )}
-                        {item?.isvehicleNumbers &&
-                          item?.isvehicleNumbers != "" && (
-                            <p className="text-gray-700 leading-tight text-xs">
-                              {item?.isvehicleNumbers}
-                            </p>
-                          )}
                         <p className="text-gray-700 leading-tight text-xs">
                           {item?.date}
                         </p>
@@ -95,6 +89,12 @@ const BookingTimeLine = ({ bookingId }) => {
                         >
                           ₹{formatPrice(item?.paymentAmount)}
                         </p>
+                        {item?.changeToVehicle &&
+                          item?.changeToVehicle != "" && (
+                            <p className="text-gray-700 leading-tight text-xs">
+                              {item?.changeToVehicle}
+                            </p>
+                          )}
                         <p className="text-gray-700 leading-tight text-xs">
                           {removeSecondsFromDateAndTime(item?.date)}
                         </p>

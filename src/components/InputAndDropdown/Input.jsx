@@ -126,7 +126,9 @@ const Input = ({
           onChange={(e) => handleChangeValue(e)}
           onKeyDown={handleKeyDown}
           name={item}
-          placeholder={`${item}`}
+          placeholder={`${
+            item.includes("Proof") ? item.replace("Proof", "") : item
+          }`}
           disabled={disabled}
           required={require}
         />

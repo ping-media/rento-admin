@@ -35,6 +35,12 @@ const RideEndModal = ({ id }) => {
   const calculateLateFeeBeforeRidend = () => {
     const { BookingStartDateAndTime, BookingEndDateAndTime, vehicleBasic } =
       vehicleMaster[0];
+    const iscurrentDateOrStartDateSame =
+      BookingStartDateAndTime.split("T")[0] ===
+      formatDateToISO(new Date()).replace(".000Z", "Z").split("T")[0];
+
+    if (iscurrentDateOrStartDateSame === true) return;
+
     const duration = getDurationInDaysAndHours(
       BookingEndDateAndTime,
       formatDateToISO(new Date()).replace(".000Z", "Z")
@@ -123,6 +129,7 @@ const RideEndModal = ({ id }) => {
         );
         // if (response?.status !== 200)
         //   return handleAsyncError(dispatch, response?.message);
+        console.log(response?.data);
         return setOldMeterReading(response?.data[0]?.startMeterReading);
       } catch (error) {
         return handleAsyncError(dispatch, error?.message);

@@ -36,14 +36,17 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
   };
 
   //   for sending the otp
-  const handleSendEmailOtp = async () => {
-    if (emailInput && emailInput === "")
-      return handleAsyncError(dispatch, "email should not empty");
+  const handleSendPhoneOtp = async () => {
+    if (
+      (contactInput && contactInput === "") ||
+      (contactInput && contactInput === 0)
+    )
+      return handleAsyncError(dispatch, "Contact should not empty");
     const data = {
-      email: emailInput,
+      contact: contactInput,
     };
     return handleSendOtp(
-      "/emailOtp",
+      "/otpGenerat",
       data,
       token,
       dispatch,
@@ -108,7 +111,7 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
                     type="button"
                     className="border-2 rounded-md text-theme hover:bg-theme hover:text-gray-100 border-theme p-1 disabled:border-gray-400 disabled:text-gray-400"
                     disabled={otpLoading}
-                    onClick={handleSendEmailOtp}
+                    onClick={handleSendPhoneOtp}
                   >
                     {!otpLoading ? (
                       "Send OTP"

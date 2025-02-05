@@ -64,7 +64,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const changeToNewVehicle = freeVehicles?.find(
       (item) => item?._id == vehicleId
     );
-    console.log(changeToNewVehicle);
     // calculating the duration
     const startDate =
       bookingData?.BookingStartDateAndTime <=
@@ -90,18 +89,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const totalPrice = Number(bookingPricePlusHelmet) + Number(tax);
     const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
     const oldTotalPrice = bookingData?.bookingPrice?.totalPrice;
-    // const diffAmount =
-    //   bookingData?.bookingPrice?.discountTotalPrice > 0
-    //     ? totalPrice <
-    //       (oldDiscountPrice != 0 ? oldDiscountPrice : oldTotalPrice)
-    //       ? Number(bookingData?.bookingPrice?.discountTotalPrice) -
-    //         Number(totalPrice)
-    //       : Number(totalPrice) -
-    //         Number(bookingData?.bookingPrice?.discountTotalPrice)
-    //     : totalPrice <
-    //       (oldDiscountPrice != 0 ? oldDiscountPrice : oldTotalPrice)
-    //     ? Number(bookingData?.bookingPrice?.totalPrice) - Number(totalPrice)
-    //     : Number(totalPrice) - Number(bookingData?.bookingPrice?.totalPrice);
+
     const diffAmount =
       Number(oldDiscountPrice) > 0
         ? Number(totalPrice) - Number(oldDiscountPrice)
@@ -171,7 +159,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
           data,
           token,
           "Vehicle Changed",
-          `From (${vehicleMaster[0]?.vehicleBasic?.vehicleNumber}) to (${selectedVehicle?.vehicleNumber})`
+          `From (${vehicleMaster[0]?.vehicleBasic?.vehicleNumber}) to (${selectedVehicle?.vehicleBasic?.vehicleNumber})`
         );
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
@@ -260,11 +248,15 @@ const ChangeVehicleModal = ({ bookingData }) => {
                   {[
                     "rentAmount",
                     "tax",
+                    "extraAddonPrice",
                     "totalPrice",
                     "discountTotalPrice",
                   ].map((key, index) => {
                     const value = bookingData?.bookingPrice?.[key];
                     if (value !== undefined || value !== 0) {
+                      if (bookingData?.bookingPrice?.[key] === 0) {
+                        return null;
+                      }
                       return (
                         <li
                           className={`capitalize ${
@@ -274,8 +266,18 @@ const ChangeVehicleModal = ({ bookingData }) => {
                           }`}
                           key={index}
                         >
-                          {camelCaseToSpaceSeparated(key)}: ₹
-                          {formatPrice(Math.floor(value))}
+                          {key != "extraAddonPrice"
+                            ? camelCaseToSpaceSeparated(key)
+                            : "Extra Helmet"}
+                          : ₹
+                          {key === "rentAmount" || key === "extraAddonPrice"
+                            ? `${formatPrice(
+                                Math.floor(value)
+                              )} * ${getDurationInDays(
+                                bookingData?.BookingStartDateAndTime,
+                                bookingData?.BookingEndDateAndTime
+                              )} day(s)`
+                            : formatPrice(Math.floor(value))}
                         </li>
                       );
                     } else {
@@ -285,23 +287,39 @@ const ChangeVehicleModal = ({ bookingData }) => {
                 </ul>
                 <h2 className="text-left">New Vehicle</h2>
                 <ul className="leading-7 text-left mb-1">
-                  {["rentAmount", "tax", "totalPrice"].map((key, index) => {
-                    const value = selectedVehicle?.bookingPrice?.[key];
-                    if (value !== undefined) {
-                      return (
-                        <li
-                          className={`capitalize ${
-                            key === "totalPrice" ? "font-semibold" : ""
-                          }`}
-                          key={index}
-                        >
-                          {camelCaseToSpaceSeparated(key)}: ₹{value}
-                        </li>
-                      );
-                    } else {
-                      return null;
+                  {["rentAmount", "tax", "extraAddonPrice", "totalPrice"].map(
+                    (key, index) => {
+                      const value = selectedVehicle?.bookingPrice?.[key];
+                      if (bookingData?.bookingPrice?.[key] === 0) {
+                        return null;
+                      }
+                      if (value !== undefined) {
+                        return (
+                          <li
+                            className={`capitalize ${
+                              key === "totalPrice" ? "font-semibold" : ""
+                            }`}
+                            key={index}
+                          >
+                            {key != "extraAddonPrice"
+                              ? camelCaseToSpaceSeparated(key)
+                              : "Extra Helmet"}
+                            : ₹
+                            {key === "rentAmount" || key === "extraAddonPrice"
+                              ? `${formatPrice(
+                                  Math.floor(value)
+                                )} * ${getDurationInDays(
+                                  bookingData?.BookingStartDateAndTime,
+                                  bookingData?.BookingEndDateAndTime
+                                )} day(s)`
+                              : formatPrice(Math.floor(value))}
+                          </li>
+                        );
+                      } else {
+                        return null;
+                      }
                     }
-                  })}
+                  )}
                 </ul>
                 {selectedVehicle && (
                   <p className="font-semibold text-left">

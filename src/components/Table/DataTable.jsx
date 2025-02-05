@@ -126,6 +126,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "addressProof",
           "drivingLicence",
           "paymentUpdates",
+          "lastMeterReading",
           // "userId",
         ].includes(key)
     );
@@ -157,7 +158,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
       location.pathname == "/all-invoices"
       // location.pathname == "/users-documents"
     ) {
-      filteredKeys = filteredKeys.filter((item) => !["userId"].includes(item));
+      filteredKeys = filteredKeys.filter(
+        (item) => !["userId", "paymentMethod"].includes(item)
+      );
     }
 
     if (
@@ -375,6 +378,33 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   return null;
                                 }
                               }
+                              // if (location?.pathname === "/payments") {
+                              //   if (column === "bookingPrice") {
+                              //     return (
+                              //       <td
+                              //         className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
+                              //         key={columnIndex}
+                              //       >
+                              //         ₹{" "}
+                              //         {item?.paymentStatus ===
+                              //           "partially_paid" ||
+                              //         item?.paymentStatus === "partiallyPay"
+                              //           ? formatPrice(
+                              //               item?.bookingPrice?.userPaid
+                              //             )
+                              //           : item?.bookingPrice
+                              //               ?.discountTotalPrice > 0
+                              //           ? formatPrice(
+                              //               item?.bookingPrice
+                              //                 ?.discountTotalPrice
+                              //             )
+                              //           : formatPrice(
+                              //               item?.bookingPrice?.totalPrice
+                              //             )}
+                              //       </td>
+                              //     );
+                              //   }
+                              // }
                               // Skip rendering `BookingEndDateAndTime` data to avoid duplication
                               if (
                                 // column === "BookingEndDateAndTime" ||

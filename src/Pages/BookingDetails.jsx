@@ -272,8 +272,11 @@ const BookingDetails = () => {
             }
           />
           {/* for extend booking  */}
-          {(vehicleMaster[0]?.bookingStatus !== "canceled" ||
-            vehicleMaster[0]?.bookingStatus !== "completed") && (
+          {!(
+            vehicleMaster[0]?.bookingStatus === "canceled" ||
+            vehicleMaster[0]?.bookingStatus === "completed" ||
+            vehicleMaster[0]?.rideStatus == "completed"
+          ) && (
             <Button
               customClass={
                 "border-2 border-theme text-theme hover:text-gray-100 hover:border-theme-dark"
