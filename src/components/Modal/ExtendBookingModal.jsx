@@ -43,10 +43,14 @@ const ExtendBookingModal = ({ bookingData }) => {
         BookingStartDateAndTime: bookingData?.BookingStartDateAndTime,
         BookingEndDateAndTime: bookingData?.BookingEndDateAndTime,
       },
-      extendAmount: calculatePriceForExtendBooking(
-        bookingData?.bookingPrice?.rentAmount,
-        extensionDays
-      ),
+      extendAmount: {
+        title: "extended",
+        amount: calculatePriceForExtendBooking(
+          bookingData?.bookingPrice?.rentAmount,
+          extensionDays
+        ),
+        status: "unpaid",
+      },
       bookingStatus: "extended",
     };
     if (!data) return;

@@ -129,7 +129,7 @@ const RideEndModal = ({ id }) => {
         );
         // if (response?.status !== 200)
         //   return handleAsyncError(dispatch, response?.message);
-        console.log(response?.data);
+        // console.log(response?.data);
         return setOldMeterReading(response?.data[0]?.startMeterReading);
       } catch (error) {
         return handleAsyncError(dispatch, error?.message);

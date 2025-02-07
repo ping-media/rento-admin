@@ -283,7 +283,7 @@ const fetchStationBasedOnLocation = async (
         token
       );
     }
-    if (stationResponse?.status == 200) {
+    if (stationResponse?.status === 200) {
       return setStationData(stationResponse?.data);
     }
   } catch (error) {
@@ -450,7 +450,9 @@ const updateTimeLine = async (data, token) => {
       {
         title: "Payment Link Created",
         date: new Date().toLocaleString(),
-        PaymentLink: `rentobikes.com/payment?id=${_id}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}`,
+        PaymentLink: `${
+          import.meta.env.VITE_FRONTEND_URL
+        }/payment?id=${_id}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}`,
         paymentAmount: finalAmount,
       },
     ],
@@ -469,7 +471,10 @@ const updateTimeLineForPayment = async (
 
   const finalAmount =
     (extendAmount && extendAmount) ||
-    (bookingPrice && Number(bookingPrice?.diffAmount));
+    (bookingPrice &&
+      Number(
+        bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.amount
+      ));
   // creating order id for the payment
   let orderId = "";
   const generateOrderId = await postData(

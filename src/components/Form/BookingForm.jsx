@@ -115,7 +115,10 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           rentAmount: formData?.stepTwoData?.rentAmount,
           isPackageApplied: false,
           userPaid: userPaid,
-          AmountLeftAfterUserPaid: AmountLeftAfterUserPaid,
+          AmountLeftAfterUserPaid: {
+            amount: AmountLeftAfterUserPaid,
+            status: "upaid",
+          },
           extendAmount: [],
         },
         vehicleBasic: {
@@ -202,12 +205,12 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         // for creating booking
         postData("/createTimeline", timeLineData, token);
         // for updating sending link in it
-        const updateTimeLine = await updateTimeLine(
+        const updateTimeLineDataToPush = await updateTimeLine(
           UpdatedBookingResponse?.data,
           token
         );
-        dispatch(updateTimeLineData(updateTimeLine));
-        handleAsyncError(dispatch, UpdatedBookingResponse?.message, "success");
+        dispatch(updateTimeLineData(updateTimeLineDataToPush));
+        handleAsyncError(dispatch, "Ride Created Successfully", "success");
         navigate(`/all-bookings/details/${UpdatedBookingResponse?.data?._id}`);
       } else {
         return handleAsyncError(dispatch, UpdatedBookingResponse?.message);

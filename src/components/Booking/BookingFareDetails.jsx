@@ -183,7 +183,7 @@ const BookingFareDetails = ({ rides }) => {
                   </p>
                   <p className="text-sm font-bold text-right">
                     {`₹${formatPrice(
-                      rides?.bookingPrice.AmountLeftAfterUserPaid
+                      rides?.bookingPrice.AmountLeftAfterUserPaid?.amount
                     )}`}
                   </p>
                 </li>
@@ -215,7 +215,7 @@ const BookingFareDetails = ({ rides }) => {
               </li>
             )}
             {/* difference amount  */}
-            {rides?.bookingPrice?.diffAmount && (
+            {rides?.bookingPrice?.diffAmount?.length > 0 && (
               <li className="flex items-center justify-between pt-1 mt-1 border-t-2">
                 <p className="text-sm font-semibold uppercase text-left">
                   Difference Amount
@@ -224,7 +224,13 @@ const BookingFareDetails = ({ rides }) => {
                   </small>
                 </p>
                 <p className="text-sm font-bold text-right">
-                  {`₹${formatPrice(Number(rides?.bookingPrice?.diffAmount))}`}
+                  {`₹${formatPrice(
+                    Number(
+                      rides?.bookingPrice?.diffAmount[
+                        rides?.bookingPrice?.diffAmount?.length - 1
+                      ]?.amount
+                    )
+                  )}`}
                 </p>
               </li>
             )}
@@ -242,7 +248,7 @@ const BookingFareDetails = ({ rides }) => {
                     Number(
                       rides?.bookingPrice?.extendAmount[
                         rides?.bookingPrice?.extendAmount?.length - 1
-                      ]
+                      ]?.amount
                     )
                   )}`}
                 </p>

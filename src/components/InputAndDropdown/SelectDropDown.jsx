@@ -59,7 +59,7 @@ const SelectDropDown = ({
               `Select ${title[item] || item}`}
           </option>
           {options &&
-            options.map((items, index) => {
+            options?.map((items, index) => {
               const isId = items?.hasOwnProperty("_id");
               const isFirstName = items?.hasOwnProperty("firstName");
               const isLocationName = items?.hasOwnProperty("locationName");
@@ -87,7 +87,7 @@ const SelectDropDown = ({
                   </option>
                 );
               } else if (
-                !location.pathname.includes("/all-bookings/add-new") &&
+                // !location.pathname.includes("/all-bookings/add-new") &&
                 !location.pathname.includes("/all-bookings/details/") &&
                 isId &&
                 isStationName

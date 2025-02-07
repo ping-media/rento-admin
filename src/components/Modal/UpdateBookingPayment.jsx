@@ -2,7 +2,7 @@ import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { togglePaymentUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { cancelBookingById } from "../../Data/Function";
 import { postData } from "../../Data/index";
@@ -19,7 +19,27 @@ const UpdateBookingPayment = ({ id }) => {
   const [formLoading, setFormLoading] = useState(false);
   const [finalAmount, setFinalAmount] = useState(0);
   const [paymentMode, setPaymentMode] = useState("");
+  const [paymentFor, setPaymentFor] = useState("");
   const dispatch = useDispatch();
+
+  // for getting left amount
+  const getPaymentAmount = (paymentForInput) => {
+    if (paymentForInput === "remaining") {
+      vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.status ===
+      "unpaid"
+        ? setFinalAmount(
+            Number(
+              vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.amount
+            )
+          )
+        : handleAsyncError(dispatch, "Amount Already Paid.");
+    }
+  };
+
+  useEffect(() => {
+    if (paymentFor === "") return;
+    getPaymentAmount(paymentFor);
+  }, [paymentMode]);
 
   // for updating the payment for specific booking
   const handlUpdateBookingPaymentRecord = async (event) => {
@@ -124,16 +144,25 @@ const UpdateBookingPayment = ({ id }) => {
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handlUpdateBookingPaymentRecord}>
             <div className="mb-2">
+              <SelectDropDown
+                item={"Payment"}
+                options={["remaining"]}
+                setIsLocationSelected={setPaymentFor}
+                require={true}
+              />
+            </div>
+            <div className="mb-2">
               <Input
                 item={"finalAmount"}
                 type="number"
                 require={true}
+                value={finalAmount}
                 setValueChange={setFinalAmount}
               />
             </div>
             <div className="mb-2">
               <SelectDropDown
-                item={"finalAmount"}
+                item={"PaymentMode"}
                 options={["online", "cash"]}
                 setIsLocationSelected={setPaymentMode}
                 require={true}

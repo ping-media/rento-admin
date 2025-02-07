@@ -23,7 +23,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
   const [suggestedData, setSuggestionData] = useState(null);
   const [collectedData, setCollectedData] = useState(null);
   const [stationData, setStationData] = useState(null);
-  const [stationLoading, setStationLoading] = useState(null);
+  const [stationLoading, setStationLoading] = useState(false);
   const [error, setError] = useState("");
   const [isLocationSelected, setIsLocationSelected] = useState("");
   const { loggedInRole, userStation } = useSelector((state) => state.user);
@@ -41,16 +41,16 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
 
   //updating station based on location id
   useEffect(() => {
-    if (vehicleMaster?.length == 1 || isLocationSelected !== "") {
+    if (isLocationSelected !== "") {
       fetchStationBasedOnLocation(
         vehicleMaster,
         isLocationSelected,
         setStationData,
         token,
-        setStationLoading
+        setLoading
       );
     }
-  }, [isLocationSelected, vehicleMaster]);
+  }, [isLocationSelected]);
 
   // getting free vehicle btw two dates through this
   useEffect(() => {
@@ -82,7 +82,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
               : `locationId=${isLocationSelected}&stationId=${stationId}`;
 
           const response = await getData(
-            `/getVehicleTblData?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}`
+            `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}`
           );
           if (response?.status == 200) {
             setSuggestionData(response?.data);
@@ -99,20 +99,15 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
   }, [bookingStartDate, bookingEndDate, vehicleId, isLocationSelected]);
 
   // fetching stationId and LocationId
-  const fetchCollectedData = async (locationUrl, stationUrl) => {
+  const fetchCollectedData = async (locationUrl) => {
     const locationResponse = await getData(
       endPointBasedOnKey[locationUrl],
       token
     );
-    const stationResponse = await getData(
-      endPointBasedOnKey[stationUrl],
-      token
-    );
 
-    if (locationResponse && stationResponse) {
+    if (locationResponse) {
       return setCollectedData({
         locationId: locationResponse?.data,
-        stationId: stationResponse?.data,
       });
     }
   };
@@ -120,7 +115,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
   // only run this if current login user is admin
   useEffect(() => {
     if (loggedInRole === "admin") {
-      fetchCollectedData("locationId", "stationId");
+      fetchCollectedData("locationId");
     }
   }, []);
 

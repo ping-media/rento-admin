@@ -14,6 +14,7 @@ import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlic
 import {
   handleIsHeaderChecked,
   removeTempIds,
+  restvehicleMaster,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleLogoutUser, validateUser } from "../../Data/Function";
 // modals
@@ -80,6 +81,7 @@ const Layout = () => {
   //need to reset some value when ever user change page
   useEffect(() => {
     dispatch(handleRestPagination());
+    dispatch(restvehicleMaster());
     dispatch(removeTempIds());
     dispatch(handleIsHeaderChecked(false));
   }, [location.href]);

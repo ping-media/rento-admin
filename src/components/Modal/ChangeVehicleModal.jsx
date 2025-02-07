@@ -90,10 +90,13 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
     const oldTotalPrice = bookingData?.bookingPrice?.totalPrice;
 
+    // calculating the diffAmount
     const diffAmount =
       Number(oldDiscountPrice) > 0
         ? Number(totalPrice) - Number(oldDiscountPrice)
         : Number(totalPrice) - Number(oldTotalPrice);
+    // it diffAmount comes in negative value than make it zero
+    const finalDiffAmount = diffAmount <= 0 ? 0 : Math.floor(diffAmount);
 
     const data = {
       _id: bookingData?._id,
@@ -113,7 +116,14 @@ const ChangeVehicleModal = ({ bookingData }) => {
         tax: tax,
         totalPrice: totalPrice,
         rentAmount: Number(changeToNewVehicle?.perDayCost),
-        diffAmount: diffAmount <= 0 ? 0 : Math.floor(diffAmount),
+        diffAmount: [
+          ...bookingData?.diffAmount,
+          {
+            title: "changedVehicle",
+            amount: finalDiffAmount,
+            status: "unpaid",
+          },
+        ],
       },
       changeVehicle: {
         vehicleMasterId: bookingData?.vehicleMasterId,

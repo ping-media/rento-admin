@@ -519,19 +519,22 @@ function timelineFormatDate(input) {
   return `${day}, ${month} ${year}, ${hours}:${minutes} ${amPm}`;
 }
 
+// const isDuration24Hours = (startDate, endDate) => {
+//   // Parse the dates
+//   const start = new Date(startDate);
+//   const end = new Date(endDate);
+
+//   // Calculate the difference in milliseconds
+//   const durationInMilliseconds = end - start;
+
+//   // Convert milliseconds to hours
+//   const durationInHours = durationInMilliseconds / (1000 * 60 * 60);
+
+//   // Check if the duration is exactly 24 hours
+//   return durationInHours === 24;
+// };
 const isDuration24Hours = (startDate, endDate) => {
-  // Parse the dates
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-
-  // Calculate the difference in milliseconds
-  const durationInMilliseconds = end - start;
-
-  // Convert milliseconds to hours
-  const durationInHours = durationInMilliseconds / (1000 * 60 * 60);
-
-  // Check if the duration is exactly 24 hours
-  return durationInHours === 24;
+  return (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60) >= 24;
 };
 
 const getDurationInDaysAndHours = (date1Str, date2Str) => {
