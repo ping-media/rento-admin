@@ -285,7 +285,7 @@ const BookingDetails = () => {
               fn={() => dispatch(toggleBookingExtendModal())}
             />
           )}
-          {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
+          {/* {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
             vehicleMaster[0]?.bookingPrice?.diffAmount > 0) ||
             vehicleMaster[0]?.bookingStatus === "extended" ||
             vehicleMaster[0]?.paymentStatus === "partiallyPay" ||
@@ -294,7 +294,7 @@ const BookingDetails = () => {
               title={"Update Payment"}
               fn={() => dispatch(togglePaymentUpdateModal())}
             />
-          )}
+          )} */}
           {/* for invoice generate  */}
           {vehicleMaster[0]?.bookingStatus !== "canceled" &&
             vehicleMaster[0]?.paymentStatus !== "pending" && (

@@ -24,6 +24,9 @@ const UpdateBookingPayment = ({ id }) => {
 
   // for getting left amount
   const getPaymentAmount = (paymentForInput) => {
+    // console.log(
+    //   vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.amount
+    // );
     if (paymentForInput === "remaining") {
       vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.status ===
       "unpaid"
