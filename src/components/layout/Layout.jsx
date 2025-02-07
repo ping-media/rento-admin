@@ -81,7 +81,6 @@ const Layout = () => {
   //need to reset some value when ever user change page
   useEffect(() => {
     dispatch(handleRestPagination());
-    dispatch(restvehicleMaster());
     dispatch(removeTempIds());
     dispatch(handleIsHeaderChecked(false));
   }, [location.href]);
