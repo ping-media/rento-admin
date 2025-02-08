@@ -166,7 +166,7 @@ const BookingFareDetails = ({ rides }) => {
                   <p className="text-sm font-semibold uppercase text-left">
                     Amount Paid
                   </p>
-                  <p className="text-sm font-bold text-right">
+                  <p className="text-sm font-bold text-right text-theme">
                     {`- ₹${formatPrice(rides?.bookingPrice?.userPaid)}`}
                   </p>
                 </li>
