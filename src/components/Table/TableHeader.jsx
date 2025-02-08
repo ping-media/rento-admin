@@ -55,6 +55,26 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </th>
           );
         }
+        if (item === "bookingPrice" && location.pathname === "/payments") {
+          return (
+            <>
+              <th
+                scope="col"
+                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                key={"userPaid"}
+              >
+                Payment Recived
+              </th>
+              <th
+                scope="col"
+                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                key={"userPaid"}
+              >
+                booking price
+              </th>
+            </>
+          );
+        }
         if (item === "openStartTime") {
           return (
             <th

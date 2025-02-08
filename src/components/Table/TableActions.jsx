@@ -8,6 +8,12 @@ const TableActions = ({
   // setLoadingStates,
   handleDeleteVehicle,
 }) => {
+  // for deleting the vehicle
+  const handleDelete = (e, id) => {
+    e.stopPropagation();
+    return handleDeleteVehicle(id);
+  };
+
   return (
     <td className="p-3 whitespace-nowrap text-sm items-center gap-1">
       <div className="flex">
@@ -54,7 +60,7 @@ const TableActions = ({
         ) && (
           <button
             className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:bg-red-600 flex item-center"
-            onClick={() => handleDeleteVehicle(item?._id)}
+            onClick={(e) => handleDelete(e, item?._id)}
           >
             {tableIcons.delete}
           </button>

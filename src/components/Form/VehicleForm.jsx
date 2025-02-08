@@ -22,9 +22,20 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   const { token, userStation } = useSelector((state) => state.user);
   const { id } = useParams();
 
+  // for setting locationid if it is present
+  useEffect(() => {
+    if (id && vehicleMaster?.length == 1) {
+      // console.log(vehicleMaster[0]?.locationId);
+      setIsLocationSelected(vehicleMaster[0]?.locationId);
+    }
+  }, [vehicleMaster, id]);
+
   //updating station based on location id
   useEffect(() => {
-    if ((id && vehicleMaster?.length == 1) || isLocationSelected !== "") {
+    if (
+      (id && vehicleMaster?.length == 1 && isLocationSelected !== "") ||
+      isLocationSelected !== ""
+    ) {
       fetchStationBasedOnLocation(
         vehicleMaster,
         isLocationSelected,

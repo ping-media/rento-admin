@@ -378,33 +378,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   return null;
                                 }
                               }
-                              // if (location?.pathname === "/payments") {
-                              //   if (column === "bookingPrice") {
-                              //     return (
-                              //       <td
-                              //         className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                              //         key={columnIndex}
-                              //       >
-                              //         ₹{" "}
-                              //         {item?.paymentStatus ===
-                              //           "partially_paid" ||
-                              //         item?.paymentStatus === "partiallyPay"
-                              //           ? formatPrice(
-                              //               item?.bookingPrice?.userPaid
-                              //             )
-                              //           : item?.bookingPrice
-                              //               ?.discountTotalPrice > 0
-                              //           ? formatPrice(
-                              //               item?.bookingPrice
-                              //                 ?.discountTotalPrice
-                              //             )
-                              //           : formatPrice(
-                              //               item?.bookingPrice?.totalPrice
-                              //             )}
-                              //       </td>
-                              //     );
-                              //   }
-                              // }
                               // Skip rendering `BookingEndDateAndTime` data to avoid duplication
                               if (
                                 // column === "BookingEndDateAndTime" ||
@@ -424,21 +397,47 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   key={columnIndex}
                                 />
                               ) : typeof item[column] === "object" ? (
-                                <td
-                                  className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                  key={columnIndex}
-                                >
-                                  {column.includes("files")
-                                    ? null
-                                    : `₹${formatPrice(
-                                        item[column]?.isDiscountZero === true ||
-                                          (item[column]?.discountTotalPrice &&
-                                            item[column]?.discountTotalPrice !=
-                                              0)
-                                          ? item[column]?.discountTotalPrice
-                                          : item[column]?.totalPrice
-                                      )}`}
-                                </td>
+                                <>
+                                  {location?.pathname === "/payments" && (
+                                    <td
+                                      className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
+                                      key={columnIndex}
+                                    >
+                                      ₹{" "}
+                                      {item?.paymentStatus ===
+                                        "partially_paid" ||
+                                      item?.paymentStatus === "partiallyPay"
+                                        ? formatPrice(
+                                            item?.bookingPrice?.userPaid
+                                          )
+                                        : item?.bookingPrice
+                                            ?.discountTotalPrice > 0
+                                        ? formatPrice(
+                                            item?.bookingPrice
+                                              ?.discountTotalPrice
+                                          )
+                                        : formatPrice(
+                                            item?.bookingPrice?.totalPrice
+                                          )}
+                                    </td>
+                                  )}
+                                  <td
+                                    className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
+                                    key={columnIndex}
+                                  >
+                                    {column.includes("files")
+                                      ? null
+                                      : `₹${formatPrice(
+                                          item[column]?.isDiscountZero ===
+                                            true ||
+                                            (item[column]?.discountTotalPrice &&
+                                              item[column]
+                                                ?.discountTotalPrice != 0)
+                                            ? item[column]?.discountTotalPrice
+                                            : item[column]?.totalPrice
+                                        )}`}
+                                  </td>
+                                </>
                               ) : (
                                 <td
                                   className={`p-3 text-sm font-medium text-gray-900 ${
