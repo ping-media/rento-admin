@@ -1,5 +1,11 @@
 import { toggleClearModals } from "../Redux/SideBarSlice/SideBarSlice";
-import { getData, getFullData, handleAdminLogin, postData } from ".";
+import {
+  getData,
+  getFullData,
+  handleAdminLogin,
+  postData,
+  postDataWithRetry,
+} from ".";
 import {
   handleDashboardData,
   handleLoadingDashboardData,
@@ -470,14 +476,14 @@ const updateTimeLineForPayment = async (
   const { _id, extendAmount, bookingPrice, bookingId } = data;
 
   const finalAmount =
-    (extendAmount && extendAmount) ||
+    (extendAmount && extendAmount?.amount) ||
     (bookingPrice &&
       Number(
         bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.amount
       ));
   // creating order id for the payment
   let orderId = "";
-  const generateOrderId = await postData(
+  let generateOrderId = await postDataWithRetry(
     "/createOrderId",
     { amount: finalAmount, booking_id: bookingId },
     token

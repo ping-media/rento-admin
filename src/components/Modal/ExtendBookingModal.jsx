@@ -62,7 +62,12 @@ const ExtendBookingModal = ({ bookingData }) => {
         )}&BookingEndDateAndTime=${newDate}&stationId=${
           bookingData?.stationId
         }`,
-        data,
+        {
+          ...data,
+          contact: bookingData?.userId?.contact,
+          firstName: bookingData?.userId?.firstName,
+          managerContact: bookingData?.stationMasterUserId?.contact,
+        },
         token
       );
       if (response?.status === 200) {
@@ -77,7 +82,8 @@ const ExtendBookingModal = ({ bookingData }) => {
         );
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
-        dispatch(toggleBookingExtendModal());
+        // dispatch(toggleBookingExtendModal());
+        handleCloseModal();
         return handleAsyncError(dispatch, response?.message, "success");
       } else {
         return handleAsyncError(dispatch, response?.message);

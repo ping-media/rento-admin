@@ -189,6 +189,20 @@ const BookingDetails = () => {
   //     setVehicleLoading(false);
   //   }
   // };
+  // for sending remainder
+  const handleSendRemainder = async () => {
+    try {
+      const data = {
+        ...vehicleMaster[0],
+        firstName: vehicleMaster[0]?.userId?.firstName,
+        managerContact: vehicleMaster[0]?.stationMasterUserId?.contact,
+      };
+      console.log(data);
+      // const response = postData("", data, token);
+    } catch (error) {
+      handleAsyncError(dispatch, error?.message);
+    }
+  };
 
   return !loading && vehicleMaster?.length === 1 ? (
     <>
@@ -265,7 +279,7 @@ const BookingDetails = () => {
           {/* for sending reminder  */}
           <Button
             title={"Send Reminder"}
-            fn={() => {}}
+            fn={handleSendRemainder}
             disable={
               vehicleMaster[0]?.bookingStatus === "canceled" ||
               vehicleMaster[0]?.rideStatus === "completed"

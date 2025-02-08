@@ -166,6 +166,58 @@ const postData = async (url, data, token, requestType = "post") => {
   }
 };
 
+const postDataWithRetry = async (
+  url,
+  data,
+  token,
+  requestType = "post",
+  retries = 3
+) => {
+  let attempt = 0;
+
+  while (attempt < retries) {
+    try {
+      let headers = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      };
+
+      if (data?.isImage || data?.image || data?.images) {
+        headers = {
+          "Content-Type": "multipart/form-data",
+        };
+      }
+
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+        headers["token"] = `${token}`;
+      }
+
+      let response;
+      if ((data?._id && url?.includes("update")) || requestType === "put") {
+        response = await axios.put(
+          `${import.meta.env.VITE_BASED_URL}${url}`,
+          data,
+          { headers }
+        );
+      } else {
+        response = await axios.post(
+          `${import.meta.env.VITE_BASED_URL}${url}`,
+          data,
+          { headers }
+        );
+      }
+
+      return response?.data; // Return response if successful
+    } catch (error) {
+      attempt++;
+      if (attempt >= retries) {
+        return `Error: ${error?.message}`;
+      }
+    }
+  }
+};
+
 const postMultipleData = async (url, data, token) => {
   try {
     let headers = {
@@ -287,6 +339,7 @@ export {
   getData,
   getFullData,
   postData,
+  postDataWithRetry,
   postMultipleData,
   handleAdminLogin,
   deleteData,

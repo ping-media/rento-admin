@@ -71,6 +71,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
         ? formatDateToISO(new Date()).replace(".000Z", "Z")
         : bookingData?.BookingStartDateAndTime;
     const endDate = bookingData?.BookingEndDateAndTime;
+
     const daysLeft = getDurationInDays(
       startDate?.slice(0, 10),
       endDate?.slice(0, 10)
@@ -117,7 +118,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
         totalPrice: totalPrice,
         rentAmount: Number(changeToNewVehicle?.perDayCost),
         diffAmount: [
-          ...bookingData?.diffAmount,
+          ...(bookingData?.diffAmount || []),
           {
             title: "changedVehicle",
             amount: finalDiffAmount,
@@ -129,6 +130,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
         vehicleMasterId: bookingData?.vehicleMasterId,
         vehicleTableId: bookingData?._id,
         bookingPrice: bookingData?.bookingPrice,
+        vehicleName: bookingData?.vehicleName,
+        vehicleNumber: bookingData?.vehicleBasic?.vehicleNumber,
       },
       vehicleBasic: {
         isChanged: true,
@@ -141,6 +144,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
         startRide: bookingData?.vehicleBasic?.startRide,
         endRide: bookingData?.vehicleBasic?.endRide,
       },
+      firstName: vehicleMaster[0]?.userId?.firstName,
+      managerContact: vehicleMaster[0]?.stationMasterUserId?.contact,
     };
 
     return setSelectedVehicle(data);
@@ -163,7 +168,9 @@ const ChangeVehicleModal = ({ bookingData }) => {
       const response = await postData("/vehicleChange", data, token);
       if (response?.status === 200) {
         // updating the redux state
-        dispatch(handleChangesInBooking(selectedVehicle));
+        const { firstName, managerContact, ...updatedSelectedVehicle } =
+          selectedVehicle;
+        dispatch(handleChangesInBooking(updatedSelectedVehicle));
         // pushing the data for upating the timeline
         const timeLineData = await updateTimeLineForPayment(
           data,
@@ -205,6 +212,13 @@ const ChangeVehicleModal = ({ bookingData }) => {
     }
   };
 
+  // for closing the modal & clear the values
+  const handleCloseModal = async () => {
+    setFreeVehicles([]);
+    setSelectedVehicle(null);
+    return dispatch(toggleChangeVehicleModal());
+  };
+
   return (
     <div
       className={`fixed ${
@@ -217,7 +231,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
             Change Vehicle
           </h2>
           <button
-            onClick={() => dispatch(toggleChangeVehicleModal())}
+            onClick={handleCloseModal}
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
             disabled={formLoading || false}
@@ -334,7 +348,11 @@ const ChangeVehicleModal = ({ bookingData }) => {
                 {selectedVehicle && (
                   <p className="font-semibold text-left">
                     Amount need to pay: ₹
-                    {selectedVehicle?.bookingPrice?.diffAmount}
+                    {
+                      selectedVehicle?.bookingPrice?.diffAmount[
+                        selectedVehicle?.bookingPrice?.diffAmount?.length - 1
+                      ]?.amount
+                    }
                   </p>
                 )}
               </div>

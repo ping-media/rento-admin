@@ -47,13 +47,6 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     if (!tempVehicleData)
       return handleAsyncError(dispatch, "All fields required.");
 
-    // if (!image) return handleAsyncError(dispatch, "all images required");
-
-    // Object.values(image).forEach((file) => {
-    //   if (file instanceof File) {
-    //     formData.append("images", file);
-    //   }
-    // });
     formData.append("userId", tempVehicleData?.userId?._id);
     formData.append("bookingId", tempVehicleData?.bookingId);
     formData.append("_id", tempVehicleData?._id);
@@ -138,23 +131,23 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
 
   //   close modal and clear value
   const handleClearAndClose = () => {
-    setImage({
-      vehicleFront: null,
-      vehicleLeft: null,
-      vehicleRight: null,
-      vehicleBack: null,
-      odoMeterReading: null,
-      others: null,
-    });
-    setImageUrl({
-      vehicleFront: "",
-      vehicleLeft: "",
-      vehicleRight: "",
-      vehicleBack: "",
-      odoMeterReading: "",
-      others: "",
-    });
-    dispatch(removeTempVehicleData());
+    // setImage({
+    //   vehicleFront: null,
+    //   vehicleLeft: null,
+    //   vehicleRight: null,
+    //   vehicleBack: null,
+    //   odoMeterReading: null,
+    //   others: null,
+    // });
+    // setImageUrl({
+    //   vehicleFront: "",
+    //   vehicleLeft: "",
+    //   vehicleRight: "",
+    //   vehicleBack: "",
+    //   odoMeterReading: "",
+    //   others: "",
+    // });
+    // dispatch(removeTempVehicleData());
     return dispatch(togglePickupImageModal());
   };
 
@@ -243,6 +236,12 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                 </div>
               ))}
             </div>
+            {/* {(vehicleMaster[0]?.paymentStatus === "partially_paid" ||
+              vehicleMaster[0]?.paymentStatus === "partiallyPay") && (
+              <div className="w-full">
+                <Input type="number" item="startMeterReading" require={true} />
+              </div>
+            )} */}
             <div className="flex items-center flex-wrap gap-4 mb-3">
               <div className="w-full lg:w-[48%]">
                 <Input type="number" item="startMeterReading" require={true} />
