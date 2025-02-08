@@ -12,6 +12,7 @@ import {
 import Input from "../InputAndDropdown/Input";
 import { useNavigate } from "react-router-dom";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
+import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 
 const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
@@ -50,6 +51,10 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     formData.append("userId", tempVehicleData?.userId?._id);
     formData.append("bookingId", tempVehicleData?.bookingId);
     formData.append("_id", tempVehicleData?._id);
+    // for paymentmethod update in booking price
+    const updatePaymentMode =
+      formData.get("PaymentMode") ||
+      currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
 
     let hasFiles = false;
     for (let value of formData.values()) {
@@ -79,11 +84,20 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
       bookingPrice: {
         ...currentBooking.bookingPrice,
         isPickupImageAdded: true,
+        AmountLeftAfterUserPaid: {
+          ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
+          status: "paid",
+          paymentMethod:
+            updatePaymentMode ||
+            currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
+              ?.paymentMethod,
+        },
       },
       vehicleBasic: {
         ...currentBooking.vehicleBasic,
         endRide: endRideOtp,
       },
+      paymentStatus: "paid",
       rideStatus: "ongoing",
     };
 
@@ -236,12 +250,35 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                 </div>
               ))}
             </div>
-            {/* {(vehicleMaster[0]?.paymentStatus === "partially_paid" ||
+            {(vehicleMaster[0]?.paymentStatus === "partially_paid" ||
               vehicleMaster[0]?.paymentStatus === "partiallyPay") && (
-              <div className="w-full">
-                <Input type="number" item="startMeterReading" require={true} />
+              <div className="flex items-center flex-wrap gap-4 mb-3">
+                <input
+                  type="hidden"
+                  value={vehicleMaster[0]?.paymentStatus}
+                  name="paymentStatus"
+                />
+                <div className="w-full lg:w-[48%]">
+                  <Input
+                    type="number"
+                    value={
+                      vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid
+                        ?.amount
+                    }
+                    item="remainingPayment"
+                    require={true}
+                    disabled={true}
+                  />
+                </div>
+                <div className="w-full lg:w-[48%]">
+                  <SelectDropDown
+                    options={["cash", "online"]}
+                    item="PaymentMode"
+                    require={true}
+                  />
+                </div>
               </div>
-            )} */}
+            )}
             <div className="flex items-center flex-wrap gap-4 mb-3">
               <div className="w-full lg:w-[48%]">
                 <Input type="number" item="startMeterReading" require={true} />

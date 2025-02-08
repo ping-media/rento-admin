@@ -33,6 +33,7 @@ const BookingDetails = () => {
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
   const [loadingStates, setLoadingStates] = useState({});
   const [vehicleLoading, setVehicleLoading] = useState(false);
+  const [reminderLoading, setReminderLoading] = useState(false);
   const [Note, setNote] = useState("");
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
   const dispatch = useDispatch();
@@ -192,15 +193,24 @@ const BookingDetails = () => {
   // for sending remainder
   const handleSendRemainder = async () => {
     try {
+      setReminderLoading(true);
       const data = {
         ...vehicleMaster[0],
+        contact: vehicleMaster[0]?.userId?.contact,
         firstName: vehicleMaster[0]?.userId?.firstName,
         managerContact: vehicleMaster[0]?.stationMasterUserId?.contact,
       };
-      console.log(data);
-      // const response = postData("", data, token);
+      // console.log(data);
+      const response = await postData("/sendReminder", data, token);
+      if (response?.status === 200) {
+        return handleAsyncError(dispatch, response?.message, "success");
+      } else {
+        return handleAsyncError(dispatch, response?.message);
+      }
     } catch (error) {
       handleAsyncError(dispatch, error?.message);
+    } finally {
+      setReminderLoading(false);
     }
   };
 
@@ -284,6 +294,8 @@ const BookingDetails = () => {
               vehicleMaster[0]?.bookingStatus === "canceled" ||
               vehicleMaster[0]?.rideStatus === "completed"
             }
+            loading={reminderLoading}
+            customLoadingMessage="sending"
           />
           {/* for extend booking  */}
           {!(

@@ -1,6 +1,13 @@
 import Spinner from "../../components/Spinner/Spinner";
 
-const Button = ({ title, fn, customClass, disable = false, loading }) => {
+const Button = ({
+  title,
+  fn,
+  customClass,
+  disable = false,
+  loading,
+  customLoadingMessage = "updating",
+}) => {
   return (
     <button
       className={`${
@@ -9,7 +16,15 @@ const Button = ({ title, fn, customClass, disable = false, loading }) => {
       disabled={loading || disable}
       onClick={fn}
     >
-      {loading ? !loading ? title : <Spinner message={"updating..."} /> : title}
+      {loading ? (
+        !loading ? (
+          title
+        ) : (
+          <Spinner message={customLoadingMessage} />
+        )
+      ) : (
+        title
+      )}
     </button>
   );
 };
