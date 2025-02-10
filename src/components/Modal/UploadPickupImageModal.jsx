@@ -44,6 +44,13 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   //upload images
   const handleUploadPickupImages = async (event) => {
     event.preventDefault();
+    // checking whether all images are present or not
+    const isAnyImageMissing = Object.values(imagesUrl).some(
+      (value) => value === ""
+    );
+    if (isAnyImageMissing)
+      return handleAsyncError(dispatch, "All Images Required!.");
+    // if present than continue the rest
     const formData = new FormData(event.target);
     if (!tempVehicleData)
       return handleAsyncError(dispatch, "All fields required.");

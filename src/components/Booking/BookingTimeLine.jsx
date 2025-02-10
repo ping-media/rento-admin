@@ -80,9 +80,11 @@ const BookingTimeLine = ({ bookingId }) => {
                           }`}
                         >
                           {item?.title}
-                          <span className="ml-1">
-                            <CopyButton textToCopy={item?.PaymentLink} />
-                          </span>
+                          {item?.PaymentLink != "" && (
+                            <span className="ml-1">
+                              <CopyButton textToCopy={item?.PaymentLink} />
+                            </span>
+                          )}
                         </h3>
                         <p
                           className={`text-gray-700 leading-tight text-md font-semibold`}

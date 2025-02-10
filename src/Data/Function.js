@@ -481,18 +481,30 @@ const updateTimeLineForPayment = async (
       Number(
         bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.amount
       ));
-  // creating order id for the payment
+  // creating order id for the payment when finalAmount is greater than 0
   let orderId = "";
-  let generateOrderId = await postDataWithRetry(
-    "/createOrderId",
-    { amount: finalAmount, booking_id: bookingId },
-    token
-  );
-  if (generateOrderId?.status === "created") {
-    orderId = generateOrderId?.id;
-  } else {
-    return "unable to update timeline for booking";
+  if (finalAmount > 0) {
+    let generateOrderId = await postDataWithRetry(
+      "/createOrderId",
+      { amount: finalAmount, booking_id: bookingId },
+      token
+    );
+    if (generateOrderId?.status === "created") {
+      orderId = generateOrderId?.id;
+    } else {
+      return "unable to update timeline for booking";
+    }
   }
+
+  // creating payment link only when amount is greater than 0
+  const paymentLink =
+    finalAmount > 0
+      ? `${
+          import.meta.env.VITE_FRONTEND_URL
+        }/payment?id=${_id}&order=${orderId}&for=${
+          changeToVehicle ? "change" : "extend"
+        }&finalAmount=${finalAmount}`
+      : "";
 
   // updating the timeline for booking
   const timeLineData = {
@@ -501,9 +513,7 @@ const updateTimeLineForPayment = async (
       {
         title: title,
         date: new Date().toLocaleString(),
-        PaymentLink: `${
-          import.meta.env.VITE_FRONTEND_URL
-        }/payment?id=${_id}&order=${orderId}&finalAmount=${finalAmount}`,
+        PaymentLink: paymentLink,
         paymentAmount: finalAmount,
         changeToVehicle: isvehicleNumbers || "",
       },

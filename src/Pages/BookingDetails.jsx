@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import {
   toggleBookingExtendModal,
   toggleDeleteModal,
-  togglePaymentUpdateModal,
+  // togglePaymentUpdateModal,
   togglePickupImageModal,
   toggleRideEndModal,
 } from "../Redux/SideBarSlice/SideBarSlice";
@@ -199,8 +199,8 @@ const BookingDetails = () => {
         contact: vehicleMaster[0]?.userId?.contact,
         firstName: vehicleMaster[0]?.userId?.firstName,
         managerContact: vehicleMaster[0]?.stationMasterUserId?.contact,
+        userEmail: vehicleMaster[0]?.userId?.email,
       };
-      // console.log(data);
       const response = await postData("/sendReminder", data, token);
       if (response?.status === 200) {
         return handleAsyncError(dispatch, response?.message, "success");
