@@ -14,6 +14,7 @@ import CopyButton from "../../components/Buttons/CopyButton";
 import BookingNote from "./BookingNote";
 import { toggleChangeVehicleModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import BookingTimeLine from "./BookingTimeLine";
+import AdditionalInfo from "./AdditionalInfo";
 const ChangeVehicleModal = lazy(() =>
   import("../../components/Modal/ChangeVehicleModal")
 );
@@ -41,8 +42,13 @@ const BookingDetail = () => {
           {
             key: "Mobile Number",
             value:
-              (vehicleMaster[0] && vehicleMaster[0]?.userId?.contact) ||
-              "xxxxxxxxxx",
+              (vehicleMaster[0] && vehicleMaster[0]?.userId?.contact) || "NA",
+          },
+          {
+            key: "Alt Mobile Number",
+            value:
+              (vehicleMaster[0] && vehicleMaster[0]?.userId?.altContact) ||
+              "NA",
           },
           {
             key: "Email",
@@ -67,7 +73,17 @@ const BookingDetail = () => {
           {
             key: "Mobile Number",
             value: `${
-              vehicleMaster && vehicleMaster[0]?.stationMasterUserId?.contact
+              (vehicleMaster &&
+                vehicleMaster[0]?.stationMasterUserId?.contact) ||
+              "NA"
+            }`,
+          },
+          {
+            key: "Alt Mobile Number",
+            value: `${
+              (vehicleMaster &&
+                vehicleMaster[0]?.stationMasterUserId?.altContact) ||
+              "NA"
             }`,
           },
           {
@@ -244,22 +260,7 @@ const BookingDetail = () => {
             </h2>
           </div>
           <div className="mb-3">
-            <p className="text-gray-400 flex items-center">
-              <span className="font-semibold mr-1">Start Ride Otp:</span>
-              {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
-              <CopyButton
-                textToCopy={vehicleMaster[0]?.vehicleBasic?.startRide}
-              />
-            </p>
-            {vehicleMaster[0]?.vehicleBasic?.endRide > 0 && (
-              <p className="text-gray-400 flex items-center">
-                <span className="font-semibold mr-1">End Ride Otp:</span>
-                {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
-                <CopyButton
-                  textToCopy={vehicleMaster[0]?.vehicleBasic?.endRide}
-                />
-              </p>
-            )}
+            <AdditionalInfo />
           </div>
           <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">

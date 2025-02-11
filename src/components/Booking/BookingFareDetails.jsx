@@ -221,7 +221,13 @@ const BookingFareDetails = ({ rides }) => {
                 <p className="text-sm font-semibold uppercase text-left">
                   Difference Amount
                   <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
-                    ( need to pay this amount )
+                    ({" "}
+                    {rides?.bookingPrice?.diffAmount[
+                      rides?.bookingPrice?.diffAmount?.length - 1
+                    ]?.status === "unpaid"
+                      ? "need to pay this amount"
+                      : "Paid"}{" "}
+                    )
                   </small>
                 </p>
                 <p className="text-sm font-bold text-right">
@@ -241,7 +247,13 @@ const BookingFareDetails = ({ rides }) => {
                 <p className="text-sm font-semibold uppercase text-left">
                   Extend Amount
                   <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
-                    (New Price For Extend booking )
+                    (
+                    {rides?.bookingPrice?.extendAmount[
+                      rides?.bookingPrice?.extendAmount?.length - 1
+                    ]?.status === "unpaid"
+                      ? "New Price For Extend booking"
+                      : "Paid"}
+                    )
                   </small>
                 </p>
                 <p className="text-sm font-bold text-right text-theme">

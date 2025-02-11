@@ -43,6 +43,7 @@ const endPointBasedOnURL = {
   "all-coupons/": "/createCoupon",
   payments: "/paymentRec",
   "all-invoices": "/getAllInvoice",
+  "all-invoices/": "/createInvoice",
   "all-pickup-image": "/getPickupImage",
 };
 

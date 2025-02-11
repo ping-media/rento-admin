@@ -71,9 +71,9 @@ const CancelModal = ({
             </div>
           )}
           <button
-            className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2"
+            className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 disabled:bg-gray-600 disabled:bg-opacity-40"
             onClick={handleDelete}
-            disabled={value?.length < 10 || loading || false}
+            disabled={loading || value?.length < 10 || false}
           >
             {!loading ? "Yes, I'm sure" : <Spinner message={"updating..."} />}
           </button>

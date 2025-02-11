@@ -37,27 +37,45 @@ const RideEndModal = ({ id }) => {
       vehicleMaster[0];
     const iscurrentDateOrStartDateSame =
       BookingStartDateAndTime.split("T")[0] ===
-      formatDateToISO(new Date()).replace(".000Z", "Z").split("T")[0];
+      formatDateToISO(new Date()).split("T")[0];
+    // void calulating the rate before end date
+    const isCurrentDateIsSmall =
+      BookingEndDateAndTime.split("T")[0] >
+      formatDateToISO(new Date()).split("T")[0];
 
-    if (iscurrentDateOrStartDateSame === true) return;
+    if (iscurrentDateOrStartDateSame === true) return console.log("exit");
 
     const duration = getDurationInDaysAndHours(
       BookingEndDateAndTime,
       formatDateToISO(new Date()).replace(".000Z", "Z")
     );
 
-    const lateFeeBasedOnHour =
-      vehicleBasic.lateFee * (duration?.days * 24 + duration?.hours) || 0;
+    let lateFeeBasedOnHour;
+    if (isCurrentDateIsSmall !== true) {
+      lateFeeBasedOnHour =
+        Number(vehicleBasic?.lateFee) *
+          (duration?.days * 24 + duration?.hours) || 0;
+    }
 
     const lateKm =
-      (meterDebounceValue > oldMeterReading &&
+      (Number(meterDebounceValue) > Number(oldMeterReading) &&
         Number(meterDebounceValue) - Number(oldMeterReading)) ||
       0;
+    const daysBtwDates = getDurationInDaysAndHours(
+      BookingStartDateAndTime,
+      BookingEndDateAndTime
+    );
     const allowKm =
-      getDurationInDaysAndHours(BookingStartDateAndTime, BookingEndDateAndTime)
-        ?.days * vehicleBasic?.freeLimit;
-
+      Number(daysBtwDates?.days) * Number(vehicleBasic?.freeLimit);
     const lateFeeBasedOnKM = (lateKm - allowKm) * vehicleBasic?.extraKmCharge;
+
+    // console.log(
+    //   lateKm,
+    //   allowKm,
+    //   lateFeeBasedOnKM,
+    //   daysBtwDates,
+    //   vehicleBasic?.freeLimit
+    // );
 
     setLateFees({
       lateFeeBasedOnHour: lateFeeBasedOnHour,
@@ -137,7 +155,7 @@ const RideEndModal = ({ id }) => {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [vehicleMaster]);
 
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {

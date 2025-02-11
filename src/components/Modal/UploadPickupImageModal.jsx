@@ -6,7 +6,7 @@ import { postData, postMultipleData } from "../../Data";
 import Spinner from "../Spinner/Spinner";
 import {
   handleInvoiceCreated,
-  removeTempVehicleData,
+  // removeTempVehicleData,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import Input from "../InputAndDropdown/Input";
@@ -58,10 +58,6 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     formData.append("userId", tempVehicleData?.userId?._id);
     formData.append("bookingId", tempVehicleData?.bookingId);
     formData.append("_id", tempVehicleData?._id);
-    // for paymentmethod update in booking price
-    const updatePaymentMode =
-      formData.get("PaymentMode") ||
-      currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
 
     let hasFiles = false;
     for (let value of formData.values()) {
@@ -83,6 +79,12 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     let currentBooking = currentData?.find(
       (item) => item?._id == tempVehicleData?._id
     );
+
+    // for paymentmethod update in booking price
+    const updatePaymentMode =
+      formData.get("PaymentMode") ||
+      currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
+
     // end ride otp
     const endRideOtp = Math.floor(1000 + Math.random() * 9000);
 

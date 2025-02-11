@@ -86,8 +86,17 @@ const BookingDetails = () => {
           notes: [
             { key: currentUser?.userType, value: Note, noteType: "cancel" },
           ],
+          email: vehicleMaster[0]?.userId?.email,
+          contact: vehicleMaster[0]?.userId?.contact,
+          managerContact: vehicleMaster[0]?.stationMasterUserId?.contact,
+          managerEmail: vehicleMaster[0]?.stationMasterUserId?.email,
         };
-        const isCanceled = await cancelBookingById(id, data, token);
+        const isCanceled = await cancelBookingById(
+          id,
+          data,
+          token,
+          "/cancelledBooking"
+        );
         if (isCanceled === true) {
           // updating the timeline for booking
           const timeLineData = {
@@ -104,7 +113,10 @@ const BookingDetails = () => {
           // for updating timeline redux data
           dispatch(updateTimeLineData(timeLineData));
           handleAsyncError(dispatch, "Ride cancelled successfully", "success");
-          dispatch(handleUpdateFlags(data));
+          // removing the data before updating redux state
+          const { email, contact, managerContact, managerEmail, ...otherData } =
+            data;
+          dispatch(handleUpdateFlags(otherData));
           return dispatch(toggleDeleteModal());
         }
         if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);

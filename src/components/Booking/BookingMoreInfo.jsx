@@ -19,9 +19,10 @@ const BookingMoreInfo = ({ data, datatype }) => {
             }`}
           >
             {/* copy button  */}
-            {(item?.key === "Mobile Number" || item?.key === "Email") && (
-              <CopyButton textToCopy={item?.value} />
-            )}
+            {(item?.key === "Mobile Number" ||
+              item?.key === "Email" ||
+              item?.key === "Alt Mobile Number") &&
+              item?.value !== "NA" && <CopyButton textToCopy={item?.value} />}
             {item?.value}
           </span>
         </div>

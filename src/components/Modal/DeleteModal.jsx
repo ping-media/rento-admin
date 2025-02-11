@@ -11,6 +11,7 @@ import { restDeletevehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
 const DeleteModal = () => {
   const dispatch = useDispatch();
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { deletevehicleId } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
 
@@ -19,6 +20,16 @@ const DeleteModal = () => {
     let result;
     if (deletevehicleId) {
       result = { _id: deletevehicleId, deleteRec: "true" };
+      // add bookingId to data only in invoice page
+      if (location.pathname === "/all-invoices") {
+        const data = vehicleMaster?.data;
+        if (data?.length > 0) {
+          const selectedData = data.find(
+            (item) => item._id === deletevehicleId
+          );
+          result = { ...result, bookingID: selectedData?.bookingId };
+        }
+      }
     }
 
     try {

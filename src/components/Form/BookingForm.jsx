@@ -170,7 +170,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         // for creating booking
         await postData("/createTimeline", timeLineData, token);
         // for updating sending link in it
-        await updateTimeLine(bookingResponse?.data, token);
+        // await updateTimeLine(bookingResponse?.data, token);
       } else {
         return handleAsyncError(dispatch, bookingResponse?.message);
       }

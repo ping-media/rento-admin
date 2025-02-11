@@ -55,7 +55,6 @@ const TableActions = ({
           location.pathname == "/users-documents" ||
           location.pathname == "/all-bookings" ||
           location.pathname == "/payments" ||
-          location.pathname == "/all-invoices" ||
           location.pathname == "/location-master"
         ) && (
           <button

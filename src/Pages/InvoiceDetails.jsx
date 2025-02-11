@@ -16,7 +16,14 @@ const useInvoiceData = (id, token) => {
     try {
       const response = await getData(`/getAllInvoice?_id=${id}`, token);
       if (response?.status === 200) {
-        return response?.data[0];
+        // const bookingResponse = await getData(
+        //   `/getBooking?bookingId=${response?.data[0]?.bookingId}`,
+        //   token
+        // );
+        return {
+          invoice: response?.data[0],
+          // booking: bookingResponse?.data[0],
+        };
       }
     } catch (error) {
       console.error(error);
@@ -31,6 +38,7 @@ const InvoiceDetails = () => {
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
   const [invoiceData, setInvoiceData] = useState(null);
+  // const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [iSending, setIsSending] = useState(false);
   const dispatch = useDispatch();
@@ -44,7 +52,8 @@ const InvoiceDetails = () => {
     (async () => {
       const tempInvoiceData = await fetchInvoiceData();
       if (tempInvoiceData) {
-        setInvoiceData(tempInvoiceData);
+        setInvoiceData(tempInvoiceData?.invoice);
+        // setBookingData(tempInvoiceData?.booking);
       }
       setLoading(false);
     })();
@@ -279,6 +288,40 @@ const InvoiceDetails = () => {
                   ₹{formatPrice(invoiceData?.bookingPrice?.bookingPrice)}
                 </td>
               </tr>
+              {/* for adding extendAmount  */}
+              {/* {bookingData != null &&
+                bookingData?.bookingPrice?.extendAmount &&
+                bookingData?.bookingPrice?.extendAmount?.length > 0 &&
+                bookingData?.bookingPrice?.extendAmount?.map((item, index) => {
+                  if (item.status === "unpaid") {
+                    return null;
+                  }
+                  return (
+                    <tr
+                      className="border-b border-gray-200 align-top"
+                      key={index}
+                    >
+                      <td className="max-w-0 py-5 pl-4 pr-3 text-xs lg:text-sm sm:pl-0">
+                        <div className="font-medium text-gray-900 capitalize">
+                          {item?.title}
+                        </div>
+                      </td>
+                      <td className="hidden px-3 py-5 text-right text-xs lg:text-sm text-gray-500 sm:table-cell">
+                        {parseInt(
+                          invoiceData?.bookingPrice?.bookingPrice /
+                            invoiceData?.bookingPrice?.rentAmount
+                        )}{" "}
+                        day(s)
+                      </td>
+                      <td className="hidden px-3 py-5 text-right text-xs lg:text-sm text-gray-500 sm:table-cell">
+                        ₹{formatPrice(invoiceData?.bookingPrice?.rentAmount)}
+                      </td>
+                      <td className="py-5 pl-3 pr-4 text-right text-sm text-gray-500 sm:pr-0">
+                        ₹{formatPrice(item?.amount)}
+                      </td>
+                    </tr>
+                  );
+                })} */}
             </tbody>
             <tfoot>
               <tr>

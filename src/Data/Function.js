@@ -419,9 +419,18 @@ const handleDeleteAndEditAllData = async (
   }
 };
 
-const cancelBookingById = async (id, data, token) => {
+const cancelBookingById = async (
+  id,
+  data,
+  token,
+  endpoint = "/createBooking"
+) => {
   try {
-    const response = await postData(`/createBooking?_id=${id}`, data, token);
+    const response = await postData(
+      endpoint === "/createBooking" ? `/createBooking?_id=${id}` : endpoint,
+      data,
+      token
+    );
     if (response?.status !== 200) {
       return response?.message;
     }
@@ -471,7 +480,7 @@ const updateTimeLineForPayment = async (
   data,
   token,
   title,
-  isvehicleNumbers
+  isvehicleNumbers = ""
 ) => {
   const { _id, extendAmount, bookingPrice, bookingId } = data;
 
@@ -502,7 +511,7 @@ const updateTimeLineForPayment = async (
       ? `${
           import.meta.env.VITE_FRONTEND_URL
         }/payment?id=${_id}&order=${orderId}&for=${
-          changeToVehicle ? "change" : "extend"
+          isvehicleNumbers !== "" ? "change" : "extend"
         }&finalAmount=${finalAmount}`
       : "";
 
