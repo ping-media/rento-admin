@@ -218,7 +218,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     if (searchTerm) {
       dispatch(handleChangeSearchTerm(searchTerm));
     } else {
-      dispatch(handleChangeSearchTerm(""));
+      dispatch(handleChangeSearchTerm(null));
     }
   }, [searchTerm]);
 
@@ -250,7 +250,10 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             : "justify-end"
         } mt-5 gap-4`}
       >
-        <TablePageHeader setInputSearchQuery={setInputSearchQuery} />
+        <TablePageHeader
+          inputSearchQuery={inputSearchQuery}
+          setInputSearchQuery={setInputSearchQuery}
+        />
       </div>
 
       {/* table view  */}
@@ -528,7 +531,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
         </div>
       </div>
 
-      {/* card view for bookings page  */}
+      {/* card view for bookings page only  */}
       {location.pathname === "/all-bookings" && (
         <div
           className={`${

@@ -4,13 +4,20 @@ import { tableIcons } from "../../Data/Icons";
 import BulkActionButtons from "./BulkActionButtons";
 import { toggleFilterSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch } from "react-redux";
+import { useEffect } from "react";
 
-const TablePageHeader = ({ setInputSearchQuery }) => {
+const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
   const dispatch = useDispatch();
+
   // stopping to reload the page
   const handleControlSubmit = (e) => {
     e.preventDefault();
   };
+
+  // for clearing the input state
+  useEffect(() => {
+    setInputSearchQuery("");
+  }, [location.pathname]);
 
   return (
     <div className="flex items-center flex-wrap justify-between gap-2 w-full">
@@ -53,7 +60,9 @@ const TablePageHeader = ({ setInputSearchQuery }) => {
                 placeholder="Search Here.."
                 name="searchQuery"
                 className="w-full rounded-md p-1 lg:px-2 lg:py-1 focus:outline-none focus:border-transparent"
+                value={inputSearchQuery}
                 onChange={(e) => setInputSearchQuery(e.target.value)}
+                autoComplete="off"
               />
               <button
                 type="submit"
