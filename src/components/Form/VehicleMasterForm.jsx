@@ -55,6 +55,7 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
               setImageChanger={setImage}
               imagesUrl={imagesUrl}
               setImageUrlChanger={setImageUrl}
+              isRequired={false}
             />
           </div>
           <button

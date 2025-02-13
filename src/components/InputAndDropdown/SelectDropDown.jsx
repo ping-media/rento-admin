@@ -7,6 +7,8 @@ const SelectDropDown = ({
   setIsLocationSelected,
   require = false,
   onChangeFn,
+  changetoDefault = false,
+  changeModalClose,
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
   // for giving custom title
@@ -35,6 +37,15 @@ const SelectDropDown = ({
     }
   }, [value]);
 
+  // for resting the value to default
+  useEffect(() => {
+    // for resetting the value
+    if (changetoDefault && changetoDefault === true) {
+      setInputSelect("default");
+      changeModalClose && changeModalClose(false);
+    }
+  }, [changetoDefault]);
+
   return (
     <div className="w-full">
       <label
@@ -54,7 +65,7 @@ const SelectDropDown = ({
           disabled={!options || options?.length == 0 ? true : false}
           required={require}
         >
-          <option value="">
+          <option value="default">
             {(options?.length == 0 && `No ${title[item] || item} Found`) ||
               `Select ${title[item] || item}`}
           </option>

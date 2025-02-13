@@ -58,6 +58,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     formData.append("userId", tempVehicleData?.userId?._id);
     formData.append("bookingId", tempVehicleData?.bookingId);
     formData.append("_id", tempVehicleData?._id);
+    // formData.append("currentBooking_id", tempVehicleData?._id);
 
     let hasFiles = false;
     for (let value of formData.values()) {
@@ -85,10 +86,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
       formData.get("PaymentMode") ||
       currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
 
-    // end ride otp
-    const endRideOtp = Math.floor(1000 + Math.random() * 9000);
-
-    const updatedBooking = {
+    let updatedBooking = {
       ...currentBooking,
       bookingPrice: {
         ...currentBooking.bookingPrice,
@@ -101,10 +99,6 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
             currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
               ?.paymentMethod,
         },
-      },
-      vehicleBasic: {
-        ...currentBooking.vehicleBasic,
-        endRide: endRideOtp,
       },
       paymentStatus: "paid",
       rideStatus: "ongoing",
@@ -122,6 +116,14 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
         setImage([]);
         setImageUrl([]);
         dispatch(togglePickupImageModal());
+        // updating booking data
+        updatedBooking = {
+          ...updatedBooking,
+          vehicleBasic: {
+            ...updatedBooking?.vehicleBasic,
+            endRide: responseImage?.endOtp || 0,
+          },
+        };
         dispatch(handleInvoiceCreated(updatedBooking));
         // updating the timeline for booking
         const timeLineData = {

@@ -11,6 +11,7 @@ const ImageUploadAndPreview = ({
   setImageMultiChanger,
   setImageUrlMultiChanger,
   name = "image",
+  isRequired = true,
 }) => {
   const fileInputRef = useRef(null);
   // for changing image
@@ -20,11 +21,6 @@ const ImageUploadAndPreview = ({
       setImageChanger && setImageChanger(file);
       setImageMultiChanger &&
         setImageMultiChanger((prev) => ({ ...prev, [title]: file }));
-      // first destory the old image before create new one
-      // if (fileInputRef.current) {
-      //   fileInputRef.current.value = "";
-      //   URL.revokeObjectURL(imagesUrl);
-      // }
       // creating local iamge
       const url = URL.createObjectURL(file);
       setImageUrlChanger && setImageUrlChanger(url);
@@ -35,11 +31,6 @@ const ImageUploadAndPreview = ({
 
   // for deleting image
   const handleRemoveImage = () => {
-    // first destory the old image before create new one
-    // if (fileInputRef.current) {
-    //   fileInputRef.current.value = "";
-    //   URL.revokeObjectURL(imagesUrl);
-    // }
     // for single file delete
     setImageUrlChanger && setImageUrlChanger("");
     //  for multiple file and want to delete only one
@@ -61,7 +52,7 @@ const ImageUploadAndPreview = ({
           name={name}
           onChange={(e) => handleImageChange(e)}
           ref={fileInputRef}
-          required
+          required={isRequired}
         />
         {imagesUrl ? (
           //  image preview only shows when there user select any image

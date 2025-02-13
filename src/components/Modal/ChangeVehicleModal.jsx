@@ -25,6 +25,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const { isChangeVehicleModalActive } = useSelector((state) => state.sideBar);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
+  const [isModalClose, setIsModalClose] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [freeVehicles, setFreeVehicles] = useState([]);
@@ -156,6 +157,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const otp = formData.get("OTP");
+    if (!otp) return handleAsyncError(dispatch, "Please provide otp first!");
+
     const data = {
       ...selectedVehicle,
       otp,
@@ -216,6 +219,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const handleCloseModal = async () => {
     setFreeVehicles([]);
     setSelectedVehicle(null);
+    setIsModalClose(true);
     return dispatch(toggleChangeVehicleModal());
   };
 
@@ -259,6 +263,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
                 item={"vehicleTableId"}
                 onChangeFn={handleChangeSelectedVehicle}
                 options={freeVehicles}
+                changetoDefault={isModalClose}
+                changeModalClose={setIsModalClose}
                 require={true}
               />
               {selectedVehicle && selectedVehicle?.length === 0 && (
@@ -359,20 +365,22 @@ const ChangeVehicleModal = ({ bookingData }) => {
             )}
             <div className="mb-2">
               <Input item={"OTP"} type="number" require={true} />
-              <div className="text-left mt-2">
-                <button
-                  type="button"
-                  className="border-2 rounded-md text-theme hover:bg-theme hover:text-gray-100 border-theme p-1 disabled:border-gray-400 disabled:text-gray-400"
-                  disabled={otpLoading || selectedVehicle === null}
-                  onClick={handleSendOtp}
-                >
-                  {!otpLoading ? (
-                    "Send OTP"
-                  ) : (
-                    <Spinner textColor="black" message={"sending..."} />
-                  )}
-                </button>
-              </div>
+              {selectedVehicle !== null && (
+                <div className="text-left mt-2">
+                  <button
+                    type="button"
+                    className="rounded-md bg-theme text-white border-theme p-1.5 disabled:bg-gray-400"
+                    disabled={otpLoading || selectedVehicle === null}
+                    onClick={handleSendOtp}
+                  >
+                    {!otpLoading ? (
+                      "Send OTP"
+                    ) : (
+                      <Spinner textColor="black" message={"sending..."} />
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
             <button
               type="submit"

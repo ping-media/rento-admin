@@ -18,7 +18,7 @@ const Button = ({
     >
       {loading ? (
         !loading ? (
-          title
+          <>{title}</>
         ) : (
           <Spinner message={customLoadingMessage} />
         )

@@ -38,12 +38,18 @@ const RideEndModal = ({ id }) => {
     const iscurrentDateOrStartDateSame =
       BookingStartDateAndTime.split("T")[0] ===
       formatDateToISO(new Date()).split("T")[0];
+    const isCurrentEndTime =
+      BookingEndDateAndTime >=
+      formatDateToISO(new Date()).replace(".000Z", "Z");
     // void calulating the rate before end date
     const isCurrentDateIsSmall =
       BookingEndDateAndTime.split("T")[0] >
       formatDateToISO(new Date()).split("T")[0];
 
-    if (iscurrentDateOrStartDateSame === true) return console.log("exit");
+    // don't apply extra charge if end date match to current date or time
+    if (iscurrentDateOrStartDateSame === true) return;
+    if (iscurrentDateOrStartDateSame === false && isCurrentEndTime === true)
+      return;
 
     const duration = getDurationInDaysAndHours(
       BookingEndDateAndTime,
@@ -66,16 +72,9 @@ const RideEndModal = ({ id }) => {
       BookingEndDateAndTime
     );
     const allowKm =
-      Number(daysBtwDates?.days) * Number(vehicleBasic?.freeLimit);
+      (Number(daysBtwDates?.days) === 0 ? 1 : Number(daysBtwDates?.days)) *
+      Number(vehicleBasic?.freeLimit);
     const lateFeeBasedOnKM = (lateKm - allowKm) * vehicleBasic?.extraKmCharge;
-
-    // console.log(
-    //   lateKm,
-    //   allowKm,
-    //   lateFeeBasedOnKM,
-    //   daysBtwDates,
-    //   vehicleBasic?.freeLimit
-    // );
 
     setLateFees({
       lateFeeBasedOnHour: lateFeeBasedOnHour,
@@ -97,7 +96,7 @@ const RideEndModal = ({ id }) => {
       return handleAsyncError(dispatch, "Ride Already Completed!.Refresh Page");
     setFormLoading(true);
     try {
-      const data = {
+      let data = {
         _id: vehicleMaster[0]?._id,
         userId: vehicleMaster[0]?.userId?._id,
         startMeterReading: oldMeterReading,
@@ -109,6 +108,16 @@ const RideEndModal = ({ id }) => {
         lateFeeBasedOnHour: lateFees?.lateFeeBasedOnHour,
         lateFeeBasedOnKM: lateFees?.lateFeeBasedOnKM,
       };
+      // this is for preclosing the ride
+      if (
+        formatDateToISO(new Date()).replace(".000Z", "Z") <
+        vehicleMaster[0]?.BookingEndDateAndTime
+      ) {
+        data = {
+          ...data,
+          closingDate: formatDateToISO(new Date()).replace(".000Z", "Z"),
+        };
+      }
       const response = await postData("/rideUpdate", data, token, "put");
       if (response.status === 200) {
         handleAsyncError(dispatch, "Ride completed successfully", "success");
@@ -244,7 +253,7 @@ const RideEndModal = ({ id }) => {
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
-              disabled={formLoading}
+              disabled={formLoading || endRide === 0}
             >
               {!formLoading ? "End Ride" : <Spinner message={"loading..."} />}
             </button>

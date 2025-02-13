@@ -192,10 +192,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   // for table value
   const getTableValue = (Data) => {
     if (Data.length == 0) return;
-    // Sort by `updatedAt` in descending order (latest first)
-    // let modifiedData = [...Data].sort((a, b) => {
-    //   return new Date(b.updatedAt) - new Date(a.updatedAt);
-    // });
     setNewUpdatedData(Data);
     setSortedData(Data);
   };

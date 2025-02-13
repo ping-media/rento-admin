@@ -95,22 +95,22 @@ const userType = ["customer", "manager", "admin"];
 
 // brands
 const vehicleBrands = [
-  "Vespa",
-  "Honda",
-  "Yamaha",
-  "Suzuki",
-  "KTM",
-  "BMW",
-  "TVS",
-  "Bajaj",
-  "Hero",
-  "Ather",
-  "Ola",
-  "Mahindra",
-  "Royal Enfield",
-  "Harley-Davidson",
-  "Kawasaki",
-  "Ducati",
+  "vespa",
+  "honda",
+  "yamaha",
+  "suzuki",
+  "ktm",
+  "bmw",
+  "tvs",
+  "bajaj",
+  "hero",
+  "ather",
+  "ola",
+  "mahindra",
+  "royal enfield",
+  "harley-davidson",
+  "kawasaki",
+  "ducati",
 ];
 
 const vehicleColor = ["white", "black", "gray", "blue", "yellow", "dark blue"];

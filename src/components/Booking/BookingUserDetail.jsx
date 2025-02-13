@@ -54,9 +54,10 @@ const BookingUserDetails = ({ data, userId }) => {
             }`}
           >
             {/* copy button  */}
-            {(item?.key === "Mobile Number" || item?.key === "Email") && (
-              <CopyButton textToCopy={item?.value} />
-            )}
+            {(item?.key === "Mobile Number" ||
+              item?.key === "Email" ||
+              item?.key === "Alt Mobile Number") &&
+              item?.value !== "NA" && <CopyButton textToCopy={item?.value} />}
             {/* data  */}
             {item.key === "Document Status" ? (
               <div className="flex gap-2 items-center">

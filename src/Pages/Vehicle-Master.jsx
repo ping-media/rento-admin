@@ -7,7 +7,10 @@ import {
   removeTempIds,
   restvehicleMaster,
 } from "../Redux/VehicleSlice/VehicleSlice";
-import { handleRestSearchTerm } from "../Redux/PaginationSlice/PaginationSlice";
+import {
+  handleRestPagination,
+  handleRestSearchTerm,
+} from "../Redux/PaginationSlice/PaginationSlice";
 const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
 
 const VehicleMaster = () => {
@@ -58,7 +61,7 @@ const VehicleMaster = () => {
   // clear data after page change
   useEffect(() => {
     dispatch(restvehicleMaster());
-    dispatch(handleRestSearchTerm());
+    dispatch(handleRestPagination());
     dispatch(removeTempIds());
   }, [location.href]);
 
