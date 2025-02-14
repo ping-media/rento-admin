@@ -525,6 +525,10 @@ const updateTimeLineForPayment = async (
         PaymentLink: paymentLink,
         paymentAmount: finalAmount,
         changeToVehicle: isvehicleNumbers || "",
+        id:
+          extendAmount?.id ||
+          bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.id ||
+          0,
       },
     ],
   };

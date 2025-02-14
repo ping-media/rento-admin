@@ -14,7 +14,11 @@ import { useNavigate } from "react-router-dom";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 
-const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
+const UploadPickupImageModal = ({
+  isBookingIdPresent = false,
+  isChange,
+  setIsChange,
+}) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const { token } = useSelector((state) => state.user);
   const { tempVehicleData, vehicleMaster } = useSelector(
@@ -86,26 +90,54 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
       formData.get("PaymentMode") ||
       currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
 
-    let updatedBooking = {
-      ...currentBooking,
-      bookingPrice: {
-        ...currentBooking.bookingPrice,
-        isPickupImageAdded: true,
-        AmountLeftAfterUserPaid: {
-          ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
-          status: "paid",
-          paymentMethod:
-            updatePaymentMode ||
-            currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
-              ?.paymentMethod,
+    let updatedBooking;
+
+    if (isChange === true) {
+      // updatedBooking = {
+      //   ...currentBooking,
+      //   bookingPrice: {
+      //     ...currentBooking.bookingPrice,
+      //     isPickupImageAdded: true,
+      //     diffAmount: [
+      //       ...currentBooking?.bookingPrice?.diffAmount,
+      //       {
+      //         ...currentBooking?.bookingPrice?.diffAmount,
+      //         status: "paid",
+      //       },
+      //     ],
+      //   },
+      // };
+      // for hiding the finish button and show update ride button
+      setIsChange && setIsChange(false);
+    } else {
+      updatedBooking = {
+        ...currentBooking,
+        bookingPrice: {
+          ...currentBooking.bookingPrice,
+          isPickupImageAdded: true,
+          AmountLeftAfterUserPaid: {
+            ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
+            status: "paid",
+            paymentMethod:
+              updatePaymentMode ||
+              currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
+                ?.paymentMethod,
+          },
         },
-      },
-      paymentStatus: "paid",
-      rideStatus: "ongoing",
-    };
+        paymentStatus: "paid",
+        rideStatus: "ongoing",
+      };
+    }
 
     setLoading(true);
     try {
+      if (isChange && isChange === true) {
+        formData.append(
+          "vehicleNumber",
+          currentBooking?.vehicleBasic?.vehicleNumber
+        );
+        formData.append("isVehicleUpdate", true);
+      }
       const responseImage = await postMultipleData(
         "/pickupImage",
         formData,
@@ -130,7 +162,8 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
           currentBooking_id: vehicleMaster && vehicleMaster[0]?._id,
           timeLine: [
             {
-              title: "Ride Started",
+              title:
+                isChange && isChange === true ? "Ride Updated" : "Ride Started",
               date: new Date().toLocaleString(),
               vehicleName: vehicleMaster[0]?.vehicleName,
               vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
@@ -150,34 +183,21 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     } catch (error) {
       handleAsyncError(dispatch, error?.message);
     } finally {
+      setIsChange(false);
       setLoading(false);
     }
   };
 
   //   close modal and clear value
   const handleClearAndClose = () => {
-    // setImage({
-    //   vehicleFront: null,
-    //   vehicleLeft: null,
-    //   vehicleRight: null,
-    //   vehicleBack: null,
-    //   odoMeterReading: null,
-    //   others: null,
-    // });
-    // setImageUrl({
-    //   vehicleFront: "",
-    //   vehicleLeft: "",
-    //   vehicleRight: "",
-    //   vehicleBack: "",
-    //   odoMeterReading: "",
-    //   others: "",
-    // });
     // dispatch(removeTempVehicleData());
+    setIsChange(false);
     return dispatch(togglePickupImageModal());
   };
 
   // close modal and send to kyc page
   const handleCloseModalAndVerifyUser = (id) => {
+    setIsChange(false);
     dispatch(togglePickupImageModal());
     return navigate(`/all-users/${id}`);
   };
@@ -294,6 +314,16 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
               <div className="w-full lg:w-[48%]">
                 <Input type="number" item="startMeterReading" require={true} />
               </div>
+              {isChange && isChange !== false && (
+                <div className="w-full lg:w-[48%]">
+                  <Input
+                    type="number"
+                    item="EndMeterReading"
+                    name="oldVehicleEndMeterReading"
+                    require={true}
+                  />
+                </div>
+              )}
               <div className="w-full lg:w-[48%]">
                 <Input type="number" item="rideOtp" require={true} />
               </div>

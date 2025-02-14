@@ -17,6 +17,7 @@ const Input = ({
   setDateChange,
   isModalClose,
   isCouponInput = false,
+  name,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   // for debouncing state
@@ -125,7 +126,7 @@ const Input = ({
           }
           onChange={(e) => handleChangeValue(e)}
           onKeyDown={handleKeyDown}
-          name={item}
+          name={name || item}
           placeholder={`${
             item.includes("Proof") ? item.replace("Proof", "") : item
           }`}

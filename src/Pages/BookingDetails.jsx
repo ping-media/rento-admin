@@ -21,6 +21,7 @@ import {
 import GenerateInvoiceButton from "../components/Table/GenerateInvoiceButton";
 import { postData } from "../Data/index";
 import UpdateBookingPayment from "../components/Modal/UpdateBookingPayment";
+import { formatDateToISO } from "../utils/index";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
@@ -34,6 +35,7 @@ const BookingDetails = () => {
   const [loadingStates, setLoadingStates] = useState({});
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [reminderLoading, setReminderLoading] = useState(false);
+  const [isVehicleChanging, setIsVehicleChanging] = useState(false);
   const [Note, setNote] = useState("");
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
   const dispatch = useDispatch();
@@ -58,6 +60,12 @@ const BookingDetails = () => {
   // start ride
   const handleStartRideAndAddImages = () => {
     dispatch(addTempVehicleData(vehicleMaster[0]));
+    // changing vehicleChange tag to true
+    // vehicleMaster[0]?.bookingPrice?.diffAmount &&
+    //   vehicleMaster[0]?.bookingPrice?.diffAmount[
+    //     vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
+    //   ]?.status === "unpaid" &&
+    //   setIsVehicleChanging(true);
     dispatch(togglePickupImageModal());
   };
   // for opening cancel model
@@ -132,76 +140,6 @@ const BookingDetails = () => {
       );
     }
   };
-  // for undoing the cancel booking
-  // const handleUndoCancelBooking = async () => {
-  //   // this is to undo cancel booking
-  //   setVehicleLoading(true);
-  //   try {
-  //     let paymentStatusToSend = "paid";
-  //     if (
-  //       vehicleMaster &&
-  //       vehicleMaster[0]?.bookingPrice?.userPaid &&
-  //       vehicleMaster[0]?.bookingPrice?.userPaid !== 0
-  //     ) {
-  //       paymentStatusToSend = "partially_paid";
-  //     }
-  //     let rideStatus = "pending";
-  //     const data = {
-  //       paymentStatus: paymentStatusToSend,
-  //       bookingStatus: "done",
-  //       rideStatus: rideStatus,
-  //       isCancelled: true,
-  //       _id: id,
-  //     };
-
-  //     const isCanceledUndo = await cancelBookingById(id, data, token);
-  //     if (isCanceledUndo === true) {
-  //       handleAsyncError(
-  //         dispatch,
-  //         "Undo cancelled Ride successfully",
-  //         "success"
-  //       );
-  //       dispatch(
-  //         handleUpdateFlags({
-  //           paymentStatus: paymentStatusToSend,
-  //           bookingStatus: "done",
-  //           rideStatus: rideStatus,
-  //           _id: id,
-  //         })
-  //       );
-  //     }
-  //     if (isCanceledUndo !== true)
-  //       return handleAsyncError(dispatch, "unable to undo booking! try again.");
-  //   } catch (error) {
-  //     return handleAsyncError(dispatch, error?.message);
-  //   } finally {
-  //     setVehicleLoading(false);
-  //   }
-  // };
-  // for undoing the completed booking
-  // const handleUndoEndBooking = async () => {
-  //   setVehicleLoading(true);
-  //   try {
-  //     const data = {
-  //       rideStatus: "ongoing",
-  //       _id: id,
-  //     };
-  //     const isCanceled = await cancelBookingById(id, data, token);
-  //     if (isCanceled === true) {
-  //       handleAsyncError(
-  //         dispatch,
-  //         "Undo completed ride successfully",
-  //         "success"
-  //       );
-  //       return dispatch(handleUpdateFlags(data));
-  //     }
-  //     if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
-  //   } catch (error) {
-  //     return handleAsyncError(dispatch, error?.message);
-  //   } finally {
-  //     setVehicleLoading(false);
-  //   }
-  // };
   // for sending remainder
   const handleSendRemainder = async () => {
     try {
@@ -237,7 +175,11 @@ const BookingDetails = () => {
         value={Note}
         setValueChange={setNote}
       />
-      <UploadPickupImageModal isBookingIdPresent={id ? true : false} />
+      <UploadPickupImageModal
+        isBookingIdPresent={id ? true : false}
+        isChange={isVehicleChanging}
+        setIsChange={setIsVehicleChanging}
+      />
       <UpdateBookingPayment id={id} />
       <RideEndModal id={id} />
       {/* main booking details start here */}
@@ -249,7 +191,9 @@ const BookingDetails = () => {
         <div className="flex flex-wrap gap-2">
           {/* for starting & completing ride  */}
           {vehicleMaster[0]?.rideStatus !== "ongoing" &&
-            vehicleMaster[0]?.rideStatus !== "completed" && (
+            vehicleMaster[0]?.rideStatus !== "completed" &&
+            vehicleMaster[0]?.BookingStartDateAndTime.split("T")[0] >=
+              formatDateToISO(new Date()).split("T")[0] && (
               <Button
                 title={
                   vehicleMaster[0]?.rideStatus === "completed"
@@ -263,15 +207,20 @@ const BookingDetails = () => {
                 }
               />
             )}
+
+          {/* for update ride  */}
+          {/* {vehicleMaster[0]?.bookingPrice?.diffAmount &&
+            vehicleMaster[0]?.bookingPrice?.diffAmount[
+              vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
+            ]?.status === "unpaid" && (
+              <Button title={"Update Ride"} fn={handleStartRideAndAddImages} />
+            )} */}
+
           {/* for completing ride  */}
-          {/* {vehicleMaster[0]?.rideStatus === "completed" ? (
-            <Button title={"Undo Finish"} fn={handleUndoEndBooking} />
-          ) : ( */}
           {vehicleMaster[0]?.rideStatus === "ongoing" && (
             <Button
               title={"Finish Ride"}
               fn={() => dispatch(toggleRideEndModal())}
-              // customClass={"bg-orange-500 bg-opacity-90 hover:bg-orange-600"}
               disable={
                 vehicleMaster[0]?.rideStatus === "pending" ||
                 vehicleMaster[0]?.bookingStatus === "canceled"
@@ -279,14 +228,8 @@ const BookingDetails = () => {
               loading={vehicleLoading}
             />
           )}
-          {/* for cancel the ride  */}
-          {/* {vehicleMaster[0]?.rideStatus === "canceled" ? (
-            <Button
-              title={"Undo Cancel"}
-              fn={handleUndoCancelBooking}
-              loading={vehicleLoading}
-            />
-          ) : ( */}
+
+          {/* for cancel ride */}
           {vehicleMaster[0]?.rideStatus !== "completed" && (
             <Button
               title={"Cancel Booking"}
@@ -298,17 +241,6 @@ const BookingDetails = () => {
               }
             />
           )}
-          {/* for sending reminder  */}
-          <Button
-            title={"Send Reminder"}
-            fn={handleSendRemainder}
-            disable={
-              vehicleMaster[0]?.bookingStatus === "canceled" ||
-              vehicleMaster[0]?.rideStatus === "completed"
-            }
-            loading={reminderLoading}
-            customLoadingMessage="sending"
-          />
           {/* for extend booking  */}
           {!(
             vehicleMaster[0]?.bookingStatus === "canceled" ||
@@ -323,6 +255,17 @@ const BookingDetails = () => {
               fn={() => dispatch(toggleBookingExtendModal())}
             />
           )}
+          {/* for sending reminder  */}
+          <Button
+            title={"Send Reminder"}
+            fn={handleSendRemainder}
+            disable={
+              vehicleMaster[0]?.bookingStatus === "canceled" ||
+              vehicleMaster[0]?.rideStatus === "completed"
+            }
+            loading={reminderLoading}
+            customLoadingMessage="sending"
+          />
           {/* {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
             vehicleMaster[0]?.bookingPrice?.diffAmount > 0) ||
             vehicleMaster[0]?.bookingStatus === "extended" ||

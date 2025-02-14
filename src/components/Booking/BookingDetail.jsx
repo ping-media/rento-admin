@@ -5,6 +5,7 @@ import PreLoader from "../Skeleton/PreLoader";
 import {
   formatDateTimeISTForUser,
   formatFullDateAndTime,
+  formatPrice,
 } from "../../utils/index";
 import BookingFareDetails from "./BookingFareDetails";
 import BookingUserDetails from "./BookingUserDetail";
@@ -234,8 +235,10 @@ const BookingDetail = () => {
                 Rental Price
               </h2>
               <p className="font-bold text-sm text-lg">
-                ₹{vehicleMaster && vehicleMaster[0]?.bookingPrice?.rentAmount}
-                .00/DAY
+                ₹
+                {vehicleMaster &&
+                  formatPrice(vehicleMaster[0]?.bookingPrice?.rentAmount)}
+                /DAY
               </p>
             </div>
           </div>

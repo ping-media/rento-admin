@@ -154,9 +154,6 @@ const RideEndModal = ({ id }) => {
           `/getPickupImage?bookingId=${vehicleMaster[0]?.bookingId}`,
           token
         );
-        // if (response?.status !== 200)
-        //   return handleAsyncError(dispatch, response?.message);
-        // console.log(response?.data);
         return setOldMeterReading(response?.data[0]?.startMeterReading);
       } catch (error) {
         return handleAsyncError(dispatch, error?.message);
@@ -205,6 +202,21 @@ const RideEndModal = ({ id }) => {
         </div>
 
         <div className="p-6 pt-0 text-center">
+          {/* if payment are pending this message will be show  */}
+          {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
+            vehicleMaster[0]?.bookingPrice?.diffAmount?.every(
+              (item) => item.status === "paid"
+            ) === false) ||
+            (vehicleMaster[0]?.bookingPrice?.extendAmount &&
+              vehicleMaster[0]?.bookingPrice?.extendAmount?.every(
+                (item) => item.status === "paid"
+              ) === false)) && (
+            <p className="italic text-xs lg:text-sm my-2 text-red-300 font-bold text-left">
+              Note: Some payments are pending. Please clear them before ending
+              your ride.
+            </p>
+          )}
+          {/* end ride form */}
           <form onSubmit={handleEndBooking}>
             <div className="mb-2 text-left">
               <p className="text-gray-400 mb-1">

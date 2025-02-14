@@ -9,7 +9,13 @@ const ExtraAmount = ({ item }) => {
       <span className="text-sm text-gray-400">
         ₹{formatPrice(item?.amount)}
       </span>
-      <span className="text-sm text-gray-400 semibold">({item?.status})</span>
+      <span
+        className={`text-sm font-bold ${
+          item?.status === "paid" ? "text-green-400" : "text-red-400"
+        }`}
+      >
+        ({item?.status})
+      </span>
     </>
   );
 };

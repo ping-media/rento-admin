@@ -276,10 +276,10 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                   <tbody className="divide-y divide-gray-300">
                     {!dataLoading && Data ? (
                       newUpdatedData && newUpdatedData.length > 0 ? (
-                        newUpdatedData.map((item) => (
+                        newUpdatedData.map((item, index) => (
                           <tr
                             className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"
-                            key={item?._id}
+                            key={item?._id || `row-${index}`}
                             onClick={() => handleViewData(item?._id)}
                           >
                             {location.pathname == "/all-vehicles" && (
@@ -301,7 +301,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               if (column === "userId") {
                                 return (
                                   <UserDisplayCell
-                                    key={`${item?._id}_userDisplayCell`}
+                                    key={`${columnIndex}_userDisplay`}
                                     item={item}
                                     onClick={(e) => e.stopPropagation()}
                                   />
@@ -313,7 +313,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               ) {
                                 return (
                                   <BookingDateAndCityCell
-                                    key={item?._id}
+                                    key={`${columnIndex}_bookingDateAndCity`}
                                     item={item}
                                     column={column}
                                   />
@@ -332,7 +332,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 return (
                                   <td
                                     className="p-3 max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
-                                    key={columnIndex}
+                                    key={`${columnIndex}_copy`}
                                   >
                                     {item[column]}{" "}
                                     <CopyButton textToCopy={item[column]} />
@@ -343,9 +343,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 return (
                                   <td
                                     className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                    key={columnIndex}
+                                    key={`${columnIndex}_Time`}
                                   >
-                                    <p className="">
+                                    <p>
                                       {`${changeNumberIntoTime(
                                         item?.openStartTime
                                       )} - ${changeNumberIntoTime(
@@ -393,14 +393,14 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 <TableImage
                                   item={item}
                                   column={column}
-                                  key={columnIndex}
+                                  key={`${columnIndex}_tableImage`}
                                 />
                               ) : typeof item[column] === "object" ? (
                                 <>
                                   {location?.pathname === "/payments" && (
                                     <td
                                       className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                      key={columnIndex}
+                                      key={`${columnIndex}_payment`}
                                     >
                                       ₹{" "}
                                       {item?.paymentStatus ===
@@ -422,7 +422,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   )}
                                   <td
                                     className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                    key={columnIndex}
+                                    key={`${columnIndex}_discount`}
                                   >
                                     {column.includes("files")
                                       ? null
@@ -448,7 +448,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       ? "max-w-40"
                                       : "whitespace-nowrap"
                                   }`}
-                                  key={columnIndex}
+                                  key={`${columnIndex}_other`}
                                 >
                                   {column.includes("Charges") ||
                                   column.includes("Deposit") ||

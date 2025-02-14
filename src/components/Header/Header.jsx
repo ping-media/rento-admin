@@ -1,20 +1,15 @@
 import { useEffect, useRef, useState, memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import userImage from "../../assets/logo/user.png";
-import {
-  toggleModal,
-  toggleSideBar,
-} from "../../Redux/SideBarSlice/SideBarSlice";
-import { Link } from "react-router-dom";
+import { toggleSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { tableIcons } from "../../Data/Icons";
+import HeaderMenuList from "./HeaderMenuList";
 
 const Header = () => {
   const [isVisible, setIsVisible] = useState(false);
   const dispatch = useDispatch();
   const adminRef = useRef(null);
-  const { currentUser, loggedInRole, userStation } = useSelector(
-    (state) => state.user
-  );
+  const { loggedInRole, userStation } = useSelector((state) => state.user);
 
   //for dropdown menu
   useEffect(() => {
@@ -46,8 +41,7 @@ const Header = () => {
 
   return (
     <header>
-      <div className="flex items-center justify-between px-5 lg:px-10 py-2.5 shadow dark:shadow-gray-200 bg-white">
-        {/* <div className="flex items-center justify-between px-5 lg:px-10 py-4 shadow dark:shadow-gray-200 bg-theme-seconday-dark"> */}
+      <div className="flex items-center justify-between px-5 py-1.5 shadow bg-white">
         {/* hamburger menu  */}
         <div className="flex items-center gap-4">
           <button
@@ -79,7 +73,7 @@ const Header = () => {
             </div>
           )}
           <button
-            className="relative hover:shadow-none shadow-md rounded-xl cursor-pointer flex items-center gap-2 px-4 py-1 dark:bg-gray-700"
+            className="relative border-2 rounded-full hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-1.5 dark:bg-gray-700"
             ref={adminRef}
             onClick={handleToggleVisibility}
           >
@@ -89,39 +83,15 @@ const Header = () => {
               loading="lazy"
               alt="USERIMAGE"
             />
-            <div className="hidden md:block lg:block text-left">
+            {/* <div className="hidden md:block lg:block text-left">
               <h2 className="font-semibold text-md lg:text-lg capitalize dark:text-gray-100">
                 {currentUser?.firstName}
               </h2>
               <small className="float-left text-gray-400 text-sm lg:text-md text-gray-200">
                 {currentUser?.userType}
               </small>
-            </div>
-            {isVisible && (
-              <div className="absolute w-40 top-16 right-0 z-10 bg-white flex flex-col items-center text-left gap-2 border border-gray-200 rounded-xl p-2 dark:bg-gray-800 dark:border-none">
-                <p className="lg:hidden border-b-2 text-center font-semibold md:hidden py-1.5 hover:bg-theme hover:text-white transition duration-200 ease-in-ou w-full capitalize">
-                  {currentUser?.firstName}
-                </p>
-                <Link
-                  className="py-1.5 px-1.5 text-sm hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-ou w-full"
-                  to={"/dashboard"}
-                >
-                  View Dashboard
-                </Link>
-                <Link
-                  className="py-1.5 px-1.5 text-sm hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-out w-full"
-                  to={"/profile"}
-                >
-                  View profile
-                </Link>
-                <Link
-                  className="py-1.5 px-1.5 text-sm hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-ou w-full"
-                  onClick={() => dispatch(toggleModal())}
-                >
-                  Logout
-                </Link>
-              </div>
-            )}
+            </div> */}
+            {isVisible && <HeaderMenuList />}
           </button>
         </div>
       </div>

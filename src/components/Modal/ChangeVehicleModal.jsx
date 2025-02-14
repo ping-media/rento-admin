@@ -121,9 +121,10 @@ const ChangeVehicleModal = ({ bookingData }) => {
         diffAmount: [
           ...(bookingData?.diffAmount || []),
           {
+            id: bookingData?.diffAmount?.length || 0 + 1,
             title: "changedVehicle",
             amount: finalDiffAmount,
-            status: "unpaid",
+            status: finalDiffAmount > 0 ? "unpaid" : "paid",
           },
         ],
       },

@@ -1,8 +1,20 @@
+import { tableIcons } from "../../Data/Icons";
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
 
 const BarChart = ({ data }) => {
   const [viewMode, setViewMode] = useState("Daily"); // Daily, Weekly, Monthly
+  const options = ["Daily", "Weekly", "Monthly"];
+
+  // format date
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   // Process Data for Weekly and Monthly Views
   const processChartData = (mode) => {
@@ -20,7 +32,7 @@ const BarChart = ({ data }) => {
       };
     } else {
       return {
-        categories: data.map((item) => item._id),
+        categories: data.map((item) => formatDate(item._id)),
         totalPrice: data.map((item) => item.totalPrice),
         bookingCount: data.map((item) => item.bookingCount),
       };
@@ -128,37 +140,20 @@ const BarChart = ({ data }) => {
   return (
     <div className="w-full">
       {/* View Mode Buttons */}
-      <div className="mb-5 flex items-center gap-2">
-        <button
-          className={`border-2 border-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-md ${
-            viewMode === "Daily"
-              ? "bg-theme text-gray-100 border-theme"
-              : "text-theme"
-          }`}
-          onClick={() => setViewMode("Daily")}
-        >
-          Daily
-        </button>
-        <button
-          className={`border-2 border-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-md ${
-            viewMode === "Weekly"
-              ? "bg-theme text-gray-100 border-theme"
-              : "text-theme"
-          }`}
-          onClick={() => setViewMode("Weekly")}
-        >
-          Weekly
-        </button>
-        <button
-          className={`border-2 border-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-md ${
-            viewMode === "Monthly"
-              ? "bg-theme text-gray-100 border-theme"
-              : "text-theme"
-          }`}
-          onClick={() => setViewMode("Monthly")}
-        >
-          Monthly
-        </button>
+      <div className="mb-5 flex items-center justify-end gap-2">
+        {options?.map((mode, index) => (
+          <button
+            className={`flex items-center gap-2 border-2 border-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-md ${
+              viewMode === mode
+                ? "bg-theme text-gray-100 border-theme"
+                : "text-theme"
+            }`}
+            onClick={() => setViewMode(mode)}
+            key={index}
+          >
+            {tableIcons?.dateCalender} {mode}
+          </button>
+        ))}
       </div>
 
       <div className="flex items-center flex-wrap gap-1 lg:gap-2 w-full">
