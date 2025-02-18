@@ -54,14 +54,10 @@ const vehicleSlice = createSlice({
       state.vehicleMaster = updatedData;
     },
     handleUpdateDateForPayment: (state, action) => {
-      const { paymentUpdates, paymentStatus } = action.payload;
+      const { bookingPrice } = action.payload;
       state.vehicleMaster[0] = {
         ...state.vehicleMaster[0],
-        paymentUpdates: {
-          ...state.vehicleMaster[0].paymentUpdates,
-          ...paymentUpdates,
-        },
-        paymentStatus,
+        bookingPrice: bookingPrice,
       };
     },
     handleUpdateCompleteRide: (state, action) => {

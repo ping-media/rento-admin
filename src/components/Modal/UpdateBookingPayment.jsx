@@ -1,7 +1,7 @@
 import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { togglePaymentUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice";
-import Input from "../../components/InputAndDropdown/Input";
+// import Input from "../../components/InputAndDropdown/Input";
 import { useEffect, useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { cancelBookingById } from "../../Data/Function";
@@ -17,66 +17,98 @@ const UpdateBookingPayment = ({ id }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
-  const [finalAmount, setFinalAmount] = useState(0);
   const [paymentMode, setPaymentMode] = useState("");
+  const [paymentRecord, setPaymentRecord] = useState([]);
   const [paymentFor, setPaymentFor] = useState("");
+  const [paymentRecordId, setPaymentRecordId] = useState(0);
   const dispatch = useDispatch();
 
-  // for getting left amount
+  // for getting id for payment record
   const getPaymentAmount = (paymentForInput) => {
-    // console.log(
-    //   vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.amount
-    // );
-    if (paymentForInput === "remaining") {
-      vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.status ===
-      "unpaid"
-        ? setFinalAmount(
-            Number(
-              vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.amount
-            )
-          )
-        : handleAsyncError(dispatch, "Amount Already Paid.");
+    if (paymentForInput === "extendVehicle") {
+      if (
+        vehicleMaster[0]?.bookingPrice?.extendAmount &&
+        vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0
+      ) {
+        const paymentRecord = [];
+        vehicleMaster[0]?.bookingPrice?.extendAmount?.map((item) => {
+          paymentRecord.push({
+            id: item?.id,
+            title: item?.title,
+            amount: item?.amount,
+          });
+        });
+        setPaymentRecord(paymentRecord);
+      } else {
+        handleAsyncError(dispatch, "No extend vehicle records found!");
+      }
+    } else if (paymentForInput === "vehicleChange") {
+      if (
+        vehicleMaster[0]?.bookingPrice?.diffAmount &&
+        vehicleMaster[0]?.bookingPrice?.diffAmount?.length > 0
+      ) {
+        const paymentRecord = [];
+        vehicleMaster[0]?.bookingPrice?.diffAmount?.map((item) => {
+          paymentRecord.push({
+            id: item?.id,
+            title: item?.title,
+            amount: item?.amount,
+          });
+        });
+        setPaymentRecord(paymentRecord);
+      } else {
+        handleAsyncError(dispatch, "No change vehicle records found!");
+      }
     }
   };
 
+  // for setting payment records dropdown
   useEffect(() => {
     if (paymentFor === "") return;
+    // reset before change to next value
+    setPaymentRecord([]);
     getPaymentAmount(paymentFor);
-  }, [paymentMode]);
+  }, [paymentFor]);
+
+  // console.log(paymentRecord);
 
   // for updating the payment for specific booking
   const handlUpdateBookingPaymentRecord = async (event) => {
     event.preventDefault();
     setFormLoading(true);
     try {
-      if (finalAmount === 0 && paymentMode === "")
+      if (paymentFor === "" && paymentRecordId === 0 && paymentMode === "")
         return handleAsyncError(dispatch, "All fields required!");
-      const paymentStatus =
-        vehicleMaster[0]?.paymentStatus === "partiallyPay" ||
-        vehicleMaster[0]?.paymentStatus === "partially_paid"
-          ? "paid"
-          : vehicleMaster[0]?.paymentStatus;
 
-      //   dynamically create a key
-      const paymentKey =
-        vehicleMaster[0]?.paymentStatus === "partiallyPay" ||
-        vehicleMaster[0]?.paymentStatus === "partially_paid"
-          ? "paymentDone"
-          : vehicleMaster[0]?.bookingPrice?.diffAmount &&
-            vehicleMaster[0]?.bookingPrice?.diffAmount > 0
-          ? "vehicleChange"
-          : "extentend";
-
+      // through this we can dynamically change the data in extendAmount or in diffAmount
+      const For =
+        paymentFor === "extendVehicle" ? "extendAmount" : "diffAmount";
+      const updateData = paymentRecord.find(
+        (item) => item.id === Number(paymentRecordId)
+      );
+      if (updateData) {
+        updateData.status = "paid";
+        if (!updateData.hasOwnProperty("paymentMethod")) {
+          updateData.paymentMethod = paymentMode;
+        } else {
+          updateData.paymentMethod = paymentMode;
+        }
+      }
+      // creating data for updating the database
       const data = {
-        paymentUpdates: {
-          [paymentKey]: { amount: finalAmount, paymentMode: paymentMode },
+        bookingPrice: {
+          ...vehicleMaster[0].bookingPrice,
+          [For]: vehicleMaster[0]?.bookingPrice?.[For]?.map((item) =>
+            item.id === updateData.id ? updateData : item
+          ) || [updateData],
         },
-        paymentStatus: paymentStatus,
         _id: id,
       };
 
-      const isCanceled = await cancelBookingById(id, data, token);
-      if (isCanceled === true) {
+      // return console.log(updateData, data);
+
+      const isUpdate = await cancelBookingById(id, data, token);
+      if (isUpdate === true) {
         handleAsyncError(
           dispatch,
           "Payment record save successfully",
@@ -89,7 +121,7 @@ const UpdateBookingPayment = ({ id }) => {
             {
               title: "Payment Updated",
               date: new Date().toLocaleString(),
-              paymentAmount: finalAmount,
+              paymentAmount: updateData?.amount,
             },
           ],
         };
@@ -97,7 +129,8 @@ const UpdateBookingPayment = ({ id }) => {
         handleCloseModal();
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
-        return dispatch(handleUpdateDateForPayment(data));
+        const { _id, ...dataForRedux } = data;
+        return dispatch(handleUpdateDateForPayment(dataForRedux));
       }
       if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
     } catch (error) {
@@ -109,6 +142,11 @@ const UpdateBookingPayment = ({ id }) => {
 
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {
+    // reseting to default values
+    setPaymentMode("");
+    setPaymentRecord([]);
+    setPaymentFor("");
+    setPaymentRecordId(0);
     dispatch(togglePaymentUpdateModal());
   };
 
@@ -118,10 +156,10 @@ const UpdateBookingPayment = ({ id }) => {
         !isPaymentUpdateModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-40 mx-auto shadow-xl rounded-md bg-white max-w-md">
+      <div className="relative top-28 mx-auto shadow-xl rounded-md bg-white max-w-md">
         <div className="flex justify-between p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
-            Update Payment
+            Update Payment Record
           </h2>
           <button
             onClick={handleCloseModal}
@@ -148,13 +186,21 @@ const UpdateBookingPayment = ({ id }) => {
           <form onSubmit={handlUpdateBookingPaymentRecord}>
             <div className="mb-2">
               <SelectDropDown
-                item={"Payment"}
-                options={["remaining"]}
+                item={"Payment Record"}
+                options={["extendVehicle", "vehicleChange"]}
                 setIsLocationSelected={setPaymentFor}
                 require={true}
               />
             </div>
             <div className="mb-2">
+              <SelectDropDown
+                item={"Payment Record Id"}
+                options={paymentRecord}
+                setIsLocationSelected={setPaymentRecordId}
+                require={true}
+              />
+            </div>
+            {/* <div className="mb-2">
               <Input
                 item={"finalAmount"}
                 type="number"
@@ -162,7 +208,7 @@ const UpdateBookingPayment = ({ id }) => {
                 value={finalAmount}
                 setValueChange={setFinalAmount}
               />
-            </div>
+            </div> */}
             <div className="mb-2">
               <SelectDropDown
                 item={"PaymentMode"}

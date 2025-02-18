@@ -44,12 +44,13 @@ const ExtendBookingModal = ({ bookingData }) => {
         BookingEndDateAndTime: bookingData?.BookingEndDateAndTime,
       },
       extendAmount: {
-        id: bookingData?.bookingPrice?.extendAmount?.length || 0 + 1,
+        id: bookingData?.bookingPrice?.extendAmount?.length + 1,
         title: "extended",
         amount: calculatePriceForExtendBooking(
           bookingData?.bookingPrice?.rentAmount,
           extensionDays
         ),
+        paymentMethod: "",
         status: "unpaid",
       },
       bookingStatus: "extended",
@@ -109,7 +110,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         !isBookingExtendModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-xl">
+      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-md">
         <div className="flex justify-between p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Extend Booking

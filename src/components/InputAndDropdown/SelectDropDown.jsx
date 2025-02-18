@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
 
 const SelectDropDown = ({
   item,
@@ -72,12 +73,25 @@ const SelectDropDown = ({
           {options &&
             options?.map((items, index) => {
               const isId = items?.hasOwnProperty("_id");
+              const isOtherId = items?.hasOwnProperty("id");
               const isFirstName = items?.hasOwnProperty("firstName");
               const isLocationName = items?.hasOwnProperty("locationName");
               const isStationName = items?.hasOwnProperty("stationName");
               const isVehicleName = items?.hasOwnProperty("vehicleName");
-              const isVehicleNumber = item?.hasOwnProperty("vehicleNumber");
-              if (isId && isVehicleNumber) {
+              const isVehicleNumber = items?.hasOwnProperty("vehicleNumber");
+              const isTitle = items?.hasOwnProperty("title");
+              const isAmount = items?.hasOwnProperty("amount");
+              if (isOtherId && isTitle && isAmount) {
+                return (
+                  <option
+                    value={items?.id}
+                    key={items?.id}
+                    className="capitalize"
+                  >
+                    {items?.id} | {items?.title} | {formatPrice(items?.amount)}
+                  </option>
+                );
+              } else if (isId && isVehicleNumber) {
                 return (
                   <option
                     value={items?._id}
@@ -137,7 +151,7 @@ const SelectDropDown = ({
               } else {
                 return (
                   <option value={items} key={index} className="capitalize">
-                    {items}
+                    {camelCaseToSpaceSeparated(items)}
                   </option>
                 );
               }

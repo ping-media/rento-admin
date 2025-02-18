@@ -67,7 +67,7 @@ const BookingTimeLine = ({ bookingId }) => {
                           </p>
                         )}
                         <p className="text-gray-700 leading-tight text-xs">
-                          {item?.date}
+                          {removeSecondsFromDateAndTime(item?.date)}
                         </p>
                       </>
                     ) : (

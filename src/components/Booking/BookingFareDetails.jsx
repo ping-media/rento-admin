@@ -60,11 +60,13 @@ const BookingFareDetails = ({ rides }) => {
                           {key == "extraAddonPrice"
                             ? `₹${50} x ${getDurationInDays(
                                 rides?.BookingStartDateAndTime,
-                                rides?.BookingEndDateAndTime
+                                rides?.extendBooking?.originalEndDate ||
+                                  rides?.BookingEndDateAndTime
                               )} ${
                                 getDurationInDays(
                                   rides?.BookingStartDateAndTime,
-                                  rides?.BookingEndDateAndTime
+                                  rides?.extendBooking?.originalEndDate ||
+                                    rides?.BookingEndDateAndTime
                                 ) == 1
                                   ? "day"
                                   : "days"
@@ -73,11 +75,13 @@ const BookingFareDetails = ({ rides }) => {
                                 rides?.bookingPrice?.rentAmount
                               } x ${getDurationInDays(
                                 rides?.BookingStartDateAndTime,
-                                rides?.BookingEndDateAndTime
+                                rides?.extendBooking?.originalEndDate ||
+                                  rides?.BookingEndDateAndTime
                               )} ${
                                 getDurationInDays(
                                   rides?.BookingStartDateAndTime,
-                                  rides?.BookingEndDateAndTime
+                                  rides?.extendBooking?.originalEndDate ||
+                                    rides?.BookingEndDateAndTime
                                 ) == 1
                                   ? "day"
                                   : "days"

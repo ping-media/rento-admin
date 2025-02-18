@@ -212,8 +212,8 @@ const RideEndModal = ({ id }) => {
                 (item) => item.status === "paid"
               ) === false)) && (
             <p className="italic text-xs lg:text-sm my-2 text-red-300 font-bold text-left">
-              Note: Some payments are pending. Please clear them before ending
-              your ride.
+              Warning: Some payments are pending. Please clear them before
+              ending your ride.
             </p>
           )}
           {/* end ride form */}

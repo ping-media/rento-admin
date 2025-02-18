@@ -13,9 +13,13 @@ import BookingStatusFlag from "./BookingStatusFlag";
 import BookingMoreInfo from "./BookingMoreInfo";
 import CopyButton from "../../components/Buttons/CopyButton";
 import BookingNote from "./BookingNote";
-import { toggleChangeVehicleModal } from "../../Redux/SideBarSlice/SideBarSlice";
+import {
+  toggleChangeVehicleModal,
+  togglePaymentUpdateModal,
+} from "../../Redux/SideBarSlice/SideBarSlice";
 import BookingTimeLine from "./BookingTimeLine";
 import AdditionalInfo from "./AdditionalInfo";
+import Button from "../Buttons/Button";
 const ChangeVehicleModal = lazy(() =>
   import("../../components/Modal/ChangeVehicleModal")
 );
@@ -117,12 +121,14 @@ const BookingDetail = () => {
             value: `${
               vehicleMaster &&
               formatFullDateAndTime(
-                vehicleMaster && vehicleMaster[0]?.BookingEndDateAndTime
+                (vehicleMaster &&
+                  vehicleMaster[0]?.extendBooking?.originalEndDate) ||
+                  (vehicleMaster && vehicleMaster[0]?.BookingEndDateAndTime)
               )
             }`,
           },
           {
-            key: "Booking Date",
+            key: "Booked On",
             value: `${
               vehicleMaster &&
               formatDateTimeISTForUser(
@@ -257,10 +263,23 @@ const BookingDetail = () => {
             />
           </div>
           <BookingFareDetails rides={vehicleMaster && vehicleMaster[0]} />
-          <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
+          <div className="flex items-center justify-between border-b-2 pt-1.5 mt-2 pb-1.5 mb-3">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
               Additional Information
             </h2>
+            {/* only show this button when there is any record in diffAmount or in extendAmount  */}
+            {((vehicleMaster &&
+              vehicleMaster[0]?.bookingPrice?.diffAmount &&
+              vehicleMaster[0]?.bookingPrice?.diffAmount?.length > 0) ||
+              (vehicleMaster &&
+                vehicleMaster[0]?.bookingPrice?.extendAmount &&
+                vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0)) && (
+              <Button
+                title={"Update Payment"}
+                customClass={"text-sm bg-theme text-gray-100 px-1.5 py-1"}
+                fn={() => dispatch(togglePaymentUpdateModal())}
+              />
+            )}
           </div>
           <div className="mb-3">
             <AdditionalInfo />

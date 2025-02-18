@@ -184,31 +184,6 @@ const camelCaseToSpaceSeparatedMapped = (str) => {
   });
 };
 
-// const convertDateFormat = (dateStr) => {
-//   // Check if the input date is in the format "yyyy-MM-ddTHH:mm"
-//   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(dateStr)) {
-//     // Convert "2024-12-20T17:00" to "2025-01-22T14:00:00Z" (UTC)
-//     const date = new Date(dateStr); // Parse to Date object (local time)
-//     const utcString = date.toISOString(); // Convert to UTC ISO string
-//     return utcString.slice(0, 19) + "Z"; // Remove milliseconds and add Z for UTC
-//   }
-//   // Check if the input date is in the format "yyyy-MM-ddTHH:mm:ssZ" (UTC)
-//   else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(dateStr)) {
-//     // Convert "2025-01-22T14:00:00Z" (UTC) to local time "2024-12-20T17:00"
-//     const date = new Date(dateStr); // Parse to Date object (UTC)
-//     const year = date.getFullYear();
-//     const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-//     const day = String(date.getDate()).padStart(2, "0");
-//     const hour = String(date.getHours()).padStart(2, "0");
-//     const minute = String(date.getMinutes()).padStart(2, "0");
-
-//     // Format as "yyyy-MM-ddTHH:mm"
-//     return `${year}-${month}-${day}T${hour}:${minute}`;
-//   } else {
-//     throw new Error("Invalid date format");
-//   }
-// };
-
 const convertDateFormat = (dateStr) => {
   // Check if the input date is in the format "yyyy-MM-ddTHH:mm"
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(dateStr)) {
@@ -285,10 +260,7 @@ const formatTimeStampToDate = (timestamp) => {
 
   // Format the date and time
   const formattedDate = `${day}/${month}/${year}`;
-  const formattedTime = `${String(hours).padStart(
-    2,
-    "0"
-  )}:${minutes}:${seconds} ${amPm}`;
+  const formattedTime = `${String(hours).padStart(2, "0")}:${minutes} ${amPm}`;
 
   // Combine date and time
   const formattedDateTime = `${formattedDate} ${formattedTime}`;
@@ -559,17 +531,31 @@ const getDurationInDaysAndHours = (date1Str, date2Str) => {
 };
 
 const removeSecondsFromDateAndTime = (dateStr) => {
-  const date = new Date(dateStr);
-  const formattedDate = date.toLocaleString("en-US", {
+  // Convert input to a Date object
+  let date = new Date(dateStr);
+
+  // Handle invalid date parsing
+  if (isNaN(date.getTime())) {
+    // Try manually parsing the date in case of incorrect formats
+    const parts = dateStr.split(/[\s/:,-]+/); // Split using multiple delimiters
+    if (parts.length >= 5) {
+      const [month, day, year, hour, minute] = parts.map(Number);
+      date = new Date(year, month - 1, day, hour, minute);
+    }
+  }
+
+  // If still invalid, return an error message
+  if (isNaN(date.getTime())) return "Invalid Date Format";
+
+  // Format the date in 12-hour format
+  return date.toLocaleString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
     year: "numeric",
     month: "numeric",
     day: "numeric",
-    hour12: true,
+    hour12: true, // Ensures 12-hour format
   });
-
-  return formattedDate;
 };
 
 export {

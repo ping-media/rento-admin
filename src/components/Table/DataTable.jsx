@@ -7,7 +7,7 @@ import {
   formatTimeStampToDate,
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
-import React, { lazy, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice.js";
 import { addVehicleIdToDelete } from "../../Redux/VehicleSlice/VehicleSlice.js";
@@ -244,7 +244,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           formatPathNameToTitle(location.pathname)
             ? "justify-between"
             : "justify-end"
-        } mt-5 gap-4`}
+        } mt-1 gap-4`}
       >
         <TablePageHeader
           inputSearchQuery={inputSearchQuery}
@@ -307,10 +307,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   />
                                 );
                               }
-                              if (
-                                // column === "BookingStartDateAndTime" ||
-                                column === "city"
-                              ) {
+                              if (column === "city") {
                                 return (
                                   <BookingDateAndCityCell
                                     key={`${columnIndex}_bookingDateAndCity`}

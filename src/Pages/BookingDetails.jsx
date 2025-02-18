@@ -192,7 +192,7 @@ const BookingDetails = () => {
           {/* for starting & completing ride  */}
           {vehicleMaster[0]?.rideStatus !== "ongoing" &&
             vehicleMaster[0]?.rideStatus !== "completed" &&
-            vehicleMaster[0]?.BookingStartDateAndTime.split("T")[0] >=
+            vehicleMaster[0]?.BookingStartDateAndTime.split("T")[0] <=
               formatDateToISO(new Date()).split("T")[0] && (
               <Button
                 title={
@@ -207,15 +207,6 @@ const BookingDetails = () => {
                 }
               />
             )}
-
-          {/* for update ride  */}
-          {/* {vehicleMaster[0]?.bookingPrice?.diffAmount &&
-            vehicleMaster[0]?.bookingPrice?.diffAmount[
-              vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
-            ]?.status === "unpaid" && (
-              <Button title={"Update Ride"} fn={handleStartRideAndAddImages} />
-            )} */}
-
           {/* for completing ride  */}
           {vehicleMaster[0]?.rideStatus === "ongoing" && (
             <Button
@@ -249,7 +240,7 @@ const BookingDetails = () => {
           ) && (
             <Button
               customClass={
-                "border-2 border-theme text-theme hover:text-gray-100 hover:border-theme-dark"
+                "border-2 border-theme text-theme hover:text-gray-100 hover:border-theme-dark p-1.5 text-sm lg:px-2.5 lg:py-1.5"
               }
               title={"Extend Booking"}
               fn={() => dispatch(toggleBookingExtendModal())}
@@ -266,16 +257,6 @@ const BookingDetails = () => {
             loading={reminderLoading}
             customLoadingMessage="sending"
           />
-          {/* {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
-            vehicleMaster[0]?.bookingPrice?.diffAmount > 0) ||
-            vehicleMaster[0]?.bookingStatus === "extended" ||
-            vehicleMaster[0]?.paymentStatus === "partiallyPay" ||
-            vehicleMaster[0]?.paymentStatus === "partially_paid") && (
-            <Button
-              title={"Update Payment"}
-              fn={() => dispatch(togglePaymentUpdateModal())}
-            />
-          )} */}
           {/* for invoice generate  */}
           {vehicleMaster[0]?.bookingStatus !== "canceled" &&
             vehicleMaster[0]?.paymentStatus !== "pending" && (

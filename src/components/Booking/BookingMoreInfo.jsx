@@ -1,6 +1,9 @@
+import { formatFullDateAndTime } from "../../utils/index";
 import CopyButton from "../../components/Buttons/CopyButton";
+import { useSelector } from "react-redux";
 
 const BookingMoreInfo = ({ data, datatype }) => {
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
   return (
     <>
       {data[datatype]?.map((item, index) => (
@@ -27,6 +30,19 @@ const BookingMoreInfo = ({ data, datatype }) => {
           </span>
         </div>
       ))}
+      {/* if ride end before actual ending date show this  */}
+      {vehicleMaster &&
+        vehicleMaster[0]?.extendBooking?.originalEndDate &&
+        datatype === "moreInfo" && (
+          <div className="flex justify-between items-center py-1.5 border-t-2 border-gray-300">
+            <span className="font-semibold text-xs lg:text-sm uppercase">
+              Finish On
+            </span>
+            <span className="text-gray-500 flex items-center text-xs lg:text-sm capitalize">
+              {formatFullDateAndTime(vehicleMaster[0]?.BookingEndDateAndTime)}
+            </span>
+          </div>
+        )}
     </>
   );
 };

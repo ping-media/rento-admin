@@ -504,16 +504,33 @@ const updateTimeLineForPayment = async (
       return "unable to update timeline for booking";
     }
   }
+  const baseUrl = import.meta.env.VITE_FRONTEND_URL;
+  const isChange = isvehicleNumbers !== "" ? "change" : "extend";
+  const paymentId =
+    (isvehicleNumbers === "" && extendAmount?.id) ||
+    (isvehicleNumbers !== "" &&
+      bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.id) ||
+    0;
+
+  // encoding the data before creating a link
+  const payload = {
+    id: _id,
+    order: orderId,
+    for: isChange,
+    paymentId: paymentId,
+    finalAmount: finalAmount,
+  };
+
+  // requesting jwt token here from backend
+  const encodePayload = await postDataWithRetry(
+    "/GeneratePaymentToken",
+    { payload: payload },
+    token
+  );
 
   // creating payment link only when amount is greater than 0
   const paymentLink =
-    finalAmount > 0
-      ? `${
-          import.meta.env.VITE_FRONTEND_URL
-        }/payment?id=${_id}&order=${orderId}&for=${
-          isvehicleNumbers !== "" ? "change" : "extend"
-        }&finalAmount=${finalAmount}`
-      : "";
+    finalAmount > 0 ? `${baseUrl}/payment/${encodePayload?.token}` : "";
 
   // updating the timeline for booking
   const timeLineData = {
@@ -525,10 +542,7 @@ const updateTimeLineForPayment = async (
         PaymentLink: paymentLink,
         paymentAmount: finalAmount,
         changeToVehicle: isvehicleNumbers || "",
-        id:
-          extendAmount?.id ||
-          bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.id ||
-          0,
+        id: paymentId,
       },
     ],
   };
