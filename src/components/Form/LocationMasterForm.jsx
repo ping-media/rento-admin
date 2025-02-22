@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner";
@@ -8,10 +8,13 @@ import { useParams } from "react-router-dom";
 const LocationMasterForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { id } = useParams();
-  const [imagesUrl, setImageUrl] = useState(
-    id && vehicleMaster[0]?.locationImage
-  );
+  const [imagesUrl, setImageUrl] = useState("");
   const [image, setImage] = useState(null);
+
+  useEffect(() => {
+    if (id && vehicleMaster?.length === 1)
+      return setImageUrl(vehicleMaster[0]?.locationImage);
+  }, [vehicleMaster]);
 
   return (
     <form onSubmit={handleFormSubmit}>
@@ -38,7 +41,13 @@ const LocationMasterForm = ({ handleFormSubmit, loading }) => {
           type="submit"
           disabled={loading}
         >
-          {loading ? <Spinner message={"uploading"} /> : "Publish"}
+          {loading ? (
+            <Spinner message={"uploading"} />
+          ) : id ? (
+            "Update"
+          ) : (
+            "Add New"
+          )}
         </button>
       </div>
     </form>

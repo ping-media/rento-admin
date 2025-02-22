@@ -1,12 +1,18 @@
 import { useDispatch, useSelector } from "react-redux";
 import VehicleInfo from "./VehicleInfo";
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchVehicleMasterById } from "../../Data/Function";
 import PreLoader from "../Skeleton/PreLoader";
 import { NotFound } from "../../Pages";
 import { getData } from "../../Data";
 import { endPointBasedOnKey } from "../../Data/commonData";
+import { camelCaseToSpaceSeparated } from "../../utils/index";
+import { tableIcons } from "../../Data/Icons";
+import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
+const AddVehicleForServiceModal = lazy(() =>
+  import("../../components/Modal/AddVehicleForServiceModal")
+);
 
 const VehicleDetail = () => {
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
@@ -50,30 +56,27 @@ const VehicleDetail = () => {
     !loading && collectedData != null ? (
       vehicleMaster?.length == 1 ? (
         <>
+          <AddVehicleForServiceModal />
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-2xl uppercase font-bold text-theme">
               Vehicle Details
             </h1>
-            <Link
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
-              to={`/all-vehicles/${id}`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="stroke-white"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <div className="flex items-center gap-2">
+              <button
+                className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
+                type="button"
+                onClick={() => dispatch(toggleVehicleServiceModal())}
               >
-                <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
-                <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
-              </svg>
-              <span>Edit</span>
-            </Link>
+                Shedule Maintenance
+              </button>
+              <Link
+                className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
+                to={`/all-vehicles/${id}`}
+              >
+                {tableIcons["common-edit"]}
+                <span>Edit</span>
+              </Link>
+            </div>
           </div>
           <div className="mt-5">
             <div className="flex gap-4 flex-wrap">
@@ -82,33 +85,41 @@ const VehicleDetail = () => {
                   Vehicle Infomation
                 </h2>
                 <div className="border-2 p-2 border-gray-300 rounded-lg">
-                  {Object.entries(vehicleMaster[0]).map(([key, value]) => {
-                    if (
-                      key.includes("id") ||
-                      key.includes("_v") ||
-                      key.includes("At") ||
-                      key.includes("Id") ||
-                      key.includes("Image") ||
-                      key.includes("vehiclePlan")
-                    ) {
-                      return null;
-                    }
+                  {Object.entries(vehicleMaster[0]).map(
+                    ([key, value], index) => {
+                      if (
+                        key.includes("id") ||
+                        key.includes("_v") ||
+                        key.includes("At") ||
+                        key.includes("Id") ||
+                        key.includes("Image") ||
+                        key.includes("vehiclePlan")
+                      ) {
+                        return null;
+                      }
 
-                    return (
-                      <div
-                        className={`flex justify-between items-center py-1.5 border-b-2 border-gray-300`}
-                        key={key}
-                      >
-                        <span className="font-semibold uppercase">{key}</span>{" "}
-                        <span className="text-gray-500 capitalize">
-                          {key.includes("Cost") || key.includes("Charges")
-                            ? "₹"
-                            : ""}
-                          {value}
-                        </span>
-                      </div>
-                    );
-                  })}
+                      return (
+                        <div
+                          className={`flex justify-between items-center py-1.5 ${
+                            Object.entries(vehicleMaster[0]).length != index + 1
+                              ? "border-b-2"
+                              : ""
+                          } border-gray-300`}
+                          key={key}
+                        >
+                          <span className="font-semibold uppercase">
+                            {camelCaseToSpaceSeparated(key)}
+                          </span>{" "}
+                          <span className="text-gray-500 capitalize">
+                            {key.includes("Cost") || key.includes("Charges")
+                              ? "₹"
+                              : ""}
+                            {value}
+                          </span>
+                        </div>
+                      );
+                    }
+                  )}
                 </div>
               </div>
               <div className="flex-1 px-6 py-4 bg-white shadow-md rounded-lg">

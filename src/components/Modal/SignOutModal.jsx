@@ -1,23 +1,20 @@
 import { useDispatch, useSelector } from "react-redux";
-import {
-  toggleClearModals,
-  toggleModal,
-} from "../../Redux/SideBarSlice/SideBarSlice";
-import { handleSignOut } from "../../Redux/UserSlice/UserSlice";
+import { toggleModal } from "../../Redux/SideBarSlice/SideBarSlice";
+import { handleLogoutUser } from "../../Data/Function";
 
 const SignOutModal = () => {
   const dispatch = useDispatch();
   const { isModelActive } = useSelector((state) => state.sideBar);
-  const handleLogoutUser = () => {
-    dispatch(handleSignOut());
-    dispatch(toggleClearModals());
+
+  const handleLogout = () => {
+    return handleLogoutUser(dispatch);
   };
 
   return (
     <div
       className={`fixed ${
         !isModelActive ? "hidden" : ""
-      } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
+      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-40 mx-auto shadow-xl rounded-md bg-white max-w-md">
         <div className="flex justify-end p-2">
@@ -61,7 +58,7 @@ const SignOutModal = () => {
           </h3>
           <button
             className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2"
-            onClick={handleLogoutUser}
+            onClick={handleLogout}
           >
             Yes, I'm sure
           </button>

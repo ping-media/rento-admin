@@ -1,146 +1,184 @@
-import { useEffect, useState } from "react";
+import { tableIcons } from "../../Data/Icons";
+import React, { useState } from "react";
 import Chart from "react-apexcharts";
-import dayjs from "dayjs";
 
-const BarChart = ({ data, type, themeColor = "#e23844" }) => {
-  const [chartData, setChartData] = useState({
-    series: [],
-    options: {},
-  });
-  const [viewMode, setViewMode] = useState("weekly"); // "weekly" or "monthly"
+const BarChart = ({ data }) => {
+  const [viewMode, setViewMode] = useState("Daily"); // Daily, Weekly, Monthly
+  const options = ["Daily", "Weekly", "Monthly"];
 
-  useEffect(() => {
-    if (!data) return;
-
-    // Helper functions to group data
-    const groupDataByWeek = () => {
-      const dailyRevenue = data.reduce((acc, item) => {
-        const day = dayjs(item.createdAt).format("ddd"); // Format as Mon, Tue, etc.
-        acc[day] = (acc[day] || 0) + (item.bookingPrice?.totalPrice || 0);
-        return acc;
-      }, {});
-
-      const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-      const revenues = days.map((day) => dailyRevenue[day] || 0); // Ensure all days are present
-      return { categories: days, revenues };
-    };
-
-    const groupDataByMonth = () => {
-      const monthlyRevenue = data.reduce((acc, item) => {
-        const month = dayjs(item.createdAt).format("MMM"); // Format as Jan, Feb, etc.
-        acc[month] = (acc[month] || 0) + (item.bookingPrice?.totalPrice || 0);
-        return acc;
-      }, {});
-
-      const months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-      const revenues = months.map((month) => monthlyRevenue[month] || 0); // Ensure all months are present
-      return { categories: months, revenues };
-    };
-
-    // Determine data based on view mode
-    const { categories, revenues } =
-      viewMode === "weekly" ? groupDataByWeek() : groupDataByMonth();
-
-    // Set chart data
-    setChartData({
-      series: [
-        {
-          name: `${viewMode === "weekly" ? "Daily" : "Monthly"} Revenue`,
-          data: revenues,
-        },
-      ],
-      options: {
-        chart: {
-          type: type,
-          height: 350,
-          toolbar: {
-            show: false,
-          },
-        },
-        plotOptions: {
-          bar: {
-            horizontal: false,
-            columnWidth: "55%",
-            endingShape: "rounded",
-          },
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        colors: [themeColor],
-        stroke: {
-          show: true,
-          width: 2,
-          colors: ["transparent"],
-        },
-        xaxis: {
-          categories,
-          title: {
-            text:
-              viewMode === "weekly" ? "Days of the Week" : "Months of the Year",
-          },
-        },
-        yaxis: {
-          title: {
-            text: "Revenue (in rupees)",
-          },
-        },
-        fill: {
-          opacity: 1,
-        },
-        tooltip: {
-          y: {
-            formatter: (val) => `${val} rupees`,
-          },
-        },
-      },
+  // format date
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
-  }, [data, themeColor, viewMode, type]);
+  };
+
+  // Process Data for Weekly and Monthly Views
+  const processChartData = (mode) => {
+    if (mode === "Weekly") {
+      return {
+        categories: ["Week 1", "Week 2", "Week 3"], // Example weeks
+        totalPrice: [30000, 20000, 15000], // Example total price data
+        bookingCount: [10, 15, 12], // Example booking count data
+      };
+    } else if (mode === "Monthly") {
+      return {
+        categories: ["December", "January"], // Example months
+        totalPrice: [50000, 30000], // Example total price data
+        bookingCount: [25, 20], // Example booking count data
+      };
+    } else {
+      return {
+        categories: data.map((item) => formatDate(item._id)),
+        totalPrice: data.map((item) => item.totalPrice),
+        bookingCount: data.map((item) => item.bookingCount),
+      };
+    }
+  };
+
+  const chartData = processChartData(viewMode);
+
+  // Options for Booking Count Chart
+  const bookingCountOptions = {
+    chart: {
+      type: "bar",
+      toolbar: { show: false },
+    },
+    xaxis: {
+      categories: chartData.categories,
+      title: {
+        text: "Dates",
+        style: { fontSize: "14px", fontWeight: "bold" },
+      },
+    },
+    yaxis: {
+      title: {
+        text: "Booking Count",
+        style: { fontSize: "14px", fontWeight: "bold" },
+      },
+    },
+    plotOptions: {
+      bar: { columnWidth: "50%" },
+    },
+    colors: ["#c32d3b"],
+    dataLabels: {
+      enabled: false,
+    },
+  };
+
+  // Options for Total Price Chart
+  // const totalPriceOptions = {
+  //   chart: {
+  //     type: "bar",
+  //     toolbar: { show: false },
+  //   },
+  //   xaxis: {
+  //     categories: chartData.categories,
+  //     title: {
+  //       text: "Dates",
+  //       style: { fontSize: "14px", fontWeight: "bold" },
+  //     },
+  //   },
+  //   yaxis: {
+  //     title: {
+  //       text: "Total Price",
+  //       style: { fontSize: "14px", fontWeight: "bold" },
+  //     },
+  //   },
+  //   plotOptions: {
+  //     bar: { columnWidth: "50%" },
+  //   },
+  //   colors: ["#e23844"], // Red color for total price
+  //   dataLabels: {
+  //     enabled: true,
+  //     style: {
+  //       fontSize: "12px",
+  //       fontWeight: "bold",
+  //     },
+  //   },
+  // };
+  const totalPriceOptions = {
+    chart: {
+      type: "bar",
+      toolbar: { show: false },
+    },
+    xaxis: {
+      categories: chartData.categories,
+      title: {
+        text: "Dates",
+        style: { fontSize: "14px", fontWeight: "bold" },
+      },
+    },
+    yaxis: {
+      title: {
+        text: "Total Price",
+        style: { fontSize: "14px", fontWeight: "bold" },
+      },
+    },
+    plotOptions: {
+      bar: { columnWidth: "50%" },
+    },
+    colors: ["#e23844"],
+    dataLabels: {
+      enabled: false,
+    },
+    tooltip: {
+      enabled: true,
+      shared: false,
+      y: {
+        formatter: (val) => `₹${val.toLocaleString()}`,
+      },
+      style: {
+        fontSize: "14px",
+      },
+    },
+  };
 
   return (
-    <div>
-      <div className="flex justify-end mb-4">
-        <button
-          className={`px-4 py-1 rounded-sm mr-2 ${
-            viewMode === "weekly"
-              ? "bg-theme text-gray-100"
-              : "bg-gray-200 text-black"
-          }`}
-          onClick={() => setViewMode("weekly")}
-        >
-          Weekly
-        </button>
-        <button
-          className={`px-4 py-1 rounded-sm ${
-            viewMode === "monthly"
-              ? "bg-theme text-gray-100"
-              : "bg-gray-200 text-black"
-          }`}
-          onClick={() => setViewMode("monthly")}
-        >
-          Monthly
-        </button>
+    <div className="w-full">
+      {/* View Mode Buttons */}
+      <div className="mb-5 flex items-center justify-end gap-2">
+        {options?.map((mode, index) => (
+          <button
+            className={`flex items-center gap-2 border-2 border-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-md ${
+              viewMode === mode
+                ? "bg-theme text-gray-100 border-theme"
+                : "text-theme"
+            }`}
+            onClick={() => setViewMode(mode)}
+            key={index}
+          >
+            {tableIcons?.dateCalender} {mode}
+          </button>
+        ))}
       </div>
-      <Chart
-        options={chartData.options}
-        series={chartData.series}
-        type={type}
-        width="100%"
-        height="100%"
-      />
+
+      <div className="flex items-center flex-wrap gap-1 lg:gap-2 w-full">
+        {/* Booking Count Chart */}
+        <div className="flex-1">
+          <h2 className="text-base font-bold mb-3">{`Booking Count (${viewMode})`}</h2>
+          <Chart
+            options={bookingCountOptions}
+            series={[{ name: "Booking Count", data: chartData.bookingCount }]}
+            type="bar"
+            height={300}
+          />
+        </div>
+
+        {/* Total Price Chart */}
+        <div className="flex-1">
+          <h2 className="text-base font-bold mb-3">{`Total Price (${viewMode})`}</h2>
+          <Chart
+            options={totalPriceOptions}
+            series={[{ name: "Total Price", data: chartData.totalPrice }]}
+            type="bar"
+            height={300}
+          />
+        </div>
+      </div>
     </div>
   );
 };

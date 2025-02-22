@@ -13,6 +13,8 @@ const InputVehicleSearch = ({
   token,
   suggestedData,
   setSuggestionData,
+  setValueChanger,
+  setSlectedVehicle,
 }) => {
   const [vehicleId, setvehicleId] = useState(value);
   const [inputValue, setInputValue] = useState("");
@@ -49,8 +51,10 @@ const InputVehicleSearch = ({
   // setting user data to input
   const handleSelectUserById = (item) => {
     setvehicleId(item?._id);
+    setValueChanger && setValueChanger(item?._id);
     setInputValue(`${item?.vehicleName} | ${item?.vehicleNumber}`);
     setSuggestionData(null);
+    setSlectedVehicle && setSlectedVehicle(item);
   };
 
   // when editing the user

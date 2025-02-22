@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
+import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
 
 const SelectDropDown = ({
   item,
   options,
   value = "",
   setIsLocationSelected,
+  require = false,
+  onChangeFn,
+  changetoDefault = false,
+  changeModalClose,
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
   // for giving custom title
@@ -22,6 +27,9 @@ const SelectDropDown = ({
     if (setIsLocationSelected) {
       setIsLocationSelected(e.target.value);
     }
+    if (onChangeFn) {
+      onChangeFn(e.target.value);
+    }
   };
 
   useEffect(() => {
@@ -30,13 +38,23 @@ const SelectDropDown = ({
     }
   }, [value]);
 
+  // for resting the value to default
+  useEffect(() => {
+    // for resetting the value
+    if (changetoDefault && changetoDefault === true) {
+      setInputSelect("default");
+      changeModalClose && changeModalClose(false);
+    }
+  }, [changetoDefault]);
+
   return (
     <div className="w-full">
       <label
         htmlFor={item}
-        className="block text-gray-800 font-semibold text-sm capitalize"
+        className="block text-gray-800 font-semibold text-sm capitalize text-left"
       >
         Select {title[item] || item}
+        {require && <span className="ml-1 text-red-500">*</span>}
       </label>
       <div className="mt-2">
         <select
@@ -46,20 +64,34 @@ const SelectDropDown = ({
           onChange={(e) => handleChangeValue(e)}
           className="block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize disabled:bg-gray-300 disabled:bg-opacity-30"
           disabled={!options || options?.length == 0 ? true : false}
+          required={require}
         >
-          <option value="">
+          <option value="default">
             {(options?.length == 0 && `No ${title[item] || item} Found`) ||
               `Select ${title[item] || item}`}
           </option>
           {options &&
-            options.map((items, index) => {
+            options?.map((items, index) => {
               const isId = items?.hasOwnProperty("_id");
+              const isOtherId = items?.hasOwnProperty("id");
               const isFirstName = items?.hasOwnProperty("firstName");
               const isLocationName = items?.hasOwnProperty("locationName");
               const isStationName = items?.hasOwnProperty("stationName");
               const isVehicleName = items?.hasOwnProperty("vehicleName");
-              const isVehicleNumber = item?.hasOwnProperty("vehicleNumber");
-              if (isId && isVehicleNumber) {
+              const isVehicleNumber = items?.hasOwnProperty("vehicleNumber");
+              const isTitle = items?.hasOwnProperty("title");
+              const isAmount = items?.hasOwnProperty("amount");
+              if (isOtherId && isTitle && isAmount) {
+                return (
+                  <option
+                    value={items?.id}
+                    key={items?.id}
+                    className="capitalize"
+                  >
+                    {items?.id} | {items?.title} | {formatPrice(items?.amount)}
+                  </option>
+                );
+              } else if (isId && isVehicleNumber) {
                 return (
                   <option
                     value={items?._id}
@@ -79,7 +111,12 @@ const SelectDropDown = ({
                     {items?.firstName} | {items?.userType}
                   </option>
                 );
-              } else if (isId && isStationName) {
+              } else if (
+                // !location.pathname.includes("/all-bookings/add-new") &&
+                !location.pathname.includes("/all-bookings/details/") &&
+                isId &&
+                isStationName
+              ) {
                 return (
                   <option
                     value={items?.stationId}
@@ -106,14 +143,15 @@ const SelectDropDown = ({
                     key={items?._id}
                     className="capitalize"
                   >
-                    {/* {items?.vehicleBrand} {items?.vehicleName} */}
-                    {items?.vehicleName}
+                    {items?.vehicleName}{" "}
+                    {location.pathname.includes("/all-bookings/details/") &&
+                      `| ${items?.vehicleNumber}`}
                   </option>
                 );
               } else {
                 return (
                   <option value={items} key={index} className="capitalize">
-                    {items}
+                    {camelCaseToSpaceSeparated(items)}
                   </option>
                 );
               }

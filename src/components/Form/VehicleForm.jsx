@@ -1,59 +1,41 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner.jsx";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import { getData } from "../../Data";
-import { endPointBasedOnKey, vehicleColor } from "../../Data/commonData";
+import { endPointBasedOnKey } from "../../Data/commonData";
 import PreLoader from "../Skeleton/PreLoader";
 import { useParams } from "react-router-dom";
 import {
   fetchStationBasedOnLocation,
   tenYearBeforeCurrentYear,
 } from "../../Data/Function";
-import { addTempIds } from "../../Redux/VehicleSlice/VehicleSlice";
+import VehiclePlan from "./VehicleComponents/VehiclePlan";
 
 const VehicleForm = ({ handleFormSubmit, loading }) => {
-  const { vehicleMaster, tempIds } = useSelector((state) => state.vehicles);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [collectedData, setCollectedData] = useState(null);
   const [stationData, setStationData] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [isLocationSelected, setIsLocationSelected] = useState("");
-  const { token } = useSelector((state) => state.user);
+  const { token, userStation } = useSelector((state) => state.user);
   const { id } = useParams();
-  const dispatch = useDispatch();
 
-  const fetchCollectedData = async (vehicleMasterUrl, locationUrl, planUrl) => {
-    setFormLoading(true);
-    const planResponse = await getData(endPointBasedOnKey[planUrl], token);
-    const vehicleMasterResponse = await getData(
-      endPointBasedOnKey[vehicleMasterUrl],
-      token
-    );
-    const locationResponse = await getData(
-      endPointBasedOnKey[locationUrl],
-      token
-    );
-
-    if (vehicleMasterResponse && locationResponse && planResponse) {
-      setFormLoading(false);
-      return setCollectedData({
-        vehicleMasterId: vehicleMasterResponse?.data,
-        locationId: locationResponse?.data,
-        AllPlanDataId: planResponse?.data,
-      });
-    }
-  };
-
-  // test
+  // for setting locationid if it is present
   useEffect(() => {
-    fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
-    console.log(collectedData);
-  }, []);
+    if (id && vehicleMaster?.length == 1) {
+      // console.log(vehicleMaster[0]?.locationId);
+      setIsLocationSelected(vehicleMaster[0]?.locationId);
+    }
+  }, [vehicleMaster, id]);
 
   //updating station based on location id
   useEffect(() => {
-    if (isLocationSelected !== "") {
+    if (
+      (id && vehicleMaster?.length == 1 && isLocationSelected !== "") ||
+      isLocationSelected !== ""
+    ) {
       fetchStationBasedOnLocation(
         vehicleMaster,
         isLocationSelected,
@@ -61,68 +43,109 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         token
       );
     }
-  }, [isLocationSelected]);
+  }, [isLocationSelected, vehicleMaster]);
 
-  const handlePushId = (ids) => {
-    dispatch(addTempIds([ids]));
+  const fetchCollectedData = async (vehicleMasterUrl, locationUrl, planUrl) => {
+    setFormLoading(true);
+
+    try {
+      // Fetch all data in parallel
+      const [planResponse, vehicleMasterResponse, locationResponse] =
+        await Promise.all([
+          getData(endPointBasedOnKey[planUrl], token),
+          getData(endPointBasedOnKey[vehicleMasterUrl], token),
+          getData(endPointBasedOnKey[locationUrl], token),
+        ]);
+
+      // Set the collected data if all responses are successful
+      if (planResponse && vehicleMasterResponse && locationResponse) {
+        setCollectedData({
+          vehicleMasterId: vehicleMasterResponse?.data,
+          locationId: locationResponse?.data,
+          AllPlanDataId: planResponse?.data,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setFormLoading(false);
+    }
   };
 
-  return !formLoading || collectedData != null ? (
+  useEffect(() => {
+    fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
+  }, []);
+
+  return (!formLoading && vehicleMaster?.length === 1) ||
+    collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
+      <div className={`border-b-2 ${!id ? "mb-5" : "pb-5 mb-5"}`}>
+        <h2 className="font-bold">
+          {!id
+            ? "Select Package"
+            : `Package Applied: ${
+                vehicleMaster && vehicleMaster[0]?.vehiclePlan?.length
+              } Plan`}
+        </h2>
+
+        <div className="w-full pb-2">
+          <VehiclePlan
+            collectedData={collectedData}
+            data={
+              (id && vehicleMaster && vehicleMaster[0]?.vehiclePlan) || null
+            }
+          />
+        </div>
+      </div>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
         <>
-          <h2 className="font-bold">Select Package</h2>
-          <div className="w-full flex items-center gap-2.5 pb-3 border-b-2">
-            {collectedData?.AllPlanDataId?.length > 0 ? (
-              collectedData?.AllPlanDataId.map((plan) => (
-                <div key={plan?._id}>
-                  <label
-                    className="inline-flex items-center"
-                    htmlFor="redCheckBox"
-                  >
-                    <input
-                      id="redCheckBox"
-                      type="checkbox"
-                      className="w-4 h-4 accent-red-600"
-                      onClick={() => handlePushId(plan?._id)}
-                    />
-                    <span className="ml-2">{plan?.planName}</span>
-                  </label>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400 italic capitalize">
-                no package found.
-              </p>
-            )}
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"locationId"}
-              options={collectedData?.locationId}
-              value={id && vehicleMaster[0]?.locationId}
-              setIsLocationSelected={setIsLocationSelected}
+          {userStation ? (
+            <input
+              type="hidden"
+              name="locationId"
+              value={userStation?.locationId}
             />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"stationId"}
-              options={stationData && stationData}
-              value={id && vehicleMaster[0]?.stationId}
+          ) : (
+            <div className="w-full lg:w-[48%]">
+              <SelectDropDown
+                item={"locationId"}
+                options={collectedData?.locationId}
+                value={id && vehicleMaster[0]?.locationId}
+                setIsLocationSelected={setIsLocationSelected}
+                require={true}
+              />
+            </div>
+          )}
+          {userStation ? (
+            <input
+              type="hidden"
+              name="stationId"
+              value={userStation?.stationId}
             />
-          </div>
+          ) : (
+            <div className="w-full lg:w-[48%]">
+              <SelectDropDown
+                item={"stationId"}
+                options={stationData && stationData}
+                value={id && vehicleMaster[0]?.stationId}
+                require={true}
+              />
+            </div>
+          )}
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"vehicleMasterId"}
               options={collectedData?.vehicleMasterId}
               value={id && vehicleMaster[0]?.vehicleMasterId}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
               item={"vehicleNumber"}
               value={id && vehicleMaster[0]?.vehicleNumber}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -130,6 +153,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"freeKms"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.freeKms) : 100}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -137,6 +161,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"extraKmsCharges"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.extraKmsCharges) : 15}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -144,13 +169,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"vehicleModel"}
               options={tenYearBeforeCurrentYear()}
               value={id && vehicleMaster[0]?.vehicleModel}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"vehicleColor"}
-              options={vehicleColor}
-              value={id && vehicleMaster[0]?.vehicleColor}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -158,6 +177,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"perDayCost"}
               type="number"
               value={id && Number(vehicleMaster[0]?.perDayCost)}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -165,13 +185,23 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"lastServiceDate"}
               type="date"
               value={id && vehicleMaster[0]?.lastServiceDate}
+              require={true}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"lastMeterReading"}
+              type="number"
+              value={id && vehicleMaster[0]?.lastMeterReading}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
               item={"kmsRun"}
               type="number"
-              value={id && Number(vehicleMaster[0]?.kmsRun)}
+              value={id ? Number(vehicleMaster[0]?.kmsRun) : 1000}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -179,6 +209,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"refundableDeposit"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.refundableDeposit) : 1000}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -186,6 +217,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"lateFee"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.lateFee) : 100}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -193,13 +225,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"speedLimit"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.speedLimit) : 60}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"isBooked"}
-              options={["true", "false"]}
-              value={id ? vehicleMaster[0]?.isBooked : "false"}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -207,6 +233,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"condition"}
               options={["new", "old"]}
               value={id && vehicleMaster[0]?.condition}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -214,6 +241,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"vehicleBookingStatus"}
               options={["available", "booked"]}
               value={id ? vehicleMaster[0]?.vehicleBookingStatus : "available"}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -221,6 +249,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               item={"vehicleStatus"}
               options={["active", "inActive"]}
               value={id ? vehicleMaster[0]?.vehicleStatus : "active"}
+              require={true}
             />
           </div>
         </>
@@ -230,7 +259,13 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           type="submit"
           disabled={loading}
         >
-          {loading ? <Spinner message={"uploading"} /> : "Publish"}
+          {loading ? (
+            <Spinner message={"uploading"} />
+          ) : id ? (
+            "Update"
+          ) : (
+            "Add New"
+          )}
         </button>
       </div>
     </form>

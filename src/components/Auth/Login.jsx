@@ -1,31 +1,44 @@
-import { useEffect, useState } from "react";
+import { lazy, useRef, useState } from "react";
 import Alert from "../Alert/Alert";
 import loginImage from "../../assets/logo/login.svg";
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
-import { useNavigate } from "react-router-dom";
-// import { isValidEmail } from "../../utils";
+import { Navigate, useNavigate } from "react-router-dom";
 import { handleOtpLogin } from "../../Data/Function";
+import webLogo from "../../assets/logo/rento-logo.png";
+import { tableIcons } from "../../Data/Icons";
+import { toggleForgetPasswordModal } from "../../Redux/SideBarSlice/SideBarSlice";
+const ForgetPasswordModal = lazy(() =>
+  import("../../components/Modal/ForgetPasswordModal.jsx")
+);
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { message, type } = useSelector((state) => state.error);
   const { token } = useSelector((state) => state.user);
+  const [isPasswordTextActive, setIsPasswordTextActive] = useState(false);
+  const passwordRef = useRef(null);
 
-  //if user is already login than don't let user to come to this page
-  useEffect(() => {
-    if (token != null) {
-      navigate("/dashboard");
+  // change the type of password to type
+  const handleChangeType = () => {
+    if (passwordRef && passwordRef.current.type === "password") {
+      passwordRef.current.type = "text";
+      setIsPasswordTextActive(true);
+    } else {
+      passwordRef.current.type = "password";
+      setIsPasswordTextActive(false);
     }
-  }, []);
+  };
 
-  return (
+  return token !== null ? (
+    <Navigate to="/dashboard" />
+  ) : (
     <div className="min-h-screen login relative">
       {/* alert or error showing  */}
       {message && <Alert error={message} errorType={type} />}
+      <ForgetPasswordModal />
       {/* login  */}
       <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen bg-gradient-to-t from-theme-dark from-20% via-theme via-40% to-theme-seconday-dark to-90% rounded-bl-[18rem] lg:bg-none">
         {/* login image section */}
@@ -42,18 +55,18 @@ const Login = () => {
         {/* login from section  */}
         <div className="flex flex-col items-center justify-center min-h-screen">
           <div className="w-[90%] lg:w-[65%]">
-            {/* <div className="flex flex-col items-center justify-center lg:hidden mb-5">
+            <div className="flex flex-col items-center justify-center lg:hidden mb-5">
               <img
                 src={webLogo}
-                className="w-32 mx-auto mb-5 drop-shadow-2xl"
+                className="w-28 p-1 bg-gray-100 rounded-full mx-auto mb-3 drop-shadow-2xl"
                 alt="LOGO"
               />
-            </div> */}
+            </div>
             <div className="mb-8">
-              <h1 className="text-4xl font-black uppercase text-gray-100 lg:text-black mb-2">
-                Welcome to <span className="lg:text-theme">Rento</span>
+              <h1 className="text-2xl lg:text-4xl font-black uppercase text-gray-100 lg:text-black mb-2">
+                Welcome to <span className="lg:text-theme">Rento Bikes.</span>
               </h1>
-              <p className="capitalize text-gray-200 lg:text-gray-400">
+              <p className="capitalize text-xs lg:text-sm text-gray-200 lg:text-gray-400">
                 Welcome back! Please enter your credentials to continue.
               </p>
             </div>
@@ -67,65 +80,58 @@ const Login = () => {
                 <div className="mb-5">
                   <div className="relative mt-2 text-gray-100 lg:text-gray-500">
                     <div className="absolute inset-y-0 left-3 my-auto h-6 flex items-center border-r pr-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="22"
-                        height="22"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="stroke-gray-100 lg:stroke-gray-500"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="4"></circle>
-                        <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
-                      </svg>
+                      {tableIcons.email}
                     </div>
                     <input
                       type="email"
                       placeholder="someone@example.com"
                       name="email"
                       id="email"
-                      className="w-full pl-[3.4rem] pr-4 py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 outline-none rounded-lg placeholder-gray-100 lg:placeholder-gray-400"
+                      className="w-full pl-[3.4rem] pr-4 py-2.5 lg:py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 outline-none rounded-lg placeholder-gray-100 lg:placeholder-gray-400 autofill:bg-autofill-bg autofill:text-autofill-text"
                       onChange={(e) => e.target.value}
                       autoComplete="off"
                       required
                     />
                   </div>
                 </div>
-                <div className="mb-8">
+                <div className="mb-4">
                   <div className="relative mt-2 text-gray-100 lg:text-gray-500">
                     <div className="absolute inset-y-0 left-3 my-auto h-6 flex items-center border-r pr-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="22"
-                        height="22"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="stroke-gray-100 lg:stroke-gray-500"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
+                      {tableIcons.lock}
                     </div>
                     <input
                       type="password"
                       placeholder="************"
                       name="password"
                       id="password"
-                      className="w-full pl-[3.4rem] pr-4 py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 outline-none rounded-lg placeholder-gray-100 lg:placeholder-gray-400"
+                      className="w-full pl-[3.4rem] pr-4 py-2.5 lg:py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 outline-none rounded-lg placeholder-gray-100 lg:placeholder-gray-400 autofill:bg-autofill-bg autofill:text-autofill-text"
                       onChange={(e) => e.target.value}
+                      ref={passwordRef}
                       required
                     />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-3 my-auto h-6 flex items-center pr-2"
+                      onClick={handleChangeType}
+                    >
+                      {!isPasswordTextActive
+                        ? tableIcons.eyeClose
+                        : tableIcons.eyeOpen}
+                    </button>
                   </div>
+                </div>
+                <div className="mb-4 text-end">
+                  <button
+                    type="button"
+                    className="text-gray-100 lg:text-theme hover:underline transition-all duration-200 ease-in-out"
+                    onClick={() => dispatch(toggleForgetPasswordModal())}
+                  >
+                    Forget Password?
+                  </button>
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-theme-dark lg:bg-theme py-3.5 px-6 rounded-lg text-white uppercase hover:bg-theme-dark transition duration-200 ease-in-out disabled:bg-gray-500 outline-none"
+                  className="w-full border border-gray-100 lg:border-none bg-transparent lg:bg-theme py-2.5 lg:py-3.5 px-6 rounded-lg text-white uppercase hover:bg-theme-dark transition duration-200 ease-in-out disabled:bg-gray-500 disabled:bg-opacity-40 outline-none"
                   disabled={loading}
                 >
                   {loading ? <Spinner message={"Signing In.."} /> : "Sign In"}

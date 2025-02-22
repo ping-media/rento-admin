@@ -1,48 +1,143 @@
 import { useDispatch, useSelector } from "react-redux";
 import { togglePickupImageModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useState } from "react";
-import MultipleImageAndPreview from "../ImageComponent/MultipleImageAndPreview";
-import InputSearch from "../InputAndDropdown/InputSearch";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { postMultipleData } from "../../Data";
+import { postData, postMultipleData } from "../../Data";
 import Spinner from "../Spinner/Spinner";
+import {
+  handleInvoiceCreated,
+  // removeTempVehicleData,
+  updateTimeLineData,
+} from "../../Redux/VehicleSlice/VehicleSlice";
+import Input from "../InputAndDropdown/Input";
+import { useNavigate } from "react-router-dom";
+import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
+import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 
-const UploadPickupImageModal = () => {
+const UploadPickupImageModal = ({
+  isBookingIdPresent = false,
+  isChange,
+  setIsChange,
+}) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const { token } = useSelector((state) => state.user);
+  const { tempVehicleData, vehicleMaster } = useSelector(
+    (state) => state.vehicles
+  );
   const dispatch = useDispatch();
-  const [imagesUrl, setImageUrl] = useState([]);
-  const [image, setImage] = useState([]);
+  const navigate = useNavigate();
+  const [imagesUrl, setImageUrl] = useState({
+    vehicleFront: "",
+    vehicleLeft: "",
+    vehicleRight: "",
+    vehicleBack: "",
+    odoMeterReading: "",
+    others: "",
+  });
+  const [image, setImage] = useState({
+    vehicleFront: null,
+    vehicleLeft: null,
+    vehicleRight: null,
+    vehicleBack: null,
+    odoMeterReading: null,
+    others: null,
+  });
   const [loading, setLoading] = useState(false);
+  const [isKycApproved, setIsKycApproved] = useState(false);
 
+  //upload images
   const handleUploadPickupImages = async (event) => {
     event.preventDefault();
-    const formData = new FormData();
-    const images = Array.from(event.target.elements.images?.files || []);
-    const formElements = event.target.elements;
-    const userId = formElements?.userId[0]?.value;
+    // checking whether all images are present or not
+    const isAnyImageMissing = Object.values(imagesUrl).some(
+      (value) => value === ""
+    );
+    if (isAnyImageMissing)
+      return handleAsyncError(dispatch, "All Images Required!.");
+    // if present than continue the rest
+    const formData = new FormData(event.target);
+    if (!tempVehicleData)
+      return handleAsyncError(dispatch, "All fields required.");
 
-    if (!userId)
-      return handleAsyncError(dispatch, "unable to upload! try again.");
+    formData.append("userId", tempVehicleData?.userId?._id);
+    formData.append("bookingId", tempVehicleData?.bookingId);
+    formData.append("_id", tempVehicleData?._id);
+    // formData.append("currentBooking_id", tempVehicleData?._id);
 
-    formData.append("userId", userId);
-
-    if (images.length > 0) {
-      // Append images to the FormData
-      images.forEach((file) => {
-        formData.append("images", file);
-      });
+    let hasFiles = false;
+    for (let value of formData.values()) {
+      if (value instanceof File) {
+        hasFiles = true;
+        break;
+      }
     }
-
-    if (!formData.has("images")) {
+    if (!hasFiles) {
       return handleAsyncError(
         dispatch,
         "Unable to upload! No images provided."
       );
     }
 
+    // changing the data based on id is present or not
+    let currentData = !isBookingIdPresent ? vehicleMaster?.data : vehicleMaster;
+
+    let currentBooking = currentData?.find(
+      (item) => item?._id == tempVehicleData?._id
+    );
+
+    // for paymentmethod update in booking price
+    const updatePaymentMode =
+      formData.get("PaymentMode") ||
+      currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
+
+    let updatedBooking;
+
+    if (isChange === true) {
+      // updatedBooking = {
+      //   ...currentBooking,
+      //   bookingPrice: {
+      //     ...currentBooking.bookingPrice,
+      //     isPickupImageAdded: true,
+      //     diffAmount: [
+      //       ...currentBooking?.bookingPrice?.diffAmount,
+      //       {
+      //         ...currentBooking?.bookingPrice?.diffAmount,
+      //         status: "paid",
+      //       },
+      //     ],
+      //   },
+      // };
+      // for hiding the finish button and show update ride button
+      setIsChange && setIsChange(false);
+    } else {
+      updatedBooking = {
+        ...currentBooking,
+        bookingPrice: {
+          ...currentBooking.bookingPrice,
+          isPickupImageAdded: true,
+          AmountLeftAfterUserPaid: {
+            ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
+            status: "paid",
+            paymentMethod:
+              updatePaymentMode ||
+              currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
+                ?.paymentMethod,
+          },
+        },
+        paymentStatus: "paid",
+        rideStatus: "ongoing",
+      };
+    }
+
     setLoading(true);
     try {
+      if (isChange && isChange === true) {
+        formData.append(
+          "vehicleNumber",
+          currentBooking?.vehicleBasic?.vehicleNumber
+        );
+        formData.append("isVehicleUpdate", true);
+      }
       const responseImage = await postMultipleData(
         "/pickupImage",
         formData,
@@ -53,36 +148,83 @@ const UploadPickupImageModal = () => {
         setImage([]);
         setImageUrl([]);
         dispatch(togglePickupImageModal());
+        // updating booking data
+        updatedBooking = {
+          ...updatedBooking,
+          vehicleBasic: {
+            ...updatedBooking?.vehicleBasic,
+            endRide: responseImage?.endOtp || 0,
+          },
+        };
+        dispatch(handleInvoiceCreated(updatedBooking));
+        // updating the timeline for booking
+        const timeLineData = {
+          currentBooking_id: vehicleMaster && vehicleMaster[0]?._id,
+          timeLine: [
+            {
+              title:
+                isChange && isChange === true ? "Ride Updated" : "Ride Started",
+              date: new Date().toLocaleString(),
+              vehicleName: vehicleMaster[0]?.vehicleName,
+              vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
+            },
+          ],
+        };
+        postData("/createTimeline", timeLineData, token);
+        // for updating timeline redux data
+        dispatch(updateTimeLineData(timeLineData));
         handleAsyncError(dispatch, responseImage?.message, "success");
       } else {
+        if (responseImage?.isKyc === false) {
+          setIsKycApproved(true);
+        }
         handleAsyncError(dispatch, responseImage?.message);
       }
     } catch (error) {
       handleAsyncError(dispatch, error?.message);
     } finally {
+      setIsChange(false);
       setLoading(false);
     }
   };
 
   //   close modal and clear value
   const handleClearAndClose = () => {
-    setImage([]);
-    setImageUrl([]);
+    // dispatch(removeTempVehicleData());
+    setIsChange(false);
     return dispatch(togglePickupImageModal());
   };
+
+  // close modal and send to kyc page
+  const handleCloseModalAndVerifyUser = (id) => {
+    setIsChange(false);
+    dispatch(togglePickupImageModal());
+    return navigate(`/all-users/${id}`);
+  };
+
+  // for giving different title to image modal
+  const rideVehicleImages = [
+    { title: "vehicleFront" },
+    { title: "vehicleLeft" },
+    { title: "vehicleRight" },
+    { title: "vehicleBack" },
+    { title: "odoMeterReading" },
+    { title: "others" },
+  ];
 
   return (
     <div
       className={`fixed ${
         !isUploadPickupImageActive ? "hidden" : ""
-      } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
+      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-xl">
+      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white max-w-xl">
         <div className="flex justify-end p-2">
           <button
             onClick={handleClearAndClose}
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+            disabled={loading}
           >
             <svg
               className="w-5 h-5"
@@ -100,35 +242,98 @@ const UploadPickupImageModal = () => {
         </div>
 
         <div className="p-6 pt-0 text-center">
-          <form onSubmit={handleUploadPickupImages}>
-            <div className="text-left mb-5">
-              <InputSearch item={"User"} name={"userId"} token={token} />
-            </div>
+          <form
+            onSubmit={handleUploadPickupImages}
+            className="lg:h-[30rem] overflow-y-hidden overflow-y-scroll px-0 lg:px-2"
+          >
+            {isKycApproved && (
+              <div className="flex items-center justify-end gap-2 mb-2">
+                <p className="text-gray-400">User KYC is Pending:</p>
+                <button
+                  type="button"
+                  className="text-theme underline"
+                  onClick={() =>
+                    handleCloseModalAndVerifyUser(vehicleMaster[0]?.userId?._id)
+                  }
+                >
+                  Verify KYC
+                </button>
+              </div>
+            )}
             <div>
-              <MultipleImageAndPreview
-                image={image}
-                setImageChanger={setImage}
-                imagesUrl={imagesUrl}
-                setImageUrlChanger={setImageUrl}
-              />
               {imagesUrl && imagesUrl?.length > 6 && (
                 <p className="text-theme text-sm text-left">
                   Max Upload Limit is 6 Images
                 </p>
               )}
             </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-2">
+              {rideVehicleImages.map((item, index) => (
+                <div key={index}>
+                  <ImageUploadAndPreview
+                    title={item?.title}
+                    image={image[item?.title]}
+                    setImageMultiChanger={setImage}
+                    imagesUrl={imagesUrl[item?.title]}
+                    setImageUrlMultiChanger={setImageUrl}
+                    name="images"
+                  />
+                </div>
+              ))}
+            </div>
+            {(vehicleMaster[0]?.paymentStatus === "partially_paid" ||
+              vehicleMaster[0]?.paymentStatus === "partiallyPay") && (
+              <div className="flex items-center flex-wrap gap-4 mb-3">
+                <input
+                  type="hidden"
+                  value={vehicleMaster[0]?.paymentStatus}
+                  name="paymentStatus"
+                />
+                <div className="w-full lg:w-[48%]">
+                  <Input
+                    type="number"
+                    value={
+                      vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid
+                        ?.amount
+                    }
+                    item="remainingPayment"
+                    require={true}
+                    disabled={true}
+                  />
+                </div>
+                <div className="w-full lg:w-[48%]">
+                  <SelectDropDown
+                    options={["cash", "online"]}
+                    item="PaymentMode"
+                    require={true}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="flex items-center flex-wrap gap-4 mb-3">
+              <div className="w-full lg:w-[48%]">
+                <Input type="number" item="startMeterReading" require={true} />
+              </div>
+              {isChange && isChange !== false && (
+                <div className="w-full lg:w-[48%]">
+                  <Input
+                    type="number"
+                    item="EndMeterReading"
+                    name="oldVehicleEndMeterReading"
+                    require={true}
+                  />
+                </div>
+              )}
+              <div className="w-full lg:w-[48%]">
+                <Input type="number" item="rideOtp" require={true} />
+              </div>
+            </div>
             <button
               className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
               type="submit"
-              disabled={
-                loading || imagesUrl.length == 0 || imagesUrl.length > 6
-              }
+              disabled={loading}
             >
-              {!loading ? (
-                "Upload Images"
-              ) : (
-                <Spinner message={"uploading..."} />
-              )}
+              {!loading ? "Start Ride" : <Spinner message={"updating..."} />}
             </button>
           </form>
         </div>

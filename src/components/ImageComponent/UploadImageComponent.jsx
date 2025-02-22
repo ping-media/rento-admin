@@ -1,7 +1,11 @@
-const UploadImageComponent = () => {
+const UploadImageComponent = ({ loading }) => {
   return (
     <>
-      <label htmlFor="ImageInput" className="cursor-pointer w-full">
+      <label
+        htmlFor="ImageInput"
+        className="cursor-pointer w-full"
+        aria-disabled={loading}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"

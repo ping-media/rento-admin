@@ -7,11 +7,11 @@ import { deleteData, postData } from "../../Data";
 import { endPointBasedOnURL } from "../../Data/commonData";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { restDeletevehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
-// import { modifyUrl } from "../../utils";
 
 const DeleteModal = () => {
   const dispatch = useDispatch();
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { deletevehicleId } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
 
@@ -20,6 +20,16 @@ const DeleteModal = () => {
     let result;
     if (deletevehicleId) {
       result = { _id: deletevehicleId, deleteRec: "true" };
+      // add bookingId to data only in invoice page
+      if (location.pathname === "/all-invoices") {
+        const data = vehicleMaster?.data;
+        if (data?.length > 0) {
+          const selectedData = data.find(
+            (item) => item._id === deletevehicleId
+          );
+          result = { ...result, bookingID: selectedData?.bookingId };
+        }
+      }
     }
 
     try {
@@ -60,7 +70,7 @@ const DeleteModal = () => {
     <div
       className={`fixed ${
         !isDeleteModalActive ? "hidden" : ""
-      } z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
+      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-40 mx-auto shadow-xl rounded-md bg-white max-w-md">
         <div className="flex justify-end p-2">

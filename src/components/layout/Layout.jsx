@@ -1,16 +1,25 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef, useState } from "react";
+import { lazy, useEffect, useRef, useState } from "react";
 import Header from "../Header/Header";
 import SideBar from "../SideBar/SideBar";
 import Alert from "../Alert/Alert";
-import SignOutModal from "../Modal/SignOutModal";
-import DeleteModal from "../Modal/DeleteModal";
 import ScrollToTopButton from "../ScrollButton/ScrollToTopButton";
 import PreLoader from "../Skeleton/PreLoader";
-import { handleCurrentUser } from "../../Redux/UserSlice/UserSlice";
+import {
+  handleCurrentUser,
+  handleSignOut,
+} from "../../Redux/UserSlice/UserSlice";
 import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
-import { removeTempIds } from "../../Redux/VehicleSlice/VehicleSlice";
+import {
+  handleIsHeaderChecked,
+  removeTempIds,
+  // restvehicleMaster,
+} from "../../Redux/VehicleSlice/VehicleSlice";
+import { handleLogoutUser, validateUser } from "../../Data/Function";
+// modals
+const SignOutModal = lazy(() => import("../Modal/SignOutModal"));
+const DeleteModal = lazy(() => import("../Modal/DeleteModal"));
 
 const Layout = () => {
   const dispatch = useDispatch();
@@ -21,7 +30,9 @@ const Layout = () => {
   const { is_open } = useSelector((state) => state.sideBar);
   const mainRef = useRef(null);
   const [visible, setVisible] = useState(false);
-  const { token, user, loading } = useSelector((state) => state.user);
+  const { currentUser, token, user, loading } = useSelector(
+    (state) => state.user
+  );
 
   //scrolltotop function
   const handleScrollToTop = () => {
@@ -58,10 +69,20 @@ const Layout = () => {
     }
   }, []);
 
-  //need to reset the page and limit when every user change page
+  // if user is not found or inactive then logout for first time
+  useEffect(() => {
+    (async () => {
+      if (currentUser && currentUser?.userType === "customer")
+        return dispatch(handleSignOut());
+      await validateUser(token, handleLogoutUser, dispatch);
+    })();
+  }, []);
+
+  //need to reset some value when ever user change page
   useEffect(() => {
     dispatch(handleRestPagination());
     dispatch(removeTempIds());
+    dispatch(handleIsHeaderChecked(false));
   }, [location.href]);
 
   return !loading ? (

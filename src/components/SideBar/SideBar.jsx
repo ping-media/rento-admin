@@ -12,8 +12,7 @@ const SideBar = () => {
   const dispatch = useDispatch();
   const isMobile = useIsMobile();
   const { is_open } = useSelector((state) => state.sideBar);
-  const { theme } = useSelector((state) => state.theme);
-  // const [imageLoading, setImageLoading] = useState(true);
+  const { loggedInRole } = useSelector((state) => state.user);
 
   useEffect(() => {
     if (isMobile) {
@@ -25,7 +24,6 @@ const SideBar = () => {
 
   return (
     <div className="shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200">
-      {/* <div className="shadow-lg min-h-screen dark:shadow-gray-500 bg-theme-seconday-dark"> */}
       {/* close button  */}
       <div className="lg:hidden float-right px-5 py-4">
         <button
@@ -58,54 +56,67 @@ const SideBar = () => {
             alt="RENTO_BIKES"
           />
         </div>
-        {/* <h2 className="uppercase font-black text-3xl lg:text-4xl text-theme text-center">
-          Rento
-        </h2> */}
       </div>
       <div
-        className="px-3.5 py-3 overflow-y-scroll no-scrollbar"
+        className="px-3.5 py-3 overflow-y-scroll no-scrollbar w-full"
         style={{ height: "calc(100vh - 88px)" }}
       >
         <ul className="leading-9">
-          {menuList.map((item, index) => {
-            if (item.nestedLink) {
-              return <SideBarDropDown item={item} key={index} />;
-            } else {
-              return (
-                <Link to={`${item?.menuLink}`} key={index}>
-                  <li
-                    className={`px-4 py-1 group capitalize text-md ${
-                      location.pathname.includes(
-                        item?.menuLink.toLowerCase()
-                      ) ||
-                      location.pathname.includes(item?.moreLink?.toLowerCase())
-                        ? "bg-theme text-gray-100"
-                        : ""
-                    } hover:bg-theme transition duration-300 ease-in-out rounded-md flex items-center gap-2 mb-2 dark:text-gray-100`}
-                  >
-                    <div
-                      className={`w-7 h-7 group-hover:text-gray-100 text-lg ${
+          {menuList
+            .filter((item) => {
+              // Replace "userRole" with the actual role of the logged-in user
+              if (item.roles?.includes(loggedInRole)) {
+                if (item.nestedLink) {
+                  // Filter nested links as well
+                  item.nestedLink = item.nestedLink.filter((nestedItem) =>
+                    nestedItem.roles?.includes(loggedInRole)
+                  );
+                }
+                return true;
+              }
+              return false;
+            })
+            .map((item, index) => {
+              if (item.nestedLink) {
+                return <SideBarDropDown item={item} key={index} />;
+              } else {
+                return (
+                  <Link to={`${item?.menuLink}`} key={index}>
+                    <li
+                      className={`px-4 py-1.5 group capitalize text-sm ${
                         location.pathname.includes(
-                          item?.menuLink?.toLowerCase()
+                          item?.menuLink.toLowerCase()
                         ) ||
                         location.pathname.includes(
                           item?.moreLink?.toLowerCase()
                         )
-                          ? "text-gray-100"
+                          ? "bg-theme text-gray-100"
                           : ""
-                      }`}
+                      } hover:bg-theme transition duration-300 ease-in-out rounded-md flex items-center gap-1 mb-2 dark:text-gray-100`}
                     >
-                      {/* menuItem icon  */}
-                      {item?.menuImg}
-                    </div>
-                    <span className="group-hover:text-gray-100">
-                      {item?.menuTitle}
-                    </span>
-                  </li>
-                </Link>
-              );
-            }
-          })}
+                      <div
+                        className={`w-7 h-7 group-hover:text-gray-100 text-sm ${
+                          location.pathname.includes(
+                            item?.menuLink?.toLowerCase()
+                          ) ||
+                          location.pathname.includes(
+                            item?.moreLink?.toLowerCase()
+                          )
+                            ? "text-gray-100"
+                            : ""
+                        }`}
+                      >
+                        {/* menuItem icon  */}
+                        {item?.menuImg}
+                      </div>
+                      <span className="group-hover:text-gray-100">
+                        {item?.menuTitle}
+                      </span>
+                    </li>
+                  </Link>
+                );
+              }
+            })}
         </ul>
       </div>
     </div>

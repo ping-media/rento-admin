@@ -1,99 +1,82 @@
-import CustomTable from "../components/Table/CustomTable";
-import { formatPathNameToTitle } from "../utils";
-import { lazy, useEffect } from "react";
+import { lazy, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVehicleMasterWithPagination } from "../Data/Function";
-import PreLoader from "../components/Skeleton/PreLoader";
 import { endPointBasedOnURL } from "../Data/commonData";
-import { Link } from "react-router-dom";
 import CustomTableComponent from "../components/Table/DataTable";
-import { togglePickupImageModal } from "../Redux/SideBarSlice/SideBarSlice";
-const UploadPickupImageModal = lazy(() =>
-  import("../components/Modal/UploadPickupImageModal")
-);
+import {
+  removeTempIds,
+  restvehicleMaster,
+} from "../Redux/VehicleSlice/VehicleSlice";
+import {
+  handleRestPagination,
+  handleRestSearchTerm,
+} from "../Redux/PaginationSlice/PaginationSlice";
+const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
 
 const VehicleMaster = () => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
-  const { vehicleMaster, loading, deletevehicleId } = useSelector(
+  const { vehicleMaster, deletevehicleId, tempLoading, loading } = useSelector(
     (state) => state.vehicles
   );
-  const { page, limit } = useSelector((state) => state.pagination);
+  const { page, limit, searchTerm } = useSelector((state) => state.pagination);
+  const { loggedInRole, userStation } = useSelector((state) => state.user);
+
+  const searchBasedOnPage = useMemo(() => {
+    //this is  for usertype
+    if (location.pathname === "/all-users") return "userType=customer";
+    if (location.pathname === "/all-managers") return "userType=manager";
+    // this is for user role
+    if (loggedInRole !== "" && loggedInRole === "manager") {
+      return `stationId=${userStation?.stationId}`;
+    }
+    return "";
+  }, [location.pathname]);
 
   useEffect(() => {
-    // fetch data based on url
-    if (deletevehicleId == "") {
+    if (!tempLoading?.loading && deletevehicleId === "") {
       fetchVehicleMasterWithPagination(
         dispatch,
         token,
         endPointBasedOnURL[location.pathname.replace("/", "")],
+        searchTerm,
         page,
-        limit
+        limit,
+        searchBasedOnPage
       );
     }
-  }, [location.pathname, deletevehicleId, page, limit]);
+  }, [
+    location.pathname,
+    deletevehicleId,
+    page,
+    limit,
+    searchTerm,
+    tempLoading?.loading,
+    dispatch,
+    token,
+    endPointBasedOnURL,
+    searchBasedOnPage,
+  ]);
 
-  return !loading ? (
+  // clear data after page change
+  useEffect(() => {
+    dispatch(restvehicleMaster());
+    dispatch(handleRestPagination());
+    dispatch(removeTempIds());
+  }, [location.href]);
+
+  return (
     <>
-      <div
-        className={`flex flex-wrap items-center ${
-          formatPathNameToTitle(location.pathname)
-            ? "justify-between"
-            : "justify-end"
-        } mt-5 gap-4`}
-      >
-        {/* show this modal on specific page  */}
-        {location.pathname == "/all-pickup-image" && <UploadPickupImageModal />}
-
-        {!(
-          location.pathname == "/payments" ||
-          location.pathname == "/all-invoices" ||
-          location.pathname == "/users-documents"
-        ) && (
-          <div className="flex items-center justify-between gap-2 w-full">
-            <h1 className="text-xl xl:text-2xl uppercase font-bold text-theme">
-              {formatPathNameToTitle(location.pathname)}
-            </h1>
-
-            <Link
-              className="bg-theme font-semibold text-gray-100 px-4 lg:px-6 py-2.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
-              to={location.pathname != "/all-pickup-image" ? "add-new" : "#"}
-              onClick={() =>
-                location.pathname == "/all-pickup-image" &&
-                dispatch(togglePickupImageModal())
-              }
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="stroke-gray-100"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              Add new
-            </Link>
-          </div>
-        )}
-      </div>
-      {console.log(vehicleMaster)}
-      {/* <CustomTable
-        Data={vehicleMaster?.data}
-        pagination={vehicleMaster?.pagination}
-      /> */}
+      {/* filters and sorting  */}
+      <FilterSideBar />
+      {/* table data  */}
       <CustomTableComponent
         Data={vehicleMaster?.data}
         pagination={vehicleMaster?.pagination}
+        searchTermQuery={searchTerm}
+        dataLoading={loading}
       />
     </>
-  ) : (
-    <PreLoader />
   );
 };
 

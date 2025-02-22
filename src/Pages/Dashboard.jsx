@@ -17,88 +17,99 @@ import {
   BookmarkBorderRounded,
   ArticleRounded,
 } from "@mui/icons-material";
+import { useMediaQuery } from "@mui/material";
 import NotFound from "./NotFound";
-import PieChart from "../components/charts/PieChart";
 
 const Dashboard = () => {
   const { dasboardDataCount, loading } = useSelector(
     (state) => state.dashboard
   );
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole, userStation } = useSelector(
+    (state) => state.user
+  );
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dataCountResult, setDataCountResult] = useState([]);
   const dispatch = useDispatch();
 
   //fetching dashboard data
   useEffect(() => {
+    // for manager role
+    const roleBaseFilter =
+      loggedInRole === "manager" ? `?stationId=${userStation?.stationId}` : "";
     if (token) {
-      fetchDashboardData(dispatch, token);
+      fetchDashboardData(dispatch, token, roleBaseFilter);
     }
   }, []);
 
   //binding fetched data
   useEffect(() => {
     if (dasboardDataCount) {
+      setDashboardLoading(true);
       let dataCount = Object.keys(dasboardDataCount?.dashboard).map((key) => {
         return {
           count: dasboardDataCount?.dashboard[key],
-          title: "TOTAL " + key.substring(0, key.length - 5).toUpperCase(),
-          link: "/all-" + key.substring(0, key.length - 5),
+          title:
+            "TOTAL " +
+            (key !== "Amount"
+              ? key.substring(0, key.length - 5).toUpperCase()
+              : "PAYMENTS"),
+          link:
+            key !== "Amount"
+              ? key === "locationCount" || key === "stationsCount"
+                ? key === "stationsCount"
+                  ? "/" + key.substring(0, key.length - 6) + "-master"
+                  : "/" + key.substring(0, key.length - 5) + "-master"
+                : "/all-" + key.substring(0, key.length - 5)
+              : "/payments",
           icon:
             key == "usersCount" ? (
-              <PersonRounded fontSize="large" />
+              <PersonRounded fontSize={isMobile ? "medium" : "large"} />
             ) : key == "bookingsCount" ? (
-              <BookOnlineRounded fontSize="large" />
+              <BookOnlineRounded fontSize={isMobile ? "medium" : "large"} />
             ) : key == "vehiclesCount" ? (
-              <DirectionsCarRounded fontSize="large" />
+              <DirectionsCarRounded fontSize={isMobile ? "medium" : "large"} />
             ) : key == "locationCount" ? (
-              <LocationOnRounded fontSize="large" />
+              <LocationOnRounded fontSize={isMobile ? "medium" : "large"} />
             ) : key == "stationsCount" ? (
-              <DockRounded fontSize="large" />
+              <DockRounded fontSize={isMobile ? "medium" : "large"} />
             ) : key == "couponsCount" ? (
-              <DiscountRounded fontSize="large" />
+              <DiscountRounded fontSize={isMobile ? "medium" : "large"} />
             ) : key == "invoicesCount" ? (
-              <ReceiptRounded fontSize="large" />
+              <ReceiptRounded fontSize={isMobile ? "medium" : "large"} />
             ) : key == "plansCount" ? (
-              <ArticleRounded fontSize="large" />
+              <ArticleRounded fontSize={isMobile ? "medium" : "large"} />
             ) : key == "ordersCount" ? (
-              <BookmarkBorderRounded fontSize="large" />
+              <BookmarkBorderRounded fontSize={isMobile ? "medium" : "large"} />
             ) : (
-              <GroupRounded fontSize="large" />
+              <GroupRounded fontSize={isMobile ? "medium" : "large"} />
             ),
         };
       });
       setDataCountResult(dataCount);
+      setDashboardLoading(false);
     }
   }, [dasboardDataCount]);
 
-  // console.log(dasboardDataCount);
-
-  return !loading ? (
-    dataCountResult?.length > 0 ? (
+  return !loading && !dashboardLoading ? (
+    dataCountResult && dataCountResult?.length > 0 ? (
       <>
-        <h1 className="text-2xl uppercase font-bold text-theme mb-5">
+        <h1 className="text-xl uppercase font-bold text-theme mb-5">
           Dashboard
         </h1>
-        <div className="grid gird-cols-2 lg:grid-cols-3 gap-5 mb-5">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-5">
           {dataCountResult?.map((item, index) => (
             <InfoCard key={index} item={item} />
           ))}
         </div>
-        <div className="flex items-center justify-between flex-wrap gap-6">
-          <div className="flex-1 shadow-lg p-5 rounded-2xl bg-white">
-            <h2 className="text-xl mb-3 font-semibold">Payments</h2>
-            <BarChart
-              data={dasboardDataCount && dasboardDataCount?.payments}
-              type={"bar"}
-            />
-          </div>
-          <div className="flex-1 shadow-lg p-5 rounded-2xl bg-white">
-            <h2 className="text-xl mb-3 font-semibold">Payments</h2>
-            <BarChart
-              data={dasboardDataCount && dasboardDataCount?.payments}
-              type={"bar"}
-            />
-          </div>
+        <h2 className="text-xl mb-5 font-bold uppercase text-theme">
+          Booking &amp; Payments
+        </h2>
+        <div className="shadow-lg p-3 lg:p-5 rounded-2xl bg-white">
+          <BarChart
+            data={dasboardDataCount && dasboardDataCount?.payments}
+            type={"bar"}
+          />
         </div>
       </>
     ) : (

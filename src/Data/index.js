@@ -1,52 +1,130 @@
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const getData = async (url, token) => {
+// const getData = async (url, token) => {
+//   const headers = {
+//     "Content-Type": "application/json",
+//     Accept: "application/json",
+//   };
+//   if (token) {
+//     headers["Authorization"] = `Bearer ${token}`;
+//     headers["token"] = `${token}`;
+//   }
+
+//   const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
+//     headers,
+//   });
+
+//   if (response.status == 200) {
+//     return response?.data;
+//   } else {
+//     return response?.message;
+//   }
+// };
+
+const getData = async (url, token, retries = 5, delay = 500) => {
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
     headers["token"] = `${token}`;
-  } else {
-    return "Error fetching Data. Try Again!";
   }
-  const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
-    headers,
-  });
 
-  if (response.status == 200) {
-    // console.log(response);
-    return response?.data;
-    // return response;
-  } else {
-    return response?.message;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASED_URL}${url}`,
+        {
+          headers,
+        }
+      );
+
+      if (response.status === 200) {
+        return response?.data;
+      } else {
+        throw new Error(response?.message || "Unexpected response");
+      }
+    } catch (error) {
+      if (attempt < retries) {
+        // console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      } else {
+        console.error("All retry attempts failed.");
+        const navigate = useNavigate(); // React Router navigation
+        navigate("*");
+        throw error;
+      }
+    }
   }
 };
 
-const getFullData = async (url, token) => {
+// const getFullData = async (url, token) => {
+//   const headers = {
+//     "Content-Type": "application/json",
+//     Accept: "application/json",
+//   };
+//   if (token) {
+//     headers["Authorization"] = `Bearer ${token}`;
+//     headers["token"] = `${token}`;
+//   } else {
+//     return "Error fetching Data. Try Again!";
+//   }
+//   const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
+//     headers,
+//   });
+
+//   if (response.status == 200) {
+//     return response;
+//   } else {
+//     return response?.message;
+//   }
+// };
+
+const getFullData = async (url, token, retries = 5, delay = 500) => {
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-    headers["token"] = `${token}`;
-  } else {
-    return "Error fetching Data. Try Again!";
-  }
-  const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
-    headers,
-  });
 
-  if (response.status == 200) {
-    return response;
-  } else {
-    return response?.message;
+  if (!token) {
+    return "Error fetching Data. No token provided.";
+  }
+
+  headers["Authorization"] = `Bearer ${token}`;
+  headers["token"] = `${token}`;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASED_URL}${url}`,
+        {
+          headers,
+        }
+      );
+
+      if (response.status === 200) {
+        return response;
+      } else {
+        throw new Error(response?.message || "Unexpected response");
+      }
+    } catch (error) {
+      if (attempt < retries) {
+        // console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      } else {
+        console.error("All retry attempts failed.");
+        const navigate = useNavigate(); // React Router navigation
+        navigate("*");
+        return `Error fetching Data: ${error.message}`;
+      }
+    }
   }
 };
 
-const postData = async (url, data, token) => {
+const postData = async (url, data, token, requestType = "post") => {
   try {
     let headers = {
       "Content-Type": "application/json",
@@ -65,7 +143,7 @@ const postData = async (url, data, token) => {
     }
 
     let response;
-    if (data?._id && url?.includes("update")) {
+    if ((data?._id && url?.includes("update")) || requestType === "put") {
       response = await axios.put(
         `${import.meta.env.VITE_BASED_URL}${url}`,
         data,
@@ -82,10 +160,61 @@ const postData = async (url, data, token) => {
         }
       );
     }
-    // console.log(response);
     return response?.data;
   } catch (error) {
     return `Error :${error?.message}`;
+  }
+};
+
+const postDataWithRetry = async (
+  url,
+  data,
+  token,
+  requestType = "post",
+  retries = 3
+) => {
+  let attempt = 0;
+
+  while (attempt < retries) {
+    try {
+      let headers = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      };
+
+      if (data?.isImage || data?.image || data?.images) {
+        headers = {
+          "Content-Type": "multipart/form-data",
+        };
+      }
+
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+        headers["token"] = `${token}`;
+      }
+
+      let response;
+      if ((data?._id && url?.includes("update")) || requestType === "put") {
+        response = await axios.put(
+          `${import.meta.env.VITE_BASED_URL}${url}`,
+          data,
+          { headers }
+        );
+      } else {
+        response = await axios.post(
+          `${import.meta.env.VITE_BASED_URL}${url}`,
+          data,
+          { headers }
+        );
+      }
+
+      return response?.data; // Return response if successful
+    } catch (error) {
+      attempt++;
+      if (attempt >= retries) {
+        return `Error: ${error?.message}`;
+      }
+    }
   }
 };
 
@@ -115,26 +244,23 @@ const postMultipleData = async (url, data, token) => {
   }
 };
 
-const getGeoData = async (zipCode) => {
+const deleteData = async (url) => {
   try {
-    let response = await axios.get(
-      `https://api.opencagedata.com/geocode/v1/json?q=${zipCode}&key=${
-        import.meta.env.VITE_GEO_KEY
-      }`
+    const response = await axios.delete(
+      `${import.meta.env.VITE_BASED_URL}${url}`
     );
-    // console.log(response);
     return response?.data;
   } catch (error) {
     return `Error :${error?.message}`;
   }
 };
 
-const deleteData = async (url) => {
+const deleteDataById = async (url, data) => {
   try {
-    const response = await axios.delete(
-      `${import.meta.env.VITE_BASED_URL}${url}`
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASED_URL}${url}`,
+      data
     );
-    // console.log(response);
     return response?.data;
   } catch (error) {
     return `Error :${error?.message}`;
@@ -159,12 +285,65 @@ const handleAdminLogin = async (url, data) => {
   }
 };
 
+// for creating order id
+const createOrderId = async (data) => {
+  if (!data) return "unable to process payment.";
+  const payableAmount =
+    data?.bookingPrice?.userPaid ||
+    data?.bookingPrice?.discountTotalPrice ||
+    data?.bookingPrice?.totalPrice ||
+    100;
+
+  const amount = payableAmount;
+  const options = { amount: amount, booking_id: data?.bookingId || "000000" };
+
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASED_URL}/createOrderId`,
+      options
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error(
+      "Error creating Razorpay order:",
+      error.response ? error.response.data : error.message
+    );
+  }
+};
+
+const handleSendOtp = async (
+  endpoint,
+  data,
+  token,
+  dispatch,
+  handleAsyncError,
+  setLoading
+) => {
+  try {
+    setLoading(true);
+    const response = await postData(endpoint, data, token);
+    if (response?.status === 200) {
+      return handleAsyncError(dispatch, response?.message, "success");
+    } else {
+      return handleAsyncError(dispatch, response?.message);
+    }
+  } catch (error) {
+    return handleAsyncError(dispatch, error?.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 export {
   getData,
   getFullData,
   postData,
+  postDataWithRetry,
   postMultipleData,
   handleAdminLogin,
   deleteData,
-  getGeoData,
+  deleteDataById,
+  createOrderId,
+  handleSendOtp,
 };

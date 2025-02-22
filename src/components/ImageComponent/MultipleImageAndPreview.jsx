@@ -6,11 +6,14 @@ const MultipleImageAndPreview = ({
   imagesUrl,
   setImageChanger,
   setImageUrlChanger,
+  loading,
 }) => {
   const imagesRef = useRef(null);
 
+  // change images
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
+    // console.log(files);
     if (files.length > 0) {
       const imageFiles = files.map((file) => {
         const url = URL.createObjectURL(file);
@@ -28,6 +31,7 @@ const MultipleImageAndPreview = ({
     }
   };
 
+  // remove images
   const handleRemoveImage = (index) => {
     if (!imagesUrl && !image) return;
     setImageChanger((prev) => prev.filter((_, i) => i !== index));
@@ -36,17 +40,16 @@ const MultipleImageAndPreview = ({
 
   //   for remove the images if there any left
   useEffect(() => {
-    if (imagesRef) {
+    if (imagesRef.current) {
       imagesRef.current.value = "";
     }
   }, []);
 
-  //   console.log(image, imagesUrl);
-
   return (
     <>
       <p className="block text-gray-800 font-semibold text-sm mb-2 text-left">
-        Pickup Image
+        Pickup Image{" "}
+        <span className="italic font-medium">(Max 6 Images Allowed)</span>
       </p>
       <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md px-6 py-6 md:py-5 lg:py-4 text-center mb-5">
         <input
@@ -88,7 +91,7 @@ const MultipleImageAndPreview = ({
                       <line x1="14" y1="11" x2="14" y2="17"></line>
                     </svg>
                   </button>
-                  <div className="w-full h-24 relative mx-auto">
+                  <div className="w-full h-20 relative mx-auto">
                     <img
                       src={image}
                       className="w-full h-full object-contain hover:border rounded-xl transition duration-300 ease-in-out"
@@ -98,10 +101,12 @@ const MultipleImageAndPreview = ({
                 </div>
               ))}
             </div>
-            {imagesUrl?.length < 6 && <UploadImageComponent />}
+            {imagesUrl?.length < 6 && (
+              <UploadImageComponent loading={loading} />
+            )}
           </>
         ) : (
-          <UploadImageComponent />
+          <UploadImageComponent loading={loading} />
         )}
       </div>
     </>

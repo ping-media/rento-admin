@@ -7,17 +7,28 @@ const InputSwitch = ({ value, id }) => {
   const { token } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
-  //   changing the locationStatus
+  //   changing the locationStatus or vehicleStatus
   const handleChangeStatus = async () => {
     try {
       if (!value && !id) return;
       const newStatus = value == "active" ? "inactive" : "active";
-      dispatch(handleUpdateStatus({ id: id, newStatus: newStatus }));
-      const response = await postData(
-        `/updateLocation?_id=${id}`,
-        { _id: id, locationStatus: newStatus },
-        token
-      );
+      const flag =
+        location?.pathname === "/location-master"
+          ? "locationStatus"
+          : "vehicleStatus";
+      dispatch(handleUpdateStatus({ id: id, newStatus: newStatus, flag }));
+      // creating endpoint dynamically
+      const endpoint =
+        location?.pathname === "/location-master"
+          ? `/updateLocation?_id=${id}`
+          : `/createVehicle?_id=${id}`;
+      // creating data dynamically
+      const data =
+        location?.pathname === "/location-master"
+          ? { _id: id, locationStatus: newStatus }
+          : { _id: id, vehicleStatus: newStatus };
+
+      const response = await postData(endpoint, data, token);
       if (response?.status != 200)
         return handleAsyncError(dispatch, response?.message);
     } catch (error) {

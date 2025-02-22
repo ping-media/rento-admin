@@ -1,43 +1,35 @@
-import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 import Spinner from "../Spinner/Spinner";
 import { useParams } from "react-router-dom";
-import { getData } from "../../Data";
-// import { endPointBasedOnKey } from "../../Data/commonData";
+import { useEffect, useState } from "react";
 
 const PlanForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
-  const [collectedData, setCollectedData] = useState([]);
+  const [couponCount, setCouponCount] = useState(0);
   const { id } = useParams();
-  const { token } = useSelector((state) => state.user);
 
-  const fetchCollectedData = async (userUrl) => {
-    const userResponse = await getData(userUrl, token);
-
-    if (userResponse) {
-      return setCollectedData({
-        userId: userResponse?.data,
-      });
+  // setting default value when creating new coupon
+  const handleChangeCouponCount = () => {
+    if (!id) {
+      setCouponCount(-1);
     }
   };
+  // updating the state
   useEffect(() => {
-    fetchCollectedData("/getAllUsers?userType=customer");
+    handleChangeCouponCount();
   }, []);
 
   return (
     <form onSubmit={handleFormSubmit}>
+      <p className="mb-2 text-sm italic text-gray-400">
+        <span className="font-semibold text-gray-600">Note:</span> (Enter -1 in
+        coupon count field for infinite coupon usage)
+      </p>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one & for creating new one */}
         <>
-          {/* <div className="w-full lg:w-[48%]">
-            <SelectDropDown
-              item={"userId"}
-              options={(collectedData && collectedData?.userId) || []}
-              value={id ? vehicleMaster[0]?.userId : ""}
-            />
-          </div> */}
           <div className="w-full lg:w-[48%]">
             <Input
               item={"couponName"}
@@ -45,9 +37,10 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input
+            <SelectDropDown
               item={"discountType"}
-              value={id ? vehicleMaster[0]?.discountType : ""}
+              options={["percentage", "fixed"]}
+              value={id ? vehicleMaster[0]?.discountType : "percentage"}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -55,6 +48,29 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
               type="number"
               item={"discount"}
               value={id ? vehicleMaster[0]?.discount : ""}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <input
+              type="hidden"
+              name="allowedUsersCount"
+              value={
+                id
+                  ? couponCount > 0 || couponCount == -1 || couponCount == "-1"
+                    ? couponCount != "-1" || couponCount != -1
+                      ? Number(couponCount) -
+                        Number(vehicleMaster[0]?.allowedUsersCount)
+                      : couponCount
+                    : vehicleMaster[0]?.allowedUsersCount
+                  : couponCount
+              }
+            />
+            <Input
+              type="number"
+              isCouponInput={true}
+              item={"couponCount"}
+              value={id ? vehicleMaster[0]?.couponCount : "-1"}
+              setValueChange={setCouponCount}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -71,7 +87,13 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
         type="submit"
         disabled={loading}
       >
-        {loading ? <Spinner message={"uploading"} /> : "Publish"}
+        {loading ? (
+          <Spinner message={"uploading"} />
+        ) : id ? (
+          "Update"
+        ) : (
+          "Add New"
+        )}
       </button>
     </form>
   );

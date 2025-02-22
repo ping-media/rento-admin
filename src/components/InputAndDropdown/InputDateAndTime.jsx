@@ -6,7 +6,7 @@ const InputDateAndTime = ({
   value = "",
   require = false,
   name,
-  setDateChanger,
+  setValueChanger,
 }) => {
   const [dateAndTime, setDateAndTime] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -16,7 +16,7 @@ const InputDateAndTime = ({
     setInputValue(e.target.value);
     const databaseDate = convertDateFormat(e.target.value);
     setDateAndTime(databaseDate);
-    setDateChanger && setDateChanger(databaseDate);
+    setValueChanger && setValueChanger(databaseDate);
   };
 
   useEffect(() => {

@@ -1,204 +1,272 @@
-import { useSelector } from "react-redux";
-import Input from "../InputAndDropdown/Input";
-import SelectDropDown from "../InputAndDropdown/SelectDropDown";
+import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import InputSearch from "../InputAndDropdown/InputSearch";
-import InputVehicleSearch from "../InputAndDropdown/InputVehicleSearch";
-import InputDateAndTime from "../InputAndDropdown/InputDateAndTime";
-import { calculateTax } from "../../utils";
+import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { calculateTax, getDurationBetweenDates } from "../../utils";
+import BookingStepOne from "./BookingComponents/BookingStepOne";
+import BookingStepTwo from "./BookingComponents/BookingStepTwo";
+import BookingStepThree from "./BookingComponents/BookingStepThree";
+import { createOrderId, postData } from "../../Data/index";
+import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import { updateTimeLine } from "../../Data/Function";
+import { updateTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
-  const { vehicleMaster } = useSelector((state) => state.vehicles);
-  const [collectedData, setCollectedData] = useState(null);
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
-  const [bookingPrice, setBookingPrice] = useState(0);
-  const [extraAddonPrice, setExtraAddonPrice] = useState(0);
-  const [inputTax, setInputTax] = useState(0);
-  const [inputTotal, setInputTotal] = useState(0);
-  const [startDateAndTime, setStartDateAndTime] = useState("");
-  const [endDateAndTime, setEndDateAndTime] = useState("");
-  const [isRequiredField, setIsRequiredField] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(id ? 3 : 1);
+  const [formLoading, setFormLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    stepOneData: {},
+    stepTwoData: {},
+  });
 
-  // useEffect(() => {
-  //   const updateTaxAndTotal = () => {
-  //     const bookingTax = calculateTax(Number(bookingPrice), 18);
-  //     const extraTax =
-  //       extraAddonPrice !== 0 ? calculateTax(Number(extraAddonPrice), 18) : 0;
-  //     const totalPrice =
-  //       Number(bookingPrice) + Number(bookingTax) + Number(extraTax);
-  //     setInputTax(bookingTax);
-  //     setInputTotal(totalPrice);
-  //   };
+  // for sending to next steps
+  const handleNext = (data) => {
+    if (currentStep === 1) setFormData({ ...formData, stepOneData: data });
+    setCurrentStep(currentStep + 1);
+  };
 
-  //   if (bookingPrice === 0 && extraAddonPrice === 0) {
-  //     setInputTax(0);
-  //     setInputTotal(0);
-  //   } else {
-  //     updateTaxAndTotal();
-  //   }
-  // }, [bookingPrice, extraAddonPrice]);
+  // for calculating price based on vehicles
+  const changePriceAccordingtoData = (
+    bookingStartDate,
+    bookingEndDate,
+    selectedVehicle,
+    extraAddonPrice = 0
+  ) => {
+    const durationBetweenStartAndEnd = getDurationBetweenDates(
+      bookingStartDate,
+      bookingEndDate
+    );
 
-  useEffect(() => {
-    console.log(startDateAndTime, endDateAndTime, collectedData);
-    if (
-      startDateAndTime != "" &&
-      endDateAndTime != "" &&
-      collectedData != null
-    ) {
-      // setIsRequiredField(true);
-      console.log(startDateAndTime, endDateAndTime);
-    }
-  }, [startDateAndTime, endDateAndTime, collectedData]);
+    const bookingPrice =
+      Number(durationBetweenStartAndEnd?.days) *
+      Number(selectedVehicle?.perDayCost);
+    const rentAmount = Number(selectedVehicle?.perDayCost);
 
-  const handleContinueBooking = () => {
-    if (
-      startDateAndTime != "" &&
-      endDateAndTime != "" &&
-      collectedData != null
-    ) {
-      return setIsRequiredField(true);
+    const tax = calculateTax(bookingPrice, 18);
+
+    // Include extraAddonPrice in the total calculation
+    const totalPrice = bookingPrice + tax + Number(extraAddonPrice);
+
+    const combinedData = {
+      bookingPrice,
+      rentAmount,
+      extraAddonPrice,
+      tax,
+      totalPrice,
+    };
+
+    // Update the form data with the new stepTwoData
+    setFormData({ ...formData, stepTwoData: combinedData });
+
+    return combinedData;
+  };
+
+  const handlePrevious = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+  // for creating new booking
+  const handleFormSubmitForNew = async (event) => {
+    event.preventDefault();
+    const response = new FormData(event.target);
+    let result = Object.fromEntries(response.entries());
+    if (!formData && !result)
+      return handleAsyncError(dispatch, "unable to make booking! try again.");
+
+    try {
+      setFormLoading(true);
+      const paymentMethodStatus = result["paymentMethod"];
+      let userPaid = 0;
+      let AmountLeftAfterUserPaid = 0;
+      if (paymentMethodStatus === "partiallyPay") {
+        const needToPay =
+          (Number(formData?.stepTwoData?.totalPrice) * 20) / 100;
+        userPaid = Number(needToPay);
+        AmountLeftAfterUserPaid =
+          Number(formData?.stepTwoData?.totalPrice) - Number(userPaid);
+      }
+      // ride starting otp
+      const startRideOtp = Math.floor(1000 + Math.random() * 9000);
+      // creating booking data
+      let data = {
+        vehicleMasterId:
+          formData?.stepOneData?.selectedVehicle?.vehicleMasterId,
+        vehicleTableId: formData?.stepOneData?.vehicleId,
+        vehicleImage: formData?.stepOneData?.selectedVehicle?.vehicleImage,
+        vehicleBrand: formData?.stepOneData?.selectedVehicle?.vehicleBrand,
+        vehicleName: formData?.stepOneData?.selectedVehicle?.vehicleName,
+        stationId: formData?.stepOneData?.selectedVehicle?.stationId,
+        stationName: formData?.stepOneData?.selectedVehicle?.stationName,
+        userId: formData?.stepOneData?.userId,
+        BookingStartDateAndTime: formData?.stepOneData?.bookingStartDate,
+        BookingEndDateAndTime: formData?.stepOneData?.bookingEndDate,
+        bookingPrice: {
+          bookingPrice: formData?.stepTwoData?.bookingPrice,
+          vehiclePrice: formData?.stepTwoData?.bookingPrice,
+          extraAddonPrice: formData?.stepTwoData?.extraAddonPrice,
+          tax: formData?.stepTwoData?.tax,
+          totalPrice: formData?.stepTwoData?.totalPrice,
+          discountPrice: 0,
+          discountTotalPrice: 0,
+          rentAmount: formData?.stepTwoData?.rentAmount,
+          isPackageApplied: false,
+          userPaid: userPaid,
+          AmountLeftAfterUserPaid: {
+            amount: AmountLeftAfterUserPaid,
+            status: "upaid",
+          },
+          extendAmount: [],
+        },
+        vehicleBasic: {
+          refundableDeposit:
+            formData?.stepOneData?.selectedVehicle?.refundableDeposit,
+          speedLimit: formData?.stepOneData?.selectedVehicle?.speedLimit,
+          vehicleNumber: formData?.stepOneData?.selectedVehicle?.vehicleNumber,
+          freeLimit: formData?.stepOneData?.selectedVehicle?.freeKms,
+          lateFee: formData?.stepOneData?.selectedVehicle?.lateFee,
+          extraKmCharge:
+            formData?.stepOneData?.selectedVehicle?.extraKmsCharges,
+          startRide: Number(startRideOtp),
+          endRide: 0,
+        },
+        extendBooking: {
+          oldBooking: [],
+          transactionIds: [],
+        },
+        payInitFrom: "Razorpay",
+        paySuccessId: "NA",
+        paymentgatewayOrderId: "",
+        paymentgatewayReceiptId: "",
+        paymentInitiatedDate: "",
+        discountCuopon: {
+          couponName: "",
+          couponId: "",
+        },
+        paymentMethod: result?.paymentMethod,
+        bookingStatus: result?.bookingStatus,
+        paymentStatus: result?.paymentStatus,
+        rideStatus: result?.rideStatus,
+      };
+
+      const bookingResponse = await postData("/createBooking", data, token);
+      if (bookingResponse?.status === 200) {
+        // updating the timeline for booking
+        const timeLineData = {
+          userId: bookingResponse?.data?.userId,
+          bookingId: bookingResponse?.data?.bookingId,
+          currentBooking_id: bookingResponse?.data?._id,
+          isStart: true,
+          timeLine: [
+            {
+              title: "Booking Created",
+              date: new Date().toLocaleString(),
+            },
+          ],
+        };
+        // for creating booking
+        await postData("/createTimeline", timeLineData, token);
+        // for updating sending link in it
+        // await updateTimeLine(bookingResponse?.data, token);
+      } else {
+        return handleAsyncError(dispatch, bookingResponse?.message);
+      }
+
+      if (bookingResponse?.status !== 200)
+        return handleAsyncError(dispatch, "unable to make booking! try again.");
+      const generateOrder = await createOrderId(bookingResponse?.data);
+      // updating the data but order id
+      data = {
+        ...bookingResponse?.data,
+        paymentgatewayOrderId: generateOrder?.id,
+        paymentgatewayReceiptId: generateOrder?.receipt,
+        paymentInitiatedDate: generateOrder?.created_at,
+      };
+
+      const UpdatedBookingResponse = await postData(
+        `/createBooking?_id=${bookingResponse?.data?._id}`,
+        data,
+        token
+      );
+      if (UpdatedBookingResponse?.status === 200) {
+        // updating the timeline for booking
+        const timeLineData = {
+          currentBooking_id: UpdatedBookingResponse?.data?._id,
+          timeLine: [
+            {
+              title: "Payment Initiated",
+              date: new Date().toLocaleString(),
+            },
+          ],
+        };
+        // for creating booking
+        postData("/createTimeline", timeLineData, token);
+        // for updating sending link in it
+        const updateTimeLineDataToPush = await updateTimeLine(
+          UpdatedBookingResponse?.data,
+          token
+        );
+        dispatch(updateTimeLineData(updateTimeLineDataToPush));
+        handleAsyncError(dispatch, "Ride Created Successfully", "success");
+        navigate(`/all-bookings/details/${UpdatedBookingResponse?.data?._id}`);
+      } else {
+        return handleAsyncError(dispatch, UpdatedBookingResponse?.message);
+      }
+    } catch (error) {
+      return handleAsyncError(dispatch, error?.message);
+    } finally {
+      setFormLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleFormSubmit}>
+    <form onSubmit={id ? handleFormSubmit : handleFormSubmitForNew}>
+      <h2 className="text-theme-dark font-semibold text-md lg:text-xl mb-3 uppercase border-b-2 pb-2">
+        {(currentStep === 1 && "Basic Info") ||
+          (currentStep === 2 && "Booking Pricing") ||
+          (currentStep === 3 && "Confirm Booking")}
+      </h2>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one & for creating new one */}
         <>
-          <div className="w-full lg:w-[48%]">
-            <InputSearch
-              item={"User"}
-              name={"userId"}
+          {currentStep === 1 && (
+            <BookingStepOne
+              data={formData?.stepOneData}
               token={token}
-              value={id ? vehicleMaster[0]?.userId : ""}
-              require={true}
+              onNext={handleNext}
             />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <InputVehicleSearch
-              item={"Vehicle"}
-              name={"vehicleTableId"}
-              token={token}
-              value={id ? vehicleMaster[0]?.vehicleTableId : ""}
-              suggestedData={collectedData}
-              setSuggestionData={setCollectedData}
-              // setBookingPrice={setBookingPrice}
-              require={true}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <InputDateAndTime
-              item={"BookingStartDateAndTime"}
-              name={"BookingStartDateAndTime"}
-              value={id ? vehicleMaster[0]?.BookingStartDateAndTime : ""}
-              require={true}
-              setDateChanger={setStartDateAndTime}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <InputDateAndTime
-              item={"BookingEndDateAndTime"}
-              namme={"BookingEndDateAndTime"}
-              value={id ? vehicleMaster[0]?.BookingEndDateAndTime : ""}
-              require={true}
-              setDateChanger={setEndDateAndTime}
-            />
-          </div>
+          )}
 
-          {isRequiredField && (
-            <>
-              <div className="w-full lg:w-[48%]">
-                <Input
-                  item={"bookingPrice"}
-                  type="number"
-                  value={
-                    id && Number(vehicleMaster[0]?.bookingPrice?.bookingPrice)
-                  }
-                  require={true}
-                  setValueChange={setBookingPrice}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <Input
-                  item={"extraAddonPrice"}
-                  type="number"
-                  value={
-                    id &&
-                    Number(vehicleMaster[0]?.bookingPrice?.extraAddonPrice)
-                  }
-                  setBookingPrice={setExtraAddonPrice}
-                />
-              </div>
+          {currentStep === 2 && (
+            <BookingStepTwo
+              data={formData?.stepOneData}
+              priceCalculate={changePriceAccordingtoData}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+            />
+          )}
 
-              <div className="w-full lg:w-[48%]">
-                <Input
-                  item={"tax"}
-                  type="number"
-                  value={Number(inputTax)}
-                  require={true}
-                  disabled={true}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <Input
-                  item={"totalPrice"}
-                  type="number"
-                  value={Number(inputTotal)}
-                  require={true}
-                  disabled={true}
-                />
-              </div>
-
-              <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"paymentMethod"}
-                  options={["cash", "online", "partiallyPay"]}
-                  value={"cash"}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"bookingStatus"}
-                  options={["pending", "done", "canceled"]}
-                  value={"done"}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"paymentStatus"}
-                  options={["pending", "confirmed"]}
-                  value={"pending"}
-                />
-              </div>
-              <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"rideStatus"}
-                  options={["pending", "confirmed"]}
-                  value={"pending"}
-                />
-              </div>
-            </>
+          {currentStep === 3 && (
+            <BookingStepThree id={id} onPrevious={handlePrevious} />
           )}
         </>
       </div>
-      {!isRequiredField ? (
-        <button
-          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
-          type="button"
-          onClick={handleContinueBooking}
-        >
-          Continue
-        </button>
-      ) : (
+      {currentStep === 3 && (
         <button
           className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
           type="submit"
-          disabled={loading || !isRequiredField}
+          disabled={formLoading || loading}
         >
-          {loading ? <Spinner message={"uploading"} /> : "Publish"}
+          {formLoading || loading ? (
+            <Spinner message={"uploading"} />
+          ) : id ? (
+            "Update"
+          ) : (
+            "Add New"
+          )}
         </button>
       )}
     </form>

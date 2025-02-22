@@ -1,4 +1,11 @@
-import { getData, getFullData, handleAdminLogin, postData } from ".";
+import { toggleClearModals } from "../Redux/SideBarSlice/SideBarSlice";
+import {
+  getData,
+  getFullData,
+  handleAdminLogin,
+  postData,
+  postDataWithRetry,
+} from ".";
 import {
   handleDashboardData,
   handleLoadingDashboardData,
@@ -8,8 +15,12 @@ import {
   handleLoadingUserData,
   handleSetToken,
   handleSignIn,
+  handleSignOut,
+  SetLoggedInRole,
+  updateCurrentUser,
 } from "../Redux/UserSlice/UserSlice";
 import {
+  addTimeLineData,
   fetchVehicleEnd,
   fetchVehicleMasterData,
   fetchVehicleStart,
@@ -17,6 +28,7 @@ import {
 import { modifyUrl, removeAfterSecondSlash } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 import { endPointBasedOnURL } from "./commonData";
+import { debounce } from "lodash";
 
 // for login
 const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
@@ -31,7 +43,16 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
       dispatch(handleLoadingUserData());
       const response = await handleAdminLogin("/adminLogin", result);
       if (response?.status == 200) {
-        handleAsyncError(dispatch, response?.message, "success");
+        // return console.log(response?.data);
+        // setting roles
+        dispatch(
+          SetLoggedInRole({
+            loggedInRole: response?.data?.userType,
+            userStation: response?.Station,
+          })
+        );
+        handleAsyncError(dispatch, "Login Successfully", "success");
+        // decrypting the user data and setting data
         dispatch(handleSetToken(response?.token));
         dispatch(handleSignIn(response?.data));
         navigate("/dashboard");
@@ -48,13 +69,12 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
 };
 
 // for fetching data & posting data
-const fetchDashboardData = async (dispatch, token) => {
+const fetchDashboardData = async (dispatch, token, roleBaseFilter) => {
   try {
     dispatch(handleLoadingDashboardData());
     const [dashboardResponse, paymentResponse] = await Promise.all([
-      getData("/getAllDataCount", token),
-      getData("/paymentRec", token),
-      // getData("/getAllUsers", token),
+      getData(`/getAllDataCount${roleBaseFilter}`, token),
+      getData(`/getGraphData${roleBaseFilter}`, token),
     ]);
 
     dispatch(
@@ -87,56 +107,84 @@ const fetchVehicleMaster = async (dispatch, token, endpoint) => {
   }
 };
 
-const fetchVehicleMasterWithPagination = async (
-  dispatch,
-  token,
-  endpoint,
-  page,
-  limit
-) => {
-  try {
-    dispatch(fetchVehicleStart());
-    const response = await getFullData(
-      `${endpoint}?page=${page}&limit=${limit}`,
-      token
-    );
-    // console.log(`${endpoint}?page=${page}&limit=${limit}`);
-    if (response?.status == 200) {
-      dispatch(fetchVehicleMasterData(response?.data));
-    } else {
-      dispatch(fetchVehicleEnd());
-    }
-  } catch (error) {
-    dispatch(fetchVehicleEnd());
-    handleAsyncError(dispatch, error?.message);
-  }
-};
+const fetchVehicleMasterWithPagination = debounce(
+  async (
+    dispatch,
+    token,
+    endpoint,
+    isSearchTermPresent,
+    page,
+    limit,
+    searchBasedOnFilter = ""
+  ) => {
+    try {
+      dispatch(fetchVehicleStart());
+      // setting dynamic route
+      const dynamicEndpoint =
+        isSearchTermPresent !== null
+          ? searchBasedOnFilter === ""
+            ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
+            : `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${page}&limit=${limit}`
+          : searchBasedOnFilter === ""
+          ? `${endpoint}?page=${page}&limit=${limit}`
+          : `${endpoint}?${searchBasedOnFilter}&page=${page}&limit=${limit}`;
 
-const fetchVehicleMasterById = async (dispatch, id, token, endpoint) => {
-  try {
-    dispatch(fetchVehicleStart());
-    const response = await getData(`${endpoint}?_id=${id}`, token);
-    if (response?.status == 200) {
-      dispatch(fetchVehicleMasterData(response?.data));
-    } else {
+      const response = await getFullData(dynamicEndpoint, token);
+      if (response?.status == 200) {
+        dispatch(fetchVehicleMasterData(response?.data));
+      } else {
+        dispatch(fetchVehicleEnd());
+      }
+    } catch (error) {
       dispatch(fetchVehicleEnd());
-      // handleAsyncError(dispatch, response?.message);
+      handleAsyncError(dispatch, error?.message);
     }
-  } catch (error) {
-    dispatch(fetchVehicleEnd());
-    handleAsyncError(dispatch, error?.message);
-  }
-};
+  },
+  50
+);
+
+const fetchVehicleMasterById = debounce(
+  async (dispatch, id, token, endpoint, secondEndpoint = "") => {
+    try {
+      dispatch(fetchVehicleStart());
+      const response = await getData(
+        `${endpoint}${
+          location.pathname !== "/profile" && endpoint.includes("?userId")
+            ? ""
+            : "?_id="
+        }${id}`,
+        token
+      );
+      if (response?.status == 200) {
+        if (secondEndpoint !== "") {
+          const timeLineResponse = await getData(
+            `${secondEndpoint}?bookingId=${response?.data[0]?.bookingId}`,
+            token
+          );
+          dispatch(addTimeLineData(timeLineResponse?.data));
+        }
+        dispatch(fetchVehicleMasterData(response?.data));
+      } else {
+        dispatch(fetchVehicleMasterData([]));
+        dispatch(fetchVehicleEnd());
+      }
+    } catch (error) {
+      dispatch(fetchVehicleEnd());
+      handleAsyncError(dispatch, error?.message);
+    }
+  },
+  50
+);
 
 const handleCreateAndUpdateVehicle = async (
   event,
   dispatch,
   setFormLoading,
-  id,
   token,
   navigate,
   tempIds,
-  removeTempIds
+  removeTempIds,
+  id
 ) => {
   event.preventDefault();
   setFormLoading(true);
@@ -145,16 +193,16 @@ const handleCreateAndUpdateVehicle = async (
   // if there is id that means it we are updating the data and if there is not id than creating new data
   if (id) {
     result = Object.assign(result, { _id: id });
-  } else if (tempIds != []) {
+  }
+  if (tempIds && tempIds.length > 0) {
     result = Object.assign(result, { vehiclePlan: tempIds });
     dispatch(removeTempIds());
   }
-  // we want to pass pincode as stationId
-  // else if (result?.includes("pinCode")) {
-  //   result = Object.assign(result, { stationId: result?.pinCode });
-  // }
 
-  // console.log(result);
+  // for (const [key, value] of Object.entries(result)) {
+  //   console.log(`${key}: ${value}`);
+  // }
+  // return;
 
   const endpoint = id
     ? `${
@@ -169,11 +217,11 @@ const handleCreateAndUpdateVehicle = async (
         ]
       }?_id=${id}`
     : `${endPointBasedOnURL[modifyUrl(location?.pathname)]}`;
-  console.log(endpoint, result);
+  // console.log(endpoint, result);
   try {
     const response = await postData(endpoint, result, token);
-    console.log(response);
-    if (response?.status != 200) {
+    // console.log(response);
+    if (response?.status !== 200) {
       handleAsyncError(dispatch, response?.message);
     } else {
       handleAsyncError(dispatch, response?.message, "success");
@@ -190,6 +238,7 @@ const handleUpdateAdminProfile = async (
   dispatch,
   setFormLoading,
   id,
+  userType,
   token,
   navigate
 ) => {
@@ -197,20 +246,19 @@ const handleUpdateAdminProfile = async (
   setFormLoading(true);
   const response = new FormData(event.target);
   let result = Object.fromEntries(response.entries());
-  // console.log(result);
   // if there is id that means it we are updating the data and if there is not id than creating new data
   if (id) {
-    result = Object.assign(result, { _id: id });
+    result = Object.assign(result, { _id: id, userType: userType });
   }
 
   const endpoint = `/signup?_id=${id}`;
-  console.log(endpoint, result);
   try {
     const response = await postData(endpoint, result, token);
-    console.log(response);
     if (response?.status != 200) {
       handleAsyncError(dispatch, response?.message);
     } else {
+      dispatch(updateCurrentUser(result));
+      dispatch(handleSignIn(response?.data));
       handleAsyncError(dispatch, response?.message, "success");
       navigate(removeAfterSecondSlash(location?.pathname));
     }
@@ -224,22 +272,30 @@ const fetchStationBasedOnLocation = async (
   vehicleMaster,
   isLocationSelected,
   setStationData,
-  token
+  token,
+  setLoading
 ) => {
-  let stationResponse;
-  if (vehicleMaster && vehicleMaster?.length == 1) {
-    stationResponse = await getData(
-      `/getStationData?locationId=${isLocationSelected}`,
-      token
-    );
-  } else {
-    stationResponse = await getData(
-      `/getStationData?locationId=${isLocationSelected}`,
-      token
-    );
-  }
-  if (stationResponse?.status == 200) {
-    return setStationData(stationResponse?.data);
+  try {
+    setLoading && setLoading(true);
+    let stationResponse;
+    if (vehicleMaster && vehicleMaster?.length == 1) {
+      stationResponse = await getData(
+        `/getStationData?locationId=${isLocationSelected}`,
+        token
+      );
+    } else {
+      stationResponse = await getData(
+        `/getStationData?locationId=${isLocationSelected}`,
+        token
+      );
+    }
+    if (stationResponse?.status === 200) {
+      return setStationData(stationResponse?.data);
+    }
+  } catch (error) {
+    return console.error(error?.message);
+  } finally {
+    setLoading && setLoading(false);
   }
 };
 
@@ -256,23 +312,46 @@ const tenYearBeforeCurrentYear = () => {
 const fetchUserDataBasedOnQuery = async (endpoint, token) => {
   const userResponse = await getData(endpoint, token);
   if (userResponse) {
-    // console.log(userResponse);
     return userResponse?.data;
   }
 };
 
-const handleGenerateInvoice = async (dispatch, id, token, setLoadingStates) => {
-  // console.log(id);
-  if (!id)
+const handleGenerateInvoice = async (
+  dispatch,
+  id,
+  token,
+  setLoadingStates,
+  bookingData,
+  handleInvoiceCreated
+) => {
+  if (!id && !bookingData)
     return handleAsyncError(dispatch, "failed to create Invoice! try again.");
+  // let currentBooking = bookingData?.find((item) => item?._id == id);
+  let currentBooking = bookingData;
+  if (!currentBooking)
+    return handleAsyncError(dispatch, "failed to create Invoice! try again");
+  const updatedBooking = {
+    ...currentBooking,
+    bookingPrice: {
+      ...currentBooking.bookingPrice,
+      isInvoiceCreated: true,
+    },
+  };
   setLoadingStates((prevState) => ({
     ...prevState,
     [id]: true,
   }));
   try {
-    const response = await postData("/createInvoice", { _id: id }, token);
-    if (response?.status == 200) {
+    const response = await postData(
+      "/createInvoice",
+      { currentBookingId: id },
+      token
+    );
+    if (response?.status === 200) {
+      dispatch(handleInvoiceCreated(updatedBooking));
       handleAsyncError(dispatch, response?.message, "success");
+    } else {
+      handleAsyncError(dispatch, response?.message);
     }
   } catch (error) {
     console.log(error);
@@ -282,6 +361,193 @@ const handleGenerateInvoice = async (dispatch, id, token, setLoadingStates) => {
       [id]: false,
     }));
   }
+};
+
+const validateUser = debounce(
+  async (token, handleLogoutUser, dispatch, setPreLoaderLoading) => {
+    try {
+      setPreLoaderLoading && setPreLoaderLoading(true);
+      if (!token) return;
+      const response = await postData(`/validedToken`, { token: token }, token);
+      const isUserValid = response?.isUserValid;
+      if (isUserValid === true) {
+        if (location.pathname == "/") return navigate("/dashboard");
+      } else {
+        handleLogoutUser(dispatch);
+      }
+    } catch (error) {
+      handleLogoutUser(dispatch);
+    } finally {
+      setPreLoaderLoading && setPreLoaderLoading(false);
+    }
+  },
+  60
+);
+
+const handleLogoutUser = (dispatch) => {
+  dispatch(handleSignOut());
+  dispatch(toggleClearModals());
+};
+
+const handleDeleteAndEditAllData = async (
+  data,
+  operation,
+  handleAsyncError,
+  changeTempLoadingTrue,
+  changeTempLoadingFalse,
+  dispatch,
+  removeTempIds,
+  restvehicleMaster,
+  token,
+  handleIsHeaderChecked
+) => {
+  dispatch(changeTempLoadingTrue(operation));
+  try {
+    const response = await postData("/updateMultipleVehicles", data, token);
+    if (response?.status == 200) {
+      dispatch(removeTempIds());
+      dispatch(restvehicleMaster());
+      handleIsHeaderChecked && dispatch(handleIsHeaderChecked(false));
+      return handleAsyncError(dispatch, response?.message, "success");
+    } else {
+      return handleAsyncError(dispatch, response?.message);
+    }
+  } catch (error) {
+    return handleAsyncError(dispatch, "something went wrong! try again.");
+  } finally {
+    dispatch(changeTempLoadingFalse());
+  }
+};
+
+const cancelBookingById = async (
+  id,
+  data,
+  token,
+  endpoint = "/createBooking"
+) => {
+  try {
+    const response = await postData(
+      endpoint === "/createBooking" ? `/createBooking?_id=${id}` : endpoint,
+      data,
+      token
+    );
+    if (response?.status !== 200) {
+      return response?.message;
+    }
+    return true;
+  } catch (error) {
+    return error?.message;
+  }
+};
+
+const updateTimeLine = async (data, token) => {
+  const { _id, bookingPrice } = data;
+  // checking whether user applied Discount or not
+  const subAmount =
+    bookingPrice?.discountTotalPrice && bookingPrice?.discountTotalPrice > 0
+      ? bookingPrice?.discountTotalPrice
+      : bookingPrice?.totalPrice;
+  // checking whether user is paying full payment or half
+  const finalAmount =
+    bookingPrice?.userPaid && bookingPrice?.userPaid > 0
+      ? bookingPrice?.userPaid
+      : subAmount;
+  // setting paymentStatus
+  const paymentStatus =
+    bookingPrice?.userPaid && bookingPrice?.userPaid > 0
+      ? "partiallyPay"
+      : "paid";
+
+  // updating the timeline for booking
+  const timeLineData = {
+    currentBooking_id: _id,
+    timeLine: [
+      {
+        title: "Payment Link Created",
+        date: new Date().toLocaleString(),
+        PaymentLink: `${
+          import.meta.env.VITE_FRONTEND_URL
+        }/payment?id=${_id}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}`,
+        paymentAmount: finalAmount,
+      },
+    ],
+  };
+  await postData("/createTimeline", timeLineData, token);
+  return timeLineData;
+};
+
+const updateTimeLineForPayment = async (
+  data,
+  token,
+  title,
+  isvehicleNumbers = ""
+) => {
+  const { _id, extendAmount, bookingPrice, bookingId } = data;
+
+  const finalAmount =
+    (extendAmount && extendAmount?.amount) ||
+    (bookingPrice &&
+      Number(
+        bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.amount
+      ));
+  // creating order id for the payment when finalAmount is greater than 0
+  let orderId = "";
+  if (finalAmount > 0) {
+    let generateOrderId = await postDataWithRetry(
+      "/createOrderId",
+      { amount: finalAmount, booking_id: bookingId },
+      token
+    );
+    if (generateOrderId?.status === "created") {
+      orderId = generateOrderId?.id;
+    } else {
+      return "unable to update timeline for booking";
+    }
+  }
+  const baseUrl = import.meta.env.VITE_FRONTEND_URL;
+  const isChange = isvehicleNumbers !== "" ? "change" : "extend";
+  const paymentId =
+    (isvehicleNumbers === "" && extendAmount?.id) ||
+    (isvehicleNumbers !== "" &&
+      bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.id) ||
+    0;
+
+  // encoding the data before creating a link
+  const payload = {
+    id: _id,
+    order: orderId,
+    for: isChange,
+    paymentId: paymentId,
+    finalAmount: finalAmount,
+  };
+
+  // requesting jwt token here from backend
+  const encodePayload = await postDataWithRetry(
+    "/GeneratePaymentToken",
+    { payload: payload },
+    token
+  );
+
+  // creating payment link only when amount is greater than 0
+  const paymentLink =
+    finalAmount > 0 ? `${baseUrl}/payment/${encodePayload?.token}` : "";
+
+  // updating the timeline for booking
+  const timeLineData = {
+    currentBooking_id: _id,
+    timeLine: [
+      {
+        title: title,
+        date: new Date().toLocaleString(),
+        PaymentLink: paymentLink,
+        paymentAmount: finalAmount,
+        changeToVehicle: isvehicleNumbers || "",
+        id: paymentId,
+      },
+    ],
+  };
+  await postData("/createTimeline", timeLineData, token);
+  return timeLineData;
 };
 
 export {
@@ -296,4 +562,10 @@ export {
   fetchUserDataBasedOnQuery,
   handleGenerateInvoice,
   fetchVehicleMasterWithPagination,
+  validateUser,
+  handleLogoutUser,
+  handleDeleteAndEditAllData,
+  cancelBookingById,
+  updateTimeLine,
+  updateTimeLineForPayment,
 };

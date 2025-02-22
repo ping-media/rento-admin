@@ -16,6 +16,7 @@ const InputSearch = ({
   require = false,
   name,
   token,
+  setValueChanger,
 }) => {
   const [userId, setUserId] = useState(value);
   const [inputValue, setInputValue] = useState("");
@@ -53,6 +54,7 @@ const InputSearch = ({
   // setting user data to input
   const handleSelectUserById = (item) => {
     setUserId(item?._id);
+    setValueChanger && setValueChanger(item?._id);
     setInputValue(`${item?.firstName} | ${item?.contact} | ${item?.userType}`);
     dispatch(removeTempVehicleData());
   };
@@ -104,23 +106,47 @@ const InputSearch = ({
           autoComplete="off"
         />
       </div>
-      {tempVehicleData != null && (
+      {/* {inputValue?.length > 0 && tempVehicleData?.length > 0 && ( */}
+      {inputValue?.length > 0 && inputValue?.length < 10 && (
         <div className="absolute top-20 w-full rounded-md px-3 py-2 bg-white border-2 z-30">
           <ul>
-            {tempVehicleData?.length > 0 ? (
-              tempVehicleData?.map((item) => (
-                <li
-                  key={item?._id}
-                  className="my-2 cursor-pointer text-gray-500"
-                  onClick={() => handleSelectUserById(item)}
-                >
-                  {item?.firstName} {item?.lastName} | {item?.contact} |{" "}
-                  {item?.userType}
+            {tempVehicleData ? (
+              tempVehicleData.length > 0 ? (
+                tempVehicleData.filter((item) =>
+                  location.pathname == "/station-master/add-new"
+                    ? item.userType !== "customer"
+                    : item.userType !== "admin" && item.userType !== "manager"
+                ).length > 0 ? (
+                  tempVehicleData
+                    .filter((item) =>
+                      location.pathname == "/station-master/add-new"
+                        ? item.userType !== "customer"
+                        : item.userType !== "admin" &&
+                          item.userType !== "manager"
+                    )
+                    .map((item) => (
+                      <li
+                        key={item._id}
+                        className="my-2 cursor-pointer text-gray-500"
+                        onClick={() => handleSelectUserById(item)}
+                      >
+                        {item.firstName} {item.lastName} | {item.contact} |{" "}
+                        {item.userType}
+                      </li>
+                    ))
+                ) : (
+                  <li className="my-2 cursor-pointer italic text-gray-400">
+                    no user found.
+                  </li>
+                )
+              ) : (
+                <li className="my-2 cursor-pointer italic text-gray-400">
+                  no user found.
                 </li>
-              ))
+              )
             ) : (
               <li className="my-2 cursor-pointer italic text-gray-400">
-                no user found.
+                loading...
               </li>
             )}
           </ul>

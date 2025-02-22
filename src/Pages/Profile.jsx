@@ -17,9 +17,8 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!currentUser) return;
     fetchVehicleMasterById(dispatch, currentUser?._id, token, `/getAllUsers`);
-  }, [currentUser]);
+  }, []);
 
   return !loading ? (
     <>
@@ -55,6 +54,7 @@ const Profile = () => {
                     dispatch,
                     setFormLoading,
                     currentUser?._id,
+                    currentUser?.userType,
                     token,
                     navigate
                   )

@@ -6,7 +6,10 @@ const UserSlice = createSlice({
   initialState: {
     token: null,
     user: null,
+    loggedInRole: "",
+    userStation: null,
     currentUser: null,
+    userDocument: null,
     loading: false,
     error: null,
   },
@@ -18,6 +21,11 @@ const UserSlice = createSlice({
       state.token = action.payload;
       state.loading = false;
     },
+    SetLoggedInRole: (state, action) => {
+      const { loggedInRole, userStation } = action.payload;
+      state.loggedInRole = loggedInRole;
+      state.userStation = userStation;
+    },
     handleSignIn: (state, action) => {
       const encryptedUser = encryptData(action.payload);
       state.user = encryptedUser;
@@ -28,10 +36,28 @@ const UserSlice = createSlice({
       state.currentUser = decryptedUser;
       state.loading = false;
     },
+    updateCurrentUser: (state, action) => {
+      const { firstName, lastName, email, altContact } = action.payload;
+      state.currentUser = {
+        ...state.currentUser,
+        firstName,
+        lastName,
+        email,
+        altContact,
+      };
+    },
+    addUserDocument: (state, action) => {
+      state.userDocument = action.payload;
+    },
+    handleLoadingUserDataFalse: (state) => {
+      state.loading = false;
+    },
     handleSignOut: (state) => {
       state.token = null;
       state.user = null;
       state.currentUser = null;
+      state.loggedInRole = "";
+      state.userStation = null;
       state.loading = false;
       state.error = null;
     },
@@ -40,9 +66,13 @@ const UserSlice = createSlice({
 
 export const {
   handleLoadingUserData,
+  SetLoggedInRole,
   handleSetToken,
   handleSignIn,
   handleCurrentUser,
+  updateCurrentUser,
+  handleLoadingUserDataFalse,
+  addUserDocument,
   handleSignOut,
 } = UserSlice.actions;
 

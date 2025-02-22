@@ -1,11 +1,16 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { handleChangeLimit } from "../../Redux/PaginationSlice/PaginationSlice";
 
 const DropDownComponent = ({ defaultValue, options, setValue }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
+  const dispatch = useDispatch();
 
   const handleChangeData = (value) => {
     setIsOptionsVisible(!isOptionsVisible);
     setValue(value);
+    // changing the limit
+    dispatch(handleChangeLimit(value));
   };
   return (
     <>
@@ -13,7 +18,7 @@ const DropDownComponent = ({ defaultValue, options, setValue }) => {
         <div className="group">
           <button
             type="button"
-            className="inline-flex justify-center items-center w-full px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:bg-gray-700 rounded-md"
+            className="inline-flex justify-center items-center w-full px-3.5 py-1.5 text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:bg-gray-700 rounded-md"
             onClick={() => setIsOptionsVisible(!isOptionsVisible)}
           >
             {defaultValue}
