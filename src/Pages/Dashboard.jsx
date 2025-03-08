@@ -19,6 +19,7 @@ import {
 } from "@mui/icons-material";
 import { useMediaQuery } from "@mui/material";
 import NotFound from "./NotFound";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const { dasboardDataCount, loading } = useSelector(
@@ -31,6 +32,7 @@ const Dashboard = () => {
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dataCountResult, setDataCountResult] = useState([]);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   //fetching dashboard data
   useEffect(() => {
@@ -38,7 +40,7 @@ const Dashboard = () => {
     const roleBaseFilter =
       loggedInRole === "manager" ? `?stationId=${userStation?.stationId}` : "";
     if (token) {
-      fetchDashboardData(dispatch, token, roleBaseFilter);
+      fetchDashboardData(dispatch, token, roleBaseFilter, navigate);
     }
   }, []);
 

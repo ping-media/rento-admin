@@ -69,7 +69,12 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
 };
 
 // for fetching data & posting data
-const fetchDashboardData = async (dispatch, token, roleBaseFilter) => {
+const fetchDashboardData = async (
+  dispatch,
+  token,
+  roleBaseFilter,
+  navigate
+) => {
   try {
     dispatch(handleLoadingDashboardData());
     const [dashboardResponse, paymentResponse] = await Promise.all([
@@ -81,12 +86,12 @@ const fetchDashboardData = async (dispatch, token, roleBaseFilter) => {
       handleDashboardData({
         dashboard: dashboardResponse?.data,
         payments: paymentResponse?.data,
-        // users: userResponse?.data,
       })
     );
   } catch (error) {
     dispatch(resetDashboardData());
     handleAsyncError(dispatch, error?.message);
+    navigate("*");
   }
 };
 
