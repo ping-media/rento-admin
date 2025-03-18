@@ -51,16 +51,17 @@ const BookingCard = ({ item }) => {
               {item?.userId?.firstName} {item?.userId?.lastName}
             </span>
           </p>
-          <p className="flex items-center text-sm">
+          <p
+            className="flex items-center text-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
             {tableIcons?.phone}
-            {/* <a href={`tel:${item?.userId?.contact}`}> */}
             <span className="ml-1 capitalize text-theme">
               {item?.userId?.contact}{" "}
             </span>
             <span>
               <CopyButton textToCopy={item?.userId?.contact} />
             </span>
-            {/* </a> */}
           </p>
         </div>
         {/* time between booking  */}

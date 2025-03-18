@@ -312,7 +312,12 @@ const UploadPickupImageModal = ({
             )}
             <div className="flex items-center flex-wrap gap-4 mb-3">
               <div className="w-full lg:w-[48%]">
-                <Input type="number" item="startMeterReading" require={true} />
+                <Input
+                  type="number"
+                  item="startMeterReading"
+                  placeholder={"start Reading"}
+                  require={true}
+                />
               </div>
               {isChange && isChange !== false && (
                 <div className="w-full lg:w-[48%]">
@@ -320,12 +325,18 @@ const UploadPickupImageModal = ({
                     type="number"
                     item="EndMeterReading"
                     name="oldVehicleEndMeterReading"
+                    placeholder={"End Reading"}
                     require={true}
                   />
                 </div>
               )}
               <div className="w-full lg:w-[48%]">
-                <Input type="number" item="rideOtp" require={true} />
+                <Input
+                  type="number"
+                  item="rideOtp"
+                  placeholder={"Otp"}
+                  require={true}
+                />
               </div>
             </div>
             <button

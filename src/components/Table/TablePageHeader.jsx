@@ -5,6 +5,9 @@ import BulkActionButtons from "./BulkActionButtons";
 import { toggleFilterSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
+import { bookingSearchList } from "../../Data/commonData";
+import { handleChangeSearchType } from "../../Redux/PaginationSlice/PaginationSlice";
+import { toggleRefresh } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
   const dispatch = useDispatch();
@@ -38,7 +41,7 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
           location.pathname == "/all-users"
         ) && (
           <Link
-            className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
+            className="bg-theme font-semibold text-gray-100 px-2.5 py-1 lg:py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
             to={location.pathname != "/all-pickup-image" ? "add-new" : "#"}
           >
             {tableIcons.add}
@@ -49,7 +52,7 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
         {location?.pathname === "/all-vehicles" && <BulkActionButtons />}
       </div>
       {!(location.pathname == "/users-documents") && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center flex-wrap lg:flex-nowrap gap-2">
           <div className="w-full bg-white rounded-md shadow-lg">
             <form
               onSubmit={handleControlSubmit}
@@ -64,14 +67,48 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
                 onChange={(e) => setInputSearchQuery(e.target.value)}
                 autoComplete="off"
               />
-              <button
-                type="submit"
-                className="bg-gray-800 text-white rounded-md px-3 py-1 lg:px-4 lg:py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
-              >
-                {tableIcons.search}
-              </button>
+              {location.pathname !== "/all-bookings" && (
+                <button
+                  type="submit"
+                  className="bg-gray-800 text-white rounded-md px-3 py-1 lg:px-4 lg:py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
+                >
+                  {tableIcons.search}
+                </button>
+              )}
+              {location.pathname === "/all-bookings" && (
+                <div
+                  className={`${
+                    location.pathname === "/all-bookings" ? "" : ""
+                  } bg-gray-800 text-white rounded-md p-2 lg:px-2 lg:py-1 ml-1 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50`}
+                >
+                  <div className="inset-y-0 left-3 my-auto h-4 lg:h-6 flex items-center pr-2">
+                    <select
+                      className="text-sm lg:text-md outline-none rounded-lg h-full px-2 cursor-pointer font-semibold tracking-wide bg-transparent"
+                      onChange={(e) =>
+                        dispatch(handleChangeSearchType(e.target.value))
+                      }
+                    >
+                      {bookingSearchList.map((list) => (
+                        <option
+                          value={list.value}
+                          label={list.label}
+                          className="cursor-pointer bg-transparent text-gray-500 hover:text-white font-semibold tracking-wide"
+                          key={list.label}
+                        ></option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
             </form>
           </div>
+          <button
+            className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2.5 flex items-center transition-all duration-200 ease-in"
+            title="Refresh"
+            onClick={() => dispatch(toggleRefresh())}
+          >
+            {tableIcons?.refresh}
+          </button>
           {/* filters  */}
           {(location.pathname === "/all-users" ||
             location.pathname === "/all-managers" ||

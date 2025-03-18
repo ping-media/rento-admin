@@ -7,19 +7,17 @@ import {
   removeTempIds,
   restvehicleMaster,
 } from "../Redux/VehicleSlice/VehicleSlice";
-import {
-  handleRestPagination,
-  handleRestSearchTerm,
-} from "../Redux/PaginationSlice/PaginationSlice";
+import { handleRestPagination } from "../Redux/PaginationSlice/PaginationSlice";
 const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
 
 const VehicleMaster = () => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
-  const { vehicleMaster, deletevehicleId, tempLoading, loading } = useSelector(
-    (state) => state.vehicles
+  const { vehicleMaster, deletevehicleId, tempLoading, loading, refresh } =
+    useSelector((state) => state.vehicles);
+  const { page, limit, searchTerm, searchType } = useSelector(
+    (state) => state.pagination
   );
-  const { page, limit, searchTerm } = useSelector((state) => state.pagination);
   const { loggedInRole, userStation } = useSelector((state) => state.user);
 
   const searchBasedOnPage = useMemo(() => {
@@ -42,7 +40,8 @@ const VehicleMaster = () => {
         searchTerm,
         page,
         limit,
-        searchBasedOnPage
+        searchBasedOnPage,
+        searchType
       );
     }
   }, [
@@ -56,6 +55,7 @@ const VehicleMaster = () => {
     token,
     endPointBasedOnURL,
     searchBasedOnPage,
+    refresh,
   ]);
 
   // clear data after page change

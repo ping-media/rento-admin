@@ -94,6 +94,7 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
             <div className="mb-2">
               <Input
                 item={"contact_For"}
+                placeholder={"Phone Number"}
                 type="number"
                 value={contactInput}
                 setValueChange={setContactInput}
@@ -101,7 +102,12 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
               />
             </div>
             <div className="mb-2">
-              <Input item={"password_For"} type="password" require={true} />
+              <Input
+                item={"password_For"}
+                placeholder={"password"}
+                type="password"
+                require={true}
+              />
             </div>
             {userType !== "admin" && (
               <div className="mb-2">

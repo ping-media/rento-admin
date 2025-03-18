@@ -53,7 +53,9 @@ const SelectDropDown = ({
         htmlFor={item}
         className="block text-gray-800 font-semibold text-sm capitalize text-left"
       >
-        Select {title[item] || item}
+        Select{" "}
+        {camelCaseToSpaceSeparated(title[item]) ||
+          camelCaseToSpaceSeparated(item)}
         {require && <span className="ml-1 text-red-500">*</span>}
       </label>
       <div className="mt-2">
@@ -68,7 +70,10 @@ const SelectDropDown = ({
         >
           <option value="default">
             {(options?.length == 0 && `No ${title[item] || item} Found`) ||
-              `Select ${title[item] || item}`}
+              `Select ${
+                camelCaseToSpaceSeparated(title[item]) ||
+                camelCaseToSpaceSeparated(item)
+              }`}
           </option>
           {options &&
             options?.map((items, index) => {

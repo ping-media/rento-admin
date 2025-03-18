@@ -12,6 +12,7 @@ const vehicleSlice = createSlice({
     tempLoading: { loading: false, operation: "" },
     isHeaderChecked: false,
     isOneOrMoreHeaderChecked: false,
+    refresh: false,
     loading: false,
     error: null,
   },
@@ -233,6 +234,9 @@ const vehicleSlice = createSlice({
     fetchVehicleEnd: (state) => {
       state.loading = false;
     },
+    toggleRefresh: (state) => {
+      state.refresh = !state.refresh;
+    },
     toggleClearVehicle: () => initialState,
   },
 });
@@ -273,5 +277,6 @@ export const {
   updateTimeLineData,
   handleUpdateExtendVehicle,
   handleUpdateCompleteRide,
+  toggleRefresh,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;
