@@ -36,6 +36,10 @@ const UserSlice = createSlice({
       state.currentUser = decryptedUser;
       state.loading = false;
     },
+    addCurrentUser: (state, action) => {
+      state.currentUser = action.payload;
+      state.loading = false;
+    },
     updateCurrentUser: (state, action) => {
       const { firstName, lastName, email, altContact } = action.payload;
       state.currentUser = {
@@ -70,6 +74,7 @@ export const {
   handleSetToken,
   handleSignIn,
   handleCurrentUser,
+  addCurrentUser,
   updateCurrentUser,
   handleLoadingUserDataFalse,
   addUserDocument,

@@ -5,6 +5,7 @@ import {
   toggleBookingExtendModal,
   toggleDeleteModal,
   // togglePaymentUpdateModal,
+  // togglePaymentUpdateModal,
   togglePickupImageModal,
   toggleRideEndModal,
 } from "../Redux/SideBarSlice/SideBarSlice";
@@ -60,12 +61,6 @@ const BookingDetails = () => {
   // start ride
   const handleStartRideAndAddImages = () => {
     dispatch(addTempVehicleData(vehicleMaster[0]));
-    // changing vehicleChange tag to true
-    // vehicleMaster[0]?.bookingPrice?.diffAmount &&
-    //   vehicleMaster[0]?.bookingPrice?.diffAmount[
-    //     vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
-    //   ]?.status === "unpaid" &&
-    //   setIsVehicleChanging(true);
     dispatch(togglePickupImageModal());
   };
   // for opening cancel model

@@ -153,7 +153,7 @@ const BookingDetail = () => {
             <p className="text-sm text-end italic text-gray-400 mb-1">
               {/* here we will show only notes with noteType cancel  */}
               {vehicleMaster[0]?.notes
-                ?.filter((note) => note.noteType === "cancel") // Filter notes with noteType "cancel"
+                ?.filter((note) => note.noteType === "cancel")
                 .map((note, index) => (
                   <div key={note._id || index}>
                     {`Cancel note by ${note.key}: (${note.value})`}

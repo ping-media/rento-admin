@@ -127,6 +127,12 @@ const forms = {
   "all-coupons": CouponForm,
 };
 
+const bookingSearchList = [
+  { label: "All", value: "all" },
+  { label: "Booking Id", value: "bookingId" },
+  // { label: "Vehicle Name", value: "vehicleName" },
+];
+
 export {
   endPointBasedOnURL,
   endPointBasedOnKey,
@@ -135,4 +141,5 @@ export {
   vehicleBrands,
   forms,
   vehicleColor,
+  bookingSearchList,
 };

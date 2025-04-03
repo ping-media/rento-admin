@@ -18,6 +18,7 @@ const Input = ({
   isModalClose,
   isCouponInput = false,
   name,
+  placeholder,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   // for debouncing state
@@ -101,11 +102,12 @@ const Input = ({
         className="block text-gray-800 font-semibold text-sm capitalize text-left"
       >
         Enter{" "}
-        {item?.includes("Proof")
-          ? camelCaseToSpaceSeparated(item).replace("Proof", "")
-          : item?.includes("_For")
-          ? camelCaseToSpaceSeparated(item).replace("_For", "")
-          : camelCaseToSpaceSeparated(item)}{" "}
+        {placeholder ||
+          (item?.includes("Proof")
+            ? camelCaseToSpaceSeparated(item).replace("Proof", "")
+            : item?.includes("_For")
+            ? camelCaseToSpaceSeparated(item).replace("_For", "")
+            : camelCaseToSpaceSeparated(item))}{" "}
         {require && <span className="text-red-500">*</span>}
       </label>
       <div className="mt-2">
@@ -128,7 +130,11 @@ const Input = ({
           onKeyDown={handleKeyDown}
           name={name || item}
           placeholder={`${
-            item.includes("Proof") ? item.replace("Proof", "") : item
+            item.includes("Proof")
+              ? camelCaseToSpaceSeparated(
+                  placeholder || item.replace("Proof", "")
+                )
+              : camelCaseToSpaceSeparated(placeholder || item)
           }`}
           disabled={disabled}
           required={require}

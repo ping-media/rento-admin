@@ -100,6 +100,23 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                   />
                 </div>
               )}
+              {location.pathname !== "/profile" && (
+                <div className="w-full lg:w-[48%]">
+                  <Input
+                    type="date"
+                    item={"dateofbirth"}
+                    placeholder={"Date of Birth"}
+                    require={true}
+                    value={
+                      id
+                        ? vehicleMaster[0]?.userId?.dateofbirth ||
+                          vehicleMaster?.dateofbirth ||
+                          vehicleMaster[0]?.dateofbirth
+                        : ""
+                    }
+                  />
+                </div>
+              )}
             </>
             {!id && (
               <div className="w-full lg:w-[48%]">
@@ -122,13 +139,6 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                     require={true}
                   />
                 </div>
-                {/* <div className="w-full lg:w-[48%]">
-                <SelectDropDown
-                  item={"KycApproved"}
-                  options={["yes", "no"]}
-                  value={id ? vehicleMaster[0]?.kycApproved : "no"}
-                />
-              </div> */}
                 <div className="w-full lg:w-[48%]">
                   <SelectDropDown
                     item={"isContactVerified"}

@@ -38,6 +38,7 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "AmountLeftAfterUserPaid" &&
                   key !== "lateFeeBasedOnHour" &&
                   key !== "lateFeeBasedOnKM" &&
+                  key !== "payOnPickupMethod" &&
                   !(key === "extraAddonPrice" && value === 0)
               ) // Exclude totalPrice
               .map(([key, value]) => (
@@ -109,6 +110,8 @@ const BookingFareDetails = ({ rides }) => {
                       ? "(Full Paid)"
                       : rides?.paymentMethod == "partiallyPay"
                       ? ""
+                      : rides?.bookingPrice?.payOnPickupMethod
+                      ? `(${rides?.bookingPrice?.payOnPickupMethod})`
                       : "(need to pay at pickup)"}
                   </small>
                 </p>

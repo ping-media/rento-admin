@@ -40,7 +40,7 @@ const ImageUploadAndPreview = ({
 
   return (
     <>
-      <p className="block text-gray-800 font-semibold text-sm mb-2 text-left">
+      <p className="block text-gray-800 font-semibold text-sm mb-2 text-left capitalize">
         {camelCaseToSpaceSeparated(title)}
       </p>
       <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md px-6 py-6 md:py-5 lg:py-4 text-center mb-5 h-auto lg:max-h-[135px]">
@@ -49,6 +49,7 @@ const ImageUploadAndPreview = ({
           className="hidden"
           id={`ImageInput-${title}`}
           accept="image/*"
+          capture="environment"
           name={name}
           onChange={(e) => handleImageChange(e)}
           ref={fileInputRef}

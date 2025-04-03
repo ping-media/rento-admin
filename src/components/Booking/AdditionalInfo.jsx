@@ -1,4 +1,3 @@
-import { formatPrice } from "../../utils/index";
 import CopyButton from "../Buttons/CopyButton";
 import { useSelector } from "react-redux";
 import ExtraAmount from "./ExtraAmount";
@@ -10,13 +9,13 @@ const AdditionalInfo = () => {
       {/* ride otp's  */}
       <div className="mb-2">
         <p className="text-gray-400 flex items-center">
-          <span className="font-semibold mr-1">Start Ride Otp:</span>
+          <span className="font-semibold mr-1">Start OTP:</span>
           {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
           <CopyButton textToCopy={vehicleMaster[0]?.vehicleBasic?.startRide} />
         </p>
         {vehicleMaster[0]?.vehicleBasic?.endRide > 0 && (
           <p className="text-gray-400 flex items-center">
-            <span className="font-semibold mr-1">End Ride Otp:</span>
+            <span className="font-semibold mr-1">End OTP:</span>
             {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
             <CopyButton textToCopy={vehicleMaster[0]?.vehicleBasic?.endRide} />
           </p>

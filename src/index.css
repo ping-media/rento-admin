@@ -37,6 +37,13 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
 body {
   font-family: "Inter", serif !important;
   font-size: 0.95rem !important;

@@ -21,7 +21,7 @@ const HeaderMenuList = () => {
         {currentUser?.firstName}
       </p>
       {menuListOptions?.map((item, indx) => (
-        <button
+        <input
           className="text-left py-1.5 px-1.5 text-sm hover:bg-theme rounded-md hover:text-white transition duration-200 ease-in-out w-full"
           type="button"
           onClick={() =>
@@ -30,7 +30,7 @@ const HeaderMenuList = () => {
           key={indx}
         >
           {item?.title}
-        </button>
+        </input>
       ))}
     </div>
   );

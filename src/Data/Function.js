@@ -12,6 +12,7 @@ import {
   resetDashboardData,
 } from "../Redux/DashboardSlice/DashboardSlice";
 import {
+  addCurrentUser,
   handleLoadingUserData,
   handleSetToken,
   handleSignIn,
@@ -69,7 +70,12 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
 };
 
 // for fetching data & posting data
-const fetchDashboardData = async (dispatch, token, roleBaseFilter) => {
+const fetchDashboardData = async (
+  dispatch,
+  token,
+  roleBaseFilter,
+  navigate
+) => {
   try {
     dispatch(handleLoadingDashboardData());
     const [dashboardResponse, paymentResponse] = await Promise.all([
@@ -81,12 +87,12 @@ const fetchDashboardData = async (dispatch, token, roleBaseFilter) => {
       handleDashboardData({
         dashboard: dashboardResponse?.data,
         payments: paymentResponse?.data,
-        // users: userResponse?.data,
       })
     );
   } catch (error) {
     dispatch(resetDashboardData());
     handleAsyncError(dispatch, error?.message);
+    navigate("*");
   }
 };
 
@@ -99,7 +105,6 @@ const fetchVehicleMaster = async (dispatch, token, endpoint) => {
       dispatch(fetchVehicleMasterData(response?.data));
     } else {
       dispatch(fetchVehicleEnd());
-      // handleAsyncError(dispatch, response?.message);
     }
   } catch (error) {
     dispatch(fetchVehicleEnd());
@@ -115,19 +120,35 @@ const fetchVehicleMasterWithPagination = debounce(
     isSearchTermPresent,
     page,
     limit,
-    searchBasedOnFilter = ""
+    searchBasedOnFilter = "",
+    searchType
   ) => {
     try {
       dispatch(fetchVehicleStart());
       // setting dynamic route
-      const dynamicEndpoint =
-        isSearchTermPresent !== null
-          ? searchBasedOnFilter === ""
-            ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
-            : `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${page}&limit=${limit}`
-          : searchBasedOnFilter === ""
-          ? `${endpoint}?page=${page}&limit=${limit}`
-          : `${endpoint}?${searchBasedOnFilter}&page=${page}&limit=${limit}`;
+      // const dynamicEndpoint =
+      //   isSearchTermPresent !== null
+      //     ? searchType !== "all"
+      //       ? `${endpoint}?${searchType}=${searchBasedOnFilter}&page=${page}&limit=${limit}`
+      //       : searchBasedOnFilter === ""
+      //       ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
+      //       : `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${page}&limit=${limit}`
+      //     : searchBasedOnFilter === ""
+      //     ? `${endpoint}?page=${page}&limit=${limit}`
+      //     : `${endpoint}?${searchBasedOnFilter}&page=${page}&limit=${limit}`;
+      let dynamicEndpoint = `${endpoint}?page=${page}&limit=${limit}`;
+
+      if (isSearchTermPresent !== null) {
+        if (searchType !== "all") {
+          dynamicEndpoint = `${endpoint}?${searchType}=${isSearchTermPresent}&page=${page}&limit=${limit}`;
+        } else if (searchBasedOnFilter === "") {
+          dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`;
+        } else {
+          dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${page}&limit=${limit}`;
+        }
+      } else if (searchBasedOnFilter !== "") {
+        dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${page}&limit=${limit}`;
+      }
 
       const response = await getFullData(dynamicEndpoint, token);
       if (response?.status == 200) {
@@ -217,10 +238,8 @@ const handleCreateAndUpdateVehicle = async (
         ]
       }?_id=${id}`
     : `${endPointBasedOnURL[modifyUrl(location?.pathname)]}`;
-  // console.log(endpoint, result);
   try {
     const response = await postData(endpoint, result, token);
-    // console.log(response);
     if (response?.status !== 200) {
       handleAsyncError(dispatch, response?.message);
     } else {
@@ -363,20 +382,64 @@ const handleGenerateInvoice = async (
   }
 };
 
+// const validateUser = debounce(
+//   async (token, handleLogoutUser, dispatch, setPreLoaderLoading) => {
+//     try {
+//       setPreLoaderLoading && setPreLoaderLoading(true);
+//       if (!token) return;
+//       const response = await postData(`/validedToken`, { token: token }, token);
+//       const isUserValid = response?.isUserValid;
+//       if (isUserValid === true) {
+//         if (location.pathname == "/") return navigate("/dashboard");
+//       } else {
+//         handleLogoutUser(dispatch);
+//       }
+//     } catch (error) {
+//       handleLogoutUser(dispatch);
+//     } finally {
+//       setPreLoaderLoading && setPreLoaderLoading(false);
+//     }
+//   },
+//   60
+// );
+
 const validateUser = debounce(
-  async (token, handleLogoutUser, dispatch, setPreLoaderLoading) => {
+  async (
+    token,
+    handleLogoutUser,
+    dispatch,
+    setPreLoaderLoading,
+    retries = 3
+  ) => {
     try {
       setPreLoaderLoading && setPreLoaderLoading(true);
       if (!token) return;
-      const response = await postData(`/validedToken`, { token: token }, token);
-      const isUserValid = response?.isUserValid;
-      if (isUserValid === true) {
-        if (location.pathname == "/") return navigate("/dashboard");
-      } else {
-        handleLogoutUser(dispatch);
+
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const response = await postData(
+            `/validedToken`,
+            { token: token },
+            token
+          );
+          const isUserValid = response?.isUserValid;
+
+          if (isUserValid === true) {
+            if (location.pathname === "/") return navigate("/dashboard");
+            return;
+          } else {
+            handleLogoutUser(dispatch);
+            return;
+          }
+        } catch (error) {
+          if (attempt === retries) {
+            console.error(`Validation failed after ${retries} attempts`, error);
+            handleLogoutUser(dispatch);
+          } else {
+            console.warn(`Retrying validation... Attempt ${attempt}`);
+          }
+        }
       }
-    } catch (error) {
-      handleLogoutUser(dispatch);
     } finally {
       setPreLoaderLoading && setPreLoaderLoading(false);
     }

@@ -34,9 +34,6 @@ import CardDataLoading from "../../components/Skeleton/CardDataLoading.jsx";
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
   const { limit } = useSelector((state) => state.pagination);
-  const [limitedData, setLimitedData] = useState(
-    (limit && Number(limit)) || 10
-  );
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const showRecordsOptions = [10, 20, 25, 50, 100];
@@ -54,8 +51,8 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     if (newUpdatedData && pagination) {
       const pageCount = Number(pagination?.totalPages);
       setTotalPages(pageCount);
-      const start = (Number(pagination?.currentPage) - 1) * limitedData;
-      const end = start + limitedData;
+      const start = (Number(pagination?.currentPage) - 1) * limit;
+      const end = start + limit;
       // if there is data in sortedData
       if (sortedData) return setNewUpdatedData(sortedData?.slice(start, end));
     }
@@ -279,12 +276,13 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                         newUpdatedData.map((item, index) => (
                           <tr
                             className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"
-                            key={item?._id || `row-${index}`}
+                            key={item._id}
                             onClick={() => handleViewData(item?._id)}
                           >
                             {location.pathname == "/all-vehicles" && (
                               <td
                                 className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
+                                key={`${item._id}_CheckBox_${index}`}
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <CheckBoxInput isId={item?._id} />
@@ -301,7 +299,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               if (column === "userId") {
                                 return (
                                   <UserDisplayCell
-                                    key={`${columnIndex}_userDisplay`}
+                                    key={`${item._id}_${column}_${columnIndex}`}
                                     item={item}
                                     onClick={(e) => e.stopPropagation()}
                                   />
@@ -310,7 +308,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               if (column === "city") {
                                 return (
                                   <BookingDateAndCityCell
-                                    key={`${columnIndex}_bookingDateAndCity`}
+                                    key={`${item._id}_${column}_${columnIndex}`}
                                     item={item}
                                     column={column}
                                   />
@@ -321,7 +319,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   <UserStatusCell
                                     item={item}
                                     index={columnIndex}
-                                    key={`UserVerification_${columnIndex}`}
+                                    key={`${item._id}_${column}_${columnIndex}`}
                                   />
                                 );
                               }
@@ -329,7 +327,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 return (
                                   <td
                                     className="p-3 max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
-                                    key={`${columnIndex}_copy`}
+                                    key={`${item._id}_${column}_${columnIndex}`}
                                   >
                                     {item[column]}{" "}
                                     <CopyButton textToCopy={item[column]} />
@@ -340,7 +338,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 return (
                                   <td
                                     className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                    key={`${columnIndex}_Time`}
+                                    key={`${item._id}_${column}_${columnIndex}`}
                                   >
                                     <p>
                                       {`${changeNumberIntoTime(
@@ -360,7 +358,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 if (column === "firstName") {
                                   return (
                                     <UserDisplayCell
-                                      key={`${item?._id}_userDisplayCell`}
+                                      key={`${item._id}_${column}_${columnIndex}`}
                                       firstName={item?.firstName}
                                       lastName={item?.lastName}
                                       Contact={item?.contact}
@@ -376,7 +374,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               }
                               // Skip rendering `BookingEndDateAndTime` data to avoid duplication
                               if (
-                                // column === "BookingEndDateAndTime" ||
                                 column === "state" ||
                                 column === "isContactVerified" ||
                                 column === "isDocumentVerified" ||
@@ -390,14 +387,14 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 <TableImage
                                   item={item}
                                   column={column}
-                                  key={`${columnIndex}_tableImage`}
+                                  key={`${item._id}_${column}_${columnIndex}`}
                                 />
                               ) : typeof item[column] === "object" ? (
                                 <>
                                   {location?.pathname === "/payments" && (
                                     <td
                                       className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                      key={`${columnIndex}_payment`}
+                                      key={`${item._id}_${column}_${columnIndex}`}
                                     >
                                       ₹{" "}
                                       {item?.paymentStatus ===
@@ -419,7 +416,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   )}
                                   <td
                                     className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                    key={`${columnIndex}_discount`}
+                                    key={`${item._id}_${column}_${columnIndex}`}
                                   >
                                     {column.includes("files")
                                       ? null
@@ -445,7 +442,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       ? "max-w-40"
                                       : "whitespace-nowrap"
                                   }`}
-                                  key={`${columnIndex}_other`}
+                                  key={`${item._id}_${column}_${columnIndex}`}
                                 >
                                   {column.includes("Charges") ||
                                   column.includes("Deposit") ||
@@ -485,7 +482,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 column.includes("vehicleStatus")) ? (
                                 <td
                                   className="p-3 whitespace-nowrap text-sm font-medium text-gray-900 pl-4"
-                                  key={columnIndex}
+                                  key={`${item._id}_${column}_${columnIndex}`}
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <InputSwitch
@@ -496,7 +493,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               ) : (
                                 <td
                                   className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                  key={columnIndex}
+                                  key={`${item._id}_${column}_${columnIndex}`}
                                 >
                                   <StatusChange item={item} column={column} />
                                 </td>
@@ -507,6 +504,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               loadingStates={loadingStates}
                               setLoadingStates={setLoadingStates}
                               handleDeleteVehicle={handleDeleteVehicle}
+                              key={item?._id}
                             />
                           </tr>
                         ))
@@ -553,11 +551,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
         <div className="flex flex-wrap items-center justify-start lg:justify-between gap-4 lg:gap-2">
           <div className="flex items-center gap-2">
             <h2 className="capitalize">Rows per Page</h2>
-            <DropDownComponent
-              defaultValue={limitedData}
-              options={showRecordsOptions}
-              setValue={setLimitedData}
-            />
+            <DropDownComponent options={showRecordsOptions} />
           </div>
           <span className="hidden lg:mx-1">|</span>
           <Pagination

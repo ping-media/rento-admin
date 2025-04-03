@@ -6,7 +6,6 @@ import { postData, postMultipleData } from "../../Data";
 import Spinner from "../Spinner/Spinner";
 import {
   handleInvoiceCreated,
-  // removeTempVehicleData,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import Input from "../InputAndDropdown/Input";
@@ -92,41 +91,54 @@ const UploadPickupImageModal = ({
 
     let updatedBooking;
 
-    if (isChange === true) {
-      // updatedBooking = {
-      //   ...currentBooking,
-      //   bookingPrice: {
-      //     ...currentBooking.bookingPrice,
-      //     isPickupImageAdded: true,
-      //     diffAmount: [
-      //       ...currentBooking?.bookingPrice?.diffAmount,
-      //       {
-      //         ...currentBooking?.bookingPrice?.diffAmount,
-      //         status: "paid",
-      //       },
-      //     ],
-      //   },
-      // };
-      // for hiding the finish button and show update ride button
-      setIsChange && setIsChange(false);
-    } else {
+    // return console.log(currentBooking, updatedBooking);
+    if (currentBooking?.paymentMethod === "cash") {
       updatedBooking = {
         ...currentBooking,
         bookingPrice: {
           ...currentBooking.bookingPrice,
-          isPickupImageAdded: true,
-          AmountLeftAfterUserPaid: {
-            ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
-            status: "paid",
-            paymentMethod:
-              updatePaymentMode ||
-              currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
-                ?.paymentMethod,
-          },
+          payOnPickupMethod: updatePaymentMode || "cash",
         },
         paymentStatus: "paid",
         rideStatus: "ongoing",
       };
+    } else {
+      if (isChange === true) {
+        // updatedBooking = {
+        //   ...currentBooking,
+        //   bookingPrice: {
+        //     ...currentBooking.bookingPrice,
+        //     isPickupImageAdded: true,
+        //     diffAmount: [
+        //       ...currentBooking?.bookingPrice?.diffAmount,
+        //       {
+        //         ...currentBooking?.bookingPrice?.diffAmount,
+        //         status: "paid",
+        //       },
+        //     ],
+        //   },
+        // };
+        // for hiding the finish button and show update ride button
+        setIsChange && setIsChange(false);
+      } else {
+        updatedBooking = {
+          ...currentBooking,
+          bookingPrice: {
+            ...currentBooking.bookingPrice,
+            isPickupImageAdded: true,
+            AmountLeftAfterUserPaid: {
+              ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
+              status: "paid",
+              paymentMethod:
+                updatePaymentMode ||
+                currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
+                  ?.paymentMethod,
+            },
+          },
+          paymentStatus: "paid",
+          rideStatus: "ongoing",
+        };
+      }
     }
 
     setLoading(true);
@@ -260,12 +272,10 @@ const UploadPickupImageModal = ({
                 </button>
               </div>
             )}
-            <div>
-              {imagesUrl && imagesUrl?.length > 6 && (
-                <p className="text-theme text-sm text-left">
-                  Max Upload Limit is 6 Images
-                </p>
-              )}
+            <div className="mb-2">
+              <p className="text-gray-400 text-xs text-left italic">
+                Note: (All six images are required.)
+              </p>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-2">
               {rideVehicleImages.map((item, index) => (
@@ -281,7 +291,8 @@ const UploadPickupImageModal = ({
                 </div>
               ))}
             </div>
-            {(vehicleMaster[0]?.paymentStatus === "partially_paid" ||
+            {(vehicleMaster[0]?.paymentMethod === "cash" ||
+              vehicleMaster[0]?.paymentStatus === "partially_paid" ||
               vehicleMaster[0]?.paymentStatus === "partiallyPay") && (
               <div className="flex items-center flex-wrap gap-4 mb-3">
                 <input
@@ -293,8 +304,16 @@ const UploadPickupImageModal = ({
                   <Input
                     type="number"
                     value={
-                      vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid
-                        ?.amount
+                      vehicleMaster[0]?.paymentMethod === "cash"
+                        ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice > 0
+                          ? Number(
+                              vehicleMaster[0]?.bookingPrice?.discountTotalPrice
+                            )
+                          : Number(vehicleMaster[0]?.bookingPrice?.totalPrice)
+                        : Number(
+                            vehicleMaster[0]?.bookingPrice
+                              ?.AmountLeftAfterUserPaid?.amount
+                          )
                     }
                     item="remainingPayment"
                     require={true}
@@ -312,7 +331,12 @@ const UploadPickupImageModal = ({
             )}
             <div className="flex items-center flex-wrap gap-4 mb-3">
               <div className="w-full lg:w-[48%]">
-                <Input type="number" item="startMeterReading" require={true} />
+                <Input
+                  type="number"
+                  item="startMeterReading"
+                  placeholder={"start Reading"}
+                  require={true}
+                />
               </div>
               {isChange && isChange !== false && (
                 <div className="w-full lg:w-[48%]">
@@ -320,12 +344,18 @@ const UploadPickupImageModal = ({
                     type="number"
                     item="EndMeterReading"
                     name="oldVehicleEndMeterReading"
+                    placeholder={"End Reading"}
                     require={true}
                   />
                 </div>
               )}
               <div className="w-full lg:w-[48%]">
-                <Input type="number" item="rideOtp" require={true} />
+                <Input
+                  type="number"
+                  item="rideOtp"
+                  placeholder={"Otp"}
+                  require={true}
+                />
               </div>
             </div>
             <button
