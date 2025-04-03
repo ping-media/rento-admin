@@ -155,6 +155,10 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               value={id ? Number(vehicleMaster[0]?.freeKms) : 100}
               require={true}
             />
+            <p className="text-xs mt-1 text-gray-500 italic">
+              Base Free limit for vehicle.The limit entered above will change
+              based on booking duration.
+            </p>
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
@@ -163,8 +167,13 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               value={id ? Number(vehicleMaster[0]?.extraKmsCharges) : 15}
               require={true}
             />
+            <p className="text-xs mt-1 text-gray-500 italic">
+              Extra charges after the free limit is over. The amount entered
+              above will be charged per km.
+            </p>
           </div>
           <div className="w-full lg:w-[48%]">
+            {console.log(tenYearBeforeCurrentYear())}
             <SelectDropDown
               item={"vehicleModel"}
               options={tenYearBeforeCurrentYear()}
@@ -187,6 +196,9 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               value={id && vehicleMaster[0]?.lastServiceDate}
               require={true}
             />
+            <p className="text-xs mt-1 text-gray-500 italic">
+              Enter the last service date of the vehicle.
+            </p>
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
@@ -195,6 +207,9 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               value={id && vehicleMaster[0]?.lastMeterReading}
               require={true}
             />
+            <p className="text-xs mt-1 text-gray-500 italic">
+              Enter the meter reading of latest service of the vehicle.
+            </p>
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
@@ -203,6 +218,10 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               value={id ? Number(vehicleMaster[0]?.kmsRun) : 1000}
               require={true}
             />
+            <p className="text-xs mt-1 text-gray-500 italic">
+              Enter the overall meter reading till now. How much km a vehicle is
+              running.
+            </p>
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
@@ -211,6 +230,10 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               value={id ? Number(vehicleMaster[0]?.refundableDeposit) : 1000}
               require={true}
             />
+            <p className="text-xs mt-1 text-gray-500 italic">
+              Enter a refundable deposit amount which will be returned to
+              customer after vehicle dropoff.
+            </p>
           </div>
           <div className="w-full lg:w-[48%]">
             <Input

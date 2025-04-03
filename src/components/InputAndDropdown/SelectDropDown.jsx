@@ -156,7 +156,9 @@ const SelectDropDown = ({
               } else {
                 return (
                   <option value={items} key={index} className="capitalize">
-                    {camelCaseToSpaceSeparated(items)}
+                    {typeof items === "number"
+                      ? items
+                      : camelCaseToSpaceSeparated(items)}
                   </option>
                 );
               }
