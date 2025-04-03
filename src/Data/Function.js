@@ -238,10 +238,8 @@ const handleCreateAndUpdateVehicle = async (
         ]
       }?_id=${id}`
     : `${endPointBasedOnURL[modifyUrl(location?.pathname)]}`;
-  // console.log(endpoint, result);
   try {
     const response = await postData(endpoint, result, token);
-    // console.log(response);
     if (response?.status !== 200) {
       handleAsyncError(dispatch, response?.message);
     } else {

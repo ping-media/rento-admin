@@ -192,23 +192,17 @@ const UpdateBookingPayment = ({ id }) => {
                 require={true}
               />
             </div>
+            {/* {paymentFor !== "CashPayment" && ( */}
             <div className="mb-2">
               <SelectDropDown
                 item={"Payment Record Id"}
                 options={paymentRecord}
                 setIsLocationSelected={setPaymentRecordId}
+                // require={paymentFor !== "CashPayment" ? true : false}
                 require={true}
               />
             </div>
-            {/* <div className="mb-2">
-              <Input
-                item={"finalAmount"}
-                type="number"
-                require={true}
-                value={finalAmount}
-                setValueChange={setFinalAmount}
-              />
-            </div> */}
+            {/* )} */}
             <div className="mb-2">
               <SelectDropDown
                 item={"PaymentMode"}

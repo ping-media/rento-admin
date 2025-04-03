@@ -83,14 +83,6 @@ const Header = () => {
               loading="lazy"
               alt="USERIMAGE"
             />
-            {/* <div className="hidden md:block lg:block text-left">
-              <h2 className="font-semibold text-md lg:text-lg capitalize dark:text-gray-100">
-                {currentUser?.firstName}
-              </h2>
-              <small className="float-left text-gray-400 text-sm lg:text-md text-gray-200">
-                {currentUser?.userType}
-              </small>
-            </div> */}
             {isVisible && <HeaderMenuList />}
           </button>
         </div>

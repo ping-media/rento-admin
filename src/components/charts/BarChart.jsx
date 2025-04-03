@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import Chart from "react-apexcharts";
 
 const BarChart = ({ data }) => {
-  const [viewMode, setViewMode] = useState("Daily"); // Daily, Weekly, Monthly
-  const options = ["Daily", "Weekly", "Monthly"];
+  const [viewMode, setViewMode] = useState("Weekly");
+  const options = ["Weekly", "Monthly"];
 
   // format date
   const formatDate = (dateStr) => {
@@ -20,15 +20,15 @@ const BarChart = ({ data }) => {
   const processChartData = (mode) => {
     if (mode === "Weekly") {
       return {
-        categories: ["Week 1", "Week 2", "Week 3"], // Example weeks
-        totalPrice: [30000, 20000, 15000], // Example total price data
-        bookingCount: [10, 15, 12], // Example booking count data
+        categories: ["Week 1", "Week 2", "Week 3"],
+        totalPrice: [30000, 20000, 15000],
+        bookingCount: [10, 15, 12],
       };
     } else if (mode === "Monthly") {
       return {
-        categories: ["December", "January"], // Example months
-        totalPrice: [50000, 30000], // Example total price data
-        bookingCount: [25, 20], // Example booking count data
+        categories: ["December", "January"],
+        totalPrice: [50000, 30000],
+        bookingCount: [25, 20],
       };
     } else {
       return {

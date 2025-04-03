@@ -47,7 +47,9 @@ const App = () => {
   const { loggedInRole } = useSelector((state) => state.user);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <Suspense fallback={<PreLoader />}>
         <Routes>
           <Route path="/" exact element={<Login />} />
