@@ -44,6 +44,9 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
 
   return collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
+      <p className="text-xs mt-1 text-gray-500 font-semibold italic mb-1">
+        Note: (Always add time in round, Like 10:00 AM, 11:00 AM etc.)
+      </p>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
 
