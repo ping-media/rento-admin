@@ -64,6 +64,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"locationId"}
               options={collectedData?.locationId}
               value={id && vehicleMaster[0]?.locationId}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -71,6 +72,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"openStartTime"}
               type="time"
               value={id && formatHourToTime(vehicleMaster[0]?.openStartTime)}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -78,12 +80,14 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"openEndTime"}
               type="time"
               value={id && formatHourToTime(vehicleMaster[0]?.openEndTime)}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
               item={"stationName"}
               value={id && vehicleMaster[0]?.stationName}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -107,13 +111,18 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input item={"city"} value={id && vehicleMaster[0]?.city} />
+            <Input
+              item={"city"}
+              value={id && vehicleMaster[0]?.city}
+              require={true}
+            />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"state"}
               options={States}
               value={id && vehicleMaster[0]?.state}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -127,6 +136,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               type="number"
               value={id && Number(vehicleMaster[0]?.pinCode)}
               setValueChange={setZipcodeValue}
+              require={true}
             />
           </div>
         </>

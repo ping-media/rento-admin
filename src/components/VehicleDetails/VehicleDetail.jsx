@@ -92,8 +92,8 @@ const VehicleDetail = () => {
                         key.includes("_v") ||
                         key.includes("At") ||
                         key.includes("Id") ||
-                        key.includes("Image") ||
-                        key.includes("vehiclePlan")
+                        key.includes("Image")
+                        // key.includes("vehiclePlan")
                       ) {
                         return null;
                       }
@@ -114,7 +114,9 @@ const VehicleDetail = () => {
                             {key.includes("Cost") || key.includes("Charges")
                               ? "₹"
                               : ""}
-                            {value}
+                            {typeof value !== "object"
+                              ? value
+                              : `${value.length} applied`}
                           </span>
                         </div>
                       );

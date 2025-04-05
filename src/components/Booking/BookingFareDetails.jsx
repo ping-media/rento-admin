@@ -157,6 +157,8 @@ const BookingFareDetails = ({ rides }) => {
                       ? ""
                       : rides?.bookingPrice?.isDiscountZero === true
                       ? ""
+                      : rides?.bookingPrice?.payOnPickupMethod
+                      ? `(${rides?.bookingPrice?.payOnPickupMethod})`
                       : "(Need to pay at pickup)"}
                   </small>
                 </p>

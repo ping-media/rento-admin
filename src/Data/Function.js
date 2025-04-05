@@ -382,27 +382,6 @@ const handleGenerateInvoice = async (
   }
 };
 
-// const validateUser = debounce(
-//   async (token, handleLogoutUser, dispatch, setPreLoaderLoading) => {
-//     try {
-//       setPreLoaderLoading && setPreLoaderLoading(true);
-//       if (!token) return;
-//       const response = await postData(`/validedToken`, { token: token }, token);
-//       const isUserValid = response?.isUserValid;
-//       if (isUserValid === true) {
-//         if (location.pathname == "/") return navigate("/dashboard");
-//       } else {
-//         handleLogoutUser(dispatch);
-//       }
-//     } catch (error) {
-//       handleLogoutUser(dispatch);
-//     } finally {
-//       setPreLoaderLoading && setPreLoaderLoading(false);
-//     }
-//   },
-//   60
-// );
-
 const validateUser = debounce(
   async (
     token,
@@ -462,7 +441,8 @@ const handleDeleteAndEditAllData = async (
   removeTempIds,
   restvehicleMaster,
   token,
-  handleIsHeaderChecked
+  handleIsHeaderChecked,
+  handleCloseModal
 ) => {
   dispatch(changeTempLoadingTrue(operation));
   try {
@@ -471,7 +451,9 @@ const handleDeleteAndEditAllData = async (
       dispatch(removeTempIds());
       dispatch(restvehicleMaster());
       handleIsHeaderChecked && dispatch(handleIsHeaderChecked(false));
-      return handleAsyncError(dispatch, response?.message, "success");
+      handleAsyncError(dispatch, response?.message, "success");
+      handleCloseModal && handleCloseModal();
+      return;
     } else {
       return handleAsyncError(dispatch, response?.message);
     }

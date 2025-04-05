@@ -16,6 +16,7 @@ const initialState = {
   isBookingExtendModalActive: false,
   isPaymentUpdateModalActive: false,
   isForgetModalActive: false,
+  isVehicleUpdateModalActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -78,6 +79,10 @@ const SideBarSlice = createSlice({
       state.isForgetModalActive =
         state.isForgetModalActive === false ? true : false;
     },
+    toggleVehicleUpdateModal: (state) => {
+      state.isVehicleUpdateModalActive =
+        state.isVehicleUpdateModalActive === false ? true : false;
+    },
     toggleClearModals: () => initialState,
   },
 });
@@ -98,6 +103,7 @@ export const {
   toggleBookingExtendModal,
   toggleRideEndModal,
   togglePaymentUpdateModal,
+  toggleVehicleUpdateModal,
   toggleForgetPasswordModal,
 } = SideBarSlice.actions;
 
