@@ -28,9 +28,8 @@ const HeaderMenuList = () => {
             item?.link ? navigate(item?.link) : dispatch(toggleModal())
           }
           key={indx}
-        >
-          {item?.title}
-        </input>
+          value={item?.title}
+        />
       ))}
     </div>
   );

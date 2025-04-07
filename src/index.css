@@ -63,6 +63,12 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
 /* datatable css override  */
 /* Tailwind-based overrides */
 table.dataTable {
