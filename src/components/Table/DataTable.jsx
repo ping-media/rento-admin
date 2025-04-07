@@ -241,7 +241,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           formatPathNameToTitle(location.pathname)
             ? "justify-between"
             : "justify-end"
-        } mt-1 gap-4`}
+        } mt-1 gap-2 lg:gap-4`}
       >
         <TablePageHeader
           inputSearchQuery={inputSearchQuery}

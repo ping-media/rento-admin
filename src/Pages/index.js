@@ -8,6 +8,7 @@ import VehicleDetails from "./VehicleDetails";
 import BookingDetails from "./BookingDetails";
 import VehicleMaster from "./Vehicle-Master";
 import InvoiceDetails from "./InvoiceDetails";
+import General from "./General";
 
 export {
   Profile,
@@ -20,4 +21,5 @@ export {
   BookingDetails,
   VehicleMaster,
   InvoiceDetails,
+  General,
 };

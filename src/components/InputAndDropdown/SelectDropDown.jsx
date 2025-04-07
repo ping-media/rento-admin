@@ -10,6 +10,7 @@ const SelectDropDown = ({
   onChangeFn,
   changetoDefault = false,
   changeModalClose,
+  placeholder,
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
   // for giving custom title
@@ -54,7 +55,8 @@ const SelectDropDown = ({
         className="block text-gray-800 font-semibold text-sm capitalize text-left"
       >
         Select{" "}
-        {camelCaseToSpaceSeparated(title[item]) ||
+        {placeholder ||
+          camelCaseToSpaceSeparated(title[item]) ||
           camelCaseToSpaceSeparated(item)}
         {require && <span className="ml-1 text-red-500">*</span>}
       </label>

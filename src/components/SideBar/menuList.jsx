@@ -9,6 +9,7 @@ import BookOnlineOutlinedIcon from "@mui/icons-material/BookOnlineOutlined";
 import RequestPageOutlinedIcon from "@mui/icons-material/RequestPageOutlined";
 import LoyaltyOutlinedIcon from "@mui/icons-material/LoyaltyOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 // import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 // import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 
@@ -98,6 +99,12 @@ const menuList = [
     menuTitle: "Profile",
     menuLink: "/profile",
     roles: ["admin", "manager"],
+  },
+  {
+    menuImg: <SettingsOutlinedIcon />,
+    menuTitle: "General Settings",
+    menuLink: "/general",
+    roles: ["admin"],
   },
 ];
 

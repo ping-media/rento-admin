@@ -49,7 +49,7 @@ const ImageUploadAndPreview = ({
           className="hidden"
           id={`ImageInput-${title}`}
           accept="image/*"
-          capture="environment"
+          // capture="environment"
           name={name}
           onChange={(e) => handleImageChange(e)}
           ref={fileInputRef}
