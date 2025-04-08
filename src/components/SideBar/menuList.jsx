@@ -21,6 +21,12 @@ const menuList = [
     roles: ["admin", "manager"],
   },
   {
+    menuImg: <BookOnlineOutlinedIcon />,
+    menuTitle: "Manage Bookings",
+    menuLink: "/all-bookings",
+    roles: ["admin", "manager"],
+  },
+  {
     menuImg: <LocationOnOutlinedIcon />,
     menuTitle: "Location Master",
     menuLink: "/location-master",
@@ -69,12 +75,6 @@ const menuList = [
         roles: ["admin"],
       },
     ],
-  },
-  {
-    menuImg: <BookOnlineOutlinedIcon />,
-    menuTitle: "Manage Bookings",
-    menuLink: "/all-bookings",
-    roles: ["admin", "manager"],
   },
   {
     menuImg: <LoyaltyOutlinedIcon />,

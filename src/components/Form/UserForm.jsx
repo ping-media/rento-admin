@@ -15,7 +15,6 @@ const UserForm = ({ handleFormSubmit, loading }) => {
       <>
         <form className="mb-5" onSubmit={handleFormSubmit}>
           <div className="flex flex-wrap gap-4">
-            {/* for updating the value of the existing one & for creating new one */}
             <>
               <div className="w-full lg:w-[48%]">
                 <Input
@@ -64,9 +63,18 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                   type="number"
                   value={
                     id || location.pathname == "/profile"
-                      ? Number(vehicleMaster[0]?.userId?.altContact) ||
-                        Number(vehicleMaster?.altContact) ||
-                        Number(vehicleMaster[0]?.altContact)
+                      ? (() => {
+                          const altContact =
+                            vehicleMaster[0]?.userId?.altContact ??
+                            vehicleMaster?.altContact ??
+                            vehicleMaster[0]?.altContact;
+
+                          return altContact &&
+                            altContact !== "Na" &&
+                            !isNaN(altContact)
+                            ? Number(altContact)
+                            : "";
+                        })()
                       : ""
                   }
                   require={true}
@@ -106,12 +114,15 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                     type="date"
                     item={"dateofbirth"}
                     placeholder={"Date of Birth"}
-                    require={true}
                     value={
                       id
-                        ? vehicleMaster[0]?.userId?.dateofbirth ||
-                          vehicleMaster?.dateofbirth ||
-                          vehicleMaster[0]?.dateofbirth
+                        ? vehicleMaster[0]?.userId?.dateofbirth !== "Na"
+                          ? vehicleMaster[0]?.userId?.dateofbirth
+                          : "" || vehicleMaster?.dateofbirth !== "Na"
+                          ? vehicleMaster?.dateofbirth
+                          : "" || vehicleMaster[0]?.dateofbirth !== "Na"
+                          ? vehicleMaster[0]?.dateofbirth
+                          : ""
                         : ""
                     }
                   />

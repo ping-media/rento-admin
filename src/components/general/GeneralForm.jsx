@@ -114,21 +114,20 @@ const GeneralForm = () => {
   return (
     <>
       <h2 className="text-md font-semibold mb-3 border-b uppercase">
-        Weakend Price
+        Weekend Price
       </h2>
       <form onSubmit={handleUpdatweakendSettings} className="mb-5">
         <div className="flex items-center flex-wrap gap-4 lg:mb-2">
           <div className="w-full lg:w-[49%] mb-2 lg:mb-0">
             <Input
-              placeholder="Weakend Percentage"
+              placeholder="Weekend Percentage"
               item="weakendPrice"
               type="number"
               value={general?.weakend?.Price || ""}
               require={true}
             />
             <p className="text-gray-400 italic text-xs mt-1">
-              The value entered above will be applied on weak days in
-              percentage.
+              The value entered above will be applied on weekend in percentage.
             </p>
           </div>
           <div className="w-full lg:w-[49%] mb-2 lg:mb-0">
@@ -141,7 +140,7 @@ const GeneralForm = () => {
             />
             <p className="text-gray-400 italic text-xs mt-1">
               Based on the above value, the amount will be increased or
-              decreased on weak days.
+              decreased on weekend.
             </p>
           </div>
         </div>

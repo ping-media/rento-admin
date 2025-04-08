@@ -185,7 +185,7 @@ const BookingFareDetails = ({ rides }) => {
                     <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
                       (
                       {rides?.bookingPrice?.AmountLeftAfterUserPaid
-                        ?.paymentMethod != ""
+                        ?.paymentMethod
                         ? `Paid: ${rides?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod}`
                         : "need to pay at pickup"}
                       )
@@ -193,7 +193,8 @@ const BookingFareDetails = ({ rides }) => {
                   </p>
                   <p className="text-sm font-bold text-right">
                     {`₹${formatPrice(
-                      rides?.bookingPrice.AmountLeftAfterUserPaid?.amount
+                      rides?.bookingPrice.AmountLeftAfterUserPaid?.amount ||
+                        rides?.bookingPrice.AmountLeftAfterUserPaid
                     )}`}
                   </p>
                 </li>
