@@ -16,7 +16,6 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           />
         </th>
       )}
-      {/* Render headers for columns that do not include "Status" or "Active" */}
       {Columns.filter(
         (item) =>
           !item.includes("status") &&
@@ -159,7 +158,6 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
         );
       })}
 
-      {/* Render headers for columns containing "Status" or "Active" */}
       {Columns.filter(
         (item) =>
           item.includes("status") ||

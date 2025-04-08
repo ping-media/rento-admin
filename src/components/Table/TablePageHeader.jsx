@@ -114,7 +114,8 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
           {/* filters  */}
           {(location.pathname === "/all-users" ||
             location.pathname === "/all-managers" ||
-            location.pathname === "/all-bookings") && (
+            location.pathname === "/all-bookings" ||
+            location.pathname === "/all-vehicles") && (
             <button
               className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-1.5 lg:p-2.5 flex items-center transition-all duration-200 ease-in"
               title="filters"
