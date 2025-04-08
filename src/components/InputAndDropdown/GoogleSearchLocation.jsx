@@ -14,19 +14,17 @@ const GoogleSearchLocation = ({
   bodyWidth = "w-full",
 }) => {
   const [input, setInput] = useState((value && value) || "");
-  const autocompleteRef = useRef(null); // Ref for the autocomplete instance
+  const autocompleteRef = useRef(null);
 
   const handlePlaceChanged = () => {
     if (autocompleteRef.current) {
-      const place = autocompleteRef.current.getPlace(); // Get place details
+      const place = autocompleteRef.current.getPlace();
       if (place && place.formatted_address) {
         const latitude = place.geometry.location.lat();
         const longitude = place.geometry.location.lng();
         setInput(place.vicinity);
         setLatitude && setLatitude(latitude);
         setLongitude && setLongitude(longitude);
-
-        // console.log("Selected Place Details:", place, latitude, longitude);
       }
     }
   };

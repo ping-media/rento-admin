@@ -4,29 +4,22 @@ import {
   handleIsOneOrMoreHeaderChecked,
   removeSingleTempIdById,
 } from "../../Redux/VehicleSlice/VehicleSlice";
-import { useEffect, useRef } from "react";
 
 const CheckBoxInput = ({ isId }) => {
-  const { isHeaderChecked } = useSelector((state) => state.vehicles);
+  const { isHeaderChecked, tempIds } = useSelector((state) => state.vehicles);
+  const isChecked = isHeaderChecked || tempIds.includes(isId);
   const dispatch = useDispatch();
-  const isCheckedRef = useRef(null);
 
   const toggleSelectOne = (id) => {
     if (!id) return;
-    if (isCheckedRef.current && isCheckedRef.current.checked) {
-      dispatch(handleIsOneOrMoreHeaderChecked(true));
-      return dispatch(addTempIds([id]));
-    } else {
+    if (isChecked) {
       dispatch(handleIsOneOrMoreHeaderChecked(false));
-      return dispatch(removeSingleTempIdById(id));
+      return dispatch(removeSingleTempIdById(isId));
+    } else {
+      dispatch(handleIsOneOrMoreHeaderChecked(true));
+      return dispatch(addTempIds([isId]));
     }
   };
-
-  useEffect(() => {
-    if (isCheckedRef.current) {
-      isCheckedRef.current.checked = isHeaderChecked;
-    }
-  }, [isHeaderChecked]);
 
   return (
     <>
@@ -35,8 +28,8 @@ const CheckBoxInput = ({ isId }) => {
           id={isId}
           type="checkbox"
           className="w-4 h-4 accent-red-600"
-          onClick={() => toggleSelectOne(isId)}
-          ref={isCheckedRef}
+          onChange={toggleSelectOne}
+          checked={isChecked}
         />
       </label>
     </>

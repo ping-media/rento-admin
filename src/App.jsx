@@ -38,6 +38,11 @@ const InvoiceDetails = lazy(() =>
     default: module.InvoiceDetails,
   }))
 );
+const General = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.General,
+  }))
+);
 // for default exports
 const Layout = lazy(() => import("./components/layout/Layout"));
 const Login = lazy(() => import("./components/Auth/Login"));
@@ -63,6 +68,18 @@ const App = () => {
                   userRole={loggedInRole}
                 >
                   <Dashboard />
+                </PrivateRouteBasedOnUser>
+              }
+            />
+            <Route
+              path="general"
+              exact
+              element={
+                <PrivateRouteBasedOnUser
+                  allowedRoles={["admin"]}
+                  userRole={loggedInRole}
+                >
+                  <General />
                 </PrivateRouteBasedOnUser>
               }
             />

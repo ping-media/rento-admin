@@ -102,12 +102,14 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
               )}
             </form>
           </div>
+          {/* refresh button  */}
           <button
             className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2.5 flex items-center transition-all duration-200 ease-in"
             title="Refresh"
             onClick={() => dispatch(toggleRefresh())}
           >
-            {tableIcons?.refresh}
+            {tableIcons?.refresh}{" "}
+            <span className="block ml-1 lg:hidden text-sm">Refresh</span>
           </button>
           {/* filters  */}
           {(location.pathname === "/all-users" ||

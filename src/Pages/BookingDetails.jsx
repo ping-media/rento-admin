@@ -22,7 +22,7 @@ import {
 import GenerateInvoiceButton from "../components/Table/GenerateInvoiceButton";
 import { postData } from "../Data/index";
 import UpdateBookingPayment from "../components/Modal/UpdateBookingPayment";
-import { formatDateToISO } from "../utils/index";
+// import { formatDateToISO } from "../utils/index";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
@@ -186,9 +186,9 @@ const BookingDetails = () => {
         <div className="flex flex-wrap gap-2">
           {/* for starting & completing ride  */}
           {vehicleMaster[0]?.rideStatus !== "ongoing" &&
-            vehicleMaster[0]?.rideStatus !== "completed" &&
-            vehicleMaster[0]?.BookingStartDateAndTime.split("T")[0] <=
-              formatDateToISO(new Date()).split("T")[0] && (
+            vehicleMaster[0]?.rideStatus !== "completed" && (
+              // vehicleMaster[0]?.BookingStartDateAndTime.split("T")[0] <=
+              //   formatDateToISO(new Date()).split("T")[0] &&
               <Button
                 title={
                   vehicleMaster[0]?.rideStatus === "completed"

@@ -113,13 +113,15 @@ const InputSearch = ({
             {tempVehicleData ? (
               tempVehicleData.length > 0 ? (
                 tempVehicleData.filter((item) =>
-                  location.pathname == "/station-master/add-new"
+                  location.pathname == "/station-master/add-new" ||
+                  location.pathname.includes("/station-master/")
                     ? item.userType !== "customer"
                     : item.userType !== "admin" && item.userType !== "manager"
                 ).length > 0 ? (
                   tempVehicleData
                     .filter((item) =>
-                      location.pathname == "/station-master/add-new"
+                      location.pathname == "/station-master/add-new" ||
+                      location.pathname.includes("/station-master/")
                         ? item.userType !== "customer"
                         : item.userType !== "admin" &&
                           item.userType !== "manager"

@@ -173,7 +173,6 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             </p>
           </div>
           <div className="w-full lg:w-[48%]">
-            {console.log(tenYearBeforeCurrentYear())}
             <SelectDropDown
               item={"vehicleModel"}
               options={tenYearBeforeCurrentYear()}
@@ -202,6 +201,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
+              placeholder={"Last Service Kms"}
               item={"lastMeterReading"}
               type="number"
               value={id && vehicleMaster[0]?.lastMeterReading}
@@ -237,6 +237,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
+              placeholder={"Late Fee per Hour"}
               item={"lateFee"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.lateFee) : 100}

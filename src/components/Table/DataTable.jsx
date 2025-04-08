@@ -5,6 +5,7 @@ import {
   formatPathNameToTitle,
   formatPrice,
   formatTimeStampToDate,
+  getRandomNumber,
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
 import React, { useEffect, useState } from "react";
@@ -241,7 +242,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           formatPathNameToTitle(location.pathname)
             ? "justify-between"
             : "justify-end"
-        } mt-1 gap-4`}
+        } mt-1 gap-2 lg:gap-4`}
       >
         <TablePageHeader
           inputSearchQuery={inputSearchQuery}
@@ -276,13 +277,15 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                         newUpdatedData.map((item, index) => (
                           <tr
                             className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"
-                            key={item._id}
+                            key={item._id + `${getRandomNumber(90, 100)}`}
                             onClick={() => handleViewData(item?._id)}
                           >
                             {location.pathname == "/all-vehicles" && (
                               <td
                                 className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                key={`${item._id}_CheckBox_${index}`}
+                                key={`${item._id}_CheckBox_${
+                                  getRandomNumber(40, 80) + index
+                                }`}
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <CheckBoxInput isId={item?._id} />
@@ -299,7 +302,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               if (column === "userId") {
                                 return (
                                   <UserDisplayCell
-                                    key={`${item._id}_${column}_${columnIndex}`}
+                                    key={`${item._id}_${column}_${
+                                      getRandomNumber(50, 70) + columnIndex
+                                    }`}
                                     item={item}
                                     onClick={(e) => e.stopPropagation()}
                                   />
@@ -308,7 +313,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               if (column === "city") {
                                 return (
                                   <BookingDateAndCityCell
-                                    key={`${item._id}_${column}_${columnIndex}`}
+                                    key={`${item._id}_${column}_${
+                                      getRandomNumber(70, 90) + columnIndex
+                                    }`}
                                     item={item}
                                     column={column}
                                   />
@@ -319,7 +326,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   <UserStatusCell
                                     item={item}
                                     index={columnIndex}
-                                    key={`${item._id}_${column}_${columnIndex}`}
+                                    key={`${item._id}_${column}_${
+                                      getRandomNumber(20, 40) + columnIndex
+                                    }`}
                                   />
                                 );
                               }
@@ -327,7 +336,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 return (
                                   <td
                                     className="p-3 max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
-                                    key={`${item._id}_${column}_${columnIndex}`}
+                                    key={`${item._id}_${column}_${
+                                      getRandomNumber(30, 50) + columnIndex
+                                    }`}
                                   >
                                     {item[column]}{" "}
                                     <CopyButton textToCopy={item[column]} />
@@ -338,7 +349,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 return (
                                   <td
                                     className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                    key={`${item._id}_${column}_${columnIndex}`}
+                                    key={`${item._id}_${column}_${
+                                      getRandomNumber(80, 100) + columnIndex
+                                    }`}
                                   >
                                     <p>
                                       {`${changeNumberIntoTime(
@@ -358,7 +371,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 if (column === "firstName") {
                                   return (
                                     <UserDisplayCell
-                                      key={`${item._id}_${column}_${columnIndex}`}
+                                      key={`${item._id}_${column}_${
+                                        getRandomNumber(20, 100) + columnIndex
+                                      }`}
                                       firstName={item?.firstName}
                                       lastName={item?.lastName}
                                       Contact={item?.contact}
@@ -387,14 +402,18 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 <TableImage
                                   item={item}
                                   column={column}
-                                  key={`${item._id}_${column}_${columnIndex}`}
+                                  key={`${item._id}_${column}_${
+                                    getRandomNumber(10, 90) + columnIndex
+                                  }`}
                                 />
                               ) : typeof item[column] === "object" ? (
                                 <>
                                   {location?.pathname === "/payments" && (
                                     <td
                                       className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                      key={`${item._id}_${column}_${columnIndex}`}
+                                      key={`${item._id}_${column}_${
+                                        getRandomNumber(20, 60) + columnIndex
+                                      }`}
                                     >
                                       ₹{" "}
                                       {item?.paymentStatus ===
@@ -416,7 +435,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   )}
                                   <td
                                     className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                    key={`${item._id}_${column}_${columnIndex}`}
+                                    key={`${item._id}_${column}_${
+                                      getRandomNumber(30, 60) + columnIndex
+                                    }`}
                                   >
                                     {column.includes("files")
                                       ? null
@@ -442,7 +463,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       ? "max-w-40"
                                       : "whitespace-nowrap"
                                   }`}
-                                  key={`${item._id}_${column}_${columnIndex}`}
+                                  key={`${item._id}_${column}_${
+                                    getRandomNumber(1, 30) + columnIndex
+                                  }`}
                                 >
                                   {column.includes("Charges") ||
                                   column.includes("Deposit") ||
@@ -493,7 +516,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               ) : (
                                 <td
                                   className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                  key={`${item._id}_${column}_${columnIndex}`}
+                                  key={`${item._id}_${column}_${
+                                    getRandomNumber(10, 40) + columnIndex
+                                  }`}
                                 >
                                   <StatusChange item={item} column={column} />
                                 </td>
@@ -504,7 +529,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               loadingStates={loadingStates}
                               setLoadingStates={setLoadingStates}
                               handleDeleteVehicle={handleDeleteVehicle}
-                              key={item?._id}
+                              key={item?._id + `${getRandomNumber(30, 50)}`}
                             />
                           </tr>
                         ))

@@ -101,9 +101,11 @@ const Layout = () => {
               is_open
                 ? "translate-x-[-100%] lg:translate-x-[0]"
                 : "translate-x-[0] lg:translate-x-[-100%] lg:ml-[-18%]"
-            } w-[83%] lg:w-[18%] absolute lg:relative bg-white z-10 transition duration-300 ease-in-out dark:bg-slate-900`}
+            } w-[100%] lg:w-[18%] absolute lg:relative bg-black/50 lg:bg-transparent z-10 transition duration-300 ease-in-out dark:bg-slate-900`}
           >
-            <SideBar />
+            <div className="w-[83%] lg:w-[100%] bg-white relative z-20">
+              <SideBar />
+            </div>
           </div>
           <div
             className={`${

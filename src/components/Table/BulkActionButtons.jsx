@@ -9,43 +9,17 @@ import {
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import Spinner from "../../components/Spinner/Spinner";
 import { handleDeleteAndEditAllData } from "../../Data/Function";
-import { useState } from "react";
+import { toggleVehicleUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice";
+import ChangeBulkVehicle from "../../components/Modal/ChangeBulkVehicle";
 
 const BulkActionButtons = () => {
   const { isHeaderChecked, isOneOrMoreHeaderChecked, tempIds, tempLoading } =
     useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
   const dispatch = useDispatch();
-  const [isOtpions, setIsOtpions] = useState(false);
 
   const toggleOptions = () => {
-    if (isOtpions === true) {
-      setIsOtpions(false);
-    } else {
-      setIsOtpions(true);
-    }
-  };
-
-  //   edit status in bulk
-  const handleEditAllStatus = (e) => {
-    if (!tempIds)
-      return handleAsyncError(dispatch, "unable to get Ids! try again.");
-    const data = {
-      vehicleIds: tempIds,
-      updateData: { vehicleStatus: e.target.value },
-    };
-    return handleDeleteAndEditAllData(
-      data,
-      "edit",
-      handleAsyncError,
-      changeTempLoadingTrue,
-      changeTempLoadingFalse,
-      dispatch,
-      removeTempIds,
-      restvehicleMaster,
-      token,
-      handleIsHeaderChecked
-    );
+    dispatch(toggleVehicleUpdateModal());
   };
 
   //   delete data in bulk
@@ -72,6 +46,9 @@ const BulkActionButtons = () => {
 
   return (
     <>
+      {/* modal for updating vehicle data  */}
+      <ChangeBulkVehicle />
+
       {location.pathname == "/all-vehicles" &&
         ((isHeaderChecked &&
           isHeaderChecked === true &&
@@ -87,24 +64,8 @@ const BulkActionButtons = () => {
               onClick={toggleOptions}
             >
               {isHeaderChecked && isHeaderChecked === true
-                ? "Edit All Status"
-                : "Edit Status"}
-              {isOtpions && (
-                <div className="absolute top-10 w-full left-0 bg-white block rounded-xl shadow-md">
-                  <input
-                    type="button"
-                    value="active"
-                    className="text-black block w-full py-1 hover:bg-theme hover:text-gray-100 text-left px-2 capitalize transition-all duration-200 ease-in-out rounded-lg"
-                    onClick={(e) => handleEditAllStatus(e)}
-                  />
-                  <input
-                    type="button"
-                    value="inactive"
-                    className="text-black block w-full py-1 hover:bg-theme hover:text-gray-100 text-left px-2 capitalize transition-all duration-200 ease-in-out rounded-lg"
-                    onClick={(e) => handleEditAllStatus(e)}
-                  />
-                </div>
-              )}
+                ? "Edit All"
+                : "Edit"}
             </button>
             <button
               className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap disabled:bg-gray-400"

@@ -267,7 +267,6 @@ const BookingDetail = () => {
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
               Additional Information
             </h2>
-            {/* only show this button when there is any record in diffAmount or in extendAmount  */}
             {((vehicleMaster &&
               vehicleMaster[0]?.bookingPrice?.diffAmount &&
               vehicleMaster[0]?.bookingPrice?.diffAmount?.length > 0) ||

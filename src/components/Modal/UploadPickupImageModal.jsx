@@ -104,20 +104,6 @@ const UploadPickupImageModal = ({
       };
     } else {
       if (isChange === true) {
-        // updatedBooking = {
-        //   ...currentBooking,
-        //   bookingPrice: {
-        //     ...currentBooking.bookingPrice,
-        //     isPickupImageAdded: true,
-        //     diffAmount: [
-        //       ...currentBooking?.bookingPrice?.diffAmount,
-        //       {
-        //         ...currentBooking?.bookingPrice?.diffAmount,
-        //         status: "paid",
-        //       },
-        //     ],
-        //   },
-        // };
         // for hiding the finish button and show update ride button
         setIsChange && setIsChange(false);
       } else {
@@ -304,7 +290,7 @@ const UploadPickupImageModal = ({
                   <Input
                     type="number"
                     value={
-                      vehicleMaster[0]?.paymentMethod === "cash"
+                      (vehicleMaster[0]?.paymentMethod === "cash"
                         ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice > 0
                           ? Number(
                               vehicleMaster[0]?.bookingPrice?.discountTotalPrice
@@ -313,7 +299,11 @@ const UploadPickupImageModal = ({
                         : Number(
                             vehicleMaster[0]?.bookingPrice
                               ?.AmountLeftAfterUserPaid?.amount
-                          )
+                          ) ||
+                          Number(
+                            vehicleMaster[0]?.bookingPrice
+                              ?.AmountLeftAfterUserPaid
+                          )) || 0
                     }
                     item="remainingPayment"
                     require={true}

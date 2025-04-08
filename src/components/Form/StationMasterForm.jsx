@@ -44,6 +44,9 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
 
   return collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
+      <p className="text-xs mt-1 text-gray-500 font-semibold italic mb-1">
+        Note: (Always add time in round, Like 10:00 AM, 11:00 AM etc.)
+      </p>
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
 
@@ -61,6 +64,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"locationId"}
               options={collectedData?.locationId}
               value={id && vehicleMaster[0]?.locationId}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -68,6 +72,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"openStartTime"}
               type="time"
               value={id && formatHourToTime(vehicleMaster[0]?.openStartTime)}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -75,12 +80,14 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"openEndTime"}
               type="time"
               value={id && formatHourToTime(vehicleMaster[0]?.openEndTime)}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
               item={"stationName"}
               value={id && vehicleMaster[0]?.stationName}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -104,13 +111,18 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input item={"city"} value={id && vehicleMaster[0]?.city} />
+            <Input
+              item={"city"}
+              value={id && vehicleMaster[0]?.city}
+              require={true}
+            />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"state"}
               options={States}
               value={id && vehicleMaster[0]?.state}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -124,6 +136,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               type="number"
               value={id && Number(vehicleMaster[0]?.pinCode)}
               setValueChange={setZipcodeValue}
+              require={true}
             />
           </div>
         </>
