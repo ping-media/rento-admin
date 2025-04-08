@@ -7,7 +7,6 @@ import { fetchVehicleMasterData } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { useEffect, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
-import { useDebounce } from "../../utils/Helper/debounce";
 import { formatDateToISO } from "../../utils/index";
 
 const FilterSideBar = () => {
@@ -17,6 +16,7 @@ const FilterSideBar = () => {
   const { token } = useSelector((state) => state.user);
   const [menuList, setMenuList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
 
   const todaysDate = formatDateToISO(new Date())
     .replace(".000Z", "Z")
@@ -85,7 +85,6 @@ const FilterSideBar = () => {
   const searchDataBasedOnFilters = async (searchTerm) => {
     try {
       setLoading(true);
-      // creating endpoint based on filter type whether it is date or flag
       const userType =
         location?.pathname === "/all-users"
           ? "userType=customer"
@@ -119,9 +118,51 @@ const FilterSideBar = () => {
     }
   };
 
+  //   search data based on station Name and vehicle Name
+  const handleApplyFilters = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    let result = Object.fromEntries(formData.entries());
+
+    if (!result.vehicleName && !result.stationName) {
+      handleAsyncError(dispatch, "Atleast add one field in order filter data.");
+      return;
+    }
+
+    try {
+      setFormLoading(true);
+      let endpoint;
+      if (result.vehicleName !== "" && result.stationName !== "") {
+        endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&vehicleName=${result.vehicleName?.toLowerCase()}&stationName=${result.stationName?.toLowerCase()}`;
+      } else if (result.vehicleName !== "") {
+        endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&vehicleName=${result.vehicleName?.toLowerCase()}`;
+      } else if (result.stationName !== "") {
+        endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&stationName=${result.stationName?.toLowerCase()}`;
+      }
+
+      const response = await getData(endpoint, token);
+      if (response?.status === 200) {
+        dispatch(toggleFilterSideBar());
+        dispatch(fetchVehicleMasterData(response));
+        return;
+      } else {
+        handleAsyncError(dispatch, response?.message);
+      }
+    } catch (error) {
+      handleAsyncError(
+        dispatch,
+        "Unable to find vehicle with filters!. try again"
+      );
+      return;
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
   return (
     <div
-      className={`fixed w-full z-50 top-0 right-0 ${
+      className={`fixed w-full z-40 top-0 right-0 ${
         isFilterOpen ? "bg-black bg-opacity-50" : "hidden"
       } transition-all duration-300 ease-in-out`}
     >
@@ -173,22 +214,52 @@ const FilterSideBar = () => {
             </div>
           )}
 
-          <h2 className="font-semibold uppercase mb-2">Status:</h2>
-          <ul className="leading-8">
-            {menuList &&
-              menuList?.length > 0 &&
-              menuList?.map((item, index) => (
-                <li key={index}>
-                  <FilterRadioInput
-                    title={item?.title}
-                    searchTag={item?.searchTag}
-                    onChangeFn={
-                      searchDataBasedOnFilters && searchDataBasedOnFilters
-                    }
-                  />
-                </li>
-              ))}
-          </ul>
+          {location.pathname !== "/all-vehicles" && (
+            <>
+              <h2 className="font-semibold uppercase mb-2">Status:</h2>
+              <ul className="leading-8">
+                {menuList &&
+                  menuList?.length > 0 &&
+                  menuList?.map((item, index) => (
+                    <li key={index}>
+                      <FilterRadioInput
+                        title={item?.title}
+                        searchTag={item?.searchTag}
+                        onChangeFn={
+                          searchDataBasedOnFilters && searchDataBasedOnFilters
+                        }
+                      />
+                    </li>
+                  ))}
+              </ul>
+            </>
+          )}
+
+          {location.pathname === "/all-vehicles" && (
+            <form onSubmit={handleApplyFilters}>
+              <div className="mb-2">
+                <Input
+                  item={"vehicleName"}
+                  placeholder={"Vehicle Name"}
+                  isModalClose={isFilterOpen}
+                />
+              </div>
+              <div className="mb-2">
+                <Input
+                  item={"stationName"}
+                  placeholder={"Station Name"}
+                  isModalClose={isFilterOpen}
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
+                disabled={formLoading}
+              >
+                {formLoading ? "Appling" : "Apply"}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

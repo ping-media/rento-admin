@@ -22,9 +22,47 @@ const menuList = [
   },
   {
     menuImg: <BookOnlineOutlinedIcon />,
-    menuTitle: "Manage Bookings",
+    menuTitle: "Bookings",
     menuLink: "/all-bookings",
     roles: ["admin", "manager"],
+  },
+  {
+    menuImg: <DirectionsCarFilledOutlinedIcon />,
+    menuTitle: "Vehicles",
+    menuLink: "/all-vehicles",
+    roles: ["admin", "manager"],
+  },
+  {
+    menuImg: <PersonOutlinedIcon />,
+    menuTitle: "Users",
+    menuLink: "#",
+    roles: ["admin"],
+    nestedLink: [
+      {
+        menuImg: <AdjustRoundedIcon />,
+        menuTitle: "All Customers",
+        menuLink: "/all-users",
+        roles: ["admin"],
+      },
+      {
+        menuImg: <AdjustRoundedIcon />,
+        menuTitle: "All Managers",
+        menuLink: "/all-managers",
+        roles: ["admin"],
+      },
+    ],
+  },
+  {
+    menuImg: <AccountBalanceOutlinedIcon />,
+    menuTitle: "Payments",
+    menuLink: "/payments",
+    roles: ["admin", "manager"],
+  },
+  {
+    menuImg: <EmojiTransportationOutlinedIcon />,
+    menuTitle: "Station",
+    menuLink: "/station-master",
+    roles: ["admin"],
   },
   {
     menuImg: <LocationOnOutlinedIcon />,
@@ -45,54 +83,16 @@ const menuList = [
     roles: ["admin"],
   },
   {
-    menuImg: <EmojiTransportationOutlinedIcon />,
-    menuTitle: "Station",
-    menuLink: "/station-master",
-    roles: ["admin"],
-  },
-  {
-    menuImg: <DirectionsCarFilledOutlinedIcon />,
-    menuTitle: "All Vehicles",
-    menuLink: "/all-vehicles",
+    menuImg: <ReceiptOutlinedIcon />,
+    menuTitle: "Invoices",
+    menuLink: "/all-invoices",
     roles: ["admin", "manager"],
-  },
-  {
-    menuImg: <PersonOutlinedIcon />,
-    menuTitle: "Manage Users",
-    menuLink: "#",
-    roles: ["admin"],
-    nestedLink: [
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "All Customers",
-        menuLink: "/all-users",
-        roles: ["admin"],
-      },
-      {
-        menuImg: <AdjustRoundedIcon />,
-        menuTitle: "All Managers",
-        menuLink: "/all-managers",
-        roles: ["admin"],
-      },
-    ],
   },
   {
     menuImg: <LoyaltyOutlinedIcon />,
     menuTitle: "All Coupons",
     menuLink: "/all-coupons",
     roles: ["admin"],
-  },
-  {
-    menuImg: <AccountBalanceOutlinedIcon />,
-    menuTitle: "Payments",
-    menuLink: "/payments",
-    roles: ["admin", "manager"],
-  },
-  {
-    menuImg: <ReceiptOutlinedIcon />,
-    menuTitle: "Invoices",
-    menuLink: "/all-invoices",
-    roles: ["admin", "manager"],
   },
   {
     menuImg: <PersonOutlinedIcon />,
