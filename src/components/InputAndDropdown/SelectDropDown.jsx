@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
+import { tableIcons } from "../../Data/Icons";
 
 const SelectDropDown = ({
   item,
@@ -60,7 +61,7 @@ const SelectDropDown = ({
           camelCaseToSpaceSeparated(item)}
         {require && <span className="ml-1 text-red-500">*</span>}
       </label>
-      <div className="mt-2">
+      <div className="mt-2 relative">
         <select
           name={item}
           id={item}
@@ -166,6 +167,9 @@ const SelectDropDown = ({
               }
             })}
         </select>
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-600">
+          {tableIcons.downArrow}
+        </div>
       </div>
     </div>
   );

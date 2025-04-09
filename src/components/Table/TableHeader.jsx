@@ -1,8 +1,11 @@
 import { camelCaseToSpaceSeparated } from "../../utils/index";
 import React from "react";
 import CheckBoxInputToMultiple from "../InputAndDropdown/CheckBoxInputToMultiple";
+import { useSelector } from "react-redux";
 
 const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
+  const { loggedInRole } = useSelector((state) => state.user);
+
   return (
     <>
       {Columns?.length > 0 && location.pathname == "/all-vehicles" && (
@@ -183,7 +186,8 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           location?.pathname === "/all-pickup-image" ||
           location?.pathname === "/users-documents" ||
           location.pathname == "/all-bookings"
-        ) && (
+        ) &&
+        loggedInRole !== "manager" && (
           <th
             scope="col"
             className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"

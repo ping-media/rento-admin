@@ -81,7 +81,7 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
                     location.pathname === "/all-bookings" ? "" : ""
                   } bg-gray-800 text-white rounded-md p-2 lg:px-2 lg:py-1 ml-1 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50`}
                 >
-                  <div className="inset-y-0 left-3 my-auto h-4 lg:h-6 flex items-center pr-2">
+                  <div className="inset-y-0 left-3 my-auto h-4 lg:h-6 flex items-center pr-2 relative">
                     <select
                       className="text-sm lg:text-md outline-none rounded-lg h-full px-2 cursor-pointer font-semibold tracking-wide bg-transparent"
                       onChange={(e) =>
@@ -92,11 +92,14 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
                         <option
                           value={list.value}
                           label={list.label}
-                          className="cursor-pointer bg-transparent text-gray-500 hover:text-white font-semibold tracking-wide"
+                          className="cursor-pointer w-full bg-transparent text-gray-500 hover:text-white font-semibold tracking-wide"
                           key={list.label}
                         ></option>
                       ))}
                     </select>
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-100">
+                      {tableIcons.downArrow}
+                    </div>
                   </div>
                 </div>
               )}
@@ -104,7 +107,7 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
           </div>
           {/* refresh button  */}
           <button
-            className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2.5 flex items-center transition-all duration-200 ease-in"
+            className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 flex items-center transition-all duration-200 ease-in"
             title="Refresh"
             onClick={() => dispatch(toggleRefresh())}
           >

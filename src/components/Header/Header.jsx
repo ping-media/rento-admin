@@ -68,8 +68,9 @@ const Header = () => {
         {/* user menu */}
         <div className="flex gap-2 items-center">
           {loggedInRole && loggedInRole === "manager" && (
-            <div className="relative hover:shadow-none shadow-md rounded-xl cursor-pointer flex items-center gap-2 px-4 py-2.5 lg:py-4 dark:bg-gray-700">
-              {tableIcons?.map} {userStation?.stationName}
+            <div className="relative capitalize hover:shadow-none shadow-md rounded-xl cursor-pointer flex items-center gap-2 px-4 py-2.5 lg:py-3 dark:bg-gray-700">
+              {tableIcons?.map}{" "}
+              {userStation?.stationName || "No Station Assign"}
             </div>
           )}
           <button

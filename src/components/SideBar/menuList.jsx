@@ -1,15 +1,21 @@
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
-import DirectionsCarFilledOutlinedIcon from "@mui/icons-material/DirectionsCarFilledOutlined";
+// import DirectionsCarFilledOutlinedIcon from "@mui/icons-material/DirectionsCarFilledOutlined";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import AdjustRoundedIcon from "@mui/icons-material/AdjustRounded";
 import EmojiTransportationOutlinedIcon from "@mui/icons-material/EmojiTransportationOutlined";
-import BookOnlineOutlinedIcon from "@mui/icons-material/BookOnlineOutlined";
-import RequestPageOutlinedIcon from "@mui/icons-material/RequestPageOutlined";
+// import BookOnlineOutlinedIcon from "@mui/icons-material/BookOnlineOutlined";
+// import RequestPageOutlinedIcon from "@mui/icons-material/RequestPageOutlined";
 import LoyaltyOutlinedIcon from "@mui/icons-material/LoyaltyOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import {
+  AccountCircleOutlined,
+  EventAvailableOutlined,
+  InventoryOutlined,
+  TwoWheelerOutlined,
+} from "@mui/icons-material";
 // import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 // import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 
@@ -18,16 +24,17 @@ const menuList = [
     menuImg: <DashboardOutlinedIcon />,
     menuTitle: "Dashboard",
     menuLink: "/dashboard",
-    roles: ["admin", "manager"],
+    roles: ["admin"],
   },
   {
-    menuImg: <BookOnlineOutlinedIcon />,
+    menuImg: <EventAvailableOutlined />,
     menuTitle: "Bookings",
     menuLink: "/all-bookings",
     roles: ["admin", "manager"],
   },
   {
-    menuImg: <DirectionsCarFilledOutlinedIcon />,
+    // menuImg: <DirectionsCarFilledOutlinedIcon />,
+    menuImg: <TwoWheelerOutlined />,
     menuTitle: "Vehicles",
     menuLink: "/all-vehicles",
     roles: ["admin", "manager"],
@@ -71,13 +78,15 @@ const menuList = [
     roles: ["admin"],
   },
   {
-    menuImg: <DirectionsCarFilledOutlinedIcon />,
+    // menuImg: <DirectionsCarFilledOutlinedIcon />,
+    menuImg: <TwoWheelerOutlined />,
     menuTitle: "Vehicle Master",
     menuLink: "/vehicle-master",
     roles: ["admin"],
   },
   {
-    menuImg: <RequestPageOutlinedIcon />,
+    // menuImg: <RequestPageOutlinedIcon />,
+    menuImg: <InventoryOutlined />,
     menuTitle: "Plan Master",
     menuLink: "/all-plans",
     roles: ["admin"],
@@ -95,7 +104,7 @@ const menuList = [
     roles: ["admin"],
   },
   {
-    menuImg: <PersonOutlinedIcon />,
+    menuImg: <AccountCircleOutlined />,
     menuTitle: "Profile",
     menuLink: "/profile",
     roles: ["admin", "manager"],
