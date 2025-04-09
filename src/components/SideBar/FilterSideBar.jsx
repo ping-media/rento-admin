@@ -134,11 +134,11 @@ const FilterSideBar = () => {
       setFormLoading(true);
       let endpoint;
       if (result.vehicleName !== "" && result.stationName !== "") {
-        endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&vehicleName=${result.vehicleName?.toLowerCase()}&stationName=${result.stationName?.toLowerCase()}`;
+        endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&vehicleName=${result.vehicleName?.toLowerCase()}&search=${result.stationName?.toLowerCase()}`;
       } else if (result.vehicleName !== "") {
         endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&vehicleName=${result.vehicleName?.toLowerCase()}`;
       } else if (result.stationName !== "") {
-        endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&stationName=${result.stationName?.toLowerCase()}`;
+        endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&search=${result.stationName?.toLowerCase()}`;
       }
 
       const response = await getData(endpoint, token);

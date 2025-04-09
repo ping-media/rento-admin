@@ -18,7 +18,7 @@ const VehicleDetail = () => {
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
   const [collectedData, setCollectedData] = useState(null);
 
   const fetchCollectedData = async (stationUrl, vehicleMaster) => {
@@ -69,13 +69,15 @@ const VehicleDetail = () => {
               >
                 Shedule Maintenance
               </button>
-              <Link
-                className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
-                to={`/all-vehicles/${id}`}
-              >
-                {tableIcons["common-edit"]}
-                <span>Edit</span>
-              </Link>
+              {loggedInRole !== "manager" && (
+                <Link
+                  className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
+                  to={`/all-vehicles/${id}`}
+                >
+                  {tableIcons["common-edit"]}
+                  <span>Edit</span>
+                </Link>
+              )}
             </div>
           </div>
           <div className="mt-5">

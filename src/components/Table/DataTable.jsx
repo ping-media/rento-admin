@@ -35,6 +35,7 @@ import CardDataLoading from "../../components/Skeleton/CardDataLoading.jsx";
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
   const { limit } = useSelector((state) => state.pagination);
+  const { loggedInRole } = useSelector((state) => state.user);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const showRecordsOptions = [10, 20, 25, 50, 100];
@@ -524,13 +525,15 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 </td>
                               )
                             )}
-                            <TableActions
-                              item={item}
-                              loadingStates={loadingStates}
-                              setLoadingStates={setLoadingStates}
-                              handleDeleteVehicle={handleDeleteVehicle}
-                              key={item?._id + `${getRandomNumber(30, 50)}`}
-                            />
+                            {loggedInRole !== "manager" && (
+                              <TableActions
+                                item={item}
+                                loadingStates={loadingStates}
+                                setLoadingStates={setLoadingStates}
+                                handleDeleteVehicle={handleDeleteVehicle}
+                                key={item?._id + `${getRandomNumber(30, 50)}`}
+                              />
+                            )}
                           </tr>
                         ))
                       ) : (
@@ -560,7 +563,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                 <BookingCard item={item} key={item?._id} />
               ))
             ) : (
-              <div className="flex items-center justify-center h-52 bg-white rounded-xl">
+              <div className="flex flex-col items-center justify-center h-52 bg-white rounded-xl shadow-xl">
                 <CardNotFound />
               </div>
             )

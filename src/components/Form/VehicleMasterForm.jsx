@@ -35,17 +35,20 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
             <div className="flex flex-wrap gap-2">
               <Input
                 item={"vehicleName"}
-                value={id && vehicleMaster[0]?.vehicleName}
+                value={id && vehicleMaster?.[0]?.vehicleName}
+                require={true}
               />
               <SelectDropDown
                 item={"vehicleType"}
                 options={vehicleTypeOptions}
-                value={id && vehicleMaster[0]?.vehicleType}
+                value={id && vehicleMaster?.[0]?.vehicleType}
+                require={true}
               />
               <SelectDropDown
                 item={"vehicleBrand"}
                 options={vehicleBrands}
-                value={id && vehicleMaster[0]?.vehicleBrand}
+                value={id && vehicleMaster?.[0]?.vehicleBrand}
+                require={true}
               />
             </div>
           </div>
@@ -55,7 +58,7 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
               setImageChanger={setImage}
               imagesUrl={imagesUrl}
               setImageUrlChanger={setImageUrl}
-              isRequired={false}
+              isRequired={id ? false : true}
             />
           </div>
           <button

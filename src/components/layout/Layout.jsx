@@ -14,7 +14,6 @@ import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlic
 import {
   handleIsHeaderChecked,
   removeTempIds,
-  // restvehicleMaster,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleLogoutUser, validateUser } from "../../Data/Function";
 // modals
@@ -72,8 +71,9 @@ const Layout = () => {
   // if user is not found or inactive then logout for first time
   useEffect(() => {
     (async () => {
-      if (currentUser && currentUser?.userType === "customer")
+      if (currentUser && currentUser?.userType === "customer") {
         return dispatch(handleSignOut());
+      }
       await validateUser(token, handleLogoutUser, dispatch);
     })();
   }, []);

@@ -17,7 +17,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { message, type } = useSelector((state) => state.error);
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
   const [isPasswordTextActive, setIsPasswordTextActive] = useState(false);
   const passwordRef = useRef(null);
 
@@ -33,7 +33,9 @@ const Login = () => {
   };
 
   return token !== null ? (
-    <Navigate to="/dashboard" />
+    <Navigate
+      to={loggedInRole === "manager" ? "/all-bookings" : "/dashboard"}
+    />
   ) : (
     <div className="min-h-screen login relative">
       {/* alert or error showing  */}
@@ -58,7 +60,7 @@ const Login = () => {
             <div className="flex flex-col items-center justify-center lg:hidden mb-5">
               <img
                 src={webLogo}
-                className="w-28 p-1 bg-gray-100 rounded-full mx-auto mb-3 drop-shadow-2xl"
+                className="w-28 h-28 p-2 bg-gray-100 rounded-full mx-auto mb-3 drop-shadow-2xl object-contain"
                 alt="LOGO"
               />
             </div>

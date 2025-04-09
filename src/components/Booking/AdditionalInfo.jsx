@@ -1,6 +1,7 @@
 import CopyButton from "../Buttons/CopyButton";
 import { useSelector } from "react-redux";
 import ExtraAmount from "./ExtraAmount";
+import { formatPrice, getDurationInDays } from "../../utils/index";
 
 const AdditionalInfo = () => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -20,6 +21,32 @@ const AdditionalInfo = () => {
             <CopyButton textToCopy={vehicleMaster[0]?.vehicleBasic?.endRide} />
           </p>
         )}
+      </div>
+      <div className="mt-1 mb-2.5">
+        <p className="text-sm text-gray-400 mb-1">
+          <span className="font-semibold mr-1">Free Limit:</span>
+          {vehicleMaster[0]?.vehicleBasic?.freeLimit *
+            getDurationInDays(
+              vehicleMaster[0]?.BookingStartDateAndTime,
+              vehicleMaster[0]?.extendBooking?.originalEndDate ||
+                vehicleMaster[0]?.BookingEndDateAndTime
+            )}
+          KM
+          <span className="mx-1">
+            ({vehicleMaster[0]?.vehicleBasic?.freeLimit} x{" "}
+            {getDurationInDays(
+              vehicleMaster[0]?.BookingStartDateAndTime,
+              vehicleMaster[0]?.extendBooking?.originalEndDate ||
+                vehicleMaster[0]?.BookingEndDateAndTime
+            )}{" "}
+            day(s))
+          </span>
+        </p>
+        <p className="text-sm text-gray-400">
+          <span className="font-semibold mr-1">Extra KM Charge:</span>₹
+          {formatPrice(Number(vehicleMaster[0]?.vehicleBasic?.extraKmCharge))}
+          /hr (after free limit exceeds.)
+        </p>
       </div>
       <div className="flex flex-wrap gap-1">
         <div className="w-full lg:flex-1">

@@ -64,7 +64,7 @@ const App = () => {
               exact
               element={
                 <PrivateRouteBasedOnUser
-                  allowedRoles={["admin", "manager"]}
+                  allowedRoles={["admin"]}
                   userRole={loggedInRole}
                 >
                   <Dashboard />

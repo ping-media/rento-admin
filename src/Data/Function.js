@@ -12,7 +12,7 @@ import {
   resetDashboardData,
 } from "../Redux/DashboardSlice/DashboardSlice";
 import {
-  addCurrentUser,
+  // addCurrentUser,
   handleLoadingUserData,
   handleSetToken,
   handleSignIn,
@@ -30,21 +30,22 @@ import { modifyUrl, removeAfterSecondSlash } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 import { endPointBasedOnURL } from "./commonData";
 import { debounce } from "lodash";
+import { store } from "../Redux/store.js";
 
 // for login
 const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
   event.preventDefault();
+
   setLoading(true);
   const response = new FormData(event.target);
   const result = Object.fromEntries(response.entries());
-  // both fields should not be empty
+
   if (result?.email != "" && result?.password != "") {
     // handling login
     try {
       dispatch(handleLoadingUserData());
       const response = await handleAdminLogin("/adminLogin", result);
-      if (response?.status == 200) {
-        // return console.log(response?.data);
+      if (response?.status === 200) {
         // setting roles
         dispatch(
           SetLoggedInRole({
@@ -56,7 +57,8 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
         // decrypting the user data and setting data
         dispatch(handleSetToken(response?.token));
         dispatch(handleSignIn(response?.data));
-        navigate("/dashboard");
+        const userType = response?.data?.userType?.toLowerCase();
+        navigate(userType === "manager" ? "/all-bookings" : "/dashboard");
       } else {
         handleAsyncError(dispatch, response?.message);
       }
@@ -265,7 +267,6 @@ const handleUpdateAdminProfile = async (
   setFormLoading(true);
   const response = new FormData(event.target);
   let result = Object.fromEntries(response.entries());
-  // if there is id that means it we are updating the data and if there is not id than creating new data
   if (id) {
     result = Object.assign(result, { _id: id, userType: userType });
   }
@@ -345,7 +346,6 @@ const handleGenerateInvoice = async (
 ) => {
   if (!id && !bookingData)
     return handleAsyncError(dispatch, "failed to create Invoice! try again.");
-  // let currentBooking = bookingData?.find((item) => item?._id == id);
   let currentBooking = bookingData;
   if (!currentBooking)
     return handleAsyncError(dispatch, "failed to create Invoice! try again");
@@ -393,6 +393,8 @@ const validateUser = debounce(
     try {
       setPreLoaderLoading && setPreLoaderLoading(true);
       if (!token) return;
+      const state = store.getState();
+      const loggedInRole = state?.user?.loggedInRole;
 
       for (let attempt = 1; attempt <= retries; attempt++) {
         try {
@@ -404,7 +406,12 @@ const validateUser = debounce(
           const isUserValid = response?.isUserValid;
 
           if (isUserValid === true) {
-            if (location.pathname === "/") return navigate("/dashboard");
+            if (location.pathname === "/") {
+              navigate(
+                loggedInRole === "manager" ? "/all-bookings" : "/dashboard"
+              );
+              return;
+            }
             return;
           } else {
             handleLogoutUser(dispatch);

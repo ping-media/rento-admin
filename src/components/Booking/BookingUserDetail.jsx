@@ -5,6 +5,7 @@ import { getData } from "../../Data";
 import { useEffect, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import UserDocuments from "../../components/Form/User Components/UserDocuments";
+import { toogleKycModalActive } from "../../Redux/SideBarSlice/SideBarSlice";
 
 const BookingUserDetails = ({ data, userId }) => {
   const { token } = useSelector((state) => state.user);
@@ -69,6 +70,23 @@ const BookingUserDetails = ({ data, userId }) => {
                 >
                   Show Documents
                 </button>
+                {/* {item?.value === "yes" ? (
+                  <button
+                    className="text-theme underline"
+                    type="button"
+                    onClick={handleFetchDocuments}
+                  >
+                    Show Documents
+                  </button>
+                ) : (
+                  <button
+                    className="text-theme underline"
+                    type="button"
+                    onClick={() => dispatch(toogleKycModalActive())}
+                  >
+                    Verify User
+                  </button>
+                )} */}
               </div>
             ) : (
               item?.value
