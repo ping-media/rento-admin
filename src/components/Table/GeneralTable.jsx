@@ -47,7 +47,7 @@ const GeneralTable = () => {
 
   return (
     <div className="flex flex-col">
-      <div className=" overflow-x-auto">
+      <div className="overflow-x-auto">
         <div className="min-w-full inline-block align-middle">
           <div className="overflow-hidden ">
             {loading ? (

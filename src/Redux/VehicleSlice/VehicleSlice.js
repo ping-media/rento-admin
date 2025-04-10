@@ -8,6 +8,7 @@ const vehicleSlice = createSlice({
     Vehicle: {},
     deletevehicleId: "",
     tempVehicleData: null,
+    userDocuments: null,
     tempIds: [],
     tempLoading: { loading: false, operation: "" },
     isHeaderChecked: false,
@@ -237,6 +238,12 @@ const vehicleSlice = createSlice({
     toggleRefresh: (state) => {
       state.refresh = !state.refresh;
     },
+    addUserDocuments: (state, action) => {
+      state.userDocuments = action.payload;
+    },
+    removeUserDocuments: (state) => {
+      state.userDocuments = null;
+    },
     toggleClearVehicle: () => initialState,
   },
 });
@@ -278,5 +285,7 @@ export const {
   handleUpdateExtendVehicle,
   handleUpdateCompleteRide,
   toggleRefresh,
+  addUserDocuments,
+  removeUserDocuments,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

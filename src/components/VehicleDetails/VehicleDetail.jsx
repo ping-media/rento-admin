@@ -7,9 +7,16 @@ import PreLoader from "../Skeleton/PreLoader";
 import { NotFound } from "../../Pages";
 import { getData } from "../../Data";
 import { endPointBasedOnKey } from "../../Data/commonData";
-import { camelCaseToSpaceSeparated } from "../../utils/index";
+import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
 import { tableIcons } from "../../Data/Icons";
 import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
+import MaintenanceTable from "../../components/Table/MaintenanceTable";
+import {
+  addSchedule,
+  startLoading,
+  stopLoading,
+} from "../../Redux/MaintenanceSlice/MaintenanceSlice";
+import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 const AddVehicleForServiceModal = lazy(() =>
   import("../../components/Modal/AddVehicleForServiceModal")
 );
@@ -52,12 +59,37 @@ const VehicleDetail = () => {
     }
   }, [vehicleMaster]);
 
+  // for fetching the maintenanceVehicle record
+  useEffect(() => {
+    (async () => {
+      try {
+        dispatch(startLoading());
+        const response = await getData(
+          `/maintenanceVehicle?vehicleTableId=${id}`,
+          token
+        );
+        if (response?.success === true) {
+          dispatch(addSchedule(response?.data));
+        } else {
+          handleAsyncError(dispatch, response?.message);
+        }
+      } catch (error) {
+        handleAsyncError(
+          dispatch,
+          "Unable to find maintenance record! try again."
+        );
+      } finally {
+        dispatch(stopLoading());
+      }
+    })();
+  }, []);
+
   return id ? (
     !loading && collectedData != null ? (
       vehicleMaster?.length == 1 ? (
         <>
           <AddVehicleForServiceModal />
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center flex-wrap gap-2 lg:gap-0 justify-between mb-3">
             <h1 className="text-2xl uppercase font-bold text-theme">
               Vehicle Details
             </h1>
@@ -67,7 +99,7 @@ const VehicleDetail = () => {
                 type="button"
                 onClick={() => dispatch(toggleVehicleServiceModal())}
               >
-                Shedule Maintenance
+                Schedule Maintenance
               </button>
               {loggedInRole !== "manager" && (
                 <Link
@@ -82,7 +114,7 @@ const VehicleDetail = () => {
           </div>
           <div className="mt-5">
             <div className="flex gap-4 flex-wrap">
-              <div className="bg-white shadow-md rounded-xl flex-1 px-6 py-4">
+              <div className="bg-white shadow-md rounded-xl w-full lg:flex-1 px-6 py-4">
                 <h2 className="mb-3 text-xl font-semibold text-gray-500">
                   Vehicle Infomation
                 </h2>
@@ -126,7 +158,7 @@ const VehicleDetail = () => {
                   )}
                 </div>
               </div>
-              <div className="flex-1 px-6 py-4 bg-white shadow-md rounded-lg">
+              <div className="w-full lg:flex-1 px-6 py-4 bg-white shadow-md rounded-lg overflow-hidden">
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <h2 className="font-bold uppercase text-lg">
@@ -144,11 +176,24 @@ const VehicleDetail = () => {
                   <div>
                     <h2 className="font-semibold uppercase">Rental Price</h2>
                     <p className="font-bold text-lg">
-                      ₹{vehicleMaster[0]?.perDayCost || 100}.00/DAY
+                      ₹
+                      {formatPrice(Number(vehicleMaster[0]?.perDayCost)) ||
+                        formatPrice(100)}
+                      /DAY
                     </p>
                   </div>
                 </div>
-                <VehicleInfo {...vehicleMaster[0]} />
+                <div className="mb-5">
+                  <VehicleInfo {...vehicleMaster[0]} />
+                </div>
+                <div className="mb-2">
+                  <h2 className="text-lg font-semibold uppercase">
+                    Maintenance Schedule
+                  </h2>
+                </div>
+                <div>
+                  <MaintenanceTable />
+                </div>
               </div>
             </div>
           </div>

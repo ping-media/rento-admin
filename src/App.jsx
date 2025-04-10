@@ -43,6 +43,11 @@ const General = lazy(() =>
     default: module.General,
   }))
 );
+const AddDocuments = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.AddDocuments,
+  }))
+);
 // for default exports
 const Layout = lazy(() => import("./components/layout/Layout"));
 const Login = lazy(() => import("./components/Auth/Login"));
@@ -367,6 +372,18 @@ const App = () => {
               }
             />
             <Route
+              path="all-users/add-documents/:id"
+              exact
+              element={
+                <PrivateRouteBasedOnUser
+                  allowedRoles={["admin"]}
+                  userRole={loggedInRole}
+                >
+                  <AddDocuments />
+                </PrivateRouteBasedOnUser>
+              }
+            />
+            <Route
               path="all-managers/:id"
               exact
               element={
@@ -375,6 +392,18 @@ const App = () => {
                   userRole={loggedInRole}
                 >
                   <CreateNewAndUpdateForm />
+                </PrivateRouteBasedOnUser>
+              }
+            />
+            <Route
+              path="all-managers/add-documents/:id"
+              exact
+              element={
+                <PrivateRouteBasedOnUser
+                  allowedRoles={["admin"]}
+                  userRole={loggedInRole}
+                >
+                  <AddDocuments />
                 </PrivateRouteBasedOnUser>
               }
             />

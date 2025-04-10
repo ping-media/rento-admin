@@ -1,4 +1,3 @@
-// import Spinner from "../../../components/Spinner/Spinner";
 import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
@@ -8,9 +7,11 @@ import { handleUpdateImageData } from "../../../Redux/VehicleSlice/VehicleSlice"
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
 import PreLoader from "../../../components/Skeleton/PreLoader";
+import { Link, useParams } from "react-router-dom";
 
 const UserDocuments = ({ data, dataId, hookLoading }) => {
   const [loading, setLoading] = useState(false);
+  const { id } = useParams();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -49,9 +50,20 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
   return (
     <div>
       {!location.pathname.includes("/all-bookings/details/") && (
-        <h2 className="mb-2 uppercase text-theme font-bold text-lg">
-          User Documents ({data?.length || 0})
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="mb-2 uppercase text-theme font-bold text-lg">
+            User Documents ({data?.length || 0})
+          </h2>
+          {data?.length < 5 && (
+            <Link
+              className="bg-theme px-4 py-2 rounded-lg text-gray-100 flex items-center hover:bg-theme-dark transition duration-200 ease-in-out"
+              to={`/${location.pathname.split("/")[1]}/add-documents/${id}`}
+            >
+              {tableIcons.add}
+              <span className="ml-1 hidden lg:block">Add Documents</span>
+            </Link>
+          )}
+        </div>
       )}
       {loading && <PreLoader />}
       {!hookLoading && data?.length > 0 ? (
@@ -77,7 +89,6 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
                 </button>
               )}
               {!location.pathname.includes("/all-bookings/details/") ? (
-                // this is image view
                 <a
                   href={item.imageUrl}
                   data-pswp-width="1920"
@@ -92,7 +103,6 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
                   />
                 </a>
               ) : (
-                //  this is button view
                 <a
                   href={item.imageUrl}
                   data-pswp-width="1920"

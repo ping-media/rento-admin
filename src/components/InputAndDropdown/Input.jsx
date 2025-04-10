@@ -19,6 +19,7 @@ const Input = ({
   isCouponInput = false,
   name,
   placeholder,
+  handlevalidateInput,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   // for debouncing state
@@ -128,6 +129,9 @@ const Input = ({
           }
           onChange={(e) => handleChangeValue(e)}
           onKeyDown={handleKeyDown}
+          onBlur={(e) =>
+            handlevalidateInput ? handlevalidateInput(e, name || item) : {}
+          }
           name={name || item}
           placeholder={`${
             item.includes("Proof")
