@@ -81,7 +81,7 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
                     location.pathname === "/all-bookings" ? "" : ""
                   } bg-gray-800 text-white rounded-md p-2 lg:px-2 lg:py-1 ml-1 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50`}
                 >
-                  <div className="inset-y-0 left-3 my-auto h-4 lg:h-6 flex items-center pr-2 relative">
+                  <div className="inset-y-0 w-full my-auto h-4 lg:h-6 flex items-center pr-2 relative">
                     <select
                       className="text-sm lg:text-md outline-none rounded-lg h-full px-2 cursor-pointer font-semibold tracking-wide bg-transparent"
                       onChange={(e) =>
@@ -97,7 +97,7 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
                         ></option>
                       ))}
                     </select>
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-100">
+                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-100">
                       {tableIcons.downArrow}
                     </div>
                   </div>

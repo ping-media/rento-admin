@@ -6,11 +6,16 @@ import { useEffect, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import UserDocuments from "../../components/Form/User Components/UserDocuments";
 import { toogleKycModalActive } from "../../Redux/SideBarSlice/SideBarSlice";
+import {
+  addUserDocuments,
+  removeUserDocuments,
+} from "../../Redux/VehicleSlice/VehicleSlice";
+import { tableIcons } from "../../Data/Icons";
 
 const BookingUserDetails = ({ data, userId }) => {
   const { token } = useSelector((state) => state.user);
+  const { userDocuments } = useSelector((state) => state.vehicles);
   const [loading, setLoading] = useState(false);
-  const [userDocument, setUserDocument] = useState([]);
   const dispatch = useDispatch();
 
   // fetchDocument data
@@ -21,7 +26,8 @@ const BookingUserDetails = ({ data, userId }) => {
       if (response?.status !== 200) {
         return handleAsyncError(dispatch, response?.message);
       }
-      return setUserDocument(response?.data);
+      dispatch(addUserDocuments(response?.data));
+      return;
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
     } finally {
@@ -29,12 +35,17 @@ const BookingUserDetails = ({ data, userId }) => {
     }
   };
 
-  // auto fetch documents
   useEffect(() => {
     if (userId) {
       handleFetchDocuments();
     }
   }, [userId]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(removeUserDocuments());
+    };
+  }, []);
 
   return (
     <>
@@ -62,15 +73,22 @@ const BookingUserDetails = ({ data, userId }) => {
             {/* data  */}
             {item.key === "Document Status" ? (
               <div className="flex gap-2 items-center">
-                {item?.value === "yes" ? "verified" : "not verified"}
-                <button
-                  className="text-theme underline"
-                  type="button"
-                  onClick={handleFetchDocuments}
-                >
-                  Show Documents
-                </button>
-                {/* {item?.value === "yes" ? (
+                {item?.value === "yes" ? (
+                  <p className="flex items-center">
+                    <span className="text-green-500 ml-0 lg:ml-1">
+                      {tableIcons.verify}
+                    </span>
+                    <span className="hidden lg:block">Verified</span>
+                  </p>
+                ) : (
+                  <p className="flex items-center">
+                    <span className="text-red-500 ml-0 lg:ml-1">
+                      {tableIcons.unVerify}
+                    </span>
+                    <span className="hidden lg:block">Not Verified</span>
+                  </p>
+                )}
+                {item?.value === "yes" ? (
                   <button
                     className="text-theme underline"
                     type="button"
@@ -86,7 +104,7 @@ const BookingUserDetails = ({ data, userId }) => {
                   >
                     Verify User
                   </button>
-                )} */}
+                )}
               </div>
             ) : (
               item?.value
@@ -95,7 +113,7 @@ const BookingUserDetails = ({ data, userId }) => {
         </div>
       ))}
       {/* user documents  */}
-      <UserDocuments data={userDocument[0]?.files} hookLoading={loading} />
+      <UserDocuments data={userDocuments?.[0]?.files} hookLoading={loading} />
     </>
   );
 };

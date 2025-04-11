@@ -208,7 +208,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               require={true}
             />
             <p className="text-xs mt-1 text-gray-500 italic">
-              Enter the meter reading of latest service of the vehicle.
+              Enter the meter reading when the vehicle was last serviced.
             </p>
           </div>
           <div className="w-full lg:w-[48%]">
@@ -219,8 +219,8 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               require={true}
             />
             <p className="text-xs mt-1 text-gray-500 italic">
-              Enter the overall meter reading till now. How much km a vehicle is
-              running.
+              Enter the total odometer reading of the vehicle to date — the
+              total distance it has traveled in kilometers.
             </p>
           </div>
           <div className="w-full lg:w-[48%]">
@@ -231,8 +231,8 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               require={true}
             />
             <p className="text-xs mt-1 text-gray-500 italic">
-              Enter a refundable deposit amount which will be returned to
-              customer after vehicle dropoff.
+              Enter the refundable deposit amount to be returned to the customer
+              after the vehicle is dropped off.
             </p>
           </div>
           <div className="w-full lg:w-[48%]">

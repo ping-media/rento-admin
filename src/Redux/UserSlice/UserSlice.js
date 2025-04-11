@@ -53,6 +53,9 @@ const UserSlice = createSlice({
     addUserDocument: (state, action) => {
       state.userDocument = action.payload;
     },
+    removeUserDocument: (state) => {
+      state.userDocument = null;
+    },
     handleLoadingUserDataFalse: (state) => {
       state.loading = false;
     },
@@ -78,6 +81,7 @@ export const {
   updateCurrentUser,
   handleLoadingUserDataFalse,
   addUserDocument,
+  removeUserDocument,
   handleSignOut,
 } = UserSlice.actions;
 

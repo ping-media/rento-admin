@@ -23,7 +23,6 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
   const [suggestedData, setSuggestionData] = useState(null);
   const [collectedData, setCollectedData] = useState(null);
   const [stationData, setStationData] = useState(null);
-  const [stationLoading, setStationLoading] = useState(false);
   const [error, setError] = useState("");
   const [isLocationSelected, setIsLocationSelected] = useState("");
   const { loggedInRole, userStation } = useSelector((state) => state.user);
@@ -54,38 +53,36 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
 
   // getting free vehicle btw two dates through this
   useEffect(() => {
-    if (
-      (loggedInRole === "admin" &&
-        bookingStartDate !== "" &&
-        bookingEndDate !== "" &&
-        isLocationSelected !== "" &&
-        stationId !== "") ||
-      (loggedInRole === "manager" &&
-        bookingStartDate !== "" &&
-        bookingEndDate !== "")
-    ) {
-      (async () => {
+    const fetchData = async () => {
+      if (
+        (loggedInRole === "admin" &&
+          bookingStartDate &&
+          bookingEndDate &&
+          isLocationSelected &&
+          stationId) ||
+        (loggedInRole === "manager" && bookingStartDate && bookingEndDate)
+      ) {
+        const isDateValid = isDuration24Hours(bookingStartDate, bookingEndDate);
+        if (!isDateValid) {
+          setError("There should be a gap of 1 day between dates.");
+          return;
+        } else {
+          setError("");
+        }
+
         try {
           setLoading(true);
-          const isDateValid = isDuration24Hours(
-            bookingStartDate,
-            bookingEndDate
-          );
-          if (isDateValid === false) {
-            setBookingStartDate("");
-            setBookingEndDate("");
-            return setError("there should be gap of 1 day between day's");
-          }
           const changeEndPointBasedOnRole =
             loggedInRole === "manager"
               ? `stationId=${userStation?.stationId}`
-              : `locationId=${isLocationSelected}&stationId=${stationId}`;
+              : `stationId=${stationId}`;
 
           const response = await getData(
-            `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}`
+            `/getVehicleTblData?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}page=1&limit=100`
           );
-          if (response?.status == 200) {
-            setSuggestionData(response?.data);
+
+          if (response?.status === 200) {
+            setSuggestionData(response?.data?.availableVehicles);
           } else {
             handleAsyncError(dispatch, response?.message);
           }
@@ -94,9 +91,19 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
         } finally {
           setLoading(false);
         }
-      })();
-    }
-  }, [bookingStartDate, bookingEndDate, vehicleId, isLocationSelected]);
+      }
+    };
+
+    fetchData();
+  }, [
+    bookingStartDate,
+    bookingEndDate,
+    isLocationSelected,
+    stationId,
+    loggedInRole,
+    userStation?.stationId,
+    dispatch,
+  ]);
 
   // fetching stationId and LocationId
   const fetchCollectedData = async (locationUrl) => {
@@ -112,7 +119,6 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
     }
   };
 
-  // only run this if current login user is admin
   useEffect(() => {
     if (loggedInRole === "admin") {
       fetchCollectedData("locationId");
@@ -121,14 +127,16 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
 
   return (
     <>
-      {(loading || stationLoading) && <PreLoader />}
+      {loading && <PreLoader />}
       {/* continue  */}
       {loggedInRole === "admin" && (
         <>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"locationId"}
-              options={collectedData?.locationId}
+              options={collectedData?.locationId?.filter(
+                (location) => location?.locationStatus !== "inactive"
+              )}
               setIsLocationSelected={setIsLocationSelected}
               require={true}
             />
@@ -159,7 +167,14 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
           require={true}
           setValueChanger={setBookingStartDate}
         />
-        {error && <p className="italic text-sm text-theme my-1">{error}</p>}
+        <p
+          className={`italic text-sm ${
+            error ? "text-theme" : "text-gray-400"
+          } my-1`}
+        >
+          {error ||
+            "Always select time in round hours (e.g., 2:00, 3:00, etc.)."}
+        </p>
       </div>
       <div className="w-full lg:w-[48%]">
         <InputDateAndTime
@@ -168,7 +183,14 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
           require={true}
           setValueChanger={setBookingEndDate}
         />
-        {error && <p className="italic text-sm text-theme my-1">{error}</p>}
+        <p
+          className={`italic text-sm ${
+            error ? "text-theme" : "text-gray-400"
+          } my-1`}
+        >
+          {error ||
+            "Always select time in round hours (e.g., 2:00, 3:00, etc.)."}
+        </p>
       </div>
       <div className="w-full lg:w-[48%]">
         <SelectDropDownVehicle

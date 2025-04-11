@@ -538,7 +538,7 @@ const updateTimeLineForPayment = async (
 
   const finalAmount =
     (extendAmount && extendAmount?.amount) ||
-    (bookingPrice &&
+    (bookingPrice?.diffAmount &&
       Number(
         bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.amount
       ));
@@ -602,6 +602,50 @@ const updateTimeLineForPayment = async (
   return timeLineData;
 };
 
+const CreatePaymentLinkAndTimeline = async (data, token, title) => {
+  const { _id, bookingPrice, paymentMethod } = data;
+
+  const finalAmount =
+    bookingPrice?.discountTotalPrice > 0
+      ? bookingPrice?.discountTotalPrice
+      : bookingPrice?.userPaid > 0
+      ? bookingPrice?.userPaid
+      : bookingPrice?.totalPrice;
+  const baseUrl = import.meta.env.VITE_FRONTEND_URL;
+  // encoding the data before creating a link
+  const payload = {
+    id: _id,
+    finalAmount: finalAmount,
+    paymentStatus: bookingPrice?.userPaid > 0 ? "partiallyPay" : "done",
+    paymentMethod: paymentMethod,
+  };
+
+  // requesting jwt token here from backend
+  const encodePayload = await postDataWithRetry(
+    "/GeneratePaymentToken",
+    { payload: payload },
+    token
+  );
+
+  const paymentLink =
+    finalAmount > 0 ? `${baseUrl}/payment/${encodePayload?.token}` : "";
+
+  // updating the timeline for booking
+  const timeLineData = {
+    currentBooking_id: _id,
+    timeLine: [
+      {
+        title: title,
+        date: new Date().toLocaleString(),
+        PaymentLink: paymentLink,
+        paymentAmount: finalAmount,
+      },
+    ],
+  };
+  await postData("/createTimeline", timeLineData, token);
+  return timeLineData;
+};
+
 export {
   handleOtpLogin,
   fetchDashboardData,
@@ -620,4 +664,5 @@ export {
   cancelBookingById,
   updateTimeLine,
   updateTimeLineForPayment,
+  CreatePaymentLinkAndTimeline,
 };

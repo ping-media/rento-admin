@@ -17,6 +17,9 @@ const initialState = {
   isPaymentUpdateModalActive: false,
   isForgetModalActive: false,
   isVehicleUpdateModalActive: false,
+  isIdentityModalActive: false,
+  isSelfieModalActive: false,
+  isLicenseModalActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -83,6 +86,18 @@ const SideBarSlice = createSlice({
       state.isVehicleUpdateModalActive =
         state.isVehicleUpdateModalActive === false ? true : false;
     },
+    toggleIdentityModal: (state) => {
+      state.isIdentityModalActive =
+        state.isIdentityModalActive === false ? true : false;
+    },
+    toggleSelfieModal: (state) => {
+      state.isSelfieModalActive =
+        state.isSelfieModalActive === false ? true : false;
+    },
+    toggleLicenseModal: (state) => {
+      state.isLicenseModalActive =
+        state.isLicenseModalActive === false ? true : false;
+    },
     toggleClearModals: () => initialState,
   },
 });
@@ -105,6 +120,9 @@ export const {
   togglePaymentUpdateModal,
   toggleVehicleUpdateModal,
   toggleForgetPasswordModal,
+  toggleIdentityModal,
+  toggleLicenseModal,
+  toggleSelfieModal,
 } = SideBarSlice.actions;
 
 export default SideBarSlice.reducer;

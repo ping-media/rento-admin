@@ -4,7 +4,7 @@ import { lazy, useEffect, useRef, useState } from "react";
 import Header from "../Header/Header";
 import SideBar from "../SideBar/SideBar";
 import Alert from "../Alert/Alert";
-import ScrollToTopButton from "../ScrollButton/ScrollToTopButton";
+// import ScrollToTopButton from "../ScrollButton/ScrollToTopButton";
 import PreLoader from "../Skeleton/PreLoader";
 import {
   handleCurrentUser,
@@ -120,9 +120,9 @@ const Layout = () => {
                 style={{ height: "calc(100vh - 90.4px)" }}
               >
                 {/* scrolltotop button  */}
-                {visible && (
+                {/* {visible && (
                   <ScrollToTopButton handleClick={handleScrollToTop} />
-                )}
+                )} */}
                 <Outlet />
               </div>
             </main>

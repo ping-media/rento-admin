@@ -28,9 +28,9 @@ const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
 );
 const RideEndModal = lazy(() => import("../components/Modal/RideEndModal"));
-// const UserKycApproveModal = lazy(() =>
-//   import("../components/Modal/UserKycApproveModal.jsx")
-// );
+const UserKycApproveModal = lazy(() =>
+  import("../components/Modal/UserKycApproveModal.jsx")
+);
 
 const BookingDetails = () => {
   const { id } = useParams();
@@ -179,7 +179,7 @@ const BookingDetails = () => {
         setIsChange={setIsVehicleChanging}
       />
       <UpdateBookingPayment id={id} />
-      {/* <UserKycApproveModal /> */}
+      <UserKycApproveModal />
       <RideEndModal id={id} />
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">

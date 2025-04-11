@@ -45,7 +45,7 @@ const AdditionalInfo = () => {
         <p className="text-sm text-gray-400">
           <span className="font-semibold mr-1">Extra KM Charge:</span>₹
           {formatPrice(Number(vehicleMaster[0]?.vehicleBasic?.extraKmCharge))}
-          /hr (after free limit exceeds.)
+          /km (after free limit exceeds.)
         </p>
       </div>
       <div className="flex flex-wrap gap-1">

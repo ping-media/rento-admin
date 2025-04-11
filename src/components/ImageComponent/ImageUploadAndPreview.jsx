@@ -201,7 +201,6 @@ const ImageUploadAndPreview = ({
           <>
             {/* Clickable Camera Icon */}
             <button
-              // htmlFor={`ImageInput-Camera-${title}`}
               type="button"
               className="cursor-pointer block w-full"
               onClick={() => openFileChooser("camera")}
@@ -227,7 +226,6 @@ const ImageUploadAndPreview = ({
             <p className="text-sm text-gray-600 dark:text-gray-400">
               <button
                 type="button"
-                // htmlFor={`ImageInput-Gallery-${title}`}
                 className="cursor-pointer text-theme hover:underline"
                 onClick={() => openFileChooser("gallery")}
               >

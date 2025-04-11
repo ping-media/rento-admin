@@ -50,6 +50,7 @@ const InputDateAndTime = ({
           onChange={(e) => handleValueChange(e)}
           placeholder={`${item}`}
           required={require}
+          step="3600"
         />
       </div>
     </div>

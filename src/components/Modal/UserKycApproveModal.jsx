@@ -11,9 +11,16 @@ import { handleUpdateUserStatus } from "../../Redux/VehicleSlice/VehicleSlice";
 const UserKycApproveModal = () => {
   const dispatch = useDispatch();
   const { isKycModalActive } = useSelector((state) => state.sideBar);
+  const { userDocuments, vehicleMaster } = useSelector(
+    (state) => state.vehicles
+  );
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
   const [userDocument, setUserDocument] = useState([]);
+  const [formError, setFormError] = useState({
+    aadharNumber: "",
+    licenseNumber: "",
+  });
   const [userDocumentLoading, setUserDocumentLoading] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +28,13 @@ const UserKycApproveModal = () => {
   const handleSubmitAndChangeKYCStatus = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    formData.append("userId", id);
+
+    const userId = !location.pathname?.includes("all-bookings/details/")
+      ? id
+      : vehicleMaster?.[0]?.userId?._id;
+
+    formData.append("userId", userId);
+
     try {
       setLoading(true);
       const response = await postData("/kycApproval", formData, token);
@@ -49,7 +62,7 @@ const UserKycApproveModal = () => {
       if (response?.status !== 200) {
         return handleAsyncError(dispatch, response?.message);
       }
-      return setUserDocument(response?.data);
+      setUserDocument(response?.data);
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
     } finally {
@@ -57,12 +70,49 @@ const UserKycApproveModal = () => {
     }
   };
 
+  // checking whether the aadharNumber & licenseNumber is valid or not
+  const validateInput = (e, name) => {
+    const value = e.target.value;
+
+    if (name === "aadharNumber") {
+      if (value.length < 12) {
+        setFormError((prev) => ({
+          ...prev,
+          aadharNumber: "Enter valid 12 digit Aadhar number",
+        }));
+      } else {
+        setFormError((prev) => ({
+          ...prev,
+          aadharNumber: "",
+        }));
+      }
+    } else if (name === "licenseNumber") {
+      if (value.length < 15) {
+        setFormError((prev) => ({
+          ...prev,
+          licenseNumber: "Enter valid 15 character license number",
+        }));
+      } else {
+        setFormError((prev) => ({
+          ...prev,
+          licenseNumber: "",
+        }));
+      }
+    }
+  };
+
   // fetching user documents
   useEffect(() => {
-    if (id) {
+    if (id && userDocuments === null) {
       handleFetchDocuments();
     }
-  }, [id]);
+  }, [id, userDocuments]);
+
+  useEffect(() => {
+    if (userDocuments !== null) {
+      setUserDocument(userDocuments);
+    }
+  }, [userDocuments]);
 
   return (
     <div
@@ -99,39 +149,70 @@ const UserKycApproveModal = () => {
         <div className="p-6 pt-0 text-center">
           {/* user documents  */}
           <div className="lg:flex items-center gap-2 mb-3">
-            {(userDocument && userDocument[0]?.files?.length > 0) ||
-            (userDocument && userDocument?.files) ? (
-              userDocument[0]?.files?.map((item, index) => {
-                if (index % 2 !== 0) {
-                  return null;
-                }
-                return (
-                  <div className="w-full flex-1 h-48 mb-3" key={item?._id}>
-                    <img
-                      src={item.imageUrl}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                );
-              })
+            {!userDocumentLoading ? (
+              (userDocument && userDocument[0]?.files?.length > 0) ||
+              (userDocument && userDocument?.files) ? (
+                userDocument[0]?.files?.map((item, index) => {
+                  if (index % 2 !== 0) {
+                    return null;
+                  }
+                  if (item.fileName?.includes("Selfie")) {
+                    return null;
+                  }
+                  return (
+                    <div className="w-full flex-1 h-48 mb-3" key={item?._id}>
+                      <img
+                        src={item.imageUrl}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-gray-400 italic text-sm mt-1">
+                  No Images Found.
+                </p>
+              )
             ) : (
-              <p className="text-gray-400 italic text-sm mt-1">
-                No Images Found.
-              </p>
+              <div className="text-gray-400 italic text-sm mt-1">
+                <Spinner />
+              </div>
             )}
           </div>
           {/* continue form  */}
           <form onSubmit={handleSubmitAndChangeKYCStatus}>
             <div className="mb-2">
-              <Input item={"aadharNumber"} require={true} />
+              <Input
+                item={"aadharNumber"}
+                require={true}
+                handlevalidateInput={validateInput}
+              />
+              {formError.aadharNumber !== "" && (
+                <p className="text-sm text-red-500 text-left">
+                  {formError.aadharNumber}
+                </p>
+              )}
             </div>
             <div className="mb-2">
-              <Input item={"licenseNumber"} require={true} />
+              <Input
+                item={"licenseNumber"}
+                require={true}
+                handlevalidateInput={validateInput}
+              />
+              {formError.licenseNumber !== "" && (
+                <p className="text-sm text-red-500 text-left">
+                  {formError.licenseNumber}
+                </p>
+              )}
             </div>
             <button
               type="submit"
               className="bg-theme text-gray-100 rounded-md px-4 py-2.5 mt-2.5 disabled:bg-gray-400"
-              disabled={loading}
+              disabled={
+                loading ||
+                formError?.aadharNumber !== "" ||
+                formError?.licenseNumber !== ""
+              }
             >
               {!loading ? "Verify" : <Spinner message={"checking..."} />}
             </button>

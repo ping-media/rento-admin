@@ -12,6 +12,7 @@ import userReducer from "./UserSlice/UserSlice";
 import LocationAndStationReducer from "./LocationAndStationSlice/LocationAndStationSlice";
 import PaginationReducer from "./PaginationSlice/PaginationSlice";
 import GeneralReducer from "./GeneralSlice/GeneralSlice";
+import MaintenanceReducer from "./MaintenanceSlice/MaintenanceSlice";
 
 const userPersistConfig = {
   key: "user",
@@ -34,6 +35,7 @@ const store = configureStore({
     locationAndStation: LocationAndStationReducer,
     pagination: PaginationReducer,
     general: GeneralReducer,
+    maintenance: MaintenanceReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
