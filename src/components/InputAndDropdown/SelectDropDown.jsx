@@ -75,7 +75,7 @@ const SelectDropDown = ({
             {(options?.length == 0 && `No ${title[item] || item} Found`) ||
               `Select ${
                 camelCaseToSpaceSeparated(title[item]) ||
-                camelCaseToSpaceSeparated(item)
+                camelCaseToSpaceSeparated(placeholder || item)
               }`}
           </option>
           {options &&

@@ -65,6 +65,11 @@ const Input = ({
     }
   }, [debouncedDate]);
 
+  // for updating the value
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
   // Prevent increment and decrement via arrow keys
   const handleKeyDown = (e) => {
     if (e.key === "ArrowUp" || e.key === "ArrowDown") {

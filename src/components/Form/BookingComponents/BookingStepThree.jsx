@@ -8,7 +8,8 @@ const BookingStepThree = ({ id }) => {
       <div className="w-full lg:w-[48%]">
         <SelectDropDown
           item={"paymentMethod"}
-          options={["online"]}
+          placeholder={"Payment Mode"}
+          options={["online", "partiallyPay", "cash"]}
           value={id ? vehicleMaster[0]?.paymentMethod : "online"}
         />
       </div>

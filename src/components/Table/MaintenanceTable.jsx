@@ -46,6 +46,12 @@ const MaintenanceTable = () => {
   //     }
   //   };
 
+  // const handleDeleteRecord = async () => {
+  //   try {
+  //     const response = await postData("/");
+  //   } catch (error) {}
+  // };
+
   return (
     <div className="flex flex-col">
       <div className=" overflow-x-auto">
@@ -95,14 +101,14 @@ const MaintenanceTable = () => {
                         {/* <td className="p-5 ">
                           <div className="flex items-center gap-1">
                             <button
-                              className="p-2 rounded-full group transition-all duration-500 flex item-center"
+                              className="p-2 rounded-full flex item-center"
                               //   onClick={handleDeleteSpecialDays}
                             >
-                              {dataLoading ? <Spinner /> : tableIcons?.edit}
+                              {tableIcons?.edit}
                             </button>
                             <button
-                              className="p-2 rounded-full group transition-all duration-500 flex item-center"
-                              //   onClick={handleDeleteSpecialDays}
+                              className="p-2 rounded-full flex item-center"
+                              // onClick={handleDeleteRecord}
                               disabled={dataLoading}
                             >
                               {dataLoading ? <Spinner /> : tableIcons?.delete}

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { tableIcons } from "../../Data/Icons";
 
 const SelectDropDownVehicle = ({
   item,
@@ -9,23 +10,41 @@ const SelectDropDownVehicle = ({
   setValueChanger,
   setSelectedChanger,
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [inputSelect, setInputSelect] = useState(value);
-  const handleChangeValue = (e) => {
-    setInputSelect(e.target.value);
-    setValueChanger && setValueChanger(e.target.value);
-    if (setSelectedChanger) {
-      // const newSelectedOption = options.map(
-      //   (item) => item?._id === e.target.value
-      // );
-      const newSelectedOption = options.find(
-        (item) => item?._id === e.target.value
-      );
-      setSelectedChanger(newSelectedOption);
+  const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
+
+  const filteredOptions = options?.filter((opt) => {
+    const text = `${opt?.vehicleNumber} ${opt?.vehicleName}`.toLowerCase();
+    return text.includes(searchTerm.toLowerCase());
+  });
+
+  const handleOptionClick = (val) => {
+    setInputSelect(val._id);
+    setIsOpen(false);
+    setValueChanger && setValueChanger(val._id);
+    setSelectedChanger && setSelectedChanger(val);
+  };
+
+  const handleClickOutside = (e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setIsOpen(false);
     }
   };
 
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleToggleDropdown = () => {
+    setIsOpen((prev) => !prev);
+  };
+
   return (
-    <div className="w-full">
+    <div className="w-full" ref={dropdownRef}>
       <label
         htmlFor={item}
         className="block text-gray-800 font-semibold text-sm capitalize"
@@ -33,33 +52,60 @@ const SelectDropDownVehicle = ({
         Select {item}
         {require && <span className="ml-1 text-red-500">*</span>}
       </label>
-      <div className="mt-2">
-        <select
+      <div className="mt-2 relative">
+        <input
+          type="hidden"
           name={name}
-          id={item}
-          value={inputSelect}
-          onChange={(e) => handleChangeValue(e)}
-          className="block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize disabled:bg-gray-300 disabled:bg-opacity-30"
-          disabled={!options || options?.length == 0 ? true : false}
+          value={inputSelect?._id}
           required={require}
+        />
+        <button
+          className="text-left block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize bg-white cursor-pointer disabled:bg-gray-300/30"
+          type="button"
+          onClick={handleToggleDropdown}
+          disabled={!options || options?.length == 0 ? true : false}
         >
-          <option value="">
-            {(options?.length == 0 && `No ${item} Found`) || `Select ${item}`}
-          </option>
-          {options &&
-            options.map((items) => {
-              return (
-                <option
-                  value={items?._id}
-                  key={items?._id}
-                  className="capitalize"
+          {inputSelect
+            ? `${
+                options?.find((opt) => opt._id === inputSelect)
+                  ?.vehicleNumber || ""
+              } | ${
+                options?.find((opt) => opt._id === inputSelect)?.vehicleName ||
+                ""
+              }`
+            : `Select ${item}`}
+        </button>
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-600">
+          {tableIcons.downArrow}
+        </div>
+        {isOpen && (
+          <div className="absolute z-50 bg-white mt-2 w-full max-h-28 lg:max-h-40 overflow-y-auto rounded-md shadow-md border border-gray-300">
+            <input
+              type="text"
+              ref={searchInputRef}
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full px-3 py-2 border-b border-gray-200 outline-none text-sm"
+            />
+            {filteredOptions?.length ? (
+              filteredOptions.map((opt) => (
+                <div
+                  key={opt._id}
+                  onClick={() => handleOptionClick(opt)}
+                  className="px-4 py-2 hover:bg-gray-100 text-sm capitalize cursor-pointer"
                 >
-                  {items?.vehicleNumber} | {items?.vehicleName} |{" "}
-                  {item?.stationName}
-                </option>
-              );
-            })}
-        </select>
+                  {opt.vehicleNumber} | {opt.vehicleName}
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-2 text-gray-500 text-sm">
+                No options found
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

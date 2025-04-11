@@ -8,8 +8,9 @@ import BookingStepTwo from "./BookingComponents/BookingStepTwo";
 import BookingStepThree from "./BookingComponents/BookingStepThree";
 import { createOrderId, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { updateTimeLine } from "../../Data/Function";
+import { CreatePaymentLinkAndTimeline } from "../../Data/Function";
 import { updateTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
+import { tableIcons } from "../../Data/Icons";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
@@ -46,10 +47,9 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       Number(selectedVehicle?.perDayCost);
     const rentAmount = Number(selectedVehicle?.perDayCost);
 
-    const tax = calculateTax(bookingPrice, 18);
+    const tax = calculateTax(bookingPrice + Number(extraAddonPrice), 18);
 
-    // Include extraAddonPrice in the total calculation
-    const totalPrice = bookingPrice + tax + Number(extraAddonPrice);
+    const totalPrice = Math.round(bookingPrice + tax);
 
     const combinedData = {
       bookingPrice,
@@ -114,9 +114,9 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           discountTotalPrice: 0,
           rentAmount: formData?.stepTwoData?.rentAmount,
           isPackageApplied: false,
-          userPaid: userPaid,
+          userPaid: Math.round(userPaid),
           AmountLeftAfterUserPaid: {
-            amount: AmountLeftAfterUserPaid,
+            amount: Math.round(AmountLeftAfterUserPaid),
             status: "upaid",
           },
           extendAmount: [],
@@ -137,7 +137,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           oldBooking: [],
           transactionIds: [],
         },
-        payInitFrom: "Razorpay",
+        payInitFrom: result?.paymentMethod === "cash" ? "Cash" : "Razorpay",
         paySuccessId: "NA",
         paymentgatewayOrderId: "",
         paymentgatewayReceiptId: "",
@@ -147,10 +147,19 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           couponId: "",
         },
         paymentMethod: result?.paymentMethod,
-        bookingStatus: result?.bookingStatus,
-        paymentStatus: result?.paymentStatus,
-        rideStatus: result?.rideStatus,
+        bookingStatus: result?.bookingStatus || "done",
+        paymentStatus: result?.paymentStatus || "pending",
+        rideStatus: result?.rideStatus || "pending",
       };
+
+      if (result?.paymentMethod === "cash") {
+        data = {
+          ...data,
+          payInitFrom: "Cash",
+          bookingStatus: "done",
+          paymentMethod: result?.paymentMethod,
+        };
+      }
 
       const bookingResponse = await postData("/createBooking", data, token);
       if (bookingResponse?.status === 200) {
@@ -169,8 +178,25 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         };
         // for creating booking
         await postData("/createTimeline", timeLineData, token);
-        // for updating sending link in it
-        // await updateTimeLine(bookingResponse?.data, token);
+        if (bookingResponse?.data?.paymentMethod === "cash") {
+          const timeLineData = {
+            currentBooking_id: bookingResponse?.data?._id,
+            timeLine: [
+              {
+                title: "Pay Later",
+                date: new Date().toLocaleString(),
+                paymentAmount:
+                  bookingResponse?.data?.bookingPrice?.discountTotalPrice > 0
+                    ? bookingResponse?.data?.bookingPrice?.discountTotalPrice
+                    : bookingResponse?.data?.bookingPrice?.totalPrice,
+              },
+            ],
+          };
+          await postData("/createTimeline", timeLineData, token);
+          handleAsyncError(dispatch, "Ride Created Successfully", "success");
+          navigate(`/all-bookings/details/${bookingResponse?.data?._id}`);
+          return;
+        }
       } else {
         return handleAsyncError(dispatch, bookingResponse?.message);
       }
@@ -203,11 +229,12 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           ],
         };
         // for creating booking
-        postData("/createTimeline", timeLineData, token);
+        await postData("/createTimeline", timeLineData, token);
         // for updating sending link in it
-        const updateTimeLineDataToPush = await updateTimeLine(
+        const updateTimeLineDataToPush = await CreatePaymentLinkAndTimeline(
           UpdatedBookingResponse?.data,
-          token
+          token,
+          "Payment Link Created"
         );
         dispatch(updateTimeLineData(updateTimeLineDataToPush));
         handleAsyncError(dispatch, "Ride Created Successfully", "success");
@@ -224,13 +251,24 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
 
   return (
     <form onSubmit={id ? handleFormSubmit : handleFormSubmitForNew}>
-      <h2 className="text-theme-dark font-semibold text-md lg:text-xl mb-3 uppercase border-b-2 pb-2">
-        {(currentStep === 1 && "Basic Info") ||
-          (currentStep === 2 && "Booking Pricing") ||
-          (currentStep === 3 && "Confirm Booking")}
-      </h2>
+      <div className="flex items-center gap-2 border-b-2 mb-3 pb-2">
+        {currentStep !== 1 && (
+          <button
+            className="w-[16%] lg:w-[10%] bg-theme hover:bg-theme-dark text-white font-bold px-3 py-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400 flex items-center gap-1"
+            type="button"
+            onClick={handlePrevious}
+          >
+            {tableIcons?.backArrow}
+            <span className="hidden lg:block">Previous</span>
+          </button>
+        )}
+        <h2 className="text-theme-dark font-semibold text-md lg:text-xl uppercase">
+          {(currentStep === 1 && "Basic Info") ||
+            (currentStep === 2 && "Booking Pricing & Confirm Booking") ||
+            (currentStep === 3 && "Confirm Booking")}
+        </h2>
+      </div>
       <div className="flex flex-wrap gap-4">
-        {/* for updating the value of the existing one & for creating new one */}
         <>
           {currentStep === 1 && (
             <BookingStepOne
@@ -245,27 +283,32 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               data={formData?.stepOneData}
               priceCalculate={changePriceAccordingtoData}
               onNext={handleNext}
-              onPrevious={handlePrevious}
             />
           )}
 
-          {currentStep === 3 && (
+          {id && currentStep === 3 && (
             <BookingStepThree id={id} onPrevious={handlePrevious} />
           )}
         </>
       </div>
-      {currentStep === 3 && (
+      {(currentStep === 2 || (id && currentStep === 3)) && (
         <button
-          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
           type="submit"
           disabled={formLoading || loading}
         >
           {formLoading || loading ? (
-            <Spinner message={"uploading"} />
+            <Spinner
+              message={
+                id
+                  ? "uploading"
+                  : "booking. Do not refresh or press back button"
+              }
+            />
           ) : id ? (
             "Update"
           ) : (
-            "Add New"
+            "Book Ride"
           )}
         </button>
       )}
