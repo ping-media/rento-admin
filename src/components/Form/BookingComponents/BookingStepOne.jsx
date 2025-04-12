@@ -78,7 +78,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
               : `stationId=${stationId}`;
 
           const response = await getData(
-            `/getVehicleTblData?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}page=1&limit=100`
+            `/getVehicleTblData?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&page=1&limit=100`
           );
 
           if (response?.status === 200) {
