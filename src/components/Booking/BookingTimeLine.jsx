@@ -36,10 +36,10 @@ const BookingTimeLine = ({ bookingId }) => {
                 >
                   <div className="order-1 w-5/12"></div>
                   <div className="z-20 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative">
-                    {index + 1 === timeLineData?.timeLine?.length &&
+                    {/* {index + 1 === timeLineData?.timeLine?.length &&
                       !item?.title?.includes("Completed") && (
                         <div className="absolute top-0 bottom-0 w-full h-full rounded-full bg-theme animate-ping"></div>
-                      )}
+                      )} */}
                   </div>
                   <div
                     className={`order-1 w-5/12 ${
