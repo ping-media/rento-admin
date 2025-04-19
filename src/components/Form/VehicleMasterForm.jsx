@@ -43,6 +43,7 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
                 options={vehicleTypeOptions}
                 value={id && vehicleMaster?.[0]?.vehicleType}
                 require={true}
+                isSearchEnable={false}
               />
               <SelectDropDown
                 item={"vehicleBrand"}

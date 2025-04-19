@@ -1,22 +1,34 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
+  addMaintenanceIds,
   addTempIds,
   handleIsOneOrMoreHeaderChecked,
+  removeSingleMaintenanceIdsById,
   removeSingleTempIdById,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const CheckBoxInput = ({ isId }) => {
-  const { isHeaderChecked, tempIds } = useSelector((state) => state.vehicles);
-  const isChecked = isHeaderChecked || tempIds.includes(isId);
+  const { tempIds, vehicleMaster } = useSelector((state) => state.vehicles);
+  // const isChecked = isHeaderChecked || tempIds.includes(isId);
+  const isChecked = tempIds.includes(isId);
   const dispatch = useDispatch();
 
   const toggleSelectOne = (id) => {
     if (!id) return;
+    const data = vehicleMaster?.data?.find((item) => item?._id === isId);
     if (isChecked) {
       dispatch(handleIsOneOrMoreHeaderChecked(false));
+      const maintenanceId =
+        // data?.maintenance[data?.maintenance?.length - 1]?._id;
+        data?.maintenance[0]?._id;
+      dispatch(removeSingleMaintenanceIdsById(maintenanceId));
       return dispatch(removeSingleTempIdById(isId));
     } else {
       dispatch(handleIsOneOrMoreHeaderChecked(true));
+      const maintenanceId =
+        // data?.maintenance[data?.maintenance?.length - 1]?._id;
+        data?.maintenance[0]?._id;
+      dispatch(addMaintenanceIds([maintenanceId]));
       return dispatch(addTempIds([isId]));
     }
   };

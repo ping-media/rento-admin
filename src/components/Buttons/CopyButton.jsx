@@ -10,7 +10,7 @@ const CopyButton = ({ textToCopy, onCopy }) => {
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       if (onCopy) onCopy();
-      setTimeout(() => setCopied(false), 2000); // Reset "copied" state after 2 seconds
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error("Failed to copy text:", error);
     }

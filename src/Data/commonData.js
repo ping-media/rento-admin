@@ -130,7 +130,20 @@ const forms = {
 const bookingSearchList = [
   { label: "All", value: "all" },
   { label: "Booking Id", value: "bookingId" },
-  // { label: "Vehicle Name", value: "vehicleName" },
+];
+
+const blockReasonList = [
+  "General Maintenance",
+  "Periodic Servicing",
+  "Brake Pad Replace",
+  "Tyre Replace",
+  "Tyre Puncture Repair",
+  "Battery / Self Start Issue",
+  "Vehicle Not Starting",
+  "Minor Repair",
+  "Horn Not Working",
+  "Insurance Expired",
+  "Others",
 ];
 
 export {
@@ -142,4 +155,5 @@ export {
   forms,
   vehicleColor,
   bookingSearchList,
+  blockReasonList,
 };

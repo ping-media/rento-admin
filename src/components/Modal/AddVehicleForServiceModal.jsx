@@ -1,34 +1,53 @@
 import Input from "../../components/InputAndDropdown/Input";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
-import { useParams } from "react-router-dom";
 import { formatLocalTimeIntoISO } from "../../utils/index";
 import { postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { useState } from "react";
 import Spinner from "../../components/Spinner/Spinner";
+import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
+import { blockReasonList } from "../../Data/commonData";
+import {
+  handleMaintenanceLoading,
+  removeBlockVehicleId,
+} from "../../Redux/VehicleSlice/VehicleSlice";
 
 const AddVehicleForServiceModal = ({ loading }) => {
   const dispatch = useDispatch();
-  const { id } = useParams();
   const { isVehicleForServiceActive } = useSelector((state) => state.sideBar);
-  const [formLoading, setFormLoading] = useState(false);
+  const { blockVehicleId, maintenanceLoading } = useSelector(
+    (state) => state.vehicles
+  );
   const { token } = useSelector((state) => state.user);
 
   // apply vehicle for Maintenance
   const handleSendVehicleToService = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const vehicleTableId = id;
+    const vehicleTableId = blockVehicleId;
     let startDate = formData.get("startDate");
     startDate = formatLocalTimeIntoISO(startDate);
     let endDate = formData.get("endDate");
     endDate = formatLocalTimeIntoISO(endDate);
+    let reason = formData.get("reason")?.toLowerCase();
+
+    if (vehicleTableId === "") {
+      handleAsyncError(dispatch, "Unable to fetch vehicle! try again");
+      return;
+    }
+
+    if (!vehicleTableId && !startDate && !endDate && !reason) {
+      handleAsyncError(dispatch, "All field required.");
+      return;
+    }
 
     const data = {
       vehicleTableId,
       startDate,
       endDate,
+      reason,
+      status: "active",
     };
 
     if (!data)
@@ -38,7 +57,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
       );
 
     try {
-      setFormLoading(true);
+      dispatch(handleMaintenanceLoading(true));
       const response = await postData(
         `/maintenanceVehicle?vehicleTableId=${vehicleTableId}&startDate=${startDate}&endDate=${endDate}`,
         data,
@@ -46,6 +65,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
       );
       if (response?.status === 200) {
         dispatch(toggleVehicleServiceModal());
+        dispatch(removeBlockVehicleId());
         return handleAsyncError(dispatch, response?.message, "success");
       } else {
         return handleAsyncError(dispatch, response?.message);
@@ -53,7 +73,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
     } finally {
-      setFormLoading(false);
+      dispatch(handleMaintenanceLoading(false));
     }
   };
 
@@ -63,7 +83,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
         !isVehicleForServiceActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-40 mx-auto shadow-xl rounded-md bg-white max-w-md">
+      <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-lg">
         <div className="flex justify-between p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Shedule Maintenance
@@ -72,7 +92,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
             onClick={() => dispatch(toggleVehicleServiceModal())}
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
-            disabled={loading || false}
+            disabled={loading || maintenanceLoading || false}
           >
             <svg
               className="w-5 h-5"
@@ -97,12 +117,19 @@ const AddVehicleForServiceModal = ({ loading }) => {
             <div className="mb-2">
               <Input item={"endDate"} type="datetime-local" />
             </div>
+            <div className="text-left mb-2">
+              <SelectDropDown
+                item={"reason"}
+                options={blockReasonList}
+                isSearchEnable={false}
+              />
+            </div>
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
-              disabled={formLoading}
+              disabled={maintenanceLoading}
             >
-              {!formLoading ? (
+              {!maintenanceLoading ? (
                 "Add vehicle"
               ) : (
                 <Spinner message={"loading..."} />

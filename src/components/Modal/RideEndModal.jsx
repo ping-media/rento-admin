@@ -18,12 +18,13 @@ import { useDebounce } from "../../utils/Helper/debounce";
 
 const RideEndModal = ({ id }) => {
   const { isRideEndModalActive } = useSelector((state) => state.sideBar);
-  const { vehicleMaster } = useSelector((state) => state.vehicles);
+  const { vehicleMaster, vehiclePickupImage } = useSelector(
+    (state) => state.vehicles
+  );
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
   const [endRide, SetEndRide] = useState(0);
   const [oldMeterReading, setOldMeterReading] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [EndMeterReading, SetEndMeterReading] = useState(0);
   const [lateFees, setLateFees] = useState({
     lateFeeBasedOnKM: 0,
@@ -147,21 +148,10 @@ const RideEndModal = ({ id }) => {
   };
 
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const response = await getData(
-          `/getPickupImage?bookingId=${vehicleMaster[0]?.bookingId}`,
-          token
-        );
-        return setOldMeterReading(response?.data[0]?.startMeterReading);
-      } catch (error) {
-        return handleAsyncError(dispatch, error?.message);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [vehicleMaster]);
+    if (vehiclePickupImage !== null) {
+      setOldMeterReading(vehiclePickupImage[0]?.startMeterReading);
+    }
+  }, [vehiclePickupImage]);
 
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {
@@ -221,7 +211,7 @@ const RideEndModal = ({ id }) => {
             <div className="mb-2 text-left">
               <p className="text-gray-400 mb-1">
                 <span className="font-semibold">Start Meter Reading:</span>{" "}
-                {!loading ? oldMeterReading : "loading..."}
+                {oldMeterReading}
               </p>
               {lateFees?.lateFeeBasedOnKM > 0 && (
                 <p className="text-theme mb-1">

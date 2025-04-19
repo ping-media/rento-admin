@@ -3,7 +3,9 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import {
   changeTempLoadingFalse,
   changeTempLoadingTrue,
+  handleBlockLoading,
   handleIsHeaderChecked,
+  removemaintenanceIds,
   removeTempIds,
   restvehicleMaster,
 } from "../../Redux/VehicleSlice/VehicleSlice";
@@ -11,15 +13,73 @@ import Spinner from "../../components/Spinner/Spinner";
 import { handleDeleteAndEditAllData } from "../../Data/Function";
 import { toggleVehicleUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import ChangeBulkVehicle from "../../components/Modal/ChangeBulkVehicle";
+import { formatLocalTimeIntoISO } from "../../utils/index";
+import { postData } from "../../Data/index";
+import { useState } from "react";
+import { setMaintenanceType } from "../../Redux/PaginationSlice/PaginationSlice";
 
 const BulkActionButtons = () => {
-  const { isHeaderChecked, isOneOrMoreHeaderChecked, tempIds, tempLoading } =
-    useSelector((state) => state.vehicles);
+  const {
+    isHeaderChecked,
+    isOneOrMoreHeaderChecked,
+    tempIds,
+    tempLoading,
+    maintenanceIds,
+  } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
+  const { vehicleMaster, blockLoading } = useSelector(
+    (state) => state.vehicles
+  );
   const dispatch = useDispatch();
 
   const toggleOptions = () => {
     dispatch(toggleVehicleUpdateModal());
+  };
+
+  const unblockVehicles = async () => {
+    const currentDateAndTime = new Date();
+    const endDate = formatLocalTimeIntoISO(currentDateAndTime);
+
+    if (!maintenanceIds) {
+      return handleAsyncError(
+        dispatch,
+        "Unable to get Vehicles Ids! try again"
+      );
+    }
+
+    const hasActiveMaintenance = vehicleMaster?.data?.some((vehicle) => {
+      return vehicle.maintenance.some((m) => {
+        return maintenanceIds.includes(m._id) && new Date(m.endDate) > endDate;
+      });
+    });
+
+    if (!hasActiveMaintenance)
+      return handleAsyncError(dispatch, "No Active Maintenance found");
+
+    const data = {
+      maintenanceIds: maintenanceIds,
+      endDate: endDate,
+    };
+
+    try {
+      dispatch(handleBlockLoading(true));
+      const response = await postData("/maintenanceVehicle", data, token);
+      if (response.success === true) {
+        dispatch(setMaintenanceType(""));
+        dispatch(removeTempIds());
+        dispatch(removemaintenanceIds());
+        handleAsyncError(dispatch, response?.message, "success");
+      } else {
+        handleAsyncError(dispatch, response?.message);
+      }
+    } catch (error) {
+      handleAsyncError(
+        dispatch,
+        "Unable to update maintenance records! try again."
+      );
+    } finally {
+      dispatch(handleBlockLoading(false));
+    }
   };
 
   //   delete data in bulk
@@ -66,6 +126,19 @@ const BulkActionButtons = () => {
               {isHeaderChecked && isHeaderChecked === true
                 ? "Edit All"
                 : "Edit"}
+            </button>
+            <button
+              className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap relative"
+              onClick={unblockVehicles}
+              disabled={blockLoading}
+            >
+              {blockLoading ? (
+                <Spinner />
+              ) : isHeaderChecked && isHeaderChecked === true ? (
+                "Unblock All"
+              ) : (
+                "Unblock"
+              )}
             </button>
             <button
               className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap disabled:bg-gray-400"

@@ -3,19 +3,31 @@ import { formatPathNameToTitle } from "../../utils/index";
 import { tableIcons } from "../../Data/Icons";
 import BulkActionButtons from "./BulkActionButtons";
 import { toggleFilterSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 import { bookingSearchList } from "../../Data/commonData";
 import { handleChangeSearchType } from "../../Redux/PaginationSlice/PaginationSlice";
 import { toggleRefresh } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
+  const { vehiclesFilter } = useSelector((state) => state.pagination);
   const dispatch = useDispatch();
+  const [count, setCount] = useState(0);
 
   // stopping to reload the page
   const handleControlSubmit = (e) => {
     e.preventDefault();
   };
+
+  useEffect(() => {
+    let newCount = 0;
+
+    if (vehiclesFilter.vehicleName !== "") newCount += 1;
+    if (vehiclesFilter.search !== "") newCount += 1;
+    if (vehiclesFilter.maintenanceType !== "") newCount += 1;
+
+    setCount(newCount);
+  }, [vehiclesFilter]);
 
   // for clearing the input state
   useEffect(() => {
@@ -120,10 +132,15 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
             location.pathname === "/all-bookings" ||
             location.pathname === "/all-vehicles") && (
             <button
-              className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-1.5 lg:p-2.5 flex items-center transition-all duration-200 ease-in"
+              className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-1.5 lg:p-2.5 flex items-center transition-all duration-200 ease-in relative"
               title="filters"
               onClick={() => dispatch(toggleFilterSideBar())}
             >
+              {count > 0 && (
+                <span className="text-sm absolute -top-3 -right-2 bg-theme text-white w-7 h-7 p-1 rounded-full">
+                  {count}
+                </span>
+              )}
               {tableIcons?.filter} <span className="ml-1">Filters</span>
             </button>
           )}

@@ -20,6 +20,8 @@ import {
 import BookingTimeLine from "./BookingTimeLine";
 import AdditionalInfo from "./AdditionalInfo";
 import Button from "../Buttons/Button";
+import Spinner from "../../components/Spinner/Spinner";
+import VehicleImages from "./VehicleImages";
 const ChangeVehicleModal = lazy(() =>
   import("../../components/Modal/ChangeVehicleModal")
 );
@@ -27,8 +29,10 @@ const ExtendBookingModal = lazy(() =>
   import("../../components/Modal/ExtendBookingModal")
 );
 
-const BookingDetail = () => {
-  const { vehicleMaster } = useSelector((state) => state.vehicles);
+const BookingDetail = ({ pickupImagesLoading }) => {
+  const { vehicleMaster, vehiclePickupImage } = useSelector(
+    (state) => state.vehicles
+  );
   const [data, setData] = useState(null);
   const dispatch = useDispatch();
 
@@ -203,6 +207,20 @@ const BookingDetail = () => {
           </div>
           <div className="border-2 p-2 border-gray-300 rounded-lg">
             <BookingMoreInfo data={data} datatype={"moreInfo"} />
+          </div>
+          <div>
+            <h2 className="text-md lg:text-lg font-semibold text-gray-500 mt-5">
+              Vehicle Images
+            </h2>
+            {pickupImagesLoading ? (
+              <Spinner />
+            ) : !pickupImagesLoading && vehiclePickupImage?.length > 0 ? (
+              <VehicleImages />
+            ) : (
+              <p className="text-sm italic text-gray-400">
+                No vehicles Images Found.
+              </p>
+            )}
           </div>
           <div>
             <h2 className="text-md lg:text-lg font-semibold text-gray-500 mt-5">

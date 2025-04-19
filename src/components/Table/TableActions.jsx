@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom";
 import { tableIcons } from "../../Data/Icons";
+import { useDispatch } from "react-redux";
+import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
+import { addBlockVehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
 // import MoreActionCell from "./MoreActionCell";
 
 const TableActions = ({
@@ -8,25 +11,32 @@ const TableActions = ({
   // setLoadingStates,
   handleDeleteVehicle,
 }) => {
+  const dispatch = useDispatch();
   // for deleting the vehicle
   const handleDelete = (e, id) => {
     e.stopPropagation();
     return handleDeleteVehicle(id);
   };
 
+  // for blocking the vehicle
+  const handleBlockVehicle = (e, id) => {
+    e.stopPropagation();
+    dispatch(addBlockVehicleId(id));
+    dispatch(toggleVehicleServiceModal());
+  };
+
   return (
-    <td className="p-3 whitespace-nowrap text-sm items-center gap-1">
+    <td className="p-2 whitespace-nowrap text-sm items-center gap-1">
       <div className="flex">
-        {(location.pathname == "/all-vehicles" ||
-          // location.pathname == "/all-bookings" ||
-          location.pathname == "/all-invoices") && (
-          <Link
-            className="p-2 text-purple-500 hover:underline"
-            to={`details/${item?._id}`}
-            onClick={(e) => e.stopPropagation()}
+        {location.pathname == "/all-vehicles" && (
+          <button
+            type="button"
+            className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:text-white hover:bg-gray-600 flex item-center"
+            onClick={(e) => handleBlockVehicle(e, item?._id)}
+            title="Block Vehicle"
           >
-            view
-          </Link>
+            {tableIcons?.block}
+          </button>
         )}
         {!(
           location.pathname == "/users-documents" ||

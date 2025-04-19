@@ -9,17 +9,17 @@ import { getData } from "../../Data";
 import { endPointBasedOnKey } from "../../Data/commonData";
 import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
 import { tableIcons } from "../../Data/Icons";
-import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
+// import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import MaintenanceTable from "../../components/Table/MaintenanceTable";
-import {
-  addSchedule,
-  startLoading,
-  stopLoading,
-} from "../../Redux/MaintenanceSlice/MaintenanceSlice";
-import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-const AddVehicleForServiceModal = lazy(() =>
-  import("../../components/Modal/AddVehicleForServiceModal")
-);
+// import {
+//   addSchedule,
+//   startLoading,
+//   stopLoading,
+// } from "../../Redux/MaintenanceSlice/MaintenanceSlice";
+// import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+// const AddVehicleForServiceModal = lazy(() =>
+//   import("../../components/Modal/AddVehicleForServiceModal")
+// );
 
 const VehicleDetail = () => {
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
@@ -59,48 +59,23 @@ const VehicleDetail = () => {
     }
   }, [vehicleMaster]);
 
-  // for fetching the maintenanceVehicle record
-  useEffect(() => {
-    (async () => {
-      try {
-        dispatch(startLoading());
-        const response = await getData(
-          `/maintenanceVehicle?vehicleTableId=${id}`,
-          token
-        );
-        if (response?.success === true) {
-          dispatch(addSchedule(response?.data));
-        } else {
-          handleAsyncError(dispatch, response?.message);
-        }
-      } catch (error) {
-        handleAsyncError(
-          dispatch,
-          "Unable to find maintenance record! try again."
-        );
-      } finally {
-        dispatch(stopLoading());
-      }
-    })();
-  }, []);
-
   return id ? (
     !loading && collectedData != null ? (
       vehicleMaster?.length == 1 ? (
         <>
-          <AddVehicleForServiceModal />
+          {/* <AddVehicleForServiceModal /> */}
           <div className="flex items-center flex-wrap gap-2 lg:gap-0 justify-between mb-3">
             <h1 className="text-2xl uppercase font-bold text-theme">
               Vehicle Details
             </h1>
             <div className="flex items-center gap-2">
-              <button
+              {/* <button
                 className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
                 type="button"
                 onClick={() => dispatch(toggleVehicleServiceModal())}
               >
                 Schedule Maintenance
-              </button>
+              </button> */}
               {loggedInRole !== "manager" && (
                 <Link
                   className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
@@ -126,8 +101,8 @@ const VehicleDetail = () => {
                         key.includes("_v") ||
                         key.includes("At") ||
                         key.includes("Id") ||
-                        key.includes("Image")
-                        // key.includes("vehiclePlan")
+                        key.includes("Image") ||
+                        key.includes("maintenance")
                       ) {
                         return null;
                       }
@@ -135,7 +110,8 @@ const VehicleDetail = () => {
                       return (
                         <div
                           className={`flex justify-between items-center py-1.5 ${
-                            Object.entries(vehicleMaster[0]).length != index + 1
+                            Object.entries(vehicleMaster[0]).length !==
+                            index + 2
                               ? "border-b-2"
                               : ""
                           } border-gray-300`}
@@ -188,12 +164,36 @@ const VehicleDetail = () => {
                 </div>
                 <div className="mb-2">
                   <h2 className="text-lg font-semibold uppercase">
+                    Vehicle Plan
+                  </h2>
+                </div>
+                <div className="bg-gray-300/50 p-2 rounded-md mb-3">
+                  <ul className="list-disc pl-5">
+                    {vehicleMaster[0]?.vehiclePlan?.length > 0 ? (
+                      vehicleMaster[0]?.vehiclePlan?.map((plan) => (
+                        <li className="w-full" key={plan?._id}>
+                          <div className="flex items-center gap-1 w-full">
+                            <p className="text-sm font-semibold">
+                              {plan?.planName || "Plan Name"}:
+                            </p>
+                            <p className="text-sm">
+                              ₹{formatPrice(Number(plan.planPrice))}
+                            </p>
+                          </div>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-sm italic">No Plan Applied.</li>
+                    )}
+                  </ul>
+                </div>
+                <div className="mb-2">
+                  <h2 className="text-lg font-semibold uppercase">
                     Maintenance Schedule
                   </h2>
                 </div>
-                <div>
-                  <MaintenanceTable />
-                </div>
+
+                <MaintenanceTable />
               </div>
             </div>
           </div>

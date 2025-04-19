@@ -11,7 +11,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
       {Columns?.length > 0 && location.pathname == "/all-vehicles" && (
         <th
           scope="col"
-          className="px-3 py-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+          className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
         >
           <CheckBoxInputToMultiple
             data={newUpdatedData}
@@ -63,7 +63,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
               <th
                 scope="col"
                 className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
-                key={"userPaid"}
+                key={"userPaymentRecived"}
               >
                 Payment Recived
               </th>

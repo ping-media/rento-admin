@@ -22,11 +22,12 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
 
   const fetchCollectedData = async (locationUrl, stationUrl) => {
     const locationResponse = await getData(
-      endPointBasedOnKey[locationUrl],
+      // endPointBasedOnKey[locationUrl],
+      `${endPointBasedOnKey[locationUrl]}?fetchAll=true`,
       token
     );
     const stationResponse = await getData(
-      endPointBasedOnKey[stationUrl],
+      `${endPointBasedOnKey[stationUrl]}?fetchAll=true`,
       token
     );
 
@@ -62,7 +63,9 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"locationId"}
-              options={collectedData?.locationId}
+              options={collectedData?.locationId?.filter(
+                (location) => location?.locationStatus !== "inactive"
+              )}
               value={id && vehicleMaster[0]?.locationId}
               require={true}
             />

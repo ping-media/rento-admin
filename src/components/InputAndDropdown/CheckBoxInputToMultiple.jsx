@@ -1,7 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
+  addMaintenanceIdsAll,
   addTempIdsAll,
   handleIsHeaderChecked,
+  removemaintenanceIds,
   removeTempIds,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { useEffect, useRef } from "react";
@@ -15,9 +17,17 @@ const CheckBoxInputToMultiple = ({ data, unique }) => {
     if (isHeaderCheckedRef.current && isHeaderCheckedRef.current.checked) {
       if (!data) return;
       dispatch(addTempIdsAll(data?.map((item) => item?._id)));
+      dispatch(
+        addMaintenanceIdsAll(
+          data
+            ?.filter((item) => item?.maintenance?.length > 0)
+            .map((item) => item.maintenance[item.maintenance.length - 1]?._id)
+        )
+      );
       dispatch(handleIsHeaderChecked(true));
     } else {
       dispatch(removeTempIds());
+      dispatch(removemaintenanceIds());
       dispatch(handleIsHeaderChecked(false));
     }
   };

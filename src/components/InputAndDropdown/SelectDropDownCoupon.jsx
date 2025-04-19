@@ -2,14 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { tableIcons } from "../../Data/Icons";
 import { useDispatch } from "react-redux";
 import {
-  resetBookingVehicleName,
-  setBookingVehicleName,
+  resetCouponName,
+  setCouponName,
 } from "../../Redux/PaginationSlice/PaginationSlice";
 
-const SelectDropDownVehicle = ({
+const SelectDropDownCoupon = ({
   item,
-  name,
-  require,
   options,
   value = "",
   setValueChanger,
@@ -47,7 +45,7 @@ const SelectDropDownVehicle = ({
       clearTimeout(debounceTimerRef.current);
     }
     debounceTimerRef.current = setTimeout(() => {
-      dispatch(setBookingVehicleName(searchTerm));
+      dispatch(setCouponName(searchTerm));
     }, 300);
 
     return () => {
@@ -63,7 +61,7 @@ const SelectDropDownVehicle = ({
 
   useEffect(() => {
     return () => {
-      dispatch(resetBookingVehicleName());
+      dispatch(resetCouponName());
     };
   }, []);
 
@@ -74,15 +72,9 @@ const SelectDropDownVehicle = ({
         className="block text-gray-800 font-semibold text-sm capitalize"
       >
         Select {item}
-        {require && <span className="ml-1 text-red-500">*</span>}
       </label>
       <div className="mt-2 relative">
-        <input
-          type="hidden"
-          name={name}
-          value={inputSelect?._id}
-          required={require}
-        />
+        {/* <input type="hidden" value={inputSelect?._id} /> */}
         <button
           className="text-left block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize bg-white cursor-pointer disabled:bg-gray-300/30"
           type="button"
@@ -91,10 +83,10 @@ const SelectDropDownVehicle = ({
         >
           {inputSelect
             ? `${
-                options?.find((opt) => opt._id === inputSelect)
-                  ?.vehicleNumber || ""
+                options?.find((opt) => opt._id === inputSelect)?.couponName ||
+                ""
               } | ${
-                options?.find((opt) => opt._id === inputSelect)?.vehicleName ||
+                options?.find((opt) => opt._id === inputSelect)?.discountType ||
                 ""
               }`
             : `Select ${item}`}
@@ -120,7 +112,7 @@ const SelectDropDownVehicle = ({
                   onClick={() => handleOptionClick(opt)}
                   className="px-4 py-2 hover:bg-gray-100 text-sm capitalize cursor-pointer"
                 >
-                  {opt.vehicleNumber} | {opt.vehicleName}
+                  {opt.couponName} | {opt.discountType}
                 </div>
               ))
             ) : (
@@ -135,4 +127,4 @@ const SelectDropDownVehicle = ({
   );
 };
 
-export default SelectDropDownVehicle;
+export default SelectDropDownCoupon;

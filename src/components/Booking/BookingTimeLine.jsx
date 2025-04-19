@@ -63,8 +63,12 @@ const BookingTimeLine = ({ bookingId }) => {
                                 : "text-sm"
                             }`}
                           >
-                            {(item?.vehicleName &&
-                              `Vehicle: ${item?.vehicleName}(${item?.vehicleNumber})`) ||
+                            {(item?.vehicleName && (
+                              <span className="capitalize">
+                                Vehicle: {item?.vehicleName}(
+                                {item?.vehicleNumber})
+                              </span>
+                            )) ||
                               (item?.paymentAmount &&
                                 `₹${formatPrice(item?.paymentAmount)}`) ||
                               item?.extendedTill ||

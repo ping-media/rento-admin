@@ -40,7 +40,7 @@ const General = () => {
         General Settings
       </h1>
 
-      <div>
+      <div className="bg-white p-2 shadow-md rounded-md">
         <GeneralForm />
       </div>
     </>

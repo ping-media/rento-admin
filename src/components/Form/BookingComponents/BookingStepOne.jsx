@@ -26,6 +26,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
   const [error, setError] = useState("");
   const [isLocationSelected, setIsLocationSelected] = useState("");
   const { loggedInRole, userStation } = useSelector((state) => state.user);
+  const { vehiclesFilter } = useSelector((state) => state.pagination);
   const dispatch = useDispatch();
 
   const handleNext = () => {
@@ -77,12 +78,19 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
               ? `stationId=${userStation?.stationId}`
               : `stationId=${stationId}`;
 
-          const response = await getData(
-            `/getVehicleTblData?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&page=1&limit=100`
-          );
+          // const response = await getData(
+          //   `/getVehicleTblData?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&page=1&limit=100`
+          // );
+          let endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&page=1&limit=50`;
+
+          if (vehiclesFilter?.bookingVehicleName !== "") {
+            endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&search=${vehiclesFilter?.bookingVehicleName}&page=1&limit=50`;
+          }
+
+          const response = await getData(endpoint);
 
           if (response?.status === 200) {
-            setSuggestionData(response?.data?.availableVehicles);
+            setSuggestionData(response?.data);
           } else {
             handleAsyncError(dispatch, response?.message);
           }
@@ -103,6 +111,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
     loggedInRole,
     userStation?.stationId,
     dispatch,
+    vehiclesFilter,
   ]);
 
   // fetching stationId and LocationId

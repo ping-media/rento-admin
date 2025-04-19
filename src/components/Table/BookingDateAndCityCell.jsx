@@ -3,7 +3,7 @@ import { formatFullDateAndTime } from "../../utils/index";
 const BookingDateAndCityCell = ({ item, column }) => {
   return (
     <td
-      className="p-3 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize"
+      className="p-2 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize"
       key="startAndEndDate"
     >
       {column === "BookingStartDateAndTime" ? (

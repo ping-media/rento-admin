@@ -137,6 +137,7 @@ const GeneralForm = () => {
               options={["+", "-"]}
               value={general?.weakend?.PriceType || ""}
               require={true}
+              isSearchEnable={false}
             />
             <p className="text-gray-400 italic text-xs mt-1">
               Based on the above value, the amount will be increased or

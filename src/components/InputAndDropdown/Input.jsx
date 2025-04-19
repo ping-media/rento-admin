@@ -20,6 +20,7 @@ const Input = ({
   name,
   placeholder,
   handlevalidateInput,
+  excludeLocation,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   // for debouncing state
@@ -79,6 +80,7 @@ const Input = ({
 
   // resetting the value
   useEffect(() => {
+    if (excludeLocation && location.pathname === excludeLocation) return;
     if (isModalClose === false) {
       setInputValue("");
     }
