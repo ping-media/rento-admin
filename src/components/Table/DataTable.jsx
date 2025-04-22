@@ -388,7 +388,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               if (column === "couponName") {
                                 return (
                                   <td
-                                    className="p-2 max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
+                                    className="p-2 max-w-36 lg:max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
                                     key={cellKey}
                                   >
                                     {item[column]}{" "}

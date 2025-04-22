@@ -260,7 +260,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
         <div className="p-6 pt-0 text-center">
           {vehicleLoading && <PreLoader />}
           <form onSubmit={handleChangeVehicle}>
-            <div className="mb-2">
+            <div className="text-left mb-2">
               <SelectDropDown
                 item={"vehicleTableId"}
                 onChangeFn={handleChangeSelectedVehicle}

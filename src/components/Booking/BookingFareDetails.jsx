@@ -39,6 +39,7 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "lateFeeBasedOnHour" &&
                   key !== "lateFeeBasedOnKM" &&
                   key !== "payOnPickupMethod" &&
+                  key !== "lateFeePaymentMethod" &&
                   !(key === "extraAddonPrice" && value === 0)
               ) // Exclude totalPrice
               .map(([key, value]) => (
@@ -105,8 +106,11 @@ const BookingFareDetails = ({ rides }) => {
                     ? "Subtotal"
                     : "Total Price"}
                   <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
-                    {rides?.paymentMethod == "online" &&
-                    rides?.paySuccessId != "NA"
+                    {rides?.bookingPrice?.discountPrice &&
+                    rides?.bookingPrice?.discountPrice != 0
+                      ? ""
+                      : rides?.paymentMethod == "online" &&
+                        rides?.paySuccessId != "NA"
                       ? "(Full Paid)"
                       : rides?.paymentMethod == "partiallyPay"
                       ? ""

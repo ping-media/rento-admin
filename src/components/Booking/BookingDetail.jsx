@@ -135,7 +135,7 @@ const BookingDetail = ({ pickupImagesLoading }) => {
             key: "Booked On",
             value: `${
               vehicleMaster &&
-              formatDateTimeISTForUser(
+              formatFullDateAndTime(
                 vehicleMaster && vehicleMaster[0]?.createdAt
               )
             }`,

@@ -48,6 +48,43 @@ const AdditionalInfo = () => {
           /km (after free limit exceeds.)
         </p>
       </div>
+      <div className="w-full">
+        <div className="flex items-center gap-1 mb-1">
+          <h2 className="text-md text-gray-600 font-bold">Late Fee Charges</h2>
+          {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod && (
+            <span className="text-xs italic text-gray-400">
+              (Paid by {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod})
+            </span>
+          )}
+        </div>
+        <div className="mb-2">
+          {vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour ||
+          vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM ? (
+            <div>
+              <p className="text-sm text-theme">
+                <span className="mr-1 font-semibold text-gray-500">
+                  Hour Late Fee:
+                </span>
+                ₹
+                {formatPrice(
+                  Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour)
+                )}
+              </p>
+              <p className="text-sm text-theme">
+                <span className="mr-1 font-semibold text-gray-500">
+                  KM Late Fee:
+                </span>
+                ₹
+                {formatPrice(
+                  Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM)
+                )}
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400 italic">Ride not finish yet.</p>
+          )}
+        </div>
+      </div>
       <div className="flex flex-wrap gap-1">
         <div className="w-full lg:flex-1">
           <h2 className="text-md text-gray-600 font-bold mb-2">

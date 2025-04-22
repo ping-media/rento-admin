@@ -308,11 +308,12 @@ const UploadPickupImageModal = ({
                     disabled={true}
                   />
                 </div>
-                <div className="w-full lg:w-[48%]">
+                <div className="text-left w-full lg:w-[48%]">
                   <SelectDropDown
                     options={["cash", "online"]}
                     item="PaymentMode"
                     require={true}
+                    isSearchEnable={false}
                   />
                 </div>
               </div>

@@ -9,23 +9,25 @@ import {
 const SelectDropDownCoupon = ({
   item,
   options,
-  value = "",
-  setValueChanger,
-  setSelectedChanger,
+  inputSelect,
+  setInputSelect,
+  setCoupon,
+  removeCoupon,
+  coupon,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [inputSelect, setInputSelect] = useState(value);
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
   const debounceTimerRef = useRef(null);
   const dispatch = useDispatch();
 
   const handleOptionClick = (val) => {
-    setInputSelect(val._id);
+    setInputSelect && setInputSelect(val?.couponName);
     setIsOpen(false);
-    setValueChanger && setValueChanger(val._id);
-    setSelectedChanger && setSelectedChanger(val);
+    // console.log(val);
+    setCoupon &&
+      setCoupon({ ...coupon, couponName: val?.couponName, couponId: val?._id });
   };
 
   const handleClickOutside = (e) => {
@@ -65,16 +67,34 @@ const SelectDropDownCoupon = ({
     };
   }, []);
 
+  // for resetting coupon plus component state too
+  const handleRemoveCoupon = () => {
+    setInputSelect && setInputSelect("");
+    return removeCoupon();
+  };
+
   return (
     <div className="w-full" ref={dropdownRef}>
-      <label
-        htmlFor={item}
-        className="block text-gray-800 font-semibold text-sm capitalize"
-      >
-        Select {item}
-      </label>
+      <div className="flex items-center justify-between">
+        <label
+          htmlFor={item}
+          className="block text-gray-800 font-semibold text-sm capitalize"
+        >
+          Select {item}
+        </label>
+        {coupon?.couponName !== "" &&
+          coupon?.couponId !== "" &&
+          removeCoupon && (
+            <button
+              type="button"
+              className="text-sm hover:text-theme hover:underline"
+              onClick={handleRemoveCoupon}
+            >
+              Remove Coupon
+            </button>
+          )}
+      </div>
       <div className="mt-2 relative">
-        {/* <input type="hidden" value={inputSelect?._id} /> */}
         <button
           className="text-left block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize bg-white cursor-pointer disabled:bg-gray-300/30"
           type="button"
@@ -83,11 +103,15 @@ const SelectDropDownCoupon = ({
         >
           {inputSelect
             ? `${
-                options?.find((opt) => opt._id === inputSelect)?.couponName ||
-                ""
+                options?.find(
+                  (opt) =>
+                    opt.couponName?.toLowerCase() === inputSelect?.toLowerCase()
+                )?.couponName || ""
               } | ${
-                options?.find((opt) => opt._id === inputSelect)?.discountType ||
-                ""
+                options?.find(
+                  (opt) =>
+                    opt.couponName?.toLowerCase() === inputSelect?.toLowerCase()
+                )?.discountType || ""
               }`
             : `Select ${item}`}
         </button>
