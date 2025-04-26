@@ -205,9 +205,6 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         rideStatus: result?.rideStatus || "pending",
       };
 
-      console.log(data);
-      return;
-
       if (result?.paymentMethod === "cash") {
         data = {
           ...data,

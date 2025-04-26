@@ -462,8 +462,8 @@ const validateUser = debounce(
     retries = 3
   ) => {
     try {
-      setPreLoaderLoading && dispatch(setPreLoaderLoading(true));
       if (!token) return;
+      setPreLoaderLoading && dispatch(setPreLoaderLoading(true));
       const state = store.getState();
       const loggedInRole = state?.user?.loggedInRole;
 
