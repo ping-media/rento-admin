@@ -259,7 +259,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     }
 
     if (column?.includes("InitiatedDate")) {
-      return value !== "NA" ? formatTimeStampToDate(value) : "";
+      return value !== "NA" ? formatTimeStampToDate(value) : "--";
     }
 
     if (column?.includes("bookingId")) {

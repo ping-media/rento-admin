@@ -8,6 +8,7 @@ import { handleOtpLogin } from "../../Data/Function";
 import webLogo from "../../assets/logo/rento-logo.png";
 import { tableIcons } from "../../Data/Icons";
 import { toggleForgetPasswordModal } from "../../Redux/SideBarSlice/SideBarSlice";
+import PreLoader from "../../components/Skeleton/PreLoader";
 const ForgetPasswordModal = lazy(() =>
   import("../../components/Modal/ForgetPasswordModal.jsx")
 );
@@ -17,7 +18,9 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { message, type } = useSelector((state) => state.error);
-  const { token, loggedInRole } = useSelector((state) => state.user);
+  const { token, loggedInRole, verifyLoading } = useSelector(
+    (state) => state.user
+  );
   const [isPasswordTextActive, setIsPasswordTextActive] = useState(false);
   const passwordRef = useRef(null);
 
@@ -31,6 +34,10 @@ const Login = () => {
       setIsPasswordTextActive(false);
     }
   };
+
+  if (verifyLoading) {
+    return <PreLoader />;
+  }
 
   return token !== null ? (
     <Navigate

@@ -293,7 +293,7 @@ const FilterSideBar = () => {
                 </button>
               </form>
 
-              <div>
+              {/* <div>
                 <h2 className="text-lg w-full mb-2 border-b">
                   Maintenance Filter
                 </h2>
@@ -312,7 +312,7 @@ const FilterSideBar = () => {
                   />
                   <span className="mx-1">Active Maintenance</span>
                 </label>
-              </div>
+              </div> */}
             </>
           )}
         </div>

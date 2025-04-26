@@ -54,7 +54,7 @@ const Login = lazy(() => import("./components/Auth/Login"));
 
 const App = () => {
   // setting role for each route
-  const { loggedInRole } = useSelector((state) => state.user);
+  const { loggedInRole, verifyLoading } = useSelector((state) => state.user);
 
   return (
     <BrowserRouter
@@ -71,6 +71,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <Dashboard />
                 </PrivateRouteBasedOnUser>
@@ -83,6 +84,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <General />
                 </PrivateRouteBasedOnUser>
@@ -97,6 +99,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -109,6 +112,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -121,6 +125,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <VehicleMaster />
                 </PrivateRouteBasedOnUser>
@@ -133,6 +138,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <VehicleDetails />
                 </PrivateRouteBasedOnUser>
@@ -145,6 +151,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -157,6 +164,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -170,6 +178,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <VehicleMaster />
                 </PrivateRouteBasedOnUser>
@@ -182,6 +191,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -194,6 +204,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -207,6 +218,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <VehicleMaster />
                 </PrivateRouteBasedOnUser>
@@ -219,6 +231,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -231,6 +244,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -244,6 +258,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <VehicleMaster />
                 </PrivateRouteBasedOnUser>
@@ -256,6 +271,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -268,6 +284,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -281,6 +298,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <VehicleMaster />
                 </PrivateRouteBasedOnUser>
@@ -293,6 +311,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -305,6 +324,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -318,6 +338,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <VehicleMaster />
                 </PrivateRouteBasedOnUser>
@@ -342,6 +363,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -354,6 +376,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -366,6 +389,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -378,6 +402,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <AddDocuments />
                 </PrivateRouteBasedOnUser>
@@ -390,6 +415,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -402,6 +428,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <AddDocuments />
                 </PrivateRouteBasedOnUser>
@@ -416,6 +443,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <VehicleMaster />
                 </PrivateRouteBasedOnUser>
@@ -428,6 +456,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -440,6 +469,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <CreateNewAndUpdateForm />
                 </PrivateRouteBasedOnUser>
@@ -452,6 +482,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <BookingDetails />
                 </PrivateRouteBasedOnUser>
@@ -465,6 +496,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <Profile />
                 </PrivateRouteBasedOnUser>
@@ -479,6 +511,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <VehicleMaster />
                 </PrivateRouteBasedOnUser>
@@ -493,6 +526,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <VehicleMaster />
                 </PrivateRouteBasedOnUser>
@@ -505,6 +539,7 @@ const App = () => {
                 <PrivateRouteBasedOnUser
                   allowedRoles={["admin", "manager"]}
                   userRole={loggedInRole}
+                  isLoading={verifyLoading}
                 >
                   <InvoiceDetails />
                 </PrivateRouteBasedOnUser>

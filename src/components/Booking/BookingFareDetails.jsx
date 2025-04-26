@@ -14,7 +14,9 @@ const BookingFareDetails = ({ rides }) => {
               <span className="font-bold">Package:</span>
               {`(${getDurationInDays(
                 rides?.BookingStartDateAndTime,
-                rides?.BookingEndDateAndTime
+                rides?.extendBooking?.originalEndDate
+                  ? rides?.extendBooking?.originalEndDate
+                  : rides?.BookingEndDateAndTime
               )} days Package Applied)`}
             </div>
           )}
@@ -40,6 +42,9 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "lateFeeBasedOnKM" &&
                   key !== "payOnPickupMethod" &&
                   key !== "lateFeePaymentMethod" &&
+                  key !== "additionFeePaymentMethod" &&
+                  key !== "additionalPrice" &&
+                  key !== "refundAmount" &&
                   !(key === "extraAddonPrice" && value === 0)
               ) // Exclude totalPrice
               .map(([key, value]) => (
@@ -173,37 +178,38 @@ const BookingFareDetails = ({ rides }) => {
             )}
 
             {/* user paid */}
-            {rides?.bookingPrice?.userPaid > 0 && (
-              <>
-                <li className="flex items-center justify-between mt-1 my-1">
-                  <p className="text-sm font-semibold uppercase text-left">
-                    Amount Paid
-                  </p>
-                  <p className="text-sm font-bold text-right text-theme">
-                    {`- ₹${formatPrice(rides?.bookingPrice?.userPaid)}`}
-                  </p>
-                </li>
-                <li className="flex items-center justify-between mt-1 my-1">
-                  <p className="text-sm font-bold uppercase text-left">
-                    Remaining Amount
-                    <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
-                      (
-                      {rides?.bookingPrice?.AmountLeftAfterUserPaid
-                        ?.paymentMethod
-                        ? `Paid: ${rides?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod}`
-                        : "need to pay at pickup"}
-                      )
-                    </small>
-                  </p>
-                  <p className="text-sm font-bold text-right">
-                    {`₹${formatPrice(
-                      rides?.bookingPrice.AmountLeftAfterUserPaid?.amount ||
-                        rides?.bookingPrice.AmountLeftAfterUserPaid
-                    )}`}
-                  </p>
-                </li>
-              </>
-            )}
+            {rides?.bookingPrice?.userPaid > 0 &&
+              rides?.paymentStatus !== "pending" && (
+                <>
+                  <li className="flex items-center justify-between mt-1 my-1">
+                    <p className="text-sm font-semibold uppercase text-left">
+                      Amount Paid
+                    </p>
+                    <p className="text-sm font-bold text-right text-theme">
+                      {`- ₹${formatPrice(rides?.bookingPrice?.userPaid)}`}
+                    </p>
+                  </li>
+                  <li className="flex items-center justify-between mt-1 my-1">
+                    <p className="text-sm font-bold uppercase text-left">
+                      Remaining Amount
+                      <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
+                        (
+                        {rides?.bookingPrice?.AmountLeftAfterUserPaid
+                          ?.paymentMethod
+                          ? `Paid: ${rides?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod}`
+                          : "need to pay at pickup"}
+                        )
+                      </small>
+                    </p>
+                    <p className="text-sm font-bold text-right">
+                      {`₹${formatPrice(
+                        rides?.bookingPrice.AmountLeftAfterUserPaid?.amount ||
+                          rides?.bookingPrice.AmountLeftAfterUserPaid
+                      )}`}
+                    </p>
+                  </li>
+                </>
+              )}
             {/* for refund process  */}
             {(rides?.paymentStatus === "refundInt" ||
               rides?.paymentStatus === "refunded") && (
@@ -221,11 +227,7 @@ const BookingFareDetails = ({ rides }) => {
                   </small>
                 </p>
                 <p className="text-sm font-bold text-right">
-                  {rides?.bookingPrice?.userPaid
-                    ? `₹${formatPrice(rides?.bookingPrice?.userPaid)}`
-                    : rides?.bookingPrice?.discountTotalPrice > 0
-                    ? `₹${formatPrice(rides?.bookingPrice?.discountTotalPrice)}`
-                    : `₹${formatPrice(rides?.bookingPrice?.totalPrice)}`}
+                  {`₹${formatPrice(rides?.bookingPrice?.refundAmount)}`}
                 </p>
               </li>
             )}

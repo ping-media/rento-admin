@@ -4,17 +4,19 @@ import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice
 import { formatLocalTimeIntoISO } from "../../utils/index";
 import { postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { useState } from "react";
 import Spinner from "../../components/Spinner/Spinner";
-import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
-import { blockReasonList } from "../../Data/commonData";
+// import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
+// import { blockReasonList } from "../../Data/commonData";
 import {
   handleMaintenanceLoading,
   removeBlockVehicleId,
+  toggleRefresh,
 } from "../../Redux/VehicleSlice/VehicleSlice";
+import { useParams } from "react-router-dom";
 
 const AddVehicleForServiceModal = ({ loading }) => {
   const dispatch = useDispatch();
+  const { id } = useParams();
   const { isVehicleForServiceActive } = useSelector((state) => state.sideBar);
   const { blockVehicleId, maintenanceLoading } = useSelector(
     (state) => state.vehicles
@@ -25,7 +27,10 @@ const AddVehicleForServiceModal = ({ loading }) => {
   const handleSendVehicleToService = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const vehicleTableId = blockVehicleId;
+    let vehicleTableId = blockVehicleId;
+    if (location?.pathname.includes("/all-vehicles/details/") && id) {
+      vehicleTableId = id;
+    }
     let startDate = formData.get("startDate");
     startDate = formatLocalTimeIntoISO(startDate);
     let endDate = formData.get("endDate");
@@ -47,7 +52,6 @@ const AddVehicleForServiceModal = ({ loading }) => {
       startDate,
       endDate,
       reason,
-      status: "active",
     };
 
     if (!data)
@@ -66,6 +70,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
       if (response?.status === 200) {
         dispatch(toggleVehicleServiceModal());
         dispatch(removeBlockVehicleId());
+        dispatch(toggleRefresh());
         return handleAsyncError(dispatch, response?.message, "success");
       } else {
         return handleAsyncError(dispatch, response?.message);
@@ -112,18 +117,35 @@ const AddVehicleForServiceModal = ({ loading }) => {
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handleSendVehicleToService}>
             <div className="mb-2">
-              <Input item={"startDate"} type="datetime-local" />
+              <Input
+                item={"startDate"}
+                type="datetime-local"
+                require={true}
+                isModalClose={isVehicleForServiceActive}
+              />
             </div>
             <div className="mb-2">
-              <Input item={"endDate"} type="datetime-local" />
+              <Input
+                item={"endDate"}
+                type="datetime-local"
+                require={true}
+                isModalClose={isVehicleForServiceActive}
+              />
             </div>
-            <div className="text-left mb-2">
+            <div className="mb-2">
+              <Input
+                item={"reason"}
+                require={true}
+                isModalClose={isVehicleForServiceActive}
+              />
+            </div>
+            {/* <div className="text-left mb-2">
               <SelectDropDown
                 item={"reason"}
                 options={blockReasonList}
                 isSearchEnable={false}
               />
-            </div>
+            </div> */}
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"

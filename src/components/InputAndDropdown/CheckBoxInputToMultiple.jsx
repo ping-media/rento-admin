@@ -7,6 +7,7 @@ import {
   removeTempIds,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { useEffect, useRef } from "react";
+import { formatLocalTimeIntoISO } from "../../utils/index";
 
 const CheckBoxInputToMultiple = ({ data, unique }) => {
   const { isHeaderChecked } = useSelector((state) => state.vehicles);
@@ -14,13 +15,21 @@ const CheckBoxInputToMultiple = ({ data, unique }) => {
   const isHeaderCheckedRef = useRef(null);
 
   const toggleSelectAll = () => {
+    const currentDate = new Date();
+    const currentDateAndTime = formatLocalTimeIntoISO(currentDate);
+    const userMillis = new Date(currentDateAndTime)?.getTime();
+
     if (isHeaderCheckedRef.current && isHeaderCheckedRef.current.checked) {
       if (!data) return;
       dispatch(addTempIdsAll(data?.map((item) => item?._id)));
       dispatch(
         addMaintenanceIdsAll(
           data
-            ?.filter((item) => item?.maintenance?.length > 0)
+            ?.filter(
+              (item) =>
+                item?.maintenance?.length > 0 &&
+                new Date(item?.maintenance[0]?.endDate)?.getTime() > userMillis
+            )
             .map((item) => item.maintenance[item.maintenance.length - 1]?._id)
         )
       );

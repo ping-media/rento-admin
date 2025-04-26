@@ -51,15 +51,18 @@ const AdditionalInfo = () => {
       <div className="w-full">
         <div className="flex items-center gap-1 mb-1">
           <h2 className="text-md text-gray-600 font-bold">Late Fee Charges</h2>
-          {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod && (
-            <span className="text-xs italic text-gray-400">
-              (Paid by {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod})
-            </span>
-          )}
+          {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod &&
+            vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod !== "NA" && (
+              <span className="text-xs italic text-gray-400">
+                (Paid by {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod})
+              </span>
+            )}
         </div>
         <div className="mb-2">
           {vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour ||
-          vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM ? (
+          vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM ||
+          vehicleMaster[0]?.bookingPrice?.additionalPrice ||
+          vehicleMaster[0]?.rideStatus === "completed" ? (
             <div>
               <p className="text-sm text-theme">
                 <span className="mr-1 font-semibold text-gray-500">
@@ -77,6 +80,15 @@ const AdditionalInfo = () => {
                 ₹
                 {formatPrice(
                   Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM)
+                )}
+              </p>
+              <p className="text-sm text-theme">
+                <span className="mr-1 font-semibold text-gray-500">
+                  Additional Price:
+                </span>
+                ₹
+                {formatPrice(
+                  Number(vehicleMaster[0]?.bookingPrice?.additionalPrice)
                 )}
               </p>
             </div>

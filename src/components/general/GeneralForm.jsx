@@ -113,7 +113,7 @@ const GeneralForm = () => {
 
   return (
     <>
-      <h2 className="text-md font-semibold mb-3 border-b uppercase">
+      <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
         Weekend Price
       </h2>
       <form onSubmit={handleUpdatweakendSettings} className="mb-5">

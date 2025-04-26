@@ -17,6 +17,7 @@ import {
   addTempVehicleData,
   handleUpdateFlags,
   resetPickupImages,
+  resetUserRideInfo,
   updateTimeLineData,
 } from "../Redux/VehicleSlice/VehicleSlice";
 import GenerateInvoiceButton from "../components/Table/GenerateInvoiceButton";
@@ -53,13 +54,18 @@ const BookingDetails = () => {
         id,
         token,
         "/getBookings",
-        "/getTimelineData"
+        "/getTimelineData",
+        "/getBookings"
       );
     }
   }, [id, token]);
 
   useEffect(() => {
     fetchSingleVehicleDetails();
+
+    return () => {
+      dispatch(resetUserRideInfo());
+    };
   }, [fetchSingleVehicleDetails]);
 
   // for fetching pickupImages using booking Number

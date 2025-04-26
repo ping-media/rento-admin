@@ -97,7 +97,11 @@ const SelectDropDown = ({
 
   const getValue = (item) => {
     if (item == null) return "";
-    if (item?.stationId && item?.hasOwnProperty("stationName"))
+    if (
+      item?.stationId &&
+      item?.hasOwnProperty("stationName") &&
+      !location.pathname.includes("/all-bookings/details/")
+    )
       return item?.stationId;
     return item?._id || item?.id || item;
   };

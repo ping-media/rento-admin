@@ -58,9 +58,6 @@ const ChangeBulkVehicle = () => {
         };
       });
 
-    // console.log(vehiclePlan);
-    // return;
-
     if (
       !results.perDayCost &&
       results.vehicleStatus === "don'tChange" &&
@@ -227,11 +224,12 @@ const ChangeBulkVehicle = () => {
                 )}
               </div>
             </div>
-            <div className="mb-2">
+            <div className="text-left mb-2">
               <SelectDropDown
                 item={"vehicleStatus"}
                 value="don'tChange"
                 options={["don'tChange", "active", "inactive"]}
+                isSearchEnable={false}
               />
             </div>
             <button

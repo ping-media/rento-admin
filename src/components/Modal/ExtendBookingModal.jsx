@@ -2,25 +2,28 @@ import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleBookingExtendModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   addDaysToDate,
   addOneMinute,
   calculatePriceForExtendBooking,
   formatFullDateAndTime,
-  formatPrice,
 } from "../../utils/index";
-import { postData } from "../../Data/index";
+import { getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import {
   handleUpdateExtendVehicle,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { updateTimeLineForPayment } from "../../Data/Function";
+import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
+import PreLoader from "../../components/Skeleton/PreLoader";
 
 const ExtendBookingModal = ({ bookingData }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
   const { token } = useSelector((state) => state.user);
+  const [plan, setPlan] = useState({ data: null, loading: false });
+  const [isPlanApplied, setIsPlanApplied] = useState(false);
   const [extensionDays, setExtensionDays] = useState(0);
   const [extendPrice, setExtendPrice] = useState(0);
   const [newDate, setNewDate] = useState("");
@@ -48,10 +51,16 @@ const ExtendBookingModal = ({ bookingData }) => {
       extendAmount: {
         id: bookingData?.bookingPrice?.extendAmount?.length + 1,
         title: "extended",
-        amount: calculatePriceForExtendBooking(
-          bookingData?.bookingPrice?.rentAmount,
-          extensionDays
-        ),
+        amount:
+          calculatePriceForExtendBooking(
+            bookingData?.bookingPrice?.rentAmount,
+            extensionDays
+          ) < extendPrice
+            ? extendPrice
+            : calculatePriceForExtendBooking(
+                bookingData?.bookingPrice?.rentAmount,
+                extensionDays
+              ),
         paymentMethod: "",
         status: "unpaid",
       },
@@ -99,6 +108,20 @@ const ExtendBookingModal = ({ bookingData }) => {
     }
   };
 
+  useEffect(() => {
+    (async () => {
+      try {
+        setPlan((prev) => ({ ...prev, loading: true }));
+        const response = await getData("/getPlanData?page=1&limit=50", token);
+        if (response.status === 200) {
+          setPlan((prev) => ({ ...prev, data: response?.data }));
+        }
+      } finally {
+        setPlan((prev) => ({ ...prev, loading: false }));
+      }
+    })();
+  }, []);
+
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {
     setExtensionDays(0);
@@ -109,17 +132,34 @@ const ExtendBookingModal = ({ bookingData }) => {
   // for showing extend vehicle price on based on days
   useEffect(() => {
     if (Number(extensionDays) !== 0) {
-      const price = calculatePriceForExtendBooking(
-        bookingData?.bookingPrice?.rentAmount,
-        extensionDays
+      const hasPlan = plan?.data.filter(
+        (plan) => Number(plan?.planDuration) === Number(extensionDays)
       );
+      const planPrice = hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
+      if (planPrice > 0) {
+        setIsPlanApplied(true);
+      } else {
+        setIsPlanApplied(false);
+      }
+      const price =
+        planPrice > 0
+          ? planPrice
+          : calculatePriceForExtendBooking(
+              bookingData?.bookingPrice?.rentAmount,
+              extensionDays
+            );
       if (Number(price) > 0) {
         setExtendPrice(price);
       }
     } else {
       setExtendPrice(0);
+      setIsPlanApplied(false);
     }
   }, [extensionDays]);
+
+  if (plan?.loading) {
+    return <PreLoader />;
+  }
 
   return (
     <div
@@ -177,6 +217,15 @@ const ExtendBookingModal = ({ bookingData }) => {
               />
             </div>
             <div>
+              {isPlanApplied && (
+                <div className="mb-2">
+                  <p
+                    className={`text-gray-400 text-left text-sm font-semibold italic`}
+                  >
+                    (Plan Applied)
+                  </p>
+                </div>
+              )}
               <div className="mb-2">
                 <p
                   className={`text-gray-400 text-left ${
@@ -192,11 +241,16 @@ const ExtendBookingModal = ({ bookingData }) => {
                 </p>
               </div>
               <div className={`mb-2`}>
-                <p className="text-theme text-left">
+                <p className="text-theme text-left flex items-center">
                   <span className="font-semibold text-black mr-1">
                     New Amount:
                   </span>
-                  ₹{formatPrice(Number(extendPrice))}
+
+                  <ChangeTextToInput
+                    value={extendPrice}
+                    setValue={(e) => setExtendPrice(e.target.value)}
+                    type={"number"}
+                  />
                 </p>
               </div>
             </div>

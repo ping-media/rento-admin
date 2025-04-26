@@ -11,11 +11,15 @@ const UserSlice = createSlice({
     currentUser: null,
     userDocument: null,
     loading: false,
+    verifyLoading: false,
     error: null,
   },
   reducers: {
     handleLoadingUserData: (state) => {
       state.loading = true;
+    },
+    handleVerifyLoading: (state, action) => {
+      state.verifyLoading = action.payload;
     },
     handleSetToken: (state, action) => {
       state.token = action.payload;
@@ -83,6 +87,7 @@ export const {
   addUserDocument,
   removeUserDocument,
   handleSignOut,
+  handleVerifyLoading,
 } = UserSlice.actions;
 
 export default UserSlice.reducer;

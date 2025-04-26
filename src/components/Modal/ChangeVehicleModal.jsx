@@ -19,6 +19,7 @@ import {
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { updateTimeLineForPayment } from "../../Data/Function";
+import SelectDropDownVehicle from "../../components/InputAndDropdown/SelectDropDownVehicle";
 
 const ChangeVehicleModal = ({ bookingData }) => {
   const dispatch = useDispatch();
@@ -28,9 +29,11 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const [isModalClose, setIsModalClose] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
+  const { vehiclesFilter } = useSelector((state) => state.pagination);
   const [freeVehicles, setFreeVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const { token } = useSelector((state) => state.user);
+  const [vehicleId, setVehicleId] = useState("");
 
   //   for fetching vehicle based on  dynamic date and time
   useEffect(() => {
@@ -38,15 +41,27 @@ const ChangeVehicleModal = ({ bookingData }) => {
     (async () => {
       try {
         setVehicleLoading(true);
-        const response = await getData(
-          `/getAllVehiclesAvailable?stationId=${
+        let endpoint = `/getAllVehiclesAvailable?stationId=${
+          bookingData?.stationId
+        }&BookingStartDateAndTime=${formatDateToISO(new Date()).replace(
+          ".000Z",
+          "Z"
+        )}&BookingEndDateAndTime=${
+          bookingData?.BookingEndDateAndTime
+        }&page=1&limit=25`;
+        if (vehiclesFilter?.bookingVehicleName !== "") {
+          endpoint = `/getAllVehiclesAvailable?stationId=${
             bookingData?.stationId
+          }&search=${
+            vehiclesFilter?.bookingVehicleName
           }&BookingStartDateAndTime=${formatDateToISO(new Date()).replace(
             ".000Z",
             "Z"
-          )}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}`,
-          token
-        );
+          )}&BookingEndDateAndTime=${
+            bookingData?.BookingEndDateAndTime
+          }&page=1&limit=25`;
+        }
+        const response = await getData(endpoint, token);
         if (response?.status === 200) {
           setFreeVehicles(response?.data);
         } else {
@@ -58,13 +73,14 @@ const ChangeVehicleModal = ({ bookingData }) => {
         setVehicleLoading(false);
       }
     })();
-  }, [isChangeVehicleModalActive]);
+  }, [isChangeVehicleModalActive, vehiclesFilter]);
 
   //   selecting and making the data for updating booking
   const handleChangeSelectedVehicle = (vehicleId) => {
     const changeToNewVehicle = freeVehicles?.find(
       (item) => item?._id == vehicleId
     );
+    console.log(changeToNewVehicle);
     // calculating the duration
     const startDate =
       bookingData?.BookingStartDateAndTime <=
@@ -154,12 +170,18 @@ const ChangeVehicleModal = ({ bookingData }) => {
     return setSelectedVehicle(data);
   };
 
+  useEffect(() => {
+    if (vehicleId !== "") {
+      handleChangeSelectedVehicle(vehicleId);
+    }
+  }, [vehicleId]);
+
   // apply vehicle for Maintenance
   const handleChangeVehicle = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    const otp = formData.get("OTP");
-    if (!otp) return handleAsyncError(dispatch, "Please provide otp first!");
+    // const formData = new FormData(event.target);
+    // const otp = formData.get("OTP");
+    // if (!otp) return handleAsyncError(dispatch, "Please provide otp first!");
 
     const data = {
       ...selectedVehicle,
@@ -217,6 +239,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
     }
   };
 
+  useEffect(() => {
+    if (!isChangeVehicleModalActive) {
+      setSelectedVehicle(null);
+    }
+  }, [isChangeVehicleModalActive]);
+
   // for closing the modal & clear the values
   const handleCloseModal = async () => {
     setFreeVehicles([]);
@@ -261,13 +289,21 @@ const ChangeVehicleModal = ({ bookingData }) => {
           {vehicleLoading && <PreLoader />}
           <form onSubmit={handleChangeVehicle}>
             <div className="text-left mb-2">
-              <SelectDropDown
+              {/* <SelectDropDown
                 item={"vehicleTableId"}
                 onChangeFn={handleChangeSelectedVehicle}
                 options={freeVehicles}
                 changetoDefault={isModalClose}
                 changeModalClose={setIsModalClose}
                 require={true}
+              /> */}
+              <SelectDropDownVehicle
+                item={"Vehicle"}
+                name={"vehicleTableId"}
+                options={freeVehicles}
+                setValueChanger={setVehicleId}
+                setSelectedChanger={setSelectedVehicle}
+                isModalClose={isChangeVehicleModalActive}
               />
               {selectedVehicle && selectedVehicle?.length === 0 && (
                 <p className="italic text-gray-100 mt-1">No vehicle Found.</p>
@@ -365,7 +401,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
                 )}
               </div>
             )}
-            <div className="mb-2">
+            {/* <div className="mb-2">
               <Input item={"OTP"} type="number" require={true} />
               {selectedVehicle !== null && (
                 <div className="text-left mt-2">
@@ -383,7 +419,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
                   </button>
                 </div>
               )}
-            </div>
+            </div> */}
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"

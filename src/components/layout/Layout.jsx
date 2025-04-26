@@ -9,6 +9,7 @@ import PreLoader from "../Skeleton/PreLoader";
 import {
   handleCurrentUser,
   handleSignOut,
+  handleVerifyLoading,
 } from "../../Redux/UserSlice/UserSlice";
 import {
   handleRestPagination,
@@ -81,7 +82,12 @@ const Layout = () => {
         if (currentUser && currentUser?.userType === "customer") {
           return dispatch(handleSignOut());
         }
-        await validateUser(token, handleLogoutUser, dispatch);
+        await validateUser(
+          token,
+          handleLogoutUser,
+          dispatch,
+          handleVerifyLoading
+        );
       } finally {
         setValidateLoading(false);
       }
@@ -98,7 +104,7 @@ const Layout = () => {
   }, [location.href]);
 
   return !validateLoading && !loading ? (
-    token != null ? (
+    token !== null ? (
       <>
         <div
           className={`w-full flex relative ${theme == "dark" ? "dark" : ""}`}

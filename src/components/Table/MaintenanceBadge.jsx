@@ -20,10 +20,14 @@ const MaintenanceStatusBadge = ({ maintenanceList = [] }) => {
 
   // Find active maintenance
   const activeMaintenance = maintenanceList.find((item) => {
-    const startDate = new Date(item.startDate)
-      .toISOString()
-      .replace(".000Z", "Z");
-    const endDate = new Date(item.endDate).toISOString().replace(".000Z", "Z");
+    const startDate = item?.startDate
+      ? new Date(item.startDate)?.toISOString().replace(".000Z", "Z")
+      : "NA";
+    const endDate = item?.endDate
+      ? new Date(item.endDate)?.toISOString().replace(".000Z", "Z")
+      : "NA";
+
+    if (startDate === "NA" || endDate === "NA") return;
 
     return (
       (startDate <= currentDateTimeISO && endDate >= currentDateTimeISO) ||
@@ -35,8 +39,13 @@ const MaintenanceStatusBadge = ({ maintenanceList = [] }) => {
   // Find upcoming maintenance
   const upcomingMaintenance = maintenanceList
     .filter((item) => {
-      const startDate = new Date(item.startDate).toISOString();
-      const endDate = new Date(item.endDate).toISOString();
+      const startDate = item?.startDate
+        ? new Date(item.startDate).toISOString()
+        : "NA";
+      const endDate = item?.endDate
+        ? new Date(item.endDate).toISOString()
+        : "NA";
+      if (startDate === "NA" || endDate === "NA") return;
       return startDate > currentDateTimeISO && endDate > currentDateTimeISO;
     })
     .sort((a, b) => {
@@ -69,7 +78,7 @@ const MaintenanceStatusBadge = ({ maintenanceList = [] }) => {
         </div>
       )}
       <span
-        className={`p-1 lg:px-2 lg:py-1 ${bgClass} text-gray-100 rounded-md`}
+        className={`p-1 lg:px-2 lg:py-1 ${bgClass} text-gray-100 rounded-md inline-block min-w-24`}
       >
         {reason}
       </span>

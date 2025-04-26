@@ -1,18 +1,26 @@
 import { useEffect, useState } from "react";
 import Input from "../../InputAndDropdown/Input";
 import PreLoader from "../../Skeleton/PreLoader";
-import { formatPrice } from "../../../utils/index";
+import { formatPrice, getDurationInDays } from "../../../utils/index";
 import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
 import { getData, postData } from "../../../Data/index";
 import { useSelector } from "react-redux";
 import SelectDropDownCoupon from "../../InputAndDropdown/SelectDropDownCoupon";
 
-const BookingStepTwo = ({ data, priceCalculate, setCoupon, coupon }) => {
+const BookingStepTwo = ({
+  data,
+  priceCalculate,
+  setCoupon,
+  coupon,
+  plan,
+  setPlan,
+}) => {
   const [stepTwoData, setStepTwoData] = useState(null);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
   const [CouponData, setCouponData] = useState(null);
   const [inputSelect, setInputSelect] = useState("");
   const [CouponLoading, setCouponLoading] = useState(false);
+  const [isPlanApplied, setIsPlanApplied] = useState(false);
   const [applyLoading, setApplyLoading] = useState(false);
   const { token } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
@@ -32,10 +40,34 @@ const BookingStepTwo = ({ data, priceCalculate, setCoupon, coupon }) => {
         setInputSelect("");
         removeCoupon();
       }
+      const bookingDuration = getDurationInDays(
+        bookingStartDate,
+        bookingEndDate
+      );
+
+      let newSelectedVehicle = selectedVehicle;
+
+      if (plan?.data?.length > 0) {
+        const hasPlan = plan?.data?.filter(
+          (plan) => Number(plan?.planDuration) === Number(bookingDuration)
+        );
+        if (hasPlan) {
+          setPlan((prev) => ({ ...prev, selectedPlan: hasPlan }));
+          const planPrice =
+            hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
+          if (planPrice > 0) {
+            setIsPlanApplied(true);
+            newSelectedVehicle = { ...newSelectedVehicle, planPrice };
+          }
+        }
+      } else {
+        setIsPlanApplied(false);
+      }
+
       const newData = priceCalculate(
         bookingStartDate,
         bookingEndDate,
-        selectedVehicle,
+        newSelectedVehicle,
         Number(extraAddonPrice)
       );
       setStepTwoData(newData);
@@ -139,6 +171,11 @@ const BookingStepTwo = ({ data, priceCalculate, setCoupon, coupon }) => {
           require={true}
           disabled={true}
         />
+        {isPlanApplied && (
+          <p className="text-sm font-semibold mt-1">
+            Plan Applied ({plan?.selectedPlan[0]?.planName || "--"})
+          </p>
+        )}
       </div>
       <div className="w-full lg:w-[48%]">
         <Input

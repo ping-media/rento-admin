@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
 import { useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { calculateTax, getDurationBetweenDates } from "../../utils";
 import BookingStepOne from "./BookingComponents/BookingStepOne";
 import BookingStepTwo from "./BookingComponents/BookingStepTwo";
 import BookingStepThree from "./BookingComponents/BookingStepThree";
-import { createOrderId, postData } from "../../Data/index";
+import { createOrderId, getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { CreatePaymentLinkAndTimeline } from "../../Data/Function";
 import { updateTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
@@ -31,6 +31,11 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
     discountAmount: 0,
     isDiscountZero: false,
   });
+  const [planData, setPlanData] = useState({
+    data: null,
+    loading: false,
+    selectedPlan: null,
+  });
 
   // for sending to next steps
   const handleNext = (data) => {
@@ -51,8 +56,10 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
     );
 
     const bookingPrice =
-      Number(durationBetweenStartAndEnd?.days) *
-      Number(selectedVehicle?.perDayCost);
+      selectedVehicle?.planPrice && selectedVehicle?.planPrice > 0
+        ? selectedVehicle?.planPrice
+        : Number(durationBetweenStartAndEnd?.days) *
+          Number(selectedVehicle?.perDayCost);
     const rentAmount = Number(selectedVehicle?.perDayCost);
 
     const tax = calculateTax(bookingPrice + Number(extraAddonPrice), 18);
@@ -76,6 +83,24 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   const handlePrevious = () => {
     setCurrentStep(currentStep - 1);
   };
+
+  // for fetching package data
+  useEffect(() => {
+    (async () => {
+      try {
+        setPlanData((prev) => ({ ...prev, loading: true }));
+        const planResponse = await getData(
+          "/getPlanData?page=1&limit=50",
+          token
+        );
+        if (planResponse?.status === 200) {
+          setPlanData((prev) => ({ ...prev, data: planResponse?.data }));
+        }
+      } finally {
+        setPlanData((prev) => ({ ...prev, loading: false }));
+      }
+    })();
+  }, []);
 
   // for creating new booking
   const handleFormSubmitForNew = async (event) => {
@@ -140,8 +165,13 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           userPaid: Math.round(userPaid),
           AmountLeftAfterUserPaid: {
             amount: Math.round(AmountLeftAfterUserPaid),
-            status: "upaid",
+            status: "unpaid",
           },
+          isPackageApplied:
+            planData?.selectedPlan !== null &&
+            planData?.selectedPlan?.length > 0
+              ? true
+              : false,
           extendAmount: [],
         },
         vehicleBasic: {
@@ -174,6 +204,9 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         paymentStatus: result?.paymentStatus || "pending",
         rideStatus: result?.rideStatus || "pending",
       };
+
+      console.log(data);
+      return;
 
       if (result?.paymentMethod === "cash") {
         data = {
@@ -303,6 +336,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               setCoupon={setCoupon}
               coupon={coupon}
               setFormData={setFormData}
+              plan={planData}
+              setPlan={setPlanData}
               // onNext={handleNext}
             />
           )}

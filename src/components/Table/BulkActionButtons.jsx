@@ -15,7 +15,7 @@ import { toggleVehicleUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice"
 import ChangeBulkVehicle from "../../components/Modal/ChangeBulkVehicle";
 import { formatLocalTimeIntoISO } from "../../utils/index";
 import { postData } from "../../Data/index";
-import { useState } from "react";
+// import { useState } from "react";
 import { setMaintenanceType } from "../../Redux/PaginationSlice/PaginationSlice";
 
 const BulkActionButtons = () => {
@@ -39,6 +39,7 @@ const BulkActionButtons = () => {
   const unblockVehicles = async () => {
     const currentDateAndTime = new Date();
     const endDate = formatLocalTimeIntoISO(currentDateAndTime);
+    const userMills = new Date(endDate)?.getTime();
 
     if (!maintenanceIds) {
       return handleAsyncError(
@@ -48,8 +49,16 @@ const BulkActionButtons = () => {
     }
 
     const hasActiveMaintenance = vehicleMaster?.data?.some((vehicle) => {
-      return vehicle.maintenance.some((m) => {
-        return maintenanceIds.includes(m._id) && new Date(m.endDate) > endDate;
+      return vehicle?.maintenance?.some((m) => {
+        console.log(
+          maintenanceIds.includes(m._id) && m.endDate,
+          endDate,
+          m?._id
+        );
+        return (
+          maintenanceIds.includes(m._id) &&
+          new Date(m.endDate)?.getTime() > userMills
+        );
       });
     });
 
@@ -127,10 +136,10 @@ const BulkActionButtons = () => {
                 ? "Edit All"
                 : "Edit"}
             </button>
-            <button
-              className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap relative"
+            {/* <button
+              className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap relative disabled:bg-gray-400"
               onClick={unblockVehicles}
-              disabled={blockLoading}
+              disabled={maintenanceIds?.length === 0 || blockLoading}
             >
               {blockLoading ? (
                 <Spinner />
@@ -139,7 +148,7 @@ const BulkActionButtons = () => {
               ) : (
                 "Unblock"
               )}
-            </button>
+            </button> */}
             <button
               className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap disabled:bg-gray-400"
               onClick={handleDeleteAll}

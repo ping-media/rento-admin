@@ -14,6 +14,7 @@ const SelectDropDownVehicle = ({
   value = "",
   setValueChanger,
   setSelectedChanger,
+  isModalClose,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,6 +41,11 @@ const SelectDropDownVehicle = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // clearing the state when user close modal
+  useEffect(() => {
+    isModalClose === false && setInputSelect("");
+  }, [isModalClose]);
 
   // Debounce effect for search
   useEffect(() => {

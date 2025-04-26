@@ -16,15 +16,8 @@ const AddVehicleForServiceModal = lazy(() =>
 const VehicleMaster = () => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
-  const {
-    vehicleMaster,
-    deletevehicleId,
-    tempLoading,
-    loading,
-    refresh,
-    maintenanceLoading,
-    blockLoading,
-  } = useSelector((state) => state.vehicles);
+  const { vehicleMaster, deletevehicleId, tempLoading, loading, refresh } =
+    useSelector((state) => state.vehicles);
   const { page, limit, searchTerm, searchType, vehiclesFilter } = useSelector(
     (state) => state.pagination
   );
@@ -42,12 +35,7 @@ const VehicleMaster = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (
-      !tempLoading?.loading &&
-      deletevehicleId === "" &&
-      !maintenanceLoading &&
-      !blockLoading
-    ) {
+    if (!tempLoading?.loading && deletevehicleId === "") {
       fetchVehicleMasterWithPagination(
         dispatch,
         token,
@@ -73,8 +61,6 @@ const VehicleMaster = () => {
     searchBasedOnPage,
     refresh,
     vehiclesFilter,
-    maintenanceLoading,
-    blockLoading,
   ]);
 
   // clear data after page change

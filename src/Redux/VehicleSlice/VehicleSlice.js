@@ -5,6 +5,8 @@ const vehicleSlice = createSlice({
   initialState: {
     vehicleMaster: null,
     timeLineData: null,
+    maintenanceData: { data: null, pagination: null, loading: false },
+    userRideInfo: null,
     Vehicle: {},
     vehiclePickupImage: null,
     deletevehicleId: "",
@@ -284,6 +286,32 @@ const vehicleSlice = createSlice({
     handleBlockLoading: (state, action) => {
       state.blockLoading = action.payload;
     },
+    addUserRideInfo: (state, action) => {
+      state.userRideInfo = action.payload;
+    },
+    startMaintenanceLoading: (state) => {
+      state.maintenanceData.loading = true;
+    },
+    addMaintenanceData: (state, action) => {
+      const { data, pagination } = action.payload;
+      state.maintenanceData.data = data;
+      state.maintenanceData.pagination = pagination;
+      state.maintenanceData.loading = false;
+    },
+    updateMaintenanceData: (state, action) => {
+      state.maintenanceData.data = {
+        ...state.maintenanceData.data,
+        endDate: action.payload,
+      };
+    },
+    resetMaintenanceData: (state) => {
+      state.maintenanceData.data = null;
+      state.maintenanceData.pagination = null;
+      state.maintenanceData.loading = false;
+    },
+    resetUserRideInfo: (state) => {
+      state.userRideInfo = null;
+    },
     resetPickupImages: (state) => {
       state.vehiclePickupImage = null;
     },
@@ -341,5 +369,11 @@ export const {
   resetPickupImages,
   handleMaintenanceLoading,
   handleBlockLoading,
+  addUserRideInfo,
+  resetUserRideInfo,
+  startMaintenanceLoading,
+  addMaintenanceData,
+  updateMaintenanceData,
+  resetMaintenanceData,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;
