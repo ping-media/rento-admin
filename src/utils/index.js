@@ -435,9 +435,14 @@ const calculatePriceForExtendBooking = (
   extraAddonPrice = 0
 ) => {
   const bookingPrice = Number(perDayCost) * Number(extensionDays);
-  const tax = calculateTax(bookingPrice, 18);
-  const extendAmount =
-    Number(bookingPrice) + Number(tax) + Number(extraAddonPrice);
+  const AddonPrice =
+    Number(extraAddonPrice) > 0
+      ? Number(extraAddonPrice) * Number(extensionDays)
+      : 0;
+  const newAddOnPrice = AddonPrice < 200 ? AddonPrice : 200;
+  const newBookingPrice = bookingPrice + newAddOnPrice;
+  const tax = calculateTax(newBookingPrice, 18);
+  const extendAmount = Number(newBookingPrice) + Number(tax);
   return extendAmount;
 };
 

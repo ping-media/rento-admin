@@ -46,7 +46,7 @@ const Dashboard = () => {
     if (token) {
       fetchDashboardData(dispatch, token, roleBaseFilter, navigate);
     }
-  }, [verifyLoading]);
+  }, [verifyLoading, token, loggedInRole]);
 
   //binding fetched data
   useEffect(() => {

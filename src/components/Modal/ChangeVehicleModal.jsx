@@ -80,7 +80,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const changeToNewVehicle = freeVehicles?.find(
       (item) => item?._id == vehicleId
     );
-    console.log(changeToNewVehicle);
     // calculating the duration
     const startDate =
       bookingData?.BookingStartDateAndTime <=
@@ -92,6 +91,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const daysLeft = getDurationInDays(
       startDate?.slice(0, 10),
       endDate?.slice(0, 10)
+    );
+    console.log(
+      bookingData?.BookingStartDateAndTime,
+      startDate,
+      changeToNewVehicle,
+      daysLeft
     );
     // calculate the price
     const bookingPriceWithoutHelmet = Number(changeToNewVehicle?.perDayCost);

@@ -54,12 +54,14 @@ const ExtendBookingModal = ({ bookingData }) => {
         amount:
           calculatePriceForExtendBooking(
             bookingData?.bookingPrice?.rentAmount,
-            extensionDays
+            extensionDays,
+            Number(bookingData?.bookingPrice?.extraAddonPrice)
           ) < extendPrice
             ? extendPrice
             : calculatePriceForExtendBooking(
                 bookingData?.bookingPrice?.rentAmount,
-                extensionDays
+                extensionDays,
+                Number(bookingData?.bookingPrice?.extraAddonPrice)
               ),
         paymentMethod: "",
         status: "unpaid",

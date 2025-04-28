@@ -40,10 +40,6 @@ const MaintenanceTable = () => {
         if (response?.status === 200) {
           dispatch(addMaintenanceData(response));
         } else {
-          handleAsyncError(
-            dispatch,
-            "unable to fetch maintenance list! try again."
-          );
           dispatch(resetMaintenanceData());
         }
       })();
@@ -67,9 +63,9 @@ const MaintenanceTable = () => {
     const endDate = formatLocalTimeIntoISO(currentDateAndTime);
 
     const hasActiveMaintenance = maintenanceData?.data?.some((m) => {
-      m._id === id && console.log(m._id === id && m.endDate < endDate);
       return m._id === id && m.endDate < endDate;
     });
+
     return hasActiveMaintenance;
   };
 
@@ -117,7 +113,7 @@ const MaintenanceTable = () => {
           <div className="overflow-hidden">
             {loading || maintenanceData?.loading ? (
               <div className="min-w-full rounded-xl">
-                <Spinner />
+                <Spinner message={"loading"} />
               </div>
             ) : (
               <table className="min-w-full shadow-md">
