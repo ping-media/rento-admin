@@ -113,7 +113,7 @@ const GeneralForm = () => {
 
   return (
     <>
-      <h2 className="text-md font-semibold mb-3 border-b uppercase">
+      <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
         Weekend Price
       </h2>
       <form onSubmit={handleUpdatweakendSettings} className="mb-5">
@@ -137,6 +137,7 @@ const GeneralForm = () => {
               options={["+", "-"]}
               value={general?.weakend?.PriceType || ""}
               require={true}
+              isSearchEnable={false}
             />
             <p className="text-gray-400 italic text-xs mt-1">
               Based on the above value, the amount will be increased or

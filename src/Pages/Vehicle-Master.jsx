@@ -9,13 +9,16 @@ import {
 } from "../Redux/VehicleSlice/VehicleSlice";
 import { handleRestPagination } from "../Redux/PaginationSlice/PaginationSlice";
 const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
+const AddVehicleForServiceModal = lazy(() =>
+  import("../components/Modal/AddVehicleForServiceModal")
+);
 
 const VehicleMaster = () => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
   const { vehicleMaster, deletevehicleId, tempLoading, loading, refresh } =
     useSelector((state) => state.vehicles);
-  const { page, limit, searchTerm, searchType } = useSelector(
+  const { page, limit, searchTerm, searchType, vehiclesFilter } = useSelector(
     (state) => state.pagination
   );
   const { loggedInRole, userStation } = useSelector((state) => state.user);
@@ -41,7 +44,8 @@ const VehicleMaster = () => {
         page,
         limit,
         searchBasedOnPage,
-        searchType
+        searchType,
+        vehiclesFilter
       );
     }
   }, [
@@ -56,19 +60,23 @@ const VehicleMaster = () => {
     endPointBasedOnURL,
     searchBasedOnPage,
     refresh,
+    vehiclesFilter,
   ]);
 
   // clear data after page change
   useEffect(() => {
-    dispatch(restvehicleMaster());
-    dispatch(handleRestPagination());
-    dispatch(removeTempIds());
-  }, [location.href]);
+    return () => {
+      dispatch(restvehicleMaster());
+      dispatch(handleRestPagination());
+      dispatch(removeTempIds());
+    };
+  }, []);
 
   return (
     <>
       {/* filters and sorting  */}
       <FilterSideBar />
+      {location.pathname === "/all-vehicles" && <AddVehicleForServiceModal />}
       {/* table data  */}
       <CustomTableComponent
         Data={vehicleMaster?.data}

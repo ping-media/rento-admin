@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import Chart from "react-apexcharts";
 
 const BarChart = ({ data }) => {
-  const [viewMode, setViewMode] = useState("Weekly");
-  const options = ["Weekly", "Monthly"];
+  const [viewMode, setViewMode] = useState("Daily");
+  const options = ["Daily", "Weekly", "Monthly"];
 
-  // format date
+  // Format date
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-GB", {
@@ -15,26 +15,54 @@ const BarChart = ({ data }) => {
       year: "numeric",
     });
   };
-
-  // Process Data for Weekly and Monthly Views
+  // Group data by week/month for different view modes
   const processChartData = (mode) => {
-    if (mode === "Weekly") {
-      return {
-        categories: ["Week 1", "Week 2", "Week 3"],
-        totalPrice: [30000, 20000, 15000],
-        bookingCount: [10, 15, 12],
-      };
-    } else if (mode === "Monthly") {
-      return {
-        categories: ["December", "January"],
-        totalPrice: [50000, 30000],
-        bookingCount: [25, 20],
-      };
-    } else {
+    // For Daily view, use the original data
+    if (mode === "Daily") {
       return {
         categories: data.map((item) => formatDate(item._id)),
         totalPrice: data.map((item) => item.totalPrice),
         bookingCount: data.map((item) => item.bookingCount),
+      };
+    } else if (mode === "Weekly") {
+      const weeklyData = {
+        categories: ["Week 1"],
+        totalPrice: [data.reduce((sum, item) => sum + item.totalPrice, 0)],
+        bookingCount: [data.reduce((sum, item) => sum + item.bookingCount, 0)],
+      };
+      return weeklyData;
+    } else if (mode === "Monthly") {
+      const monthlyMap = {};
+
+      data.forEach((item) => {
+        const date = new Date(item._id);
+        const monthYear = date.toLocaleDateString("en-GB", {
+          month: "short",
+          year: "numeric",
+        });
+
+        if (!monthlyMap[monthYear]) {
+          monthlyMap[monthYear] = {
+            totalPrice: 0,
+            bookingCount: 0,
+          };
+        }
+
+        monthlyMap[monthYear].totalPrice += item.totalPrice;
+        monthlyMap[monthYear].bookingCount += item.bookingCount;
+      });
+
+      // Convert the map to arrays for the chart
+      const months = Object.keys(monthlyMap);
+      const totalPrices = months.map((month) => monthlyMap[month].totalPrice);
+      const bookingCounts = months.map(
+        (month) => monthlyMap[month].bookingCount
+      );
+
+      return {
+        categories: months,
+        totalPrice: totalPrices,
+        bookingCount: bookingCounts,
       };
     }
   };
@@ -70,36 +98,6 @@ const BarChart = ({ data }) => {
   };
 
   // Options for Total Price Chart
-  // const totalPriceOptions = {
-  //   chart: {
-  //     type: "bar",
-  //     toolbar: { show: false },
-  //   },
-  //   xaxis: {
-  //     categories: chartData.categories,
-  //     title: {
-  //       text: "Dates",
-  //       style: { fontSize: "14px", fontWeight: "bold" },
-  //     },
-  //   },
-  //   yaxis: {
-  //     title: {
-  //       text: "Total Price",
-  //       style: { fontSize: "14px", fontWeight: "bold" },
-  //     },
-  //   },
-  //   plotOptions: {
-  //     bar: { columnWidth: "50%" },
-  //   },
-  //   colors: ["#e23844"], // Red color for total price
-  //   dataLabels: {
-  //     enabled: true,
-  //     style: {
-  //       fontSize: "12px",
-  //       fontWeight: "bold",
-  //     },
-  //   },
-  // };
   const totalPriceOptions = {
     chart: {
       type: "bar",

@@ -53,8 +53,11 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
       const [planResponse, vehicleMasterResponse, locationResponse] =
         await Promise.all([
           getData(endPointBasedOnKey[planUrl], token),
-          getData(endPointBasedOnKey[vehicleMasterUrl], token),
-          getData(endPointBasedOnKey[locationUrl], token),
+          getData(
+            `${endPointBasedOnKey[vehicleMasterUrl]}?fetchAll=true`,
+            token
+          ),
+          getData(`${endPointBasedOnKey[locationUrl]}?fetchAll=true`, token),
         ]);
 
       // Set the collected data if all responses are successful
@@ -110,7 +113,9 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             <div className="w-full lg:w-[48%]">
               <SelectDropDown
                 item={"locationId"}
-                options={collectedData?.locationId}
+                options={collectedData?.locationId?.filter(
+                  (location) => location?.locationStatus !== "inactive"
+                )}
                 value={id && vehicleMaster[0]?.locationId}
                 setIsLocationSelected={setIsLocationSelected}
                 require={true}
@@ -178,6 +183,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               options={tenYearBeforeCurrentYear()}
               value={id && vehicleMaster[0]?.vehicleModel}
               require={true}
+              isSearchEnable={false}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -258,6 +264,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               options={["new", "old"]}
               value={id && vehicleMaster[0]?.condition}
               require={true}
+              isSearchEnable={false}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -266,6 +273,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               options={["available", "booked"]}
               value={id ? vehicleMaster[0]?.vehicleBookingStatus : "available"}
               require={true}
+              isSearchEnable={false}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -274,6 +282,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               options={["active", "inActive"]}
               value={id ? vehicleMaster[0]?.vehicleStatus : "active"}
               require={true}
+              isSearchEnable={false}
             />
           </div>
         </>

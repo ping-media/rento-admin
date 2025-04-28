@@ -1,5 +1,7 @@
 import { useRef } from "react";
 import { camelCaseToSpaceSeparated } from "../../utils/index";
+import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import { useDispatch } from "react-redux";
 
 const ImageUploadAndPreview = ({
   image,
@@ -14,6 +16,8 @@ const ImageUploadAndPreview = ({
   isRequired = true,
 }) => {
   const fileInputRef = useRef(null);
+  const dispatch = useDispatch();
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
   // for changing image
   // const handleImageChange = (e) => {
@@ -32,7 +36,12 @@ const ImageUploadAndPreview = ({
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) {
-      console.warn("No file selected.");
+      handleAsyncError(dispatch, "No file selected.");
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      handleAsyncError(dispatch, "File is too large. Max allowed size is 5MB.");
       return;
     }
     setImageChanger?.(file);

@@ -34,13 +34,24 @@ const VehiclePlan = ({ collectedData, data }) => {
   // Respond to changes in checkedPlans state
   useEffect(() => {
     if (!firstLoad) return;
-
+    // console.log(collectedData);
     Object.keys(checkedPlans).forEach((id) => {
       const isChecked = checkedPlans[id];
       const existingPlan = tempIds.find((plan) => plan._id === id);
-
+      const otherPlanDetails = collectedData.AllPlanDataId.find(
+        (plan) => plan._id === id
+      );
       if (isChecked && !existingPlan) {
-        dispatch(addTempIds([{ _id: id, planPrice: planPrices[id] || 0 }]));
+        dispatch(
+          addTempIds([
+            {
+              _id: id,
+              planPrice: planPrices[id] || 0,
+              planName: otherPlanDetails?.planName,
+              planDuration: otherPlanDetails?.planDuration,
+            },
+          ])
+        );
       } else if (!isChecked && existingPlan) {
         dispatch(removeLastTempId());
       }

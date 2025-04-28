@@ -8,11 +8,19 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { useEffect, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { formatDateToISO } from "../../utils/index";
+import {
+  resetVehiclesFilter,
+  setMaintenanceType,
+  setSearch,
+  setVehicleName,
+} from "../../Redux/PaginationSlice/PaginationSlice";
 
 const FilterSideBar = () => {
   const dispatch = useDispatch();
   const { isFilterOpen } = useSelector((state) => state.sideBar);
-  const { page, limit } = useSelector((state) => state.pagination);
+  const { page, limit, vehiclesFilter } = useSelector(
+    (state) => state.pagination
+  );
   const { token } = useSelector((state) => state.user);
   const [menuList, setMenuList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -119,7 +127,7 @@ const FilterSideBar = () => {
   };
 
   //   search data based on station Name and vehicle Name
-  const handleApplyFilters = async (event) => {
+  const handleApplyFilters = (event) => {
     event.preventDefault();
 
     const formData = new FormData(event.target);
@@ -130,25 +138,23 @@ const FilterSideBar = () => {
       return;
     }
 
+    if (
+      result.vehicleName === vehiclesFilter.vehicleName &&
+      result.stationName === vehiclesFilter.stationName
+    )
+      return;
+
     try {
       setFormLoading(true);
-      let endpoint;
       if (result.vehicleName !== "" && result.stationName !== "") {
-        endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&vehicleName=${result.vehicleName?.toLowerCase()}&search=${result.stationName?.toLowerCase()}`;
+        dispatch(setVehicleName(result.vehicleName));
+        dispatch(setSearch(result.stationName));
       } else if (result.vehicleName !== "") {
-        endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&vehicleName=${result.vehicleName?.toLowerCase()}`;
+        dispatch(setVehicleName(result.vehicleName));
       } else if (result.stationName !== "") {
-        endpoint = `/getAllVehiclesData?page=${page}&limit=${limit}&search=${result.stationName?.toLowerCase()}`;
+        dispatch(setSearch(result.stationName));
       }
-
-      const response = await getData(endpoint, token);
-      if (response?.status === 200) {
-        dispatch(toggleFilterSideBar());
-        dispatch(fetchVehicleMasterData(response));
-        return;
-      } else {
-        handleAsyncError(dispatch, response?.message);
-      }
+      dispatch(toggleFilterSideBar());
     } catch (error) {
       handleAsyncError(
         dispatch,
@@ -158,6 +164,16 @@ const FilterSideBar = () => {
     } finally {
       setFormLoading(false);
     }
+  };
+
+  // for fetching maintenance vehicles
+  const handleMaintenanceFilter = () => {
+    if (vehiclesFilter?.maintenanceType === "") {
+      dispatch(setMaintenanceType("upcoming"));
+    } else {
+      dispatch(setMaintenanceType(""));
+    }
+    dispatch(toggleFilterSideBar());
   };
 
   return (
@@ -236,29 +252,68 @@ const FilterSideBar = () => {
           )}
 
           {location.pathname === "/all-vehicles" && (
-            <form onSubmit={handleApplyFilters}>
-              <div className="mb-2">
-                <Input
-                  item={"vehicleName"}
-                  placeholder={"Vehicle Name"}
-                  isModalClose={isFilterOpen}
-                />
-              </div>
-              <div className="mb-2">
-                <Input
-                  item={"stationName"}
-                  placeholder={"Station Name"}
-                  isModalClose={isFilterOpen}
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
-                disabled={formLoading}
-              >
-                {formLoading ? "Appling" : "Apply"}
-              </button>
-            </form>
+            <>
+              <form onSubmit={handleApplyFilters} className="mb-3">
+                {(vehiclesFilter.vehicleName !== "" ||
+                  vehiclesFilter.search !== "") && (
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      className="text-sm border p-1 rounded-md border-gray-300 hover:text-theme hover:border-theme"
+                      onClick={() => dispatch(resetVehiclesFilter())}
+                    >
+                      Clear <span className="hidden lg:inline">Filters</span>
+                    </button>
+                  </div>
+                )}
+                <div className="mb-2">
+                  <Input
+                    item={"vehicleName"}
+                    placeholder={"Vehicle Name"}
+                    isModalClose={isFilterOpen}
+                    value={vehiclesFilter.vehicleName}
+                    excludeLocation={"/all-vehicles"}
+                  />
+                </div>
+                <div className="mb-2">
+                  <Input
+                    item={"stationName"}
+                    placeholder={"Station Name"}
+                    isModalClose={isFilterOpen}
+                    value={vehiclesFilter.search}
+                    excludeLocation={"/all-vehicles"}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
+                  disabled={formLoading}
+                >
+                  {formLoading ? "Appling" : "Apply"}
+                </button>
+              </form>
+
+              {/* <div>
+                <h2 className="text-lg w-full mb-2 border-b">
+                  Maintenance Filter
+                </h2>
+                <label
+                  className="inline-flex items-center text-sm"
+                  htmlFor="maintenanceType"
+                >
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 accent-red-600"
+                    id="maintenanceType"
+                    onChange={handleMaintenanceFilter}
+                    checked={
+                      vehiclesFilter?.maintenanceType !== "" ? true : false
+                    }
+                  />
+                  <span className="mx-1">Active Maintenance</span>
+                </label>
+              </div> */}
+            </>
           )}
         </div>
       </div>

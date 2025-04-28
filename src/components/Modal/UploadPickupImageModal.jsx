@@ -61,7 +61,6 @@ const UploadPickupImageModal = ({
     formData.append("userId", tempVehicleData?.userId?._id);
     formData.append("bookingId", tempVehicleData?.bookingId);
     formData.append("_id", tempVehicleData?._id);
-    // formData.append("currentBooking_id", tempVehicleData?._id);
 
     let hasFiles = false;
     for (let value of formData.values()) {
@@ -91,8 +90,7 @@ const UploadPickupImageModal = ({
 
     let updatedBooking;
 
-    // return console.log(currentBooking, updatedBooking);
-    if (currentBooking?.paymentMethod === "cash") {
+    if (currentBooking?.paymentMethod?.toLowerCase() === "cash") {
       updatedBooking = {
         ...currentBooking,
         bookingPrice: {
@@ -136,6 +134,7 @@ const UploadPickupImageModal = ({
         );
         formData.append("isVehicleUpdate", true);
       }
+
       const responseImage = await postMultipleData(
         "/pickupImage",
         formData,
@@ -146,7 +145,6 @@ const UploadPickupImageModal = ({
         setImage([]);
         setImageUrl([]);
         dispatch(togglePickupImageModal());
-        // updating booking data
         updatedBooking = {
           ...updatedBooking,
           vehicleBasic: {
@@ -168,7 +166,7 @@ const UploadPickupImageModal = ({
             },
           ],
         };
-        postData("/createTimeline", timeLineData, token);
+        await postData("/createTimeline", timeLineData, token);
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
         handleAsyncError(dispatch, responseImage?.message, "success");
@@ -310,11 +308,12 @@ const UploadPickupImageModal = ({
                     disabled={true}
                   />
                 </div>
-                <div className="w-full lg:w-[48%]">
+                <div className="text-left w-full lg:w-[48%]">
                   <SelectDropDown
                     options={["cash", "online"]}
                     item="PaymentMode"
                     require={true}
+                    isSearchEnable={false}
                   />
                 </div>
               </div>

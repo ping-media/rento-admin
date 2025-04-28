@@ -2,33 +2,32 @@ import { useEffect, useRef, useState } from "react";
 import { tableIcons } from "../../Data/Icons";
 import { useDispatch } from "react-redux";
 import {
-  resetBookingVehicleName,
-  setBookingVehicleName,
+  resetCouponName,
+  setCouponName,
 } from "../../Redux/PaginationSlice/PaginationSlice";
 
-const SelectDropDownVehicle = ({
+const SelectDropDownCoupon = ({
   item,
-  name,
-  require,
   options,
-  value = "",
-  setValueChanger,
-  setSelectedChanger,
-  isModalClose,
+  inputSelect,
+  setInputSelect,
+  setCoupon,
+  removeCoupon,
+  coupon,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [inputSelect, setInputSelect] = useState(value);
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
   const debounceTimerRef = useRef(null);
   const dispatch = useDispatch();
 
   const handleOptionClick = (val) => {
-    setInputSelect(val._id);
+    setInputSelect && setInputSelect(val?.couponName);
     setIsOpen(false);
-    setValueChanger && setValueChanger(val._id);
-    setSelectedChanger && setSelectedChanger(val);
+    // console.log(val);
+    setCoupon &&
+      setCoupon({ ...coupon, couponName: val?.couponName, couponId: val?._id });
   };
 
   const handleClickOutside = (e) => {
@@ -42,20 +41,13 @@ const SelectDropDownVehicle = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // clearing the state when user close modal
-  useEffect(() => {
-    if (isModalClose === false) {
-      setInputSelect("");
-    }
-  }, [isModalClose]);
-
   // Debounce effect for search
   useEffect(() => {
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
     debounceTimerRef.current = setTimeout(() => {
-      dispatch(setBookingVehicleName(searchTerm));
+      dispatch(setCouponName(searchTerm));
     }, 300);
 
     return () => {
@@ -71,26 +63,38 @@ const SelectDropDownVehicle = ({
 
   useEffect(() => {
     return () => {
-      dispatch(resetBookingVehicleName());
+      dispatch(resetCouponName());
     };
   }, []);
 
+  // for resetting coupon plus component state too
+  const handleRemoveCoupon = () => {
+    setInputSelect && setInputSelect("");
+    return removeCoupon();
+  };
+
   return (
     <div className="w-full" ref={dropdownRef}>
-      <label
-        htmlFor={item}
-        className="block text-gray-800 font-semibold text-sm capitalize"
-      >
-        Select {item}
-        {require && <span className="ml-1 text-red-500">*</span>}
-      </label>
+      <div className="flex items-center justify-between">
+        <label
+          htmlFor={item}
+          className="block text-gray-800 font-semibold text-sm capitalize"
+        >
+          Select {item}
+        </label>
+        {coupon?.couponName !== "" &&
+          coupon?.couponId !== "" &&
+          removeCoupon && (
+            <button
+              type="button"
+              className="text-sm hover:text-theme hover:underline"
+              onClick={handleRemoveCoupon}
+            >
+              Remove Coupon
+            </button>
+          )}
+      </div>
       <div className="mt-2 relative">
-        <input
-          type="hidden"
-          name={name}
-          value={inputSelect?._id}
-          required={require}
-        />
         <button
           className="text-left block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize bg-white cursor-pointer disabled:bg-gray-300/30"
           type="button"
@@ -99,11 +103,15 @@ const SelectDropDownVehicle = ({
         >
           {inputSelect
             ? `${
-                options?.find((opt) => opt._id === inputSelect)
-                  ?.vehicleNumber || ""
+                options?.find(
+                  (opt) =>
+                    opt.couponName?.toLowerCase() === inputSelect?.toLowerCase()
+                )?.couponName || ""
               } | ${
-                options?.find((opt) => opt._id === inputSelect)?.vehicleName ||
-                ""
+                options?.find(
+                  (opt) =>
+                    opt.couponName?.toLowerCase() === inputSelect?.toLowerCase()
+                )?.discountType || ""
               }`
             : `Select ${item}`}
         </button>
@@ -128,7 +136,7 @@ const SelectDropDownVehicle = ({
                   onClick={() => handleOptionClick(opt)}
                   className="px-4 py-2 hover:bg-gray-100 text-sm capitalize cursor-pointer"
                 >
-                  {opt.vehicleNumber} | {opt.vehicleName}
+                  {opt.couponName} | {opt.discountType}
                 </div>
               ))
             ) : (
@@ -143,4 +151,4 @@ const SelectDropDownVehicle = ({
   );
 };
 
-export default SelectDropDownVehicle;
+export default SelectDropDownCoupon;

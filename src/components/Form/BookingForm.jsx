@@ -1,12 +1,16 @@
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
 import { useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
-import { calculateTax, getDurationBetweenDates } from "../../utils";
+import { useEffect, useState } from "react";
+import {
+  calculateTax,
+  getDurationBetweenDates,
+  getDurationInDays,
+} from "../../utils";
 import BookingStepOne from "./BookingComponents/BookingStepOne";
 import BookingStepTwo from "./BookingComponents/BookingStepTwo";
 import BookingStepThree from "./BookingComponents/BookingStepThree";
-import { createOrderId, postData } from "../../Data/index";
+import { createOrderId, getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { CreatePaymentLinkAndTimeline } from "../../Data/Function";
 import { updateTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
@@ -22,6 +26,19 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   const [formData, setFormData] = useState({
     stepOneData: {},
     stepTwoData: {},
+  });
+  const [coupon, setCoupon] = useState({
+    couponName: "",
+    couponId: "",
+    totalPrice: 0,
+    discountPrice: 0,
+    discountAmount: 0,
+    isDiscountZero: false,
+  });
+  const [planData, setPlanData] = useState({
+    data: null,
+    loading: false,
+    selectedPlan: null,
   });
 
   // for sending to next steps
@@ -42,9 +59,23 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       bookingEndDate
     );
 
+    let hasMatchPlan = null;
+    if (selectedVehicle?.vehiclePlan?.length > 0) {
+      hasMatchPlan = selectedVehicle?.vehiclePlan?.filter(
+        (plan) =>
+          Number(plan?.planDuration) ===
+          Number(durationBetweenStartAndEnd?.days)
+      )[0];
+      setPlanData((prev) => ({ ...prev, data: hasMatchPlan }));
+    } else {
+      setPlanData((prev) => ({ ...prev, data: null }));
+    }
+
     const bookingPrice =
-      Number(durationBetweenStartAndEnd?.days) *
-      Number(selectedVehicle?.perDayCost);
+      hasMatchPlan !== null && hasMatchPlan?.planPrice > 0
+        ? hasMatchPlan?.planPrice
+        : Number(durationBetweenStartAndEnd?.days) *
+          Number(selectedVehicle?.perDayCost);
     const rentAmount = Number(selectedVehicle?.perDayCost);
 
     const tax = calculateTax(bookingPrice + Number(extraAddonPrice), 18);
@@ -68,6 +99,24 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   const handlePrevious = () => {
     setCurrentStep(currentStep - 1);
   };
+
+  // for fetching package data
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       setPlanData((prev) => ({ ...prev, loading: true }));
+  //       const planResponse = await getData(
+  //         "/getPlanData?page=1&limit=50",
+  //         token
+  //       );
+  //       if (planResponse?.status === 200) {
+  //         setPlanData((prev) => ({ ...prev, data: planResponse?.data }));
+  //       }
+  //     } finally {
+  //       setPlanData((prev) => ({ ...prev, loading: false }));
+  //     }
+  //   })();
+  // }, []);
 
   // for creating new booking
   const handleFormSubmitForNew = async (event) => {
@@ -109,16 +158,35 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           vehiclePrice: formData?.stepTwoData?.bookingPrice,
           extraAddonPrice: formData?.stepTwoData?.extraAddonPrice,
           tax: formData?.stepTwoData?.tax,
-          totalPrice: formData?.stepTwoData?.totalPrice,
-          discountPrice: 0,
-          discountTotalPrice: 0,
+          totalPrice:
+            coupon?.couponName != "" &&
+            coupon?.couponId != "" &&
+            coupon?.totalPrice > 0
+              ? coupon?.totalPrice
+              : formData?.stepTwoData?.totalPrice,
+          discountPrice:
+            coupon?.couponName != "" &&
+            coupon?.couponId != "" &&
+            coupon?.discountAmount > 0
+              ? Number(coupon?.discountAmount)
+              : 0,
+          discountTotalPrice:
+            coupon?.couponName != "" &&
+            coupon?.couponId != "" &&
+            coupon?.discountPrice > 0
+              ? coupon?.discountPrice
+              : 0,
           rentAmount: formData?.stepTwoData?.rentAmount,
-          isPackageApplied: false,
           userPaid: Math.round(userPaid),
           AmountLeftAfterUserPaid: {
             amount: Math.round(AmountLeftAfterUserPaid),
-            status: "upaid",
+            status: "unpaid",
           },
+          isPackageApplied:
+            planData?.selectedPlan !== null &&
+            planData?.selectedPlan?.length > 0
+              ? true
+              : false,
           extendAmount: [],
         },
         vehicleBasic: {
@@ -143,14 +211,17 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         paymentgatewayReceiptId: "",
         paymentInitiatedDate: "",
         discountCuopon: {
-          couponName: "",
-          couponId: "",
+          couponName: coupon?.couponName || "",
+          couponId: coupon?.couponId || "",
         },
         paymentMethod: result?.paymentMethod,
         bookingStatus: result?.bookingStatus || "done",
         paymentStatus: result?.paymentStatus || "pending",
         rideStatus: result?.rideStatus || "pending",
       };
+
+      // console.log(data);
+      // return;
 
       if (result?.paymentMethod === "cash") {
         data = {
@@ -253,18 +324,13 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
     <form onSubmit={id ? handleFormSubmit : handleFormSubmitForNew}>
       <div className="flex items-center gap-2 border-b-2 mb-3 pb-2">
         {currentStep !== 1 && (
-          <button
-            className="w-[16%] lg:w-[10%] bg-theme hover:bg-theme-dark text-white font-bold px-3 py-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400 flex items-center gap-1"
-            type="button"
-            onClick={handlePrevious}
-          >
+          <button className="p-1" type="button" onClick={handlePrevious}>
             {tableIcons?.backArrow}
-            <span className="hidden lg:block">Previous</span>
           </button>
         )}
         <h2 className="text-theme-dark font-semibold text-md lg:text-xl uppercase">
           {(currentStep === 1 && "Basic Info") ||
-            (currentStep === 2 && "Booking Pricing & Confirm Booking") ||
+            (currentStep === 2 && "Confirm Booking") ||
             (currentStep === 3 && "Confirm Booking")}
         </h2>
       </div>
@@ -282,7 +348,12 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             <BookingStepTwo
               data={formData?.stepOneData}
               priceCalculate={changePriceAccordingtoData}
-              onNext={handleNext}
+              setCoupon={setCoupon}
+              coupon={coupon}
+              setFormData={setFormData}
+              plan={planData}
+              setPlan={setPlanData}
+              // onNext={handleNext}
             />
           )}
 

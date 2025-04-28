@@ -1,4 +1,3 @@
-// import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { handleChangePage } from "../../Redux/PaginationSlice/PaginationSlice";
 // import { ScrollTopAfterEvent } from "../utils/utilFunction";
@@ -6,7 +5,7 @@ import { handleChangePage } from "../../Redux/PaginationSlice/PaginationSlice";
 const Pagination = ({ totalNumberOfPages, currentPage, setPageChanger }) => {
   const { limit, page } = useSelector((state) => state.pagination);
   const dispatch = useDispatch();
-  // console.log(totalNumberOfPages);
+
   //going back to previous page
   const handlePrevPageChange = () => {
     if (page > 1) {
@@ -21,26 +20,24 @@ const Pagination = ({ totalNumberOfPages, currentPage, setPageChanger }) => {
       dispatch(handleChangePage(page + 1));
     }
   };
-  //jump to any page when you click on that page number
+
   const handleJumpPageChange = (number) => {
     dispatch(handleChangePage(number));
     return setPageChanger(number);
   };
-  //handle the pagination page number adding ellipses where it is need
+
   const getPaginationItems = () => {
     const items = [];
-    const maxPagesToShow = limit; // Total number of page buttons to display
+    // const maxPagesToShow = limit > 20 ? limit : 5;
+    const maxPagesToShow = 5;
 
-    // If total pages are less than or equal to max pages to show, just return all pages
     if (totalNumberOfPages <= maxPagesToShow) {
       for (let i = 1; i <= totalNumberOfPages; i++) {
         items.push(i);
       }
     } else {
-      // Always show the first page
       items.push(1);
 
-      // Logic to show ellipses and pages
       if (currentPage > 3) {
         items.push("...");
       }

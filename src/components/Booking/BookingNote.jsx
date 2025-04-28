@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { handleUpdateNotes } from "../../Redux/VehicleSlice/VehicleSlice";
 import Spinner from "../../components/Spinner/Spinner";
+import { tableIcons } from "../../Data/Icons";
 
 const BookingNote = () => {
   const { currentUser, token } = useSelector((state) => state.user);
@@ -91,7 +92,14 @@ const BookingNote = () => {
           className="bg-theme text-gray-100 px-2 py-1.5 rounded-lg disabled:bg-gray-400"
           disabled={loading}
         >
-          {!loading ? "Add" : <Spinner />}
+          {!loading ? (
+            <p className="flex items-center gap-1">
+              {tableIcons?.add}
+              Add
+            </p>
+          ) : (
+            <Spinner />
+          )}
         </button>
       </form>
     </>

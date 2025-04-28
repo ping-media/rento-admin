@@ -156,11 +156,11 @@ const formatFullDateAndTime = (dateString) => {
   // Format the date using Intl.DateTimeFormat with short month format
   const formatter = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
-    month: "short", // Use short month format
+    month: "short",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-    hour12: true, // Use 12-hour format
+    hour12: true,
     timeZone: "UTC", // Ensure IST time zone
   });
 
@@ -168,7 +168,7 @@ const formatFullDateAndTime = (dateString) => {
 };
 
 const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("en-In", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(price);
@@ -224,7 +224,7 @@ const calculateTax = (amount, taxPercentage) => {
   const taxAmount = (taxPercentage / 100) * amount;
 
   // Round the result to 2 decimal places and return it
-  return parseInt(taxAmount); // This will return a string, but it ensures two decimal places
+  return parseInt(taxAmount);
 };
 
 const formatDateForInvoice = (dateString) => {
@@ -406,7 +406,7 @@ const formatLocalTimeIntoISO = (dateStr) => {
 
 const formatDateToISO = (date) => {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
@@ -416,17 +416,26 @@ const formatDateToISO = (date) => {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
 };
 
+const formatDateToISOWithoutSecond = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  // const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:00Z`;
+};
+
 const addDaysToDate = (dateString, days) => {
-  const date = new Date(dateString); // Parse the input date string
+  const date = new Date(dateString);
   if (isNaN(date)) {
     throw new Error(
       "Invalid date format. Please use a valid ISO 8601 date string."
     );
   }
-
   // Add the specified number of days to the date's timestamp
   const updatedDate = new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
-
   // Return the updated date in UTC ISO 8601 format
   return updatedDate.toISOString().replace(".000Z", "Z");
 };
@@ -437,9 +446,14 @@ const calculatePriceForExtendBooking = (
   extraAddonPrice = 0
 ) => {
   const bookingPrice = Number(perDayCost) * Number(extensionDays);
-  const tax = calculateTax(bookingPrice, 18);
-  const extendAmount =
-    Number(bookingPrice) + Number(tax) + Number(extraAddonPrice);
+  const AddonPrice =
+    Number(extraAddonPrice) > 0
+      ? Number(extraAddonPrice) * Number(extensionDays)
+      : 0;
+  const newAddOnPrice = AddonPrice < 200 ? AddonPrice : 200;
+  const newBookingPrice = bookingPrice + newAddOnPrice;
+  const tax = calculateTax(newBookingPrice, 18);
+  const extendAmount = Number(newBookingPrice) + Number(tax);
   return extendAmount;
 };
 
@@ -600,4 +614,5 @@ export {
   getDurationInDaysAndHours,
   removeSecondsFromDateAndTime,
   getRandomNumber,
+  formatDateToISOWithoutSecond,
 };

@@ -4,6 +4,7 @@ import { lazy, useEffect, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
   formatDateTimeISTForUser,
+  formatDateToISOWithoutSecond,
   formatFullDateAndTime,
   formatPrice,
 } from "../../utils/index";
@@ -20,6 +21,9 @@ import {
 import BookingTimeLine from "./BookingTimeLine";
 import AdditionalInfo from "./AdditionalInfo";
 import Button from "../Buttons/Button";
+import Spinner from "../../components/Spinner/Spinner";
+import VehicleImages from "./VehicleImages";
+import UserRideTimeLine from "./UserRideTimeLine";
 const ChangeVehicleModal = lazy(() =>
   import("../../components/Modal/ChangeVehicleModal")
 );
@@ -27,9 +31,12 @@ const ExtendBookingModal = lazy(() =>
   import("../../components/Modal/ExtendBookingModal")
 );
 
-const BookingDetail = () => {
-  const { vehicleMaster } = useSelector((state) => state.vehicles);
+const BookingDetail = ({ pickupImagesLoading }) => {
+  const { vehicleMaster, vehiclePickupImage } = useSelector(
+    (state) => state.vehicles
+  );
   const [data, setData] = useState(null);
+  const [tab, setTab] = useState("booking");
   const dispatch = useDispatch();
 
   // combining data for use
@@ -131,7 +138,7 @@ const BookingDetail = () => {
             key: "Booked On",
             value: `${
               vehicleMaster &&
-              formatDateTimeISTForUser(
+              formatFullDateAndTime(
                 vehicleMaster && vehicleMaster[0]?.createdAt
               )
             }`,
@@ -206,11 +213,49 @@ const BookingDetail = () => {
           </div>
           <div>
             <h2 className="text-md lg:text-lg font-semibold text-gray-500 mt-5">
-              Booking Timeline
+              Vehicle Images
             </h2>
-            {vehicleMaster[0] && (
-              <BookingTimeLine bookingId={vehicleMaster[0]?.bookingId} />
+            {pickupImagesLoading ? (
+              <Spinner />
+            ) : !pickupImagesLoading && vehiclePickupImage?.length > 0 ? (
+              <VehicleImages />
+            ) : (
+              <p className="text-sm italic text-gray-400">
+                No vehicles Images Found.
+              </p>
             )}
+          </div>
+          <div className="mt-5 mb-5">
+            <div className="flex items-center gap-1 justify-between mb-5">
+              <h2 className="text-md lg:text-lg font-semibold text-gray-500 w-2/4">
+                {tab.charAt(0).toUpperCase() + tab.slice(1) || "Booking"}{" "}
+                Timeline
+              </h2>
+              <div className="relative flex border rounded overflow-hidden flex-1">
+                <div
+                  className={`absolute top-0 left-0 h-full bg-theme transition-all duration-300 rounded text-white z-0`}
+                  style={{
+                    width: "50%",
+                    transform: `translateX(${tab === "rides" ? "100%" : "0%"})`,
+                  }}
+                />
+                {["booking", "rides"].map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={`flex-1 z-10 p-1 font-semibold transition-colors duration-300 ${
+                      tab === item ? "text-white" : "text-gray-800"
+                    }`}
+                    onClick={() => setTab(item)}
+                  >
+                    {item.charAt(0).toUpperCase() + item.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {(vehicleMaster[0] && tab === "booking" && <BookingTimeLine />) ||
+              (vehicleMaster[0] && tab === "rides" && <UserRideTimeLine />)}
           </div>
         </div>
         <div className="flex-1 px-6 py-4 bg-white shadow-md rounded-lg">
@@ -220,7 +265,9 @@ const BookingDetail = () => {
                 {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
                 {!(
                   vehicleMaster[0]?.rideStatus === "completed" ||
-                  vehicleMaster[0]?.bookingStatus === "canceled"
+                  vehicleMaster[0]?.bookingStatus === "canceled" ||
+                  vehicleMaster[0]?.BookingEndDateAndTime <
+                    formatDateToISOWithoutSecond(new Date())
                 ) && (
                   <button
                     className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"
@@ -269,10 +316,16 @@ const BookingDetail = () => {
             </h2>
             {((vehicleMaster &&
               vehicleMaster[0]?.bookingPrice?.diffAmount &&
-              vehicleMaster[0]?.bookingPrice?.diffAmount?.length > 0) ||
+              vehicleMaster[0]?.bookingPrice?.diffAmount?.length > 0 &&
+              vehicleMaster[0]?.bookingPrice?.diffAmount?.filter(
+                (record) => record?.status !== "paid"
+              )?.length > 0) ||
               (vehicleMaster &&
                 vehicleMaster[0]?.bookingPrice?.extendAmount &&
-                vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0)) && (
+                vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0 &&
+                vehicleMaster[0]?.bookingPrice?.extendAmount?.filter(
+                  (record) => record?.status !== "paid"
+                )?.length > 0)) && (
               <Button
                 title={"Update Payment"}
                 customClass={"text-sm bg-theme text-gray-100 px-1.5 py-1"}

@@ -13,7 +13,7 @@ function useFetch(url, dispatchFn) {
   useEffect(() => {
     if (!url) return;
 
-    let isMounted = true; // Prevent state updates after unmounting
+    let isMounted = true;
     const fetchData = async () => {
       setHookLoading(true);
       setError(null);

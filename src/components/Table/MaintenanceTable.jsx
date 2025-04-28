@@ -1,126 +1,183 @@
-import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { postData } from "../../Data/index";
 import Spinner from "../../components/Spinner/Spinner";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { tableIcons } from "../../Data/Icons";
-import { formatFullDateAndTime } from "../../utils/index";
+import {
+  formatFullDateAndTime,
+  formatLocalTimeIntoISO,
+} from "../../utils/index";
+import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import { getData, postData } from "../../Data/index";
+import {
+  addMaintenanceData,
+  resetMaintenanceData,
+  startMaintenanceLoading,
+  updateMaintenanceData,
+} from "../../Redux/VehicleSlice/VehicleSlice";
+import DropDownComponent from "../../components/DropDown/DropDownComponent";
+import Pagination from "../../components/Pagination/Pagination";
 
 const MaintenanceTable = () => {
-  const { maintenance, loading } = useSelector((state) => state.maintenance);
-  const token = useSelector((state) => state.user);
-  const [dataLoading, setDataLoading] = useState(false);
+  const { vehicleMaster, loading, maintenanceData } = useSelector(
+    (state) => state.vehicles
+  );
+  const { token } = useSelector((state) => state.user);
+  const [modifyingVehicleId, setModifyingVehicleId] = useState(null);
+  const showRecordsOptions = [25, 50, 100, 200, 500];
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(25);
   const dispatch = useDispatch();
 
-  //   const handleDeleteSpecialDays = async () => {
-  //     try {
-  //       setDataLoading(true);
-  //       const response = await postData(
-  //         "/updateGeneral",
-  //         {
-  //           clearSpecialDays: true,
-  //         },
-  //         token
-  //       );
-  //       if (response?.success === true) {
-  //         const newData = {
-  //           ...general,
-  //           specialDays: [],
-  //         };
-  //         dispatch(addGeneral(newData));
-  //         handleAsyncError(dispatch, response?.message, "success");
-  //         return;
-  //       } else if (response?.success === false) {
-  //         handleAsyncError(
-  //           dispatch,
-  //           "Error while deleting from server! try again after sometime."
-  //         );
-  //       }
-  //     } catch (error) {
-  //       handleAsyncError(
-  //         dispatch,
-  //         "Error while deleting special days! try again."
-  //       );
-  //     } finally {
-  //       setDataLoading(false);
-  //     }
-  //   };
+  // maintenanceData
+  useEffect(() => {
+    if (!loading && vehicleMaster?.length > 0) {
+      (async () => {
+        dispatch(startMaintenanceLoading());
+        const response = await getData(
+          `/maintenanceVehicle?vehicleTableId=${vehicleMaster[0]?._id}&page=${currentPage}&limit=${limit}`,
+          token
+        );
+        if (response?.status === 200) {
+          dispatch(addMaintenanceData(response));
+        } else {
+          dispatch(resetMaintenanceData());
+        }
+      })();
+    }
 
-  // const handleDeleteRecord = async () => {
-  //   try {
-  //     const response = await postData("/");
-  //   } catch (error) {}
-  // };
+    return () => dispatch(resetMaintenanceData());
+  }, [loading, vehicleMaster, limit, currentPage]);
+
+  // const sortedMaintenance = [...(vehicleMaster[0]?.maintenance || [])];
+
+  // table header
+  const maintenanceHeader = [
+    "Starting Date",
+    "Ending Date",
+    "Reason",
+    "Action",
+  ];
+
+  const isVehicleUnblocked = (id) => {
+    const currentDateAndTime = new Date();
+    const endDate = formatLocalTimeIntoISO(currentDateAndTime);
+
+    const hasActiveMaintenance = maintenanceData?.data?.some((m) => {
+      return m._id === id && m.endDate < endDate;
+    });
+
+    return hasActiveMaintenance;
+  };
+
+  // unblock maintenance
+  const unblockVehicles = async (id) => {
+    const currentDateAndTime = new Date();
+    const endDate = formatLocalTimeIntoISO(currentDateAndTime);
+
+    const hasActiveMaintenance = maintenanceData?.data?.some((m) => {
+      return m._id === id && m.endDate > endDate;
+    });
+
+    if (!hasActiveMaintenance)
+      return handleAsyncError(dispatch, "No Active Maintenance found");
+
+    const data = {
+      maintenanceId: id,
+      vehicleTableId: vehicleMaster[0]?._id,
+      endDate: endDate,
+    };
+
+    try {
+      setModifyingVehicleId(id);
+      const response = await postData("/maintenanceVehicle", data, token);
+      if (response.success === true) {
+        dispatch(updateMaintenanceData(endDate));
+        handleAsyncError(dispatch, response?.message, "success");
+      } else {
+        handleAsyncError(dispatch, response?.message);
+      }
+    } catch (error) {
+      handleAsyncError(
+        dispatch,
+        "Unable to update maintenance records! try again."
+      );
+    } finally {
+      setModifyingVehicleId(null);
+    }
+  };
 
   return (
     <div className="flex flex-col">
       <div className=" overflow-x-auto">
         <div className="min-w-full inline-block align-middle">
-          <div className="overflow-hidden ">
-            {loading ? (
+          <div className="overflow-hidden">
+            {loading || maintenanceData?.loading ? (
               <div className="min-w-full rounded-xl">
-                <Spinner />
+                <Spinner message={"loading"} textColor="text-black" />
               </div>
             ) : (
               <table className="min-w-full shadow-md">
                 <thead>
                   <tr className="bg-gray-50">
-                    <th
-                      scope="col"
-                      className="p-5 text-left text-sm leading-6 font-semibold text-gray-900 capitalize rounded-t-xl"
-                    >
-                      Starting Date
-                    </th>
-                    <th
-                      scope="col"
-                      className="p-5 text-left text-sm leading-6 font-semibold text-gray-900 capitalize"
-                    >
-                      Ending Date
-                    </th>
-                    {/* <th
-                      scope="col"
-                      className="p-5 text-left text-sm leading-6 font-semibold text-gray-900 capitalize rounded-t-xl"
-                    >
-                      Action
-                    </th> */}
+                    {maintenanceHeader?.map((item, index) => (
+                      <th
+                        scope="col"
+                        className={`p-2.5 text-left text-sm leading-6 font-semibold text-gray-900 rounded-t-xl`}
+                        key={index}
+                      >
+                        {item}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-300 ">
-                  {maintenance?.length > 0 ? (
-                    maintenance.map((item, index) => (
+                  {maintenanceData?.data?.length > 0 ? (
+                    maintenanceData?.data?.map((item, index) => (
                       <tr
                         className="bg-white transition-all duration-500 hover:bg-gray-50"
                         key={index}
                       >
-                        <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ">
-                          {formatFullDateAndTime(item?.startDate)}
+                        <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ">
+                          {item?.startDate
+                            ? formatFullDateAndTime(item?.startDate)
+                            : "NA"}
                         </td>
-                        <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
-                          {formatFullDateAndTime(item?.endDate)}
+                        <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
+                          {item?.endDate
+                            ? formatFullDateAndTime(item?.endDate)
+                            : "NA"}
                         </td>
-                        {/* <td className="p-5 ">
-                          <div className="flex items-center gap-1">
-                            <button
-                              className="p-2 rounded-full flex item-center"
-                              //   onClick={handleDeleteSpecialDays}
-                            >
-                              {tableIcons?.edit}
-                            </button>
-                            <button
-                              className="p-2 rounded-full flex item-center"
-                              // onClick={handleDeleteRecord}
-                              disabled={dataLoading}
-                            >
-                              {dataLoading ? <Spinner /> : tableIcons?.delete}
-                            </button>
-                          </div>
-                        </td> */}
+                        <td className="p-2.5 max-w-24 break-words whitespace-wrap text-sm leading-6 font-medium text-gray-900 capitalize">
+                          {item?.reason}
+                        </td>
+                        <td className="p-2.5 whitespace-nowrap text-sm items-center">
+                          <button
+                            type="button"
+                            className={`p-1 rounded-full bg-white group transition-all duration-500 flex item-center ${
+                              isVehicleUnblocked(item?._id) ||
+                              modifyingVehicleId === item?._id
+                                ? "opacity-50 cursor-not-allowed"
+                                : "hover:text-white hover:bg-theme"
+                            }`}
+                            onClick={() => unblockVehicles(item?._id)}
+                            disabled={
+                              isVehicleUnblocked(item?._id) ||
+                              modifyingVehicleId === item?._id
+                            }
+                          >
+                            {modifyingVehicleId === item?._id ? (
+                              <Spinner />
+                            ) : (
+                              tableIcons?.unBlock
+                            )}
+                          </button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr className="bg-white transition-all duration-500 hover:bg-gray-50">
                       <td
-                        colSpan={3}
+                        colSpan={maintenanceHeader?.length || 4}
                         className="col-span-full leading-6 text-sm text-gray-400 p-5 text-center italic"
                       >
                         No Data found.
@@ -130,6 +187,26 @@ const MaintenanceTable = () => {
                 </tbody>
               </table>
             )}
+
+            {maintenanceData?.pagination?.limit >= 10 &&
+              maintenanceData?.data?.length > 0 && (
+                <div className="flex flex-wrap items-center justify-start lg:justify-between gap-4 lg:gap-2 mt-5">
+                  <div className="flex items-center gap-2">
+                    <h2 className="capitalize">Rows per Page</h2>
+                    <DropDownComponent
+                      options={showRecordsOptions}
+                      customLimit={limit}
+                      setLimitChanger={setLimit}
+                    />
+                  </div>
+                  <span className="hidden lg:mx-1">|</span>
+                  <Pagination
+                    totalNumberOfPages={maintenanceData?.pagination?.totalPages}
+                    currentPage={currentPage}
+                    setPageChanger={setCurrentPage}
+                  />
+                </div>
+              )}
           </div>
         </div>
       </div>

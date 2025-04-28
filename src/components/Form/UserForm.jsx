@@ -11,7 +11,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
   const { id } = useParams();
 
   return (
-    vehicleMaster && (
+    (vehicleMaster || location.pathname.includes("all-managers/add-new")) && (
       <>
         <form className="mb-5" onSubmit={handleFormSubmit}>
           <div className="flex flex-wrap gap-4">
@@ -136,20 +136,25 @@ const UserForm = ({ handleFormSubmit, loading }) => {
             )}
             {location.pathname != "/profile" && (
               <>
-                <div className="w-full lg:w-[48%]">
-                  <SelectDropDown
-                    item={"userType"}
-                    options={userType}
-                    value={
-                      id
-                        ? vehicleMaster[0]?.userId?.userType ||
-                          vehicleMaster?.userType ||
-                          vehicleMaster[0]?.userType
-                        : ""
-                    }
-                    require={true}
-                  />
-                </div>
+                {!location.pathname.includes("/add-new") ? (
+                  <div className="w-full lg:w-[48%]">
+                    <SelectDropDown
+                      item={"userType"}
+                      options={userType}
+                      value={
+                        id
+                          ? vehicleMaster[0]?.userId?.userType ||
+                            vehicleMaster?.userType ||
+                            vehicleMaster[0]?.userType
+                          : ""
+                      }
+                      require={true}
+                      isSearchEnable={false}
+                    />
+                  </div>
+                ) : (
+                  <input type="hidden" name="userType" value="manager" />
+                )}
                 <div className="w-full lg:w-[48%]">
                   <SelectDropDown
                     item={"isContactVerified"}
@@ -162,6 +167,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                         : "no"
                     }
                     require={true}
+                    isSearchEnable={false}
                   />
                 </div>
                 <div className="w-full lg:w-[48%]">
@@ -176,6 +182,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                         : "no"
                     }
                     require={true}
+                    isSearchEnable={false}
                   />
                 </div>
                 <div className="w-full lg:w-[48%]">
@@ -190,6 +197,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                         : "active"
                     }
                     require={true}
+                    isSearchEnable={false}
                   />
                 </div>
               </>
@@ -216,17 +224,18 @@ const UserForm = ({ handleFormSubmit, loading }) => {
           </button>
         </form>
         {/* for showing user documents  */}
-        {location.pathname !== "/profile" && (
-          <UserDocuments
-            dataId={vehicleMaster[0]?._id}
-            data={
-              vehicleMaster[0]?.files && vehicleMaster[0]?.files?.length > 0
-                ? vehicleMaster[0]?.files
-                : []
-            }
-            hookLoading={loading}
-          />
-        )}
+        {location.pathname !== "/profile" &&
+          location.pathname !== "/all-managers/add-new" && (
+            <UserDocuments
+              dataId={vehicleMaster[0]?._id}
+              data={
+                vehicleMaster[0]?.files && vehicleMaster[0]?.files?.length > 0
+                  ? vehicleMaster[0]?.files
+                  : []
+              }
+              hookLoading={loading}
+            />
+          )}
       </>
     )
   );

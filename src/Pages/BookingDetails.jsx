@@ -4,8 +4,6 @@ import { useParams } from "react-router-dom";
 import {
   toggleBookingExtendModal,
   toggleDeleteModal,
-  // togglePaymentUpdateModal,
-  // togglePaymentUpdateModal,
   togglePickupImageModal,
   toggleRideEndModal,
 } from "../Redux/SideBarSlice/SideBarSlice";
@@ -15,14 +13,17 @@ import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 import PreLoader from "../components/Skeleton/PreLoader";
 import { cancelBookingById, fetchVehicleMasterById } from "../Data/Function";
 import {
+  addPickupImages,
   addTempVehicleData,
   handleUpdateFlags,
+  resetPickupImages,
+  resetUserRideInfo,
   updateTimeLineData,
 } from "../Redux/VehicleSlice/VehicleSlice";
 import GenerateInvoiceButton from "../components/Table/GenerateInvoiceButton";
-import { postData } from "../Data/index";
+import { getData, postData } from "../Data/index";
 import UpdateBookingPayment from "../components/Modal/UpdateBookingPayment";
-// import { formatDateToISO } from "../utils/index";
+import NoData from "../components/Error/NoData";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
@@ -37,6 +38,7 @@ const BookingDetails = () => {
   const { token, currentUser } = useSelector((state) => state.user);
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
   const [loadingStates, setLoadingStates] = useState({});
+  const [imagesLoading, setImagesLoading] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [reminderLoading, setReminderLoading] = useState(false);
   const [isVehicleChanging, setIsVehicleChanging] = useState(false);
@@ -45,21 +47,49 @@ const BookingDetails = () => {
   const dispatch = useDispatch();
 
   // through this we are fetching single vehicle data
-  const fetchSingleVehicle = useCallback(async () => {
+  const fetchSingleVehicleDetails = useCallback(async () => {
     if (id) {
       fetchVehicleMasterById(
         dispatch,
         id,
         token,
         "/getBookings",
-        "/getTimelineData"
+        "/getTimelineData",
+        "/getBookings"
       );
     }
-  }, [dispatch, id, token]);
+  }, [id, token]);
 
   useEffect(() => {
-    fetchSingleVehicle();
-  }, [fetchSingleVehicle]);
+    fetchSingleVehicleDetails();
+
+    return () => {
+      dispatch(resetUserRideInfo());
+    };
+  }, [fetchSingleVehicleDetails]);
+
+  // for fetching pickupImages using booking Number
+  useEffect(() => {
+    if (vehicleMaster === null) return;
+    (async () => {
+      try {
+        setImagesLoading(true);
+        const response = await getData(
+          `/getPickupImage?bookingId=${vehicleMaster[0]?.bookingId}`,
+          token
+        );
+        dispatch(addPickupImages(response?.data));
+      } catch (error) {
+        return handleAsyncError(dispatch, error?.message);
+      } finally {
+        setImagesLoading(false);
+      }
+    })();
+
+    return () => {
+      dispatch(resetPickupImages());
+    };
+  }, [vehicleMaster]);
 
   // start ride
   const handleStartRideAndAddImages = () => {
@@ -161,6 +191,10 @@ const BookingDetails = () => {
       setReminderLoading(false);
     }
   };
+
+  if (!loading && vehicleMaster?.length === 0) {
+    return <NoData message="Booking Not Found" />;
+  }
 
   return !loading && vehicleMaster?.length === 1 ? (
     <>
@@ -268,7 +302,7 @@ const BookingDetails = () => {
         </div>
       </div>
       <div className="mt-5">
-        <BookingDetail />
+        <BookingDetail pickupImagesLoading={imagesLoading} />
       </div>
     </>
   ) : (

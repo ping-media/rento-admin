@@ -22,6 +22,7 @@ import {
 } from "../Redux/UserSlice/UserSlice";
 import {
   addTimeLineData,
+  addUserRideInfo,
   fetchVehicleEnd,
   fetchVehicleMasterData,
   fetchVehicleStart,
@@ -123,24 +124,27 @@ const fetchVehicleMasterWithPagination = debounce(
     page,
     limit,
     searchBasedOnFilter = "",
-    searchType
+    searchType,
+    vehiclesFilter
   ) => {
     try {
       dispatch(fetchVehicleStart());
-      // setting dynamic route
-      // const dynamicEndpoint =
-      //   isSearchTermPresent !== null
-      //     ? searchType !== "all"
-      //       ? `${endpoint}?${searchType}=${searchBasedOnFilter}&page=${page}&limit=${limit}`
-      //       : searchBasedOnFilter === ""
-      //       ? `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`
-      //       : `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${page}&limit=${limit}`
-      //     : searchBasedOnFilter === ""
-      //     ? `${endpoint}?page=${page}&limit=${limit}`
-      //     : `${endpoint}?${searchBasedOnFilter}&page=${page}&limit=${limit}`;
       let dynamicEndpoint = `${endpoint}?page=${page}&limit=${limit}`;
 
-      if (isSearchTermPresent !== null) {
+      if (
+        vehiclesFilter.vehicleName !== "" &&
+        vehiclesFilter.search !== "" &&
+        vehiclesFilter.maintenanceType !== ""
+      ) {
+        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&filteredVehicles?.length&page=${page}&limit=${limit}`;
+      } else if (
+        vehiclesFilter.vehicleName !== "" ||
+        vehiclesFilter.search !== ""
+      ) {
+        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${page}&limit=${limit}`;
+      } else if (vehiclesFilter.maintenanceType !== "") {
+        dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${page}&limit=${limit}`;
+      } else if (isSearchTermPresent !== null) {
         if (searchType !== "all") {
           dynamicEndpoint = `${endpoint}?${searchType}=${isSearchTermPresent}&page=${page}&limit=${limit}`;
         } else if (searchBasedOnFilter === "") {
@@ -166,27 +170,82 @@ const fetchVehicleMasterWithPagination = debounce(
   50
 );
 
+// const fetchVehicleMasterById = debounce(
+//   async (dispatch, id, token, endpoint, secondEndpoint = "") => {
+//     try {
+//       dispatch(fetchVehicleStart());
+//       const response = await getData(
+//         `${endpoint}${
+//           location.pathname !== "/profile" && endpoint.includes("?userId")
+//             ? ""
+//             : "?_id="
+//         }${id}`,
+//         token
+//       );
+//       if (response?.status == 200) {
+//         if (secondEndpoint !== "") {
+//           const timeLineResponse = await getData(
+//             `${secondEndpoint}?bookingId=${response?.data[0]?.bookingId}`,
+//             token
+//           );
+//           dispatch(addTimeLineData(timeLineResponse?.data));
+//         }
+//         dispatch(fetchVehicleMasterData(response?.data));
+//       } else {
+//         dispatch(fetchVehicleMasterData([]));
+//         dispatch(fetchVehicleEnd());
+//       }
+//     } catch (error) {
+//       dispatch(fetchVehicleEnd());
+//       handleAsyncError(dispatch, error?.message);
+//     }
+//   },
+//   50
+// );
 const fetchVehicleMasterById = debounce(
-  async (dispatch, id, token, endpoint, secondEndpoint = "") => {
+  async (
+    dispatch,
+    id,
+    token,
+    endpoint,
+    secondEndpoint = "",
+    thirdEndpoint = ""
+  ) => {
     try {
       dispatch(fetchVehicleStart());
-      const response = await getData(
-        `${endpoint}${
-          location.pathname !== "/profile" && endpoint.includes("?userId")
-            ? ""
-            : "?_id="
-        }${id}`,
-        token
-      );
-      if (response?.status == 200) {
-        if (secondEndpoint !== "") {
-          const timeLineResponse = await getData(
-            `${secondEndpoint}?bookingId=${response?.data[0]?.bookingId}`,
-            token
+      const mainUrl = `${endpoint}${
+        location.pathname !== "/profile" && endpoint.includes("?userId")
+          ? ""
+          : "?_id="
+      }${id}`;
+
+      const response = await getData(mainUrl, token);
+
+      if (response?.status === 200 && response?.data?.[0]) {
+        const bookingId = response.data[0]?.bookingId;
+        const userId = response.data[0]?.userId?._id;
+
+        const extraCalls = [];
+        if (secondEndpoint) {
+          extraCalls.push(
+            getData(`${secondEndpoint}?bookingId=${bookingId}`, token)
           );
-          dispatch(addTimeLineData(timeLineResponse?.data));
         }
-        dispatch(fetchVehicleMasterData(response?.data));
+        if (thirdEndpoint) {
+          extraCalls.push(getData(`${thirdEndpoint}?userId=${userId}`, token));
+        }
+
+        const [secondData, thirdData] = await Promise.all(extraCalls);
+
+        if (secondEndpoint && secondData?.data) {
+          dispatch(addTimeLineData(secondData.data));
+        }
+
+        if (thirdEndpoint && thirdData?.data) {
+          dispatch(addUserRideInfo(thirdData.data));
+        }
+
+        dispatch(fetchVehicleMasterData(response.data));
       } else {
         dispatch(fetchVehicleMasterData([]));
         dispatch(fetchVehicleEnd());
@@ -220,6 +279,18 @@ const handleCreateAndUpdateVehicle = async (
   if (tempIds && tempIds.length > 0) {
     result = Object.assign(result, { vehiclePlan: tempIds });
     dispatch(removeTempIds());
+  }
+
+  // if someone bymistake pass brand in vehicleName too in that case replace the remove the brand from vehicleName
+  if (
+    location?.pathname.includes("/vehicle-master/") &&
+    result.vehicleName &&
+    result.vehicleBrand
+  ) {
+    const vehicleName = result.vehicleName.toLowerCase();
+    if (vehicleName.includes(result.vehicleBrand)) {
+      result.vehicleName = vehicleName.replace(result.vehicleBrand, "");
+    }
   }
 
   // for (const [key, value] of Object.entries(result)) {
@@ -391,8 +462,8 @@ const validateUser = debounce(
     retries = 3
   ) => {
     try {
-      setPreLoaderLoading && setPreLoaderLoading(true);
       if (!token) return;
+      setPreLoaderLoading && dispatch(setPreLoaderLoading(true));
       const state = store.getState();
       const loggedInRole = state?.user?.loggedInRole;
 
@@ -400,7 +471,7 @@ const validateUser = debounce(
         try {
           const response = await postData(
             `/validedToken`,
-            { token: token },
+            { token: token, dataFlag: false },
             token
           );
           const isUserValid = response?.isUserValid;
@@ -427,7 +498,7 @@ const validateUser = debounce(
         }
       }
     } finally {
-      setPreLoaderLoading && setPreLoaderLoading(false);
+      setPreLoaderLoading && dispatch(setPreLoaderLoading(false));
     }
   },
   60

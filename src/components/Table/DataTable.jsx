@@ -5,7 +5,6 @@ import {
   formatPathNameToTitle,
   formatPrice,
   formatTimeStampToDate,
-  getRandomNumber,
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
 import React, { useEffect, useState } from "react";
@@ -31,6 +30,7 @@ import BookingCard from "../../components/Card/BookingCard.jsx";
 import { useNavigate } from "react-router-dom";
 import CardNotFound from "../../components/Skeleton/CardNotFound.jsx";
 import CardDataLoading from "../../components/Skeleton/CardDataLoading.jsx";
+import MaintenanceStatusBadge from "./MaintenanceBadge.jsx";
 
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
@@ -38,7 +38,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const { loggedInRole } = useSelector((state) => state.user);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const showRecordsOptions = [10, 20, 25, 50, 100];
+  const showRecordsOptions = [25, 50, 100, 200, 500];
   //   sorting
   const [sortedData, setSortedData] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
@@ -87,7 +87,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   // for table header
   const getTableHeader = (Data) => {
     if (Data.length == 0) return;
-    // Extract keys from the first item (assuming all items have the same structure)
     const keys = Object.keys(Data[0]);
 
     let filteredKeys = keys.filter(
@@ -98,6 +97,8 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "vehicleTableId",
           "stationMasterUserId",
           "vehiclePlan",
+          // "perDayCost",
+          "vehicleBrand",
           "vehicleBasic",
           "stationId",
           "createdAt",
@@ -110,7 +111,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "freeKms",
           "extraKmsCharges",
           "vehicleModel",
-          "vehicleColor",
           "vehicleBookingStatus",
           "refundableDeposit",
           "lateFee",
@@ -171,18 +171,20 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
       );
     }
 
-    const header = [...filteredKeys];
+    let header = [...filteredKeys];
 
-    // Extract "Status" or "Active" columns
+    // header = header.map((key) =>
+    //   key === "isCouponActive" ? "Coupon Status" : key
+    // );
+
     const statusColumns = header.filter(
       (key) => key.includes("Status") || key.includes("Active")
     );
 
-    // Remove "Status" or "Active" columns from the main list
     const filteredHeader = header.filter(
       (key) => !key.includes("Status") && !key.includes("Active")
     );
-    // Add "Status" columns before "Actions" and push "Actions" at the end
+
     const finalHeader = [...filteredHeader, ...statusColumns].filter(Boolean);
 
     setColumns(finalHeader);
@@ -236,6 +238,41 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     );
   };
 
+  const renderCellContent = (column, value) => {
+    if (!value && value !== 0) return "";
+
+    if (
+      column.includes("Charges") ||
+      column.includes("Deposit") ||
+      column.includes("Cost") ||
+      column.includes("Price")
+    ) {
+      return `₹ ${formatPrice(value)}`;
+    }
+
+    if (column.includes("Duration")) {
+      return `${value} Days`;
+    }
+
+    if (column.includes("DateAndTime")) {
+      return formatFullDateAndTime(value);
+    }
+
+    if (column?.includes("InitiatedDate")) {
+      return value !== "NA" ? formatTimeStampToDate(value) : "--";
+    }
+
+    if (column?.includes("bookingId")) {
+      return `#${value}`;
+    }
+
+    if (column?.includes("paymentMethod")) {
+      return value === "partiallyPay" ? "online" : value;
+    }
+
+    return value;
+  };
+
   return (
     <>
       <div
@@ -278,21 +315,21 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                         newUpdatedData.map((item, index) => (
                           <tr
                             className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"
-                            key={item._id + `${getRandomNumber(90, 100)}`}
+                            key={`row-${item._id}-${index}`}
                             onClick={() => handleViewData(item?._id)}
                           >
-                            {location.pathname == "/all-vehicles" && (
+                            {/* Checkbox column for all-vehicles page */}
+                            {location.pathname === "/all-vehicles" && (
                               <td
-                                className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                key={`${item._id}_CheckBox_${
-                                  getRandomNumber(40, 80) + index
-                                }`}
+                                className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                                key={`checkbox-${item._id}-${index}`}
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <CheckBoxInput isId={item?._id} />
                               </td>
                             )}
-                            {/* dynamically rendering */}
+
+                            {/* Main columns render - filtering out status and special columns */}
                             {Columns.filter(
                               (column) =>
                                 !column.includes("Status") &&
@@ -300,149 +337,159 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 !column.includes("Active") &&
                                 !column.includes("Invoice")
                             ).map((column, columnIndex) => {
+                              // Skip certain columns that should not be rendered
+                              if (
+                                column === "state" ||
+                                column === "isContactVerified" ||
+                                column === "isDocumentVerified" ||
+                                column === "kycApproved" ||
+                                column === "openEndTime" ||
+                                (["lastName", "contact"].includes(column) &&
+                                  [
+                                    "/all-invoices",
+                                    "/all-users",
+                                    "/all-managers",
+                                  ].includes(location.pathname))
+                              ) {
+                                return null;
+                              }
+                              const cellKey = `cell-${item._id}-${column}-${columnIndex}-${index}`;
+
                               if (column === "userId") {
                                 return (
                                   <UserDisplayCell
-                                    key={`${item._id}_${column}_${
-                                      getRandomNumber(50, 70) + columnIndex
-                                    }`}
+                                    key={cellKey}
                                     item={item}
                                     onClick={(e) => e.stopPropagation()}
                                   />
                                 );
                               }
+
                               if (column === "city") {
                                 return (
                                   <BookingDateAndCityCell
-                                    key={`${item._id}_${column}_${
-                                      getRandomNumber(70, 90) + columnIndex
-                                    }`}
+                                    key={cellKey}
                                     item={item}
                                     column={column}
                                   />
                                 );
                               }
+
                               if (column === "isEmailVerified") {
                                 return (
                                   <UserStatusCell
+                                    key={cellKey}
                                     item={item}
                                     index={columnIndex}
-                                    key={`${item._id}_${column}_${
-                                      getRandomNumber(20, 40) + columnIndex
-                                    }`}
                                   />
                                 );
                               }
+
                               if (column === "couponName") {
                                 return (
                                   <td
-                                    className="p-3 max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
-                                    key={`${item._id}_${column}_${
-                                      getRandomNumber(30, 50) + columnIndex
-                                    }`}
+                                    className="p-2 max-w-36 lg:max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
+                                    key={cellKey}
                                   >
                                     {item[column]}{" "}
                                     <CopyButton textToCopy={item[column]} />
                                   </td>
                                 );
                               }
+
                               if (column === "openStartTime") {
                                 return (
                                   <td
-                                    className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                    key={`${item._id}_${column}_${
-                                      getRandomNumber(80, 100) + columnIndex
-                                    }`}
+                                    className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                                    key={cellKey}
                                   >
-                                    <p>
-                                      {`${changeNumberIntoTime(
-                                        item?.openStartTime
-                                      )} - ${changeNumberIntoTime(
-                                        item?.openEndTime
-                                      )}`}
-                                    </p>
+                                    <p>{`${changeNumberIntoTime(
+                                      item?.openStartTime
+                                    )} - ${changeNumberIntoTime(
+                                      item?.openEndTime
+                                    )}`}</p>
                                   </td>
                                 );
                               }
+
                               if (
-                                location.pathname === "/all-invoices" ||
-                                location?.pathname === "/all-users" ||
-                                location?.pathname === "/all-managers"
+                                column === "firstName" &&
+                                [
+                                  "/all-invoices",
+                                  "/all-users",
+                                  "/all-managers",
+                                ].includes(location.pathname)
                               ) {
-                                if (column === "firstName") {
-                                  return (
-                                    <UserDisplayCell
-                                      key={`${item._id}_${column}_${
-                                        getRandomNumber(20, 100) + columnIndex
-                                      }`}
-                                      firstName={item?.firstName}
-                                      lastName={item?.lastName}
-                                      Contact={item?.contact}
-                                    />
-                                  );
-                                }
-                                if (
-                                  column === "lastName" ||
-                                  column === "contact"
-                                ) {
-                                  return null;
-                                }
+                                return (
+                                  <UserDisplayCell
+                                    key={cellKey}
+                                    firstName={item?.firstName}
+                                    lastName={item?.lastName}
+                                    Contact={item?.contact}
+                                  />
+                                );
                               }
-                              // Skip rendering `BookingEndDateAndTime` data to avoid duplication
-                              if (
-                                column === "state" ||
-                                column === "isContactVerified" ||
-                                column === "isDocumentVerified" ||
-                                column === "kycApproved" ||
-                                column === "openEndTime"
-                              ) {
-                                return null;
+
+                              if (column.includes("Image")) {
+                                return (
+                                  <TableImage
+                                    key={cellKey}
+                                    item={item}
+                                    column={column}
+                                  />
+                                );
                               }
-                              // Default behavior for other columns
-                              return column.includes("Image") ? (
-                                <TableImage
-                                  item={item}
-                                  column={column}
-                                  key={`${item._id}_${column}_${
-                                    getRandomNumber(10, 90) + columnIndex
-                                  }`}
-                                />
-                              ) : typeof item[column] === "object" ? (
-                                <>
-                                  {location?.pathname === "/payments" && (
+
+                              if (typeof item[column] === "object") {
+                                const paymentKey = `payment-${item._id}-${column}-${columnIndex}-${index}`;
+                                const priceKey = `price-${item._id}-${column}-${columnIndex}-${index}`;
+
+                                return (
+                                  <React.Fragment key={cellKey}>
+                                    {location?.pathname === "/payments" && (
+                                      <td
+                                        className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                                        key={paymentKey}
+                                      >
+                                        ₹{" "}
+                                        {item?.paymentStatus ===
+                                          "partially_paid" ||
+                                        item?.paymentStatus === "partiallyPay"
+                                          ? formatPrice(
+                                              item?.bookingPrice?.userPaid
+                                            )
+                                          : item?.bookingPrice
+                                              ?.discountTotalPrice > 0
+                                          ? formatPrice(
+                                              item?.bookingPrice
+                                                ?.discountTotalPrice
+                                            )
+                                          : formatPrice(
+                                              item?.bookingPrice?.totalPrice
+                                            )}
+                                      </td>
+                                    )}
                                     <td
-                                      className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                      key={`${item._id}_${column}_${
-                                        getRandomNumber(20, 60) + columnIndex
+                                      className={`p-2 whitespace-nowrap text-sm font-medium text-gray-900 ${
+                                        column.includes("maintenance")
+                                          ? "capitalize"
+                                          : ""
                                       }`}
+                                      key={priceKey}
                                     >
-                                      ₹{" "}
-                                      {item?.paymentStatus ===
-                                        "partially_paid" ||
-                                      item?.paymentStatus === "partiallyPay"
-                                        ? formatPrice(
-                                            item?.bookingPrice?.userPaid
-                                          )
-                                        : item?.bookingPrice
-                                            ?.discountTotalPrice > 0
-                                        ? formatPrice(
-                                            item?.bookingPrice
-                                              ?.discountTotalPrice
-                                          )
-                                        : formatPrice(
-                                            item?.bookingPrice?.totalPrice
-                                          )}
-                                    </td>
-                                  )}
-                                  <td
-                                    className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                    key={`${item._id}_${column}_${
-                                      getRandomNumber(30, 60) + columnIndex
-                                    }`}
-                                  >
-                                    {column.includes("files")
-                                      ? null
-                                      : `₹${formatPrice(
+                                      {column.includes("maintenance") &&
+                                        console.log()}
+                                      {column.includes(
+                                        "files"
+                                      ) ? null : column.includes(
+                                          // ) //   ) //     `${item[column]?.length} Plan Applied` //   ) : ( //     "No Plan Applied" //   item[column]?.length === 0 ? ( // column.includes("Plan") ? (
+                                          "maintenance"
+                                        ) ? (
+                                        <MaintenanceStatusBadge
+                                          maintenanceList={item[column]}
+                                        />
+                                      ) : (
+                                        `₹${formatPrice(
                                           item[column]?.isDiscountZero ===
                                             true ||
                                             (item[column]?.discountTotalPrice &&
@@ -450,63 +497,52 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                                 ?.discountTotalPrice != 0)
                                             ? item[column]?.discountTotalPrice
                                             : item[column]?.totalPrice
-                                        )}`}
-                                  </td>
-                                </>
-                              ) : (
+                                        )}`
+                                      )}
+                                    </td>
+                                  </React.Fragment>
+                                );
+                              }
+
+                              return (
                                 <td
-                                  className={`p-3 text-sm font-medium text-gray-900 ${
+                                  className={`p-2 text-sm font-medium text-gray-900 ${
                                     column?.includes("email")
                                       ? ""
                                       : "capitalize"
                                   } ${
-                                    column?.includes("address")
+                                    // column?.includes("address")
+                                    ["address", "vehicleName"].includes(column)
                                       ? "max-w-40"
                                       : "whitespace-nowrap"
                                   }`}
-                                  key={`${item._id}_${column}_${
-                                    getRandomNumber(1, 30) + columnIndex
-                                  }`}
+                                  key={cellKey}
                                 >
-                                  {column.includes("Charges") ||
-                                  column.includes("Deposit") ||
-                                  column.includes("Cost") ||
-                                  column.includes("Price")
-                                    ? `₹ ${formatPrice(item[column])}`
-                                    : column.includes("Duration")
-                                    ? `${item[column]} Days`
-                                    : column.includes("DateAndTime")
-                                    ? formatFullDateAndTime(item[column])
-                                    : column?.includes("InitiatedDate")
-                                    ? item[column] !== "NA"
-                                      ? formatTimeStampToDate(item[column])
-                                      : ""
-                                    : column?.includes("bookingId")
-                                    ? `#${item[column]}`
-                                    : column?.includes("paymentMethod")
-                                    ? item[column] === "partiallyPay"
-                                      ? "online"
-                                      : item[column]
-                                    : item[column]}
+                                  {renderCellContent(column, item[column])}
                                 </td>
                               );
                             })}
 
-                            {/* Render "Status" or "Active" columns at the end */}
+                            {/* Status columns render */}
                             {Columns.filter(
                               (column) =>
                                 column.includes("Status") ||
                                 column.includes("status") ||
                                 column.includes("Active") ||
                                 column.includes("Invoice")
-                            ).map((column, columnIndex) =>
-                              (location?.pathname === "/location-master" &&
-                                column.includes("Status")) ||
-                              (location?.pathname === "/all-vehicles" &&
-                                column.includes("vehicleStatus")) ? (
+                            ).map((column, columnIndex) => {
+                              const isVehicleOrLocationStatus =
+                                (location?.pathname === "/location-master" &&
+                                  column.includes("Status")) ||
+                                (location?.pathname === "/all-vehicles" &&
+                                  column.includes("vehicleStatus"));
+
+                              const statusKey = `status-${item._id}-${column}-${columnIndex}-${index}`;
+
+                              return isVehicleOrLocationStatus ? (
                                 <td
-                                  className="p-3 whitespace-nowrap text-sm font-medium text-gray-900 pl-4"
-                                  key={`${item._id}_${column}_${columnIndex}`}
+                                  className="p-2 whitespace-nowrap text-sm font-medium text-gray-900 pl-4"
+                                  key={statusKey}
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <InputSwitch
@@ -516,22 +552,22 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 </td>
                               ) : (
                                 <td
-                                  className="p-3 whitespace-nowrap text-sm font-medium text-gray-900"
-                                  key={`${item._id}_${column}_${
-                                    getRandomNumber(10, 40) + columnIndex
-                                  }`}
+                                  className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                                  key={statusKey}
                                 >
                                   <StatusChange item={item} column={column} />
                                 </td>
-                              )
-                            )}
+                              );
+                            })}
+
+                            {/* Action buttons */}
                             {loggedInRole !== "manager" && (
                               <TableActions
                                 item={item}
                                 loadingStates={loadingStates}
                                 setLoadingStates={setLoadingStates}
                                 handleDeleteVehicle={handleDeleteVehicle}
-                                key={item?._id + `${getRandomNumber(30, 50)}`}
+                                key={`actions-${item._id}-${index}`}
                               />
                             )}
                           </tr>

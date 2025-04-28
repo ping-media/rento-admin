@@ -16,14 +16,14 @@ import { removeTempIds } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { tableIcons } from "../Data/Icons.jsx";
 import {
   toggleForgetPasswordModal,
-  toogleKycModalActive,
+  // toogleKycModalActive,
 } from "../Redux/SideBarSlice/SideBarSlice.js";
 const ForgetPasswordModal = lazy(() =>
   import("../components/Modal/ForgetPasswordModal.jsx")
 );
-const UserKycApproveModal = lazy(() =>
-  import("../components/Modal/UserKycApproveModal.jsx")
-);
+// const UserKycApproveModal = lazy(() =>
+//   import("../components/Modal/UserKycApproveModal.jsx")
+// );
 
 const CreateNewAndUpdateForm = () => {
   const navigate = useNavigate();
@@ -60,16 +60,19 @@ const CreateNewAndUpdateForm = () => {
 
   return !loading ? (
     <>
-      {(location.pathname.includes("/all-users/") ||
+      {/* {(location.pathname.includes("/all-users/") ||
         location.pathname.includes("/all-managers/")) && (
         <UserKycApproveModal />
-      )}
-      {location.pathname.includes("/all-managers/") && (
-        <ForgetPasswordModal
-          userType={"admin"}
-          contact={vehicleMaster?.contact || vehicleMaster[0]?.userId?.contact}
-        />
-      )}
+      )} */}
+      {location.pathname.includes("/all-managers/") &&
+        !location.pathname.includes("/add-new") && (
+          <ForgetPasswordModal
+            userType={"admin"}
+            contact={
+              vehicleMaster?.contact || vehicleMaster?.[0]?.userId?.contact || 0
+            }
+          />
+        )}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           {/* back button visiable on mobile screen  */}
@@ -104,36 +107,30 @@ const CreateNewAndUpdateForm = () => {
         {(location.pathname.includes("/all-users/") ||
           location.pathname.includes("/all-managers/")) && (
           <div className="flex items-center gap-2">
-            <button
-              className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
-              onClick={() => dispatch(toogleKycModalActive())}
-              disabled={
-                (vehicleMaster && vehicleMaster[0]
-                  ? vehicleMaster[0]?.userId?.kycApproved === "yes"
-                  : vehicleMaster?.kycApproved === "yes") || false
-              }
-            >
-              {vehicleMaster && vehicleMaster[0]
-                ? vehicleMaster[0]?.userId?.kycApproved === "yes"
-                  ? "Verified"
-                  : "Verify User"
-                : vehicleMaster && vehicleMaster?.kycApproved === "yes"
-                ? "Verified"
-                : "Verify User"}
-            </button>
-            {location.pathname.includes("/all-managers/") && (
-              <button
-                className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
-                onClick={() => dispatch(toggleForgetPasswordModal())}
-              >
-                Change Password
-              </button>
+            {(vehicleMaster?.[0]?.userId?.kycApproved === "yes" ||
+              vehicleMaster?.kycApproved === "yes") && (
+              <div className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md">
+                {vehicleMaster && vehicleMaster[0]
+                  ? vehicleMaster[0]?.userId?.kycApproved === "yes" &&
+                    "Verified"
+                  : vehicleMaster &&
+                    vehicleMaster?.kycApproved === "yes" &&
+                    "Verified"}
+              </div>
             )}
+            {location.pathname.includes("/all-managers/") &&
+              !location.pathname.includes("/add-new") && (
+                <button
+                  className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+                  onClick={() => dispatch(toggleForgetPasswordModal())}
+                >
+                  Change Password
+                </button>
+              )}
           </div>
         )}
       </div>
       <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-5 mx-auto bg-white">
-        {/* if id not present than go to create new vehicle or any other thing  */}
         <>
           <FormComponent
             handleFormSubmit={(event) =>

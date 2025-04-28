@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchDashboardData } from "../Data/Function";
 import PreLoader from "../components/Skeleton/PreLoader";
 import {
-  CurrencyRupeeRounded,
   DirectionsCarRounded,
   GroupRounded,
   PersonRounded,
@@ -22,7 +21,7 @@ import NotFound from "./NotFound";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const { dasboardDataCount, loading } = useSelector(
+  const { dasboardDataCount, loading, verifyLoading } = useSelector(
     (state) => state.dashboard
   );
   const { token, loggedInRole, userStation } = useSelector(
@@ -34,15 +33,20 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  if (verifyLoading) {
+    return <PreLoader />;
+  }
+
   //fetching dashboard data
   useEffect(() => {
+    if (verifyLoading) return;
     // for manager role
     const roleBaseFilter =
       loggedInRole === "manager" ? `?stationId=${userStation?.stationId}` : "";
     if (token) {
       fetchDashboardData(dispatch, token, roleBaseFilter, navigate);
     }
-  }, []);
+  }, [verifyLoading, token, loggedInRole]);
 
   //binding fetched data
   useEffect(() => {
@@ -108,10 +112,7 @@ const Dashboard = () => {
           Booking &amp; Payments
         </h2>
         <div className="shadow-lg p-3 lg:p-5 rounded-2xl bg-white">
-          <BarChart
-            data={dasboardDataCount && dasboardDataCount?.payments}
-            type={"bar"}
-          />
+          <BarChart data={dasboardDataCount && dasboardDataCount?.payments} />
         </div>
       </>
     ) : (

@@ -13,7 +13,7 @@ const LocationMasterForm = ({ handleFormSubmit, loading }) => {
 
   useEffect(() => {
     if (id && vehicleMaster?.length === 1)
-      return setImageUrl(vehicleMaster[0]?.locationImage);
+      return setImageUrl(vehicleMaster?.[0]?.locationImage || "");
   }, [vehicleMaster]);
 
   return (
@@ -32,7 +32,7 @@ const LocationMasterForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full">
             <Input
               item={"locationName"}
-              value={id && vehicleMaster[0]?.locationName}
+              value={(id && vehicleMaster?.[0]?.locationName) || ""}
             />
           </div>
         </div>

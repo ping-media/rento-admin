@@ -33,21 +33,22 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <Input
               item={"couponName"}
-              value={id ? vehicleMaster[0]?.couponName : ""}
+              value={id ? vehicleMaster?.[0]?.couponName : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"discountType"}
               options={["percentage", "fixed"]}
-              value={id ? vehicleMaster[0]?.discountType : "percentage"}
+              value={id ? vehicleMaster?.[0]?.discountType : "percentage"}
+              isSearchEnable={false}
             />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
               type="number"
               item={"discount"}
-              value={id ? vehicleMaster[0]?.discount : ""}
+              value={id ? vehicleMaster?.[0]?.discount : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -59,9 +60,9 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
                   ? couponCount > 0 || couponCount == -1 || couponCount == "-1"
                     ? couponCount != "-1" || couponCount != -1
                       ? Number(couponCount) -
-                        Number(vehicleMaster[0]?.allowedUsersCount)
+                        Number(vehicleMaster?.[0]?.allowedUsersCount)
                       : couponCount
-                    : vehicleMaster[0]?.allowedUsersCount
+                    : vehicleMaster?.[0]?.allowedUsersCount
                   : couponCount
               }
             />
@@ -69,7 +70,7 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
               type="number"
               isCouponInput={true}
               item={"couponCount"}
-              value={id ? vehicleMaster[0]?.couponCount : "-1"}
+              value={id ? vehicleMaster?.[0]?.couponCount : "-1"}
               setValueChange={setCouponCount}
             />
           </div>
@@ -77,7 +78,8 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
             <SelectDropDown
               item={"isCouponActive"}
               options={["active", "inActive"]}
-              value={id ? vehicleMaster[0]?.isCouponActive : "active"}
+              value={id ? vehicleMaster?.[0]?.isCouponActive : "active"}
+              isSearchEnable={false}
             />
           </div>
         </>

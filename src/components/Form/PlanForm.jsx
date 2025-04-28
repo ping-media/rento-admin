@@ -32,7 +32,7 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <Input
               item={"planName"}
-              value={id ? vehicleMaster[0]?.planName : ""}
+              value={id ? vehicleMaster?.[0]?.planName : ""}
             />
           </div>
           {!id && (
@@ -41,7 +41,7 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
                 <Input
                   item={"planDuration"}
                   type="number"
-                  value={id && Number(vehicleMaster[0]?.planDuration)}
+                  value={id && Number(vehicleMaster?.[0]?.planDuration)}
                 />
               </div>
             </>
@@ -50,7 +50,7 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
             <Input
               item={"planPrice"}
               type="number"
-              value={id && Number(vehicleMaster[0]?.planPrice)}
+              value={id && Number(vehicleMaster?.[0]?.planPrice)}
             />
           </div>
         </>

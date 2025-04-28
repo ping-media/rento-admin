@@ -5,11 +5,18 @@ const vehicleSlice = createSlice({
   initialState: {
     vehicleMaster: null,
     timeLineData: null,
+    maintenanceData: { data: null, pagination: null, loading: false },
+    userRideInfo: null,
     Vehicle: {},
+    vehiclePickupImage: null,
     deletevehicleId: "",
     tempVehicleData: null,
     userDocuments: null,
+    blockVehicleId: "",
+    blockLoading: false,
     tempIds: [],
+    maintenanceIds: [],
+    maintenanceLoading: false,
     tempLoading: { loading: false, operation: "" },
     isHeaderChecked: false,
     isOneOrMoreHeaderChecked: false,
@@ -163,9 +170,15 @@ const vehicleSlice = createSlice({
       state.loading = false;
       state.tempIds = action.payload;
     },
+    addMaintenanceIdsAll: (state, action) => {
+      state.maintenanceIds = action.payload;
+    },
     addTempIds: (state, action) => {
       state.loading = false;
       state.tempIds = [...state.tempIds, ...action.payload];
+    },
+    addMaintenanceIds: (state, action) => {
+      state.maintenanceIds = [...state.maintenanceIds, ...action.payload];
     },
     changeTempLoadingTrue: (state, action) => {
       state.tempLoading.loading = true;
@@ -190,6 +203,17 @@ const vehicleSlice = createSlice({
         state.tempIds.pop();
       }
     },
+    removeLastmaintenanceId: (state) => {
+      if (state.maintenanceIds.length > 0) {
+        state.maintenanceIds.pop();
+      }
+    },
+    removeSingleMaintenanceIdsById: (state, action) => {
+      const idToRemove = action.payload;
+      state.maintenanceIds = state.maintenanceIds.filter(
+        (item) => item !== idToRemove
+      );
+    },
     removeSingleTempIdById: (state, action) => {
       const idToRemove = action.payload;
       state.tempIds = state.tempIds.filter((item) => item !== idToRemove);
@@ -201,6 +225,9 @@ const vehicleSlice = createSlice({
     removeTempIds: (state) => {
       state.loading = false;
       state.tempIds = [];
+    },
+    removemaintenanceIds: (state) => {
+      state.maintenanceIds = [];
     },
     handleInvoiceCreated: (state, action) => {
       const newData = action.payload;
@@ -243,6 +270,50 @@ const vehicleSlice = createSlice({
     },
     removeUserDocuments: (state) => {
       state.userDocuments = null;
+    },
+    addBlockVehicleId: (state, action) => {
+      state.blockVehicleId = action.payload;
+    },
+    removeBlockVehicleId: (state) => {
+      state.blockVehicleId = "";
+    },
+    addPickupImages: (state, action) => {
+      state.vehiclePickupImage = action.payload;
+    },
+    handleMaintenanceLoading: (state, action) => {
+      state.maintenanceLoading = action.payload;
+    },
+    handleBlockLoading: (state, action) => {
+      state.blockLoading = action.payload;
+    },
+    addUserRideInfo: (state, action) => {
+      state.userRideInfo = action.payload;
+    },
+    startMaintenanceLoading: (state) => {
+      state.maintenanceData.loading = true;
+    },
+    addMaintenanceData: (state, action) => {
+      const { data, pagination } = action.payload;
+      state.maintenanceData.data = data;
+      state.maintenanceData.pagination = pagination;
+      state.maintenanceData.loading = false;
+    },
+    updateMaintenanceData: (state, action) => {
+      state.maintenanceData.data = {
+        ...state.maintenanceData.data,
+        endDate: action.payload,
+      };
+    },
+    resetMaintenanceData: (state) => {
+      state.maintenanceData.data = null;
+      state.maintenanceData.pagination = null;
+      state.maintenanceData.loading = false;
+    },
+    resetUserRideInfo: (state) => {
+      state.userRideInfo = null;
+    },
+    resetPickupImages: (state) => {
+      state.vehiclePickupImage = null;
     },
     toggleClearVehicle: () => initialState,
   },
@@ -287,5 +358,22 @@ export const {
   toggleRefresh,
   addUserDocuments,
   removeUserDocuments,
+  addBlockVehicleId,
+  removeBlockVehicleId,
+  addMaintenanceIds,
+  addMaintenanceIdsAll,
+  removeLastmaintenanceId,
+  removemaintenanceIds,
+  removeSingleMaintenanceIdsById,
+  addPickupImages,
+  resetPickupImages,
+  handleMaintenanceLoading,
+  handleBlockLoading,
+  addUserRideInfo,
+  resetUserRideInfo,
+  startMaintenanceLoading,
+  addMaintenanceData,
+  updateMaintenanceData,
+  resetMaintenanceData,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

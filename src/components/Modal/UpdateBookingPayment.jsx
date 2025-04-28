@@ -1,7 +1,6 @@
 import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { togglePaymentUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice";
-// import Input from "../../components/InputAndDropdown/Input";
 import { useEffect, useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { cancelBookingById } from "../../Data/Function";
@@ -36,6 +35,7 @@ const UpdateBookingPayment = ({ id }) => {
             id: item?.id,
             title: item?.title,
             amount: item?.amount,
+            status: item?.status || "unpaid",
           });
         });
         setPaymentRecord(paymentRecord);
@@ -53,6 +53,7 @@ const UpdateBookingPayment = ({ id }) => {
             id: item?.id,
             title: item?.title,
             amount: item?.amount,
+            status: item?.status || "unpaid",
           });
         });
         setPaymentRecord(paymentRecord);
@@ -69,8 +70,6 @@ const UpdateBookingPayment = ({ id }) => {
     setPaymentRecord([]);
     getPaymentAmount(paymentFor);
   }, [paymentFor]);
-
-  // console.log(paymentRecord);
 
   // for updating the payment for specific booking
   const handlUpdateBookingPaymentRecord = async (event) => {
@@ -156,7 +155,7 @@ const UpdateBookingPayment = ({ id }) => {
         !isPaymentUpdateModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-28 mx-auto shadow-xl rounded-md bg-white max-w-md">
+      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-md">
         <div className="flex justify-between p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Update Payment Record
@@ -184,7 +183,7 @@ const UpdateBookingPayment = ({ id }) => {
 
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handlUpdateBookingPaymentRecord}>
-            <div className="mb-2">
+            <div className="text-left mb-2">
               <SelectDropDown
                 item={"Payment Record"}
                 options={["extendVehicle", "vehicleChange"]}
@@ -193,17 +192,19 @@ const UpdateBookingPayment = ({ id }) => {
               />
             </div>
             {/* {paymentFor !== "CashPayment" && ( */}
-            <div className="mb-2">
+            <div className="text-left mb-2">
               <SelectDropDown
                 item={"Payment Record Id"}
-                options={paymentRecord}
+                options={paymentRecord?.filter(
+                  (record) => record?.status !== "paid"
+                )}
                 setIsLocationSelected={setPaymentRecordId}
                 // require={paymentFor !== "CashPayment" ? true : false}
                 require={true}
               />
             </div>
             {/* )} */}
-            <div className="mb-2">
+            <div className="text-left mb-2">
               <SelectDropDown
                 item={"PaymentMode"}
                 options={["online", "cash"]}

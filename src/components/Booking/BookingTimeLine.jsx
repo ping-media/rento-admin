@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import CopyButton from "../../components/Buttons/CopyButton";
 import { formatPrice, removeSecondsFromDateAndTime } from "../../utils/index";
 
-const BookingTimeLine = ({ bookingId }) => {
+const BookingTimeLine = () => {
   const { timeLineData } = useSelector((state) => state.vehicles);
   const [loading] = useState(false);
 
@@ -20,7 +20,12 @@ const BookingTimeLine = ({ bookingId }) => {
               return (
                 <div
                   className={`${
-                    item?.title?.includes("Completed") ? "" : "mb-2"
+                    // item?.title?.includes("Completed") ? "" : "mb-2"
+                    ["Completed", "Ended"].some((status) =>
+                      item?.title?.includes(status)
+                    )
+                      ? ""
+                      : "mb-2"
                   } flex justify-between ${
                     index === 0
                       ? "items-start"
@@ -63,8 +68,12 @@ const BookingTimeLine = ({ bookingId }) => {
                                 : "text-sm"
                             }`}
                           >
-                            {(item?.vehicleName &&
-                              `Vehicle: ${item?.vehicleName}(${item?.vehicleNumber})`) ||
+                            {(item?.vehicleName && (
+                              <span className="capitalize">
+                                Vehicle: {item?.vehicleName}(
+                                {item?.vehicleNumber})
+                              </span>
+                            )) ||
                               (item?.paymentAmount &&
                                 `₹${formatPrice(item?.paymentAmount)}`) ||
                               item?.extendedTill ||

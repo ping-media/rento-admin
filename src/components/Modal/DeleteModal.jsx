@@ -15,7 +15,6 @@ const DeleteModal = () => {
   const { deletevehicleId } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
 
-  // if there is form which is having image than we have to pass an extra flag so that we can add form/multipart header and for normal there data will be passed as raw
   const handleDelete = async () => {
     let result;
     if (deletevehicleId) {

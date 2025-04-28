@@ -2,14 +2,17 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { handleChangeLimit } from "../../Redux/PaginationSlice/PaginationSlice";
 
-const DropDownComponent = ({ options }) => {
+const DropDownComponent = ({ options, customLimit, setLimitChanger }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   const { limit } = useSelector((state) => state.pagination);
   const dispatch = useDispatch();
 
   const handleChangeData = (value) => {
     setIsOptionsVisible(!isOptionsVisible);
-    dispatch(handleChangeLimit(value));
+    if (!customLimit) {
+      dispatch(handleChangeLimit(value));
+    }
+    setLimitChanger && setLimitChanger(value);
   };
   return (
     <>
@@ -20,7 +23,7 @@ const DropDownComponent = ({ options }) => {
             className="inline-flex justify-center items-center w-full px-3.5 py-1.5 text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:bg-gray-700 rounded-md"
             onClick={() => setIsOptionsVisible(!isOptionsVisible)}
           >
-            {limit}
+            {customLimit || limit}
             <svg
               className="w-4 h-4 ml-2 -mr-1"
               xmlns="http://www.w3.org/2000/svg"

@@ -2,25 +2,30 @@ import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleBookingExtendModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   addDaysToDate,
   addOneMinute,
   calculatePriceForExtendBooking,
   formatFullDateAndTime,
 } from "../../utils/index";
-import { postData } from "../../Data/index";
+import { getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import {
   handleUpdateExtendVehicle,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { updateTimeLineForPayment } from "../../Data/Function";
+import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
+import PreLoader from "../../components/Skeleton/PreLoader";
 
 const ExtendBookingModal = ({ bookingData }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
   const { token } = useSelector((state) => state.user);
+  const [plan, setPlan] = useState({ data: null, loading: false });
+  const [isPlanApplied, setIsPlanApplied] = useState(false);
   const [extensionDays, setExtensionDays] = useState(0);
+  const [extendPrice, setExtendPrice] = useState(0);
   const [newDate, setNewDate] = useState("");
 
   const [formLoading, setFormLoading] = useState(false);
@@ -46,10 +51,18 @@ const ExtendBookingModal = ({ bookingData }) => {
       extendAmount: {
         id: bookingData?.bookingPrice?.extendAmount?.length + 1,
         title: "extended",
-        amount: calculatePriceForExtendBooking(
-          bookingData?.bookingPrice?.rentAmount,
-          extensionDays
-        ),
+        amount:
+          calculatePriceForExtendBooking(
+            bookingData?.bookingPrice?.rentAmount,
+            extensionDays,
+            Number(bookingData?.bookingPrice?.extraAddonPrice)
+          ) < extendPrice
+            ? extendPrice
+            : calculatePriceForExtendBooking(
+                bookingData?.bookingPrice?.rentAmount,
+                extensionDays,
+                Number(bookingData?.bookingPrice?.extraAddonPrice)
+              ),
         paymentMethod: "",
         status: "unpaid",
       },
@@ -97,6 +110,20 @@ const ExtendBookingModal = ({ bookingData }) => {
     }
   };
 
+  useEffect(() => {
+    (async () => {
+      try {
+        setPlan((prev) => ({ ...prev, loading: true }));
+        const response = await getData("/getPlanData?page=1&limit=50", token);
+        if (response.status === 200) {
+          setPlan((prev) => ({ ...prev, data: response?.data }));
+        }
+      } finally {
+        setPlan((prev) => ({ ...prev, loading: false }));
+      }
+    })();
+  }, []);
+
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {
     setExtensionDays(0);
@@ -104,13 +131,45 @@ const ExtendBookingModal = ({ bookingData }) => {
     dispatch(toggleBookingExtendModal());
   };
 
+  // for showing extend vehicle price on based on days
+  useEffect(() => {
+    if (Number(extensionDays) !== 0) {
+      const hasPlan = plan?.data.filter(
+        (plan) => Number(plan?.planDuration) === Number(extensionDays)
+      );
+      const planPrice = hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
+      if (planPrice > 0) {
+        setIsPlanApplied(true);
+      } else {
+        setIsPlanApplied(false);
+      }
+      const price =
+        planPrice > 0
+          ? planPrice
+          : calculatePriceForExtendBooking(
+              bookingData?.bookingPrice?.rentAmount,
+              extensionDays
+            );
+      if (Number(price) > 0) {
+        setExtendPrice(price);
+      }
+    } else {
+      setExtendPrice(0);
+      setIsPlanApplied(false);
+    }
+  }, [extensionDays]);
+
+  if (plan?.loading) {
+    return <PreLoader />;
+  }
+
   return (
     <div
       className={`fixed ${
         !isBookingExtendModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-md">
+      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-lg">
         <div className="flex justify-between p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Extend Booking
@@ -159,16 +218,45 @@ const ExtendBookingModal = ({ bookingData }) => {
                 isModalClose={isBookingExtendModalActive}
               />
             </div>
-            {newDate !== "" && (
+            <div>
+              {isPlanApplied && (
+                <div className="mb-2">
+                  <p
+                    className={`text-gray-400 text-left text-sm font-semibold italic`}
+                  >
+                    (Plan Applied)
+                  </p>
+                </div>
+              )}
               <div className="mb-2">
-                <p className="text-gray-400 text-left">
-                  <span className="font-semibold text-black mr-1">
+                <p
+                  className={`text-gray-400 text-left ${
+                    newDate === "" ? "italic" : ""
+                  }`}
+                >
+                  <span className="font-semibold text-black not-italic mr-1">
                     New End Date:
                   </span>
-                  {formatFullDateAndTime(newDate)}
+                  {newDate !== ""
+                    ? formatFullDateAndTime(newDate)
+                    : "(Enter number of days to view the new date)"}
                 </p>
               </div>
-            )}
+              <div className={`mb-2`}>
+                <p className="text-theme text-left flex items-center">
+                  <span className="font-semibold text-black mr-1">
+                    New Amount:
+                  </span>
+
+                  <ChangeTextToInput
+                    value={extendPrice}
+                    setValue={(e) => setExtendPrice(e.target.value)}
+                    type={"number"}
+                  />
+                </p>
+              </div>
+            </div>
+
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"

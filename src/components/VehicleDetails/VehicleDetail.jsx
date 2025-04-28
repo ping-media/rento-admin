@@ -11,12 +11,13 @@ import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
 import { tableIcons } from "../../Data/Icons";
 import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import MaintenanceTable from "../../components/Table/MaintenanceTable";
-import {
-  addSchedule,
-  startLoading,
-  stopLoading,
-} from "../../Redux/MaintenanceSlice/MaintenanceSlice";
-import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import Tooltip from "../../components/Tooltip/Tooltip";
+// import {
+//   addSchedule,
+//   startLoading,
+//   stopLoading,
+// } from "../../Redux/MaintenanceSlice/MaintenanceSlice";
+// import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 const AddVehicleForServiceModal = lazy(() =>
   import("../../components/Modal/AddVehicleForServiceModal")
 );
@@ -59,31 +60,6 @@ const VehicleDetail = () => {
     }
   }, [vehicleMaster]);
 
-  // for fetching the maintenanceVehicle record
-  useEffect(() => {
-    (async () => {
-      try {
-        dispatch(startLoading());
-        const response = await getData(
-          `/maintenanceVehicle?vehicleTableId=${id}`,
-          token
-        );
-        if (response?.success === true) {
-          dispatch(addSchedule(response?.data));
-        } else {
-          handleAsyncError(dispatch, response?.message);
-        }
-      } catch (error) {
-        handleAsyncError(
-          dispatch,
-          "Unable to find maintenance record! try again."
-        );
-      } finally {
-        dispatch(stopLoading());
-      }
-    })();
-  }, []);
-
   return id ? (
     !loading && collectedData != null ? (
       vehicleMaster?.length == 1 ? (
@@ -99,7 +75,7 @@ const VehicleDetail = () => {
                 type="button"
                 onClick={() => dispatch(toggleVehicleServiceModal())}
               >
-                Schedule Maintenance
+                Add Maintenance
               </button>
               {loggedInRole !== "manager" && (
                 <Link
@@ -114,10 +90,13 @@ const VehicleDetail = () => {
           </div>
           <div className="mt-5">
             <div className="flex gap-4 flex-wrap">
-              <div className="bg-white shadow-md rounded-xl w-full lg:flex-1 px-6 py-4">
-                <h2 className="mb-3 text-xl font-semibold text-gray-500">
+              <div className="bg-white shadow-md rounded-xl w-full lg:w-2/5 px-6 py-4">
+                {/* <h2 className="mb-3 text-xl font-semibold text-gray-500">
                   Vehicle Infomation
-                </h2>
+                </h2> */}
+                <div className="mb-5">
+                  <VehicleInfo {...vehicleMaster[0]} />
+                </div>
                 <div className="border-2 p-2 border-gray-300 rounded-lg">
                   {Object.entries(vehicleMaster[0]).map(
                     ([key, value], index) => {
@@ -126,16 +105,17 @@ const VehicleDetail = () => {
                         key.includes("_v") ||
                         key.includes("At") ||
                         key.includes("Id") ||
-                        key.includes("Image")
-                        // key.includes("vehiclePlan")
+                        key.includes("Image") ||
+                        key.includes("maintenance")
                       ) {
                         return null;
                       }
 
                       return (
                         <div
-                          className={`flex justify-between items-center py-1.5 ${
-                            Object.entries(vehicleMaster[0]).length != index + 1
+                          className={`flex justify-between items-center text-sm py-1.5 ${
+                            Object.entries(vehicleMaster[0]).length !==
+                            index + 2
                               ? "border-b-2"
                               : ""
                           } border-gray-300`}
@@ -148,9 +128,51 @@ const VehicleDetail = () => {
                             {key.includes("Cost") || key.includes("Charges")
                               ? "₹"
                               : ""}
-                            {typeof value !== "object"
-                              ? value
-                              : `${value.length} applied`}
+                            {typeof value !== "object" ? (
+                              key.includes("Cost") ||
+                              key.includes("Charges") ? (
+                                formatPrice(Number(value))
+                              ) : (
+                                value
+                              )
+                            ) : key === "vehiclePlan" ? (
+                              <Tooltip
+                                buttonMessage={`${value.length} applied`}
+                                tooltipData={
+                                  <ul className="max-h-80 overflow-y-scroll no-scrollbar">
+                                    {vehicleMaster[0]?.vehiclePlan?.length >
+                                    0 ? (
+                                      vehicleMaster[0]?.vehiclePlan?.map(
+                                        (plan) => (
+                                          <li
+                                            className="w-full"
+                                            key={plan?._id}
+                                          >
+                                            <div className="flex items-center gap-1 w-full">
+                                              <p className="text-sm font-semibold">
+                                                {plan?.planName || "Plan Name"}:
+                                              </p>
+                                              <p className="text-sm">
+                                                ₹
+                                                {formatPrice(
+                                                  Number(plan.planPrice)
+                                                )}
+                                              </p>
+                                            </div>
+                                          </li>
+                                        )
+                                      )
+                                    ) : (
+                                      <li className="text-sm italic">
+                                        No Plan Applied.
+                                      </li>
+                                    )}
+                                  </ul>
+                                }
+                              />
+                            ) : (
+                              `${value.length} applied`
+                            )}
                           </span>
                         </div>
                       );
@@ -183,17 +205,41 @@ const VehicleDetail = () => {
                     </p>
                   </div>
                 </div>
-                <div className="mb-5">
+                {/* <div className="mb-5">
                   <VehicleInfo {...vehicleMaster[0]} />
-                </div>
+                </div> */}
+                {/* <div className="mb-2">
+                  <h2 className="text-lg font-semibold uppercase">
+                    Vehicle Plan
+                  </h2>
+                </div> */}
+                {/* <div className="bg-gray-300/50 p-2 rounded-md mb-3">
+                  <ul className="list-disc pl-5">
+                    {vehicleMaster[0]?.vehiclePlan?.length > 0 ? (
+                      vehicleMaster[0]?.vehiclePlan?.map((plan) => (
+                        <li className="w-full" key={plan?._id}>
+                          <div className="flex items-center gap-1 w-full">
+                            <p className="text-sm font-semibold">
+                              {plan?.planName || "Plan Name"}:
+                            </p>
+                            <p className="text-sm">
+                              ₹{formatPrice(Number(plan.planPrice))}
+                            </p>
+                          </div>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-sm italic">No Plan Applied.</li>
+                    )}
+                  </ul>
+                </div> */}
                 <div className="mb-2">
                   <h2 className="text-lg font-semibold uppercase">
                     Maintenance Schedule
                   </h2>
                 </div>
-                <div>
-                  <MaintenanceTable />
-                </div>
+
+                <MaintenanceTable />
               </div>
             </div>
           </div>

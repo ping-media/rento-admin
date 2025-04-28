@@ -7,6 +7,7 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { useEffect, useState } from "react";
 import Spinner from "../../components/Spinner/Spinner";
 import { handleUpdateUserStatus } from "../../Redux/VehicleSlice/VehicleSlice";
+import PhotoView from "../../components/Form/User Components/PhotoView";
 
 const UserKycApproveModal = () => {
   const dispatch = useDispatch();
@@ -75,7 +76,7 @@ const UserKycApproveModal = () => {
     const value = e.target.value;
 
     if (name === "aadharNumber") {
-      if (value.length < 12) {
+      if (value.length > 12 || value.length < 12) {
         setFormError((prev) => ({
           ...prev,
           aadharNumber: "Enter valid 12 digit Aadhar number",
@@ -87,7 +88,7 @@ const UserKycApproveModal = () => {
         }));
       }
     } else if (name === "licenseNumber") {
-      if (value.length < 15) {
+      if (value.length > 15 || value.length < 15) {
         setFormError((prev) => ({
           ...prev,
           licenseNumber: "Enter valid 15 character license number",
@@ -160,10 +161,11 @@ const UserKycApproveModal = () => {
                     return null;
                   }
                   return (
-                    <div className="w-full flex-1 h-48 mb-3" key={item?._id}>
-                      <img
-                        src={item.imageUrl}
-                        className="w-full h-full object-cover"
+                    <div className="mb-3" key={item?._id}>
+                      <PhotoView
+                        item={item}
+                        className="w-full lg:flex-1 h-48"
+                        uniqueId={`kyc-modal-${index}`}
                       />
                     </div>
                   );

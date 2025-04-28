@@ -9,10 +9,15 @@ import PreLoader from "../Skeleton/PreLoader";
 import {
   handleCurrentUser,
   handleSignOut,
+  handleVerifyLoading,
 } from "../../Redux/UserSlice/UserSlice";
-import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
+import {
+  handleRestPagination,
+  resetVehiclesFilter,
+} from "../../Redux/PaginationSlice/PaginationSlice";
 import {
   handleIsHeaderChecked,
+  removemaintenanceIds,
   removeTempIds,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleLogoutUser, validateUser } from "../../Data/Function";
@@ -29,6 +34,7 @@ const Layout = () => {
   const { is_open } = useSelector((state) => state.sideBar);
   const mainRef = useRef(null);
   const [visible, setVisible] = useState(false);
+  const [validateLoading, setValidateLoading] = useState(false);
   const { currentUser, token, user, loading } = useSelector(
     (state) => state.user
   );
@@ -71,22 +77,34 @@ const Layout = () => {
   // if user is not found or inactive then logout for first time
   useEffect(() => {
     (async () => {
-      if (currentUser && currentUser?.userType === "customer") {
-        return dispatch(handleSignOut());
+      try {
+        setValidateLoading(true);
+        if (currentUser && currentUser?.userType === "customer") {
+          return dispatch(handleSignOut());
+        }
+        await validateUser(
+          token,
+          handleLogoutUser,
+          dispatch,
+          handleVerifyLoading
+        );
+      } finally {
+        setValidateLoading(false);
       }
-      await validateUser(token, handleLogoutUser, dispatch);
     })();
   }, []);
 
   //need to reset some value when ever user change page
   useEffect(() => {
     dispatch(handleRestPagination());
+    dispatch(resetVehiclesFilter());
     dispatch(removeTempIds());
+    dispatch(removemaintenanceIds());
     dispatch(handleIsHeaderChecked(false));
   }, [location.href]);
 
-  return !loading ? (
-    token != null ? (
+  return !validateLoading && !loading ? (
+    token !== null ? (
       <>
         <div
           className={`w-full flex relative ${theme == "dark" ? "dark" : ""}`}
