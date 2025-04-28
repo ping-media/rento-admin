@@ -113,7 +113,7 @@ const MaintenanceTable = () => {
           <div className="overflow-hidden">
             {loading || maintenanceData?.loading ? (
               <div className="min-w-full rounded-xl">
-                <Spinner message={"loading"} />
+                <Spinner message={"loading"} textColor="text-black" />
               </div>
             ) : (
               <table className="min-w-full shadow-md">

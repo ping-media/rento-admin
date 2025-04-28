@@ -232,31 +232,34 @@ const BookingFareDetails = ({ rides }) => {
               </li>
             )}
             {/* difference amount  */}
-            {rides?.bookingPrice?.diffAmount?.length > 0 && (
-              <li className="flex items-center justify-between pt-1 mt-1 border-t-2">
-                <p className="text-sm font-semibold uppercase text-left">
-                  Difference Amount
-                  <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
-                    ({" "}
-                    {rides?.bookingPrice?.diffAmount[
-                      rides?.bookingPrice?.diffAmount?.length - 1
-                    ]?.status === "unpaid"
-                      ? "need to pay this amount"
-                      : "Paid"}{" "}
-                    )
-                  </small>
-                </p>
-                <p className="text-sm font-bold text-right">
-                  {`₹${formatPrice(
-                    Number(
-                      rides?.bookingPrice?.diffAmount[
+            {rides?.bookingPrice?.diffAmount?.length > 0 &&
+              rides?.bookingPrice?.diffAmount[
+                rides?.bookingPrice?.diffAmount?.length - 1
+              ]?.amount > 0 && (
+                <li className="flex items-center justify-between pt-1 mt-1 border-t-2">
+                  <p className="text-sm font-semibold uppercase text-left">
+                    Difference Amount
+                    <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
+                      ({" "}
+                      {rides?.bookingPrice?.diffAmount[
                         rides?.bookingPrice?.diffAmount?.length - 1
-                      ]?.amount
-                    )
-                  )}`}
-                </p>
-              </li>
-            )}
+                      ]?.status === "unpaid"
+                        ? "need to pay this amount"
+                        : "Paid"}{" "}
+                      )
+                    </small>
+                  </p>
+                  <p className="text-sm font-bold text-right">
+                    {`₹${formatPrice(
+                      Number(
+                        rides?.bookingPrice?.diffAmount[
+                          rides?.bookingPrice?.diffAmount?.length - 1
+                        ]?.amount
+                      )
+                    )}`}
+                  </p>
+                </li>
+              )}
             {/* extend amount  */}
             {rides?.bookingPrice?.extendAmount?.length > 0 && (
               <li className="flex items-center justify-between pt-1 mt-1 border-t-2">

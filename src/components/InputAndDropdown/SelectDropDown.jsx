@@ -13,6 +13,7 @@ const SelectDropDown = ({
   changeModalClose,
   placeholder,
   isSearchEnable = true,
+  zIndex = "z-10",
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
   const [isOpen, setIsOpen] = useState(false);
@@ -162,7 +163,9 @@ const SelectDropDown = ({
         </div>
 
         {isOpen && !isDisabled && (
-          <div className="absolute z-10 mt-2 w-full max-h-40 overflow-y-auto bg-white shadow-lg border border-gray-300 rounded-md">
+          <div
+            className={`absolute ${zIndex} mt-2 w-full max-h-40 overflow-y-auto bg-white shadow-lg border border-gray-300 rounded-md`}
+          >
             {isSearchEnable && (
               <input
                 type="text"

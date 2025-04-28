@@ -2,7 +2,11 @@ import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { calculateTax, getDurationBetweenDates } from "../../utils";
+import {
+  calculateTax,
+  getDurationBetweenDates,
+  getDurationInDays,
+} from "../../utils";
 import BookingStepOne from "./BookingComponents/BookingStepOne";
 import BookingStepTwo from "./BookingComponents/BookingStepTwo";
 import BookingStepThree from "./BookingComponents/BookingStepThree";
@@ -55,9 +59,21 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       bookingEndDate
     );
 
+    let hasMatchPlan = null;
+    if (selectedVehicle?.vehiclePlan?.length > 0) {
+      hasMatchPlan = selectedVehicle?.vehiclePlan?.filter(
+        (plan) =>
+          Number(plan?.planDuration) ===
+          Number(durationBetweenStartAndEnd?.days)
+      )[0];
+      setPlanData((prev) => ({ ...prev, data: hasMatchPlan }));
+    } else {
+      setPlanData((prev) => ({ ...prev, data: null }));
+    }
+
     const bookingPrice =
-      selectedVehicle?.planPrice && selectedVehicle?.planPrice > 0
-        ? selectedVehicle?.planPrice
+      hasMatchPlan !== null && hasMatchPlan?.planPrice > 0
+        ? hasMatchPlan?.planPrice
         : Number(durationBetweenStartAndEnd?.days) *
           Number(selectedVehicle?.perDayCost);
     const rentAmount = Number(selectedVehicle?.perDayCost);
@@ -85,22 +101,22 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   };
 
   // for fetching package data
-  useEffect(() => {
-    (async () => {
-      try {
-        setPlanData((prev) => ({ ...prev, loading: true }));
-        const planResponse = await getData(
-          "/getPlanData?page=1&limit=50",
-          token
-        );
-        if (planResponse?.status === 200) {
-          setPlanData((prev) => ({ ...prev, data: planResponse?.data }));
-        }
-      } finally {
-        setPlanData((prev) => ({ ...prev, loading: false }));
-      }
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       setPlanData((prev) => ({ ...prev, loading: true }));
+  //       const planResponse = await getData(
+  //         "/getPlanData?page=1&limit=50",
+  //         token
+  //       );
+  //       if (planResponse?.status === 200) {
+  //         setPlanData((prev) => ({ ...prev, data: planResponse?.data }));
+  //       }
+  //     } finally {
+  //       setPlanData((prev) => ({ ...prev, loading: false }));
+  //     }
+  //   })();
+  // }, []);
 
   // for creating new booking
   const handleFormSubmitForNew = async (event) => {
@@ -161,7 +177,6 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               ? coupon?.discountPrice
               : 0,
           rentAmount: formData?.stepTwoData?.rentAmount,
-          isPackageApplied: false,
           userPaid: Math.round(userPaid),
           AmountLeftAfterUserPaid: {
             amount: Math.round(AmountLeftAfterUserPaid),
@@ -204,6 +219,9 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         paymentStatus: result?.paymentStatus || "pending",
         rideStatus: result?.rideStatus || "pending",
       };
+
+      // console.log(data);
+      // return;
 
       if (result?.paymentMethod === "cash") {
         data = {

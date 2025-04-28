@@ -44,7 +44,9 @@ const SelectDropDownVehicle = ({
 
   // clearing the state when user close modal
   useEffect(() => {
-    isModalClose === false && setInputSelect("");
+    if (isModalClose === false) {
+      setInputSelect("");
+    }
   }, [isModalClose]);
 
   // Debounce effect for search

@@ -17,10 +17,10 @@ import Spinner from "../../components/Spinner/Spinner";
 
 const ChangeBulkVehicle = () => {
   const { isVehicleUpdateModalActive } = useSelector((state) => state.sideBar);
-  const { tempIds } = useSelector((state) => state.vehicles);
+  const { tempIds, tempLoading } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
   const [planMaster, setPlanMaster] = useState([]);
-  const [planMasterLoading, setPlanMasterLoading] = useState([]);
+  const [planMasterLoading, setPlanMasterLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
 
@@ -171,7 +171,9 @@ const ChangeBulkVehicle = () => {
             onClick={handleCloseModal}
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
-            disabled={formLoading || false}
+            disabled={
+              formLoading || planMasterLoading || tempLoading?.loading || false
+            }
           >
             <svg
               className="w-5 h-5"
@@ -206,8 +208,9 @@ const ChangeBulkVehicle = () => {
                 Change Plan Price
               </h2>
               <div className="flex justify-center flex-wrap gap-2 items-center">
-                {planMasterLoading && <Spinner />}
-                {planMaster?.length > 0 ? (
+                {planMasterLoading ? (
+                  <Spinner />
+                ) : planMaster?.length > 0 ? (
                   planMaster.map((plan) => (
                     <div className="w-full lg:w-[48%]" key={plan._id}>
                       <Input
@@ -235,9 +238,11 @@ const ChangeBulkVehicle = () => {
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
-              disabled={formLoading || planMasterLoading}
+              disabled={
+                formLoading || planMasterLoading || tempLoading?.loading
+              }
             >
-              {!formLoading ? (
+              {!formLoading || !tempLoading?.loading ? (
                 "Update vehicle"
               ) : (
                 <Spinner message={"loading..."} />

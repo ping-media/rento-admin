@@ -4,6 +4,7 @@ import { lazy, useEffect, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
   formatDateTimeISTForUser,
+  formatDateToISOWithoutSecond,
   formatFullDateAndTime,
   formatPrice,
 } from "../../utils/index";
@@ -264,7 +265,9 @@ const BookingDetail = ({ pickupImagesLoading }) => {
                 {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
                 {!(
                   vehicleMaster[0]?.rideStatus === "completed" ||
-                  vehicleMaster[0]?.bookingStatus === "canceled"
+                  vehicleMaster[0]?.bookingStatus === "canceled" ||
+                  vehicleMaster[0]?.BookingEndDateAndTime <
+                    formatDateToISOWithoutSecond(new Date())
                 ) && (
                   <button
                     className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"

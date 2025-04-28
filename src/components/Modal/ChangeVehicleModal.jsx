@@ -8,8 +8,10 @@ import {
   calculateTax,
   camelCaseToSpaceSeparated,
   formatDateToISO,
+  formatDateToISOWithoutSecond,
   formatPrice,
   getDurationInDays,
+  getDurationInDaysAndHours,
 } from "../../utils/index";
 import Input from "../../components/InputAndDropdown/Input";
 import PreLoader from "../../components/Skeleton/PreLoader";
@@ -30,6 +32,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const [freeVehicles, setFreeVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const { token } = useSelector((state) => state.user);
@@ -80,33 +83,58 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const changeToNewVehicle = freeVehicles?.find(
       (item) => item?._id == vehicleId
     );
-    // calculating the duration
-    const startDate =
-      bookingData?.BookingStartDateAndTime <=
-      formatDateToISO(new Date()).replace(".000Z", "Z")
-        ? formatDateToISO(new Date()).replace(".000Z", "Z")
-        : bookingData?.BookingStartDateAndTime;
+    const NewVehicleHavePlan =
+      (changeToNewVehicle?.vehiclePlan?.length > 0 &&
+        changeToNewVehicle?.vehiclePlan) ||
+      null;
+    const currentDateAndTime = formatDateToISOWithoutSecond(new Date());
+    const extendStartDate = bookingData?.extendBooking?.originalEndDate || "";
+    // getting start date whether according to extend or first booking
+    let startDate = "";
+    if (extendStartDate === "") {
+      startDate =
+        currentDateAndTime > bookingData?.BookingStartDateAndTime
+          ? currentDateAndTime
+          : bookingData?.BookingStartDateAndTime;
+    } else {
+      startDate =
+        currentDateAndTime > extendStartDate
+          ? currentDateAndTime
+          : extendStartDate;
+    }
     const endDate = bookingData?.BookingEndDateAndTime;
 
+    // calculating the duration
     const daysLeft = getDurationInDays(
       startDate?.slice(0, 10),
       endDate?.slice(0, 10)
     );
-    console.log(
-      bookingData?.BookingStartDateAndTime,
-      startDate,
-      changeToNewVehicle,
-      daysLeft
-    );
+
+    const Plan =
+      NewVehicleHavePlan?.length > 0
+        ? NewVehicleHavePlan?.filter(
+            (plan) => Number(plan.planDuration) === Number(daysLeft)
+          )[0]
+        : null;
+
+    if (Plan) {
+      setSelectedPlan(Plan);
+    } else {
+      setSelectedPlan(null);
+    }
     // calculate the price
+    const isPackageApplied = bookingData?.bookingPrice?.isPackageApplied;
     const bookingPriceWithoutHelmet = Number(changeToNewVehicle?.perDayCost);
-    const bookingPrice = Number(bookingPriceWithoutHelmet) * Number(daysLeft);
+    const bookingPrice =
+      Plan !== null && isPackageApplied
+        ? Plan?.planPrice
+        : Number(bookingPriceWithoutHelmet) * Number(daysLeft);
     const bookingPricePlusHelmet =
       Number(
-        bookingData?.bookingPrice?.extraAddonPrice < 200
+        (bookingData?.bookingPrice?.extraAddonPrice > 0
           ? Number(bookingData?.bookingPrice?.extraAddonPrice) *
-              Number(daysLeft < 4 ? daysLeft : 4)
-          : bookingData?.bookingPrice?.extraAddonPrice || 0
+            Number(daysLeft < 4 ? daysLeft : 4)
+          : bookingData?.bookingPrice?.extraAddonPrice) || 0
       ) + Number(bookingPrice);
     const tax = calculateTax(bookingPricePlusHelmet, 18);
     const totalPrice = Number(bookingPricePlusHelmet) + Number(tax);
@@ -118,8 +146,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
       Number(oldDiscountPrice) > 0
         ? Number(totalPrice) - Number(oldDiscountPrice)
         : Number(totalPrice) - Number(oldTotalPrice);
-    // it diffAmount comes in negative value than make it zero
-    const finalDiffAmount = diffAmount <= 0 ? 0 : Math.floor(diffAmount);
+    const finalDiffAmount = diffAmount <= 0 ? 0 : Math.round(diffAmount);
+    const refundAmount = diffAmount < 0 ? Math.abs(diffAmount) : 0;
 
     const data = {
       _id: bookingData?._id,
@@ -145,6 +173,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
             id: bookingData?.diffAmount?.length + 1,
             title: "changedVehicle",
             amount: finalDiffAmount,
+            refundAmount: refundAmount,
             paymentMethod: "",
             status: finalDiffAmount > 0 ? "unpaid" : "paid",
           },
@@ -162,16 +191,16 @@ const ChangeVehicleModal = ({ bookingData }) => {
         refundableDeposit: changeToNewVehicle?.refundableDeposit,
         speedLimit: changeToNewVehicle?.speedLimit,
         vehicleNumber: changeToNewVehicle?.vehicleNumber,
-        freeLimit: changeToNewVehicle?.freeLimit,
+        freeLimit: Number(changeToNewVehicle?.freeKms) * Number(daysLeft),
         lateFee: changeToNewVehicle?.lateFee,
-        extraKmCharge: changeToNewVehicle?.extraKmCharge,
+        extraKmCharge: changeToNewVehicle?.extraKmsCharges,
         startRide: bookingData?.vehicleBasic?.startRide,
         endRide: bookingData?.vehicleBasic?.endRide,
       },
       firstName: vehicleMaster[0]?.userId?.firstName,
       managerContact: vehicleMaster[0]?.stationMasterUserId?.contact,
     };
-
+    console.log(data);
     return setSelectedVehicle(data);
   };
 
@@ -190,7 +219,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
 
     const data = {
       ...selectedVehicle,
-      otp,
+      // otp,
       contact: bookingData?.userId?.contact,
     };
     if (!data)
@@ -293,15 +322,144 @@ const ChangeVehicleModal = ({ bookingData }) => {
         <div className="p-6 pt-0 text-center">
           {vehicleLoading && <PreLoader />}
           <form onSubmit={handleChangeVehicle}>
+            <div className="w-full bg-gray-300 rounded-lg bg-opacity-75 py-2 px-2.5 mb-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-left font-semibold">
+                  Current Vehicle Info
+                </h2>
+                <p className="text-sm capitalize">
+                  ({`${bookingData?.vehicleBrand} ${bookingData?.vehicleName}`})
+                </p>
+              </div>
+              <ul className="leading-7 text-left mb-1">
+                {[
+                  "rentAmount",
+                  "tax",
+                  "extraAddonPrice",
+                  "totalPrice",
+                  "discountTotalPrice",
+                ].map((key, index) => {
+                  const value = bookingData?.bookingPrice?.[key];
+                  if (value !== undefined || value !== 0) {
+                    if (bookingData?.bookingPrice?.[key] === 0) {
+                      return null;
+                    }
+                    return (
+                      <li
+                        className={`capitalize ${
+                          key === "discountTotalPrice" || key === "totalPrice"
+                            ? "font-semibold"
+                            : ""
+                        }`}
+                        key={index}
+                      >
+                        {key != "extraAddonPrice"
+                          ? camelCaseToSpaceSeparated(key)
+                          : "Extra Helmet"}
+                        : ₹
+                        {key === "rentAmount" || key === "extraAddonPrice"
+                          ? key === "rentAmount" &&
+                            bookingData?.bookingPrice?.isPackageApplied
+                            ? `${formatPrice(
+                                bookingData?.bookingPrice?.bookingPrice
+                              )}`
+                            : `${formatPrice(value)} x ${getDurationInDays(
+                                bookingData?.BookingStartDateAndTime,
+                                bookingData?.BookingEndDateAndTime
+                              )} day(s)`
+                          : formatPrice(value)}
+                      </li>
+                    );
+                  } else {
+                    return null;
+                  }
+                })}
+              </ul>
+              {selectedVehicle !== null && (
+                <>
+                  <div className="flex items-center justify-between border-t border-gray-600/20 pt-1">
+                    <h2 className="text-left font-semibold">
+                      New Vehicle Info
+                    </h2>
+                    <p className="text-sm capitalize">
+                      (
+                      {`${selectedVehicle?.vehicleBrand} ${selectedVehicle?.vehicleName}`}
+                      )
+                    </p>
+                  </div>
+                  <ul className="leading-7 text-left mb-1">
+                    {["rentAmount", "tax", "extraAddonPrice", "totalPrice"].map(
+                      (key, index) => {
+                        const value = selectedVehicle?.bookingPrice?.[key];
+                        if (bookingData?.bookingPrice?.[key] === 0) {
+                          return null;
+                        }
+                        if (value !== undefined) {
+                          return (
+                            <li
+                              className={`capitalize ${
+                                key === "totalPrice" ? "font-semibold" : ""
+                              }`}
+                              key={index}
+                            >
+                              {key != "extraAddonPrice"
+                                ? camelCaseToSpaceSeparated(key)
+                                : "Extra Helmet"}
+                              : ₹
+                              {key === "rentAmount" || key === "extraAddonPrice"
+                                ? key === "rentAmount" &&
+                                  bookingData?.bookingPrice?.isPackageApplied &&
+                                  selectedPlan !== null
+                                  ? `${formatPrice(selectedPlan?.planPrice)}`
+                                  : `${formatPrice(
+                                      value
+                                    )} x ${getDurationInDays(
+                                      bookingData?.BookingStartDateAndTime,
+                                      bookingData?.BookingEndDateAndTime
+                                    )} day(s)`
+                                : formatPrice(value)}
+                            </li>
+                          );
+                        } else {
+                          return null;
+                        }
+                      }
+                    )}
+                  </ul>
+                  {selectedVehicle &&
+                  selectedVehicle?.bookingPrice?.diffAmount[
+                    selectedVehicle?.bookingPrice?.diffAmount?.length - 1
+                  ]?.refundAmount ? (
+                    <p className="font-semibold text-left">
+                      Amount need to refund:
+                      <span className="text-theme ml-1">{`₹${formatPrice(
+                        Number(
+                          selectedVehicle?.bookingPrice?.diffAmount[
+                            selectedVehicle?.bookingPrice?.diffAmount?.length -
+                              1
+                          ]?.refundAmount || 0
+                        )
+                      )}`}</span>
+                    </p>
+                  ) : (
+                    <p className="font-semibold text-left">
+                      Amount need to pay:
+                      <span className="text-theme ml-1">
+                        {`₹${formatPrice(
+                          Number(
+                            selectedVehicle?.bookingPrice?.diffAmount[
+                              selectedVehicle?.bookingPrice?.diffAmount
+                                ?.length - 1
+                            ]?.amount || 0
+                          )
+                        )}`}
+                      </span>
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
             <div className="text-left mb-2">
-              {/* <SelectDropDown
-                item={"vehicleTableId"}
-                onChangeFn={handleChangeSelectedVehicle}
-                options={freeVehicles}
-                changetoDefault={isModalClose}
-                changeModalClose={setIsModalClose}
-                require={true}
-              /> */}
               <SelectDropDownVehicle
                 item={"Vehicle"}
                 name={"vehicleTableId"}
@@ -314,98 +472,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
                 <p className="italic text-gray-100 mt-1">No vehicle Found.</p>
               )}
             </div>
-            {selectedVehicle !== null && (
-              <div className="w-full bg-gray-300 rounded-lg bg-opacity-75 py-2 px-2.5 mb-2">
-                <h2 className="text-left">Old Vehicle</h2>
-                <ul className="leading-7 text-left mb-1">
-                  {[
-                    "rentAmount",
-                    "tax",
-                    "extraAddonPrice",
-                    "totalPrice",
-                    "discountTotalPrice",
-                  ].map((key, index) => {
-                    const value = bookingData?.bookingPrice?.[key];
-                    if (value !== undefined || value !== 0) {
-                      if (bookingData?.bookingPrice?.[key] === 0) {
-                        return null;
-                      }
-                      return (
-                        <li
-                          className={`capitalize ${
-                            key === "discountTotalPrice" || key === "totalPrice"
-                              ? "font-semibold"
-                              : ""
-                          }`}
-                          key={index}
-                        >
-                          {key != "extraAddonPrice"
-                            ? camelCaseToSpaceSeparated(key)
-                            : "Extra Helmet"}
-                          : ₹
-                          {key === "rentAmount" || key === "extraAddonPrice"
-                            ? `${formatPrice(
-                                Math.floor(value)
-                              )} * ${getDurationInDays(
-                                bookingData?.BookingStartDateAndTime,
-                                bookingData?.BookingEndDateAndTime
-                              )} day(s)`
-                            : formatPrice(Math.floor(value))}
-                        </li>
-                      );
-                    } else {
-                      return null;
-                    }
-                  })}
-                </ul>
-                <h2 className="text-left">New Vehicle</h2>
-                <ul className="leading-7 text-left mb-1">
-                  {["rentAmount", "tax", "extraAddonPrice", "totalPrice"].map(
-                    (key, index) => {
-                      const value = selectedVehicle?.bookingPrice?.[key];
-                      if (bookingData?.bookingPrice?.[key] === 0) {
-                        return null;
-                      }
-                      if (value !== undefined) {
-                        return (
-                          <li
-                            className={`capitalize ${
-                              key === "totalPrice" ? "font-semibold" : ""
-                            }`}
-                            key={index}
-                          >
-                            {key != "extraAddonPrice"
-                              ? camelCaseToSpaceSeparated(key)
-                              : "Extra Helmet"}
-                            : ₹
-                            {key === "rentAmount" || key === "extraAddonPrice"
-                              ? `${formatPrice(
-                                  Math.floor(value)
-                                )} * ${getDurationInDays(
-                                  bookingData?.BookingStartDateAndTime,
-                                  bookingData?.BookingEndDateAndTime
-                                )} day(s)`
-                              : formatPrice(Math.floor(value))}
-                          </li>
-                        );
-                      } else {
-                        return null;
-                      }
-                    }
-                  )}
-                </ul>
-                {selectedVehicle && (
-                  <p className="font-semibold text-left">
-                    Amount need to pay: ₹
-                    {
-                      selectedVehicle?.bookingPrice?.diffAmount[
-                        selectedVehicle?.bookingPrice?.diffAmount?.length - 1
-                      ]?.amount
-                    }
-                  </p>
-                )}
-              </div>
-            )}
+            {/* )} */}
             {/* <div className="mb-2">
               <Input item={"OTP"} type="number" require={true} />
               {selectedVehicle !== null && (
