@@ -1,10 +1,54 @@
 import { tableIcons } from "../../Data/Icons";
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
+import { formatPrice } from "../../utils/index";
+import CustomMonthDropdown from "../../components/DropDown/CustomDropDown";
 
-const BarChart = ({ data }) => {
+const BarChart = ({ data, month, setMonth }) => {
   const [viewMode, setViewMode] = useState("Daily");
-  const options = ["Daily", "Weekly", "Monthly"];
+  // const options = ["Daily", "Weekly", "Monthly"];
+  const options = ["Daily", "Weekly"];
+
+  const processDataForView = (data) => {
+    if (!data || data.length === 0) return [];
+
+    const sortedData = [...data].sort(
+      (a, b) => new Date(a._id) - new Date(b._id)
+    );
+
+    if (viewMode === "Daily") {
+      return sortedData;
+    }
+
+    const firstDate = new Date(sortedData[0]._id);
+    const lastDate = new Date(sortedData[sortedData.length - 1]._id);
+
+    const dataMap = {};
+    sortedData.forEach((item) => {
+      dataMap[item._id] = item;
+    });
+
+    const filledData = [];
+    const currentDate = new Date(firstDate);
+
+    while (currentDate <= lastDate) {
+      const dateString = currentDate.toISOString().split("T")[0];
+
+      if (dataMap[dateString]) {
+        filledData.push(dataMap[dateString]);
+      } else {
+        filledData.push({
+          _id: dateString,
+          totalPrice: 0,
+          bookingCount: 0,
+        });
+      }
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return filledData;
+  };
 
   // Format date
   const formatDate = (dateStr) => {
@@ -12,96 +56,84 @@ const BarChart = ({ data }) => {
     return date.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
-      year: "numeric",
     });
   };
-  // Group data by week/month for different view modes
+
+  // Group data by week
+  const groupByWeek = (data) => {
+    const weeks = {};
+
+    data.forEach((item) => {
+      const date = new Date(item._id);
+      // Get the week number within the month
+      const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+      const dayOffset = firstDayOfMonth.getDay();
+      const dayOfMonth = date.getDate();
+      const weekNumber = Math.ceil((dayOfMonth + dayOffset) / 7);
+
+      const weekKey = `Week ${weekNumber}`;
+
+      if (!weeks[weekKey]) {
+        weeks[weekKey] = {
+          totalPrice: 0,
+          bookingCount: 0,
+        };
+      }
+
+      weeks[weekKey].totalPrice += item.totalPrice;
+      weeks[weekKey].bookingCount += item.bookingCount;
+    });
+
+    // Convert to arrays
+    return {
+      categories: Object.keys(weeks),
+      totalPrice: Object.values(weeks).map((w) => w.totalPrice),
+    };
+  };
+
+  // Process data for different view modes
   const processChartData = (mode) => {
-    // For Daily view, use the original data
+    const processedData = processDataForView(data);
+
     if (mode === "Daily") {
       return {
-        categories: data.map((item) => formatDate(item._id)),
-        totalPrice: data.map((item) => item.totalPrice),
-        bookingCount: data.map((item) => item.bookingCount),
+        categories: processedData.map((item) => formatDate(item._id)),
+        totalPrice: processedData.map((item) => item.totalPrice),
       };
     } else if (mode === "Weekly") {
-      const weeklyData = {
-        categories: ["Week 1"],
-        totalPrice: [data.reduce((sum, item) => sum + item.totalPrice, 0)],
-        bookingCount: [data.reduce((sum, item) => sum + item.bookingCount, 0)],
-      };
-      return weeklyData;
+      return groupByWeek(processedData);
     } else if (mode === "Monthly") {
-      const monthlyMap = {};
-
-      data.forEach((item) => {
-        const date = new Date(item._id);
-        const monthYear = date.toLocaleDateString("en-GB", {
-          month: "short",
-          year: "numeric",
-        });
-
-        if (!monthlyMap[monthYear]) {
-          monthlyMap[monthYear] = {
-            totalPrice: 0,
-            bookingCount: 0,
-          };
-        }
-
-        monthlyMap[monthYear].totalPrice += item.totalPrice;
-        monthlyMap[monthYear].bookingCount += item.bookingCount;
+      // For a single month view, show the month total
+      const monthName = new Date(data[0]._id).toLocaleDateString("en-GB", {
+        month: "long",
+        year: "numeric",
       });
 
-      // Convert the map to arrays for the chart
-      const months = Object.keys(monthlyMap);
-      const totalPrices = months.map((month) => monthlyMap[month].totalPrice);
-      const bookingCounts = months.map(
-        (month) => monthlyMap[month].bookingCount
-      );
-
       return {
-        categories: months,
-        totalPrice: totalPrices,
-        bookingCount: bookingCounts,
+        categories: [monthName],
+        totalPrice: [
+          processedData.reduce((sum, item) => sum + item.totalPrice, 0),
+        ],
       };
     }
   };
 
   const chartData = processChartData(viewMode);
 
-  // Options for Booking Count Chart
-  const bookingCountOptions = {
-    chart: {
-      type: "bar",
-      toolbar: { show: false },
-    },
-    xaxis: {
-      categories: chartData.categories,
-      title: {
-        text: "Dates",
-        style: { fontSize: "14px", fontWeight: "bold" },
-      },
-    },
-    yaxis: {
-      title: {
-        text: "Booking Count",
-        style: { fontSize: "14px", fontWeight: "bold" },
-      },
-    },
-    plotOptions: {
-      bar: { columnWidth: "50%" },
-    },
-    colors: ["#c32d3b"],
-    dataLabels: {
-      enabled: false,
-    },
-  };
-
   // Options for Total Price Chart
   const totalPriceOptions = {
     chart: {
       type: "bar",
       toolbar: { show: false },
+      fontFamily: "'Poppins', sans-serif",
+      background: "#fff",
+      dropShadow: {
+        enabled: true,
+        top: 3,
+        left: 3,
+        blur: 4,
+        opacity: 0.12,
+      },
     },
     xaxis: {
       categories: chartData.categories,
@@ -109,19 +141,70 @@ const BarChart = ({ data }) => {
         text: "Dates",
         style: { fontSize: "14px", fontWeight: "bold" },
       },
+      labels: {
+        rotate: -45,
+        style: {
+          fontSize: "12px",
+        },
+      },
     },
     yaxis: {
       title: {
-        text: "Total Price",
+        text: "Total Revenue (₹)",
         style: { fontSize: "14px", fontWeight: "bold" },
+      },
+      labels: {
+        formatter: (val) => {
+          if (val >= 100000) return `₹${(val / 1000).toFixed(0)}K`;
+          return `₹${val.toLocaleString()}`;
+        },
       },
     },
     plotOptions: {
-      bar: { columnWidth: "50%" },
+      bar: {
+        columnWidth: "60%",
+        borderRadius: 4,
+        distributed: viewMode === "Daily",
+        dataLabels: {
+          position: "top",
+        },
+      },
     },
-    colors: ["#e23844"],
     dataLabels: {
-      enabled: false,
+      enabled: true,
+      formatter: (val) => {
+        if (val === 0) return "";
+        if (val >= 10000) return `₹${(val / 1000).toFixed(0)}K`;
+        return `₹${val.toLocaleString()}`;
+      },
+      style: {
+        fontSize: "12px",
+        colors: ["#333"],
+        fontWeight: "bold",
+      },
+      offsetY: -20,
+    },
+    states: {
+      hover: {
+        filter: {
+          type: "darken",
+          value: 0.85,
+        },
+      },
+    },
+    grid: {
+      borderColor: "#f1f1f1",
+      strokeDashArray: 4,
+      yaxis: {
+        lines: {
+          show: true,
+        },
+      },
+      xaxis: {
+        lines: {
+          show: false,
+        },
+      },
     },
     tooltip: {
       enabled: true,
@@ -133,10 +216,35 @@ const BarChart = ({ data }) => {
         fontSize: "14px",
       },
     },
+    colors:
+      viewMode === "Daily"
+        ? [
+            "#e23844",
+            "#f05d67",
+            "#e23844",
+            "#f05d67",
+            "#e23844",
+            "#f05d67",
+            "#e23844",
+            "#f05d67",
+            "#e23844",
+            "#f05d67",
+          ]
+        : ["#e23844"],
   };
 
+  // Calculate total revenue for summary
+  const totals = data.reduce(
+    (acc, item) => {
+      acc.totalBookings += item.bookingCount;
+      acc.totalRevenue += item.totalPrice;
+      return acc;
+    },
+    { totalBookings: 0, totalRevenue: 0 }
+  );
+
   return (
-    <div className="w-full">
+    <div className="w-full bg-white p-2 rounded-lg">
       {/* View Mode Buttons */}
       <div className="mb-5 flex items-center justify-end gap-2">
         {options?.map((mode, index) => (
@@ -152,30 +260,38 @@ const BarChart = ({ data }) => {
             {tableIcons?.dateCalender} {mode}
           </button>
         ))}
+        <CustomMonthDropdown
+          tableIcons={tableIcons}
+          value={month}
+          setValue={setMonth}
+        />
       </div>
 
-      <div className="flex items-center flex-wrap gap-1 lg:gap-2 w-full">
-        {/* Booking Count Chart */}
-        <div className="flex-1">
-          <h2 className="text-base font-bold mb-3">{`Booking Count (${viewMode})`}</h2>
-          <Chart
-            options={bookingCountOptions}
-            series={[{ name: "Booking Count", data: chartData.bookingCount }]}
-            type="bar"
-            height={300}
-          />
+      {/* Summary Card */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100">
+          <p className="text-gray-500 text-sm">This Month Bookings</p>
+          <p className="text-2xl font-bold text-gray-800">
+            {totals.totalBookings}
+          </p>
         </div>
+        <div className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100">
+          <p className="text-gray-500 text-sm">This Month Revenue</p>
+          <p className="text-2xl font-bold text-gray-800">
+            ₹ {formatPrice(totals.totalRevenue)}
+          </p>
+        </div>
+      </div>
 
-        {/* Total Price Chart */}
-        <div className="flex-1">
-          <h2 className="text-base font-bold mb-3">{`Total Price (${viewMode})`}</h2>
-          <Chart
-            options={totalPriceOptions}
-            series={[{ name: "Total Price", data: chartData.totalPrice }]}
-            type="bar"
-            height={300}
-          />
-        </div>
+      {/* Total Price Chart */}
+      <div className="w-full">
+        <h2 className="text-base font-bold mb-3">{`Total Revenue (${viewMode})`}</h2>
+        <Chart
+          options={totalPriceOptions}
+          series={[{ name: "Total Revenue", data: chartData.totalPrice }]}
+          type="bar"
+          height={400}
+        />
       </div>
     </div>
   );

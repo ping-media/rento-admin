@@ -77,21 +77,45 @@ const fetchDashboardData = async (
   dispatch,
   token,
   roleBaseFilter,
-  navigate
+  navigate,
+  currentMonthAndYear,
+  dasboardDataCount
 ) => {
   try {
     dispatch(handleLoadingDashboardData());
-    const [dashboardResponse, paymentResponse] = await Promise.all([
-      getData(`/getAllDataCount${roleBaseFilter}`, token),
-      getData(`/getGraphData${roleBaseFilter}`, token),
-    ]);
+    if (dasboardDataCount === null) {
+      const [dashboardResponse, paymentResponse] = await Promise.all([
+        getData(`/getAllDataCount${roleBaseFilter}`, token),
+        getData(
+          `/getGraphData${roleBaseFilter}${
+            roleBaseFilter ? "&" : "?"
+          }monthYear=${currentMonthAndYear}`,
+          token
+        ),
+      ]);
 
-    dispatch(
-      handleDashboardData({
-        dashboard: dashboardResponse?.data,
-        payments: paymentResponse?.data,
-      })
-    );
+      dispatch(
+        handleDashboardData({
+          dashboard: dashboardResponse?.data,
+          payments: paymentResponse?.data,
+        })
+      );
+    } else {
+      const graphData = await getData(
+        `/getGraphData${roleBaseFilter}${
+          roleBaseFilter ? "&" : "?"
+        }monthYear=${currentMonthAndYear}`,
+        token
+      );
+      if (graphData?.status === 200) {
+        dispatch(
+          handleDashboardData({
+            dashboard: dasboardDataCount?.dashboard,
+            payments: graphData?.data,
+          })
+        );
+      }
+    }
   } catch (error) {
     dispatch(resetDashboardData());
     handleAsyncError(dispatch, error?.message);

@@ -19,6 +19,7 @@ import {
 import { useMediaQuery } from "@mui/material";
 import NotFound from "./NotFound";
 import { useNavigate } from "react-router-dom";
+import { monthNames } from "../Data/commonData";
 
 const Dashboard = () => {
   const { dasboardDataCount, loading, verifyLoading } = useSelector(
@@ -28,8 +29,9 @@ const Dashboard = () => {
     (state) => state.user
   );
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const [dashboardLoading, setDashboardLoading] = useState(false);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
   const [dataCountResult, setDataCountResult] = useState([]);
+  const [currentMonth, setCurrentMonth] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -39,14 +41,30 @@ const Dashboard = () => {
 
   //fetching dashboard data
   useEffect(() => {
-    if (verifyLoading) return;
+    if (verifyLoading && currentMonth === "") return;
     // for manager role
     const roleBaseFilter =
       loggedInRole === "manager" ? `?stationId=${userStation?.stationId}` : "";
     if (token) {
-      fetchDashboardData(dispatch, token, roleBaseFilter, navigate);
+      fetchDashboardData(
+        dispatch,
+        token,
+        roleBaseFilter,
+        navigate,
+        currentMonth,
+        dasboardDataCount
+      );
     }
-  }, [verifyLoading, token, loggedInRole]);
+  }, [verifyLoading, token, loggedInRole, currentMonth]);
+
+  useEffect(() => {
+    if (currentMonth === "") {
+      const currentMonth = monthNames[new Date()?.getMonth()];
+      const currentYear = new Date()?.getFullYear();
+      const currentMonthAndYear = `${currentMonth} ${currentYear}`;
+      setCurrentMonth(currentMonthAndYear);
+    }
+  }, []);
 
   //binding fetched data
   useEffect(() => {
@@ -112,7 +130,11 @@ const Dashboard = () => {
           Booking &amp; Payments
         </h2>
         <div className="shadow-lg p-3 lg:p-5 rounded-2xl bg-white">
-          <BarChart data={dasboardDataCount && dasboardDataCount?.payments} />
+          <BarChart
+            data={dasboardDataCount && dasboardDataCount?.payments}
+            month={currentMonth}
+            setMonth={setCurrentMonth}
+          />
         </div>
       </>
     ) : (
