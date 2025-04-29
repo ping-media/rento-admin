@@ -576,6 +576,26 @@ const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+const getFullYearMonthOptions = () => {
+  const year = new Date().getFullYear();
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  return monthNames.map((month) => `${month} ${year}`);
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -615,4 +635,5 @@ export {
   removeSecondsFromDateAndTime,
   getRandomNumber,
   formatDateToISOWithoutSecond,
+  getFullYearMonthOptions,
 };
