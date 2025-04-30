@@ -7,7 +7,7 @@ import { addGeneral } from "../../Redux/GeneralSlice/GeneralSlice";
 
 const GeneralTable = () => {
   const { general, loading } = useSelector((state) => state.general);
-  const token = useSelector((state) => state.user);
+  const { token } = useSelector((state) => state.user);
   const [dataLoading, setDataLoading] = useState(false);
   const dispatch = useDispatch();
 
