@@ -245,7 +245,7 @@ const fetchVehicleMasterById = debounce(
 
       const response = await getData(mainUrl, token);
 
-      if (response?.status === 200 && response?.data?.[0]) {
+      if (response?.status === 200) {
         const bookingId = response.data[0]?.bookingId;
         const userId = response.data[0]?.userId?._id;
 
@@ -259,14 +259,16 @@ const fetchVehicleMasterById = debounce(
           extraCalls.push(getData(`${thirdEndpoint}?userId=${userId}`, token));
         }
 
-        const [secondData, thirdData] = await Promise.all(extraCalls);
+        if (extraCalls?.length > 0) {
+          const [secondData, thirdData] = await Promise.all(extraCalls);
 
-        if (secondEndpoint && secondData?.data) {
-          dispatch(addTimeLineData(secondData.data));
-        }
+          if (secondEndpoint && secondData?.data) {
+            dispatch(addTimeLineData(secondData.data));
+          }
 
-        if (thirdEndpoint && thirdData?.data) {
-          dispatch(addUserRideInfo(thirdData.data));
+          if (thirdEndpoint && thirdData?.data) {
+            dispatch(addUserRideInfo(thirdData.data));
+          }
         }
 
         dispatch(fetchVehicleMasterData(response.data));
@@ -281,7 +283,6 @@ const fetchVehicleMasterById = debounce(
   },
   50
 );
-
 const handleCreateAndUpdateVehicle = async (
   event,
   dispatch,
