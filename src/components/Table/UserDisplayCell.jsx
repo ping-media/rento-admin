@@ -1,6 +1,16 @@
 import { Link } from "react-router-dom";
 
 const UserDisplayCell = ({ item, firstName, lastName, Contact }) => {
+  const getUserId = () => {
+    console.log(Array.isArray(item?.userId));
+    const user = Array.isArray(item?.userId)
+      ? item.userId[0]
+      : typeof item?.userId === "object" && item.userId !== null
+      ? item.userId
+      : null;
+    return user?._id || "#";
+  };
+
   return (
     <td
       className="p-2 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize text-left"
@@ -14,10 +24,17 @@ const UserDisplayCell = ({ item, firstName, lastName, Contact }) => {
             : ""
         }`}
       >
-        <Link
+        {/* <Link
           to={
             !["/all-users", "/all-managers"].includes(location.pathname)
               ? `/all-users/${item?.userId?.[0]?._id || item?.userId?._id}`
+              : "#"
+          }
+        > */}
+        <Link
+          to={
+            !["/all-users", "/all-managers"].includes(location.pathname)
+              ? `/all-users/${getUserId()}`
               : "#"
           }
         >
