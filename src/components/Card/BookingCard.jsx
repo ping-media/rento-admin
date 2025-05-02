@@ -1,12 +1,12 @@
 import { formatFullDateAndTime, formatPrice } from "../../utils/index";
 import StatusChange from "../../components/Table/StatusChange";
 import { tableIcons } from "../../Data/Icons";
-import { Link } from "react-router-dom";
-import CopyButton from "../../components/Buttons/CopyButton";
+import { Link, useNavigate } from "react-router-dom";
 
 const BookingCard = ({ item }) => {
+  const navigate = useNavigate();
   return (
-    <Link to={`details/${item?._id}`} key={item?._id}>
+    <div onClick={() => navigate(`details/${item?._id}`)} key={item?._id}>
       <div className="bg-white rounded-md shadow-md px-2 py-2 mb-5">
         {/* top header for booking */}
         <div className="flex items-center justify-between pb-1 mb-1 border-b-2">
@@ -44,24 +44,27 @@ const BookingCard = ({ item }) => {
           </div>
         </div>
         {/* user info booking */}
-        <div className="mb-3">
+        <div
+          className="mb-3"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <p className="flex items-center text-sm">
             {tableIcons?.user}
-            <span className="ml-1 capitalize">
-              {item?.userId?.firstName} {item?.userId?.lastName}
-            </span>
+            <Link to={`/all-users/${item?.userId?._id}`}>
+              <span className="ml-1 capitalize">
+                {item?.userId?.firstName} {item?.userId?.lastName}
+              </span>
+            </Link>
           </p>
-          <p
-            className="flex items-center text-sm"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <p className="flex items-center text-sm">
             {tableIcons?.phone}
-            <span className="ml-1 capitalize text-theme">
-              {item?.userId?.contact}{" "}
-            </span>
-            <span>
-              <CopyButton textToCopy={item?.userId?.contact} />
-            </span>
+            <Link to={`tel:${item?.userId?.contact}`}>
+              <span className="ml-1 capitalize text-theme">
+                {item?.userId?.contact}{" "}
+              </span>
+            </Link>
           </p>
         </div>
         {/* time between booking  */}
@@ -82,7 +85,7 @@ const BookingCard = ({ item }) => {
           </p>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

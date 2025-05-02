@@ -199,7 +199,7 @@ const RideEndModal = ({ id }) => {
                 refundAmount > 0
                   ? "Booking Ended & Refunded"
                   : "Booking Completed",
-              date: new Date().toLocaleString(),
+              date: Date.now(),
             },
           ],
         };

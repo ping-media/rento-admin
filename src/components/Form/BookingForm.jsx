@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   calculateTax,
+  calculateTotalAddOnPrice,
   getDurationBetweenDates,
   getDurationInDays,
 } from "../../utils";
@@ -35,6 +36,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
     discountAmount: 0,
     isDiscountZero: false,
   });
+  const [addOns, setAddOn] = useState([]);
   const [planData, setPlanData] = useState({
     data: null,
     loading: false,
@@ -52,7 +54,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
     bookingStartDate,
     bookingEndDate,
     selectedVehicle,
-    extraAddonPrice = 0
+    addOnArr
+    // extraAddonPrice = 0
   ) => {
     const durationBetweenStartAndEnd = getDurationBetweenDates(
       bookingStartDate,
@@ -78,14 +81,28 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           Number(selectedVehicle?.perDayCost);
     const rentAmount = Number(selectedVehicle?.perDayCost);
 
-    const tax = calculateTax(bookingPrice + Number(extraAddonPrice), 18);
+    if (addOnArr?.length > 0) {
+      setAddOn(addOnArr);
+    } else {
+      setAddOn([]);
+    }
 
-    const totalPrice = Math.round(bookingPrice + tax);
+    const totalExtraAddOnPrice = Math.round(
+      Number(
+        calculateTotalAddOnPrice(addOnArr, durationBetweenStartAndEnd?.days)
+      )
+    );
+
+    const tax = Math.round(
+      calculateTax(bookingPrice + totalExtraAddOnPrice, 18)
+    );
+
+    const totalPrice = bookingPrice + totalExtraAddOnPrice + tax;
 
     const combinedData = {
       bookingPrice,
       rentAmount,
-      extraAddonPrice,
+      extraAddonPrice: totalExtraAddOnPrice,
       tax,
       totalPrice,
     };
@@ -156,6 +173,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         bookingPrice: {
           bookingPrice: formData?.stepTwoData?.bookingPrice,
           vehiclePrice: formData?.stepTwoData?.bookingPrice,
+          extraAddonDetails: addOns,
           extraAddonPrice: formData?.stepTwoData?.extraAddonPrice,
           tax: formData?.stepTwoData?.tax,
           totalPrice:
@@ -243,7 +261,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           timeLine: [
             {
               title: "Booking Created",
-              date: new Date().toLocaleString(),
+              date: Date.now(),
             },
           ],
         };
@@ -255,7 +273,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             timeLine: [
               {
                 title: "Pay Later",
-                date: new Date().toLocaleString(),
+                date: Date.now(),
                 paymentAmount:
                   bookingResponse?.data?.bookingPrice?.discountTotalPrice > 0
                     ? bookingResponse?.data?.bookingPrice?.discountTotalPrice
@@ -295,7 +313,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           timeLine: [
             {
               title: "Payment Initiated",
-              date: new Date().toLocaleString(),
+              date: Date.now(),
             },
           ],
         };

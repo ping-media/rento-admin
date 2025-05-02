@@ -6,6 +6,7 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
 import {
   calculateTax,
+  calculateTotalAddOnPrice,
   camelCaseToSpaceSeparated,
   formatDateToISO,
   formatDateToISOWithoutSecond,
@@ -129,15 +130,19 @@ const ChangeVehicleModal = ({ bookingData }) => {
       Plan !== null && isPackageApplied
         ? Plan?.planPrice
         : Number(bookingPriceWithoutHelmet) * Number(daysLeft);
-    const bookingPricePlusHelmet =
-      Number(
-        (bookingData?.bookingPrice?.extraAddonPrice > 0
-          ? Number(bookingData?.bookingPrice?.extraAddonPrice) *
-            Number(daysLeft < 4 ? daysLeft : 4)
-          : bookingData?.bookingPrice?.extraAddonPrice) || 0
-      ) + Number(bookingPrice);
-    const tax = calculateTax(bookingPricePlusHelmet, 18);
-    const totalPrice = Number(bookingPricePlusHelmet) + Number(tax);
+    let extraCharges = 0;
+    if (
+      bookingData?.bookingPrice?.extraAddonDetails &&
+      bookingData?.bookingPrice?.extraAddonDetails?.length > 0
+    ) {
+      extraCharges = calculateTotalAddOnPrice(
+        bookingData?.bookingPrice?.extraAddonDetails,
+        Number(daysLeft)
+      );
+    }
+    const finalBookingPrice = Number(extraCharges) + Number(bookingPrice);
+    const tax = calculateTax(finalBookingPrice, 18);
+    const totalPrice = Number(finalBookingPrice) + Number(tax);
     const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
     const oldTotalPrice = bookingData?.bookingPrice?.totalPrice;
 
@@ -159,6 +164,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
       bookingPrice: {
         bookingPrice: bookingPrice,
         vehiclePrice: bookingPrice,
+        extraAddonDetails: bookingData?.bookingPrice?.extraAddonDetails,
         extraAddonPrice: bookingData?.bookingPrice?.extraAddonPrice,
         discountPrice: bookingData?.bookingPrice?.discountPrice || 0,
         discountTotalPrice: bookingData?.bookingPrice?.discountTotalPrice || 0,
@@ -334,8 +340,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
               <ul className="leading-7 text-left mb-1">
                 {[
                   "rentAmount",
-                  "tax",
                   "extraAddonPrice",
+                  "tax",
                   "totalPrice",
                   "discountTotalPrice",
                 ].map((key, index) => {
@@ -355,7 +361,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
                       >
                         {key != "extraAddonPrice"
                           ? camelCaseToSpaceSeparated(key)
-                          : "Extra Helmet"}
+                          : "Additional Charges"}
                         : ₹
                         {key === "rentAmount" || key === "extraAddonPrice"
                           ? key === "rentAmount" &&
@@ -363,6 +369,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
                             ? `${formatPrice(
                                 bookingData?.bookingPrice?.bookingPrice
                               )}`
+                            : key === "extraAddonPrice"
+                            ? formatPrice(value)
                             : `${formatPrice(value)} x ${getDurationInDays(
                                 bookingData?.BookingStartDateAndTime,
                                 bookingData?.BookingEndDateAndTime
@@ -388,7 +396,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
                     </p>
                   </div>
                   <ul className="leading-7 text-left mb-1">
-                    {["rentAmount", "tax", "extraAddonPrice", "totalPrice"].map(
+                    {["rentAmount", "extraAddonPrice", "tax", "totalPrice"].map(
                       (key, index) => {
                         const value = selectedVehicle?.bookingPrice?.[key];
                         if (bookingData?.bookingPrice?.[key] === 0) {
@@ -404,13 +412,15 @@ const ChangeVehicleModal = ({ bookingData }) => {
                             >
                               {key != "extraAddonPrice"
                                 ? camelCaseToSpaceSeparated(key)
-                                : "Extra Helmet"}
+                                : "Additional Charges"}
                               : ₹
                               {key === "rentAmount" || key === "extraAddonPrice"
                                 ? key === "rentAmount" &&
                                   bookingData?.bookingPrice?.isPackageApplied &&
                                   selectedPlan !== null
                                   ? `${formatPrice(selectedPlan?.planPrice)}`
+                                  : key === "extraAddonPrice"
+                                  ? formatPrice(value)
                                   : `${formatPrice(
                                       value
                                     )} x ${getDurationInDays(

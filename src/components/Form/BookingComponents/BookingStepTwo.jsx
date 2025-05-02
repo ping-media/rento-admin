@@ -21,6 +21,7 @@ const BookingStepTwo = ({
 }) => {
   const [stepTwoData, setStepTwoData] = useState(null);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
+  const { extraAddOn } = useSelector((state) => state.general);
   const [CouponData, setCouponData] = useState(null);
   const [inputSelect, setInputSelect] = useState("");
   const [CouponLoading, setCouponLoading] = useState(false);
@@ -28,8 +29,17 @@ const BookingStepTwo = ({
   const [applyLoading, setApplyLoading] = useState(false);
   const { token } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
-  const [extraAddonPrice, setExtraAddonPrice] = useState(0);
-  const extraHelmetCharge = 50;
+  const [bookingDuration, setBookingDuration] = useState(0);
+  const [selectedAddOns, setSelectedAddOns] = useState([]);
+  // const extraHelmetCharge = 50;
+
+  const handleAddonToggle = (checked, item) => {
+    if (checked) {
+      setSelectedAddOns((prev) => [...prev, item]);
+    } else {
+      setSelectedAddOns((prev) => prev.filter((i) => i._id !== item._id));
+    }
+  };
 
   // for calculating price
   useEffect(() => {
@@ -48,6 +58,7 @@ const BookingStepTwo = ({
         bookingStartDate,
         bookingEndDate
       );
+      setBookingDuration(durationBetweenStartAndEnd?.days);
       // let newSelectedVehicle = selectedVehicle;
       // if (plan?.data?.length > 0) {
       //   const hasPlan = plan?.data?.filter(
@@ -85,7 +96,8 @@ const BookingStepTwo = ({
         bookingStartDate,
         bookingEndDate,
         selectedVehicle,
-        Number(extraAddonPrice)
+        selectedAddOns
+        // Number(extraAddonPrice)
       );
       setStepTwoData(newData);
     } finally {
@@ -95,7 +107,8 @@ const BookingStepTwo = ({
     data?.bookingStartDate,
     data?.bookingEndDate,
     data?.selectedVehicle,
-    extraAddonPrice,
+    selectedAddOns,
+    // extraAddonPrice,
   ]);
 
   // for fetching coupon
@@ -180,6 +193,13 @@ const BookingStepTwo = ({
   return !loading && stepTwoData !== null ? (
     <>
       {applyLoading && <PreLoader />}
+      {bookingDuration > 0 && (
+        <div className="w-full">
+          <p className="text-right text-sm font-semibold">
+            ({bookingDuration} Day(s) Booking)
+          </p>
+        </div>
+      )}
       <div className="w-full lg:w-[48%]">
         <Input
           item={"bookingPrice"}
@@ -213,7 +233,37 @@ const BookingStepTwo = ({
         />
       </div>
       <div className="w-full mb-2">
-        <div className="flex items-center gap-1">
+        <h2 className="font-semibold text-md">Extra Add-On</h2>
+        {extraAddOn?.data?.length > 0 &&
+          extraAddOn?.data
+            ?.filter((addon) => addon?.status !== "inactive")
+            ?.map((item, index) => {
+              const isChecked = selectedAddOns.some((i) => i._id === item._id);
+              return (
+                <div
+                  className="flex items-center gap-1 mb-1 lg:mb-2"
+                  key={index}
+                >
+                  <input
+                    type="checkbox"
+                    id={item?.name}
+                    className="w-4 h-4 accent-red-600"
+                    checked={isChecked}
+                    onChange={(e) => handleAddonToggle(e.target.checked, item)}
+                  />
+                  <label
+                    htmlFor={item?.name}
+                    className="text-sm cursor-pointer capitalize"
+                  >
+                    {item?.name}
+                    <span className="text-gray-500 italic">
+                      (₹{formatPrice(item?.amount)}/day)
+                    </span>
+                  </label>
+                </div>
+              );
+            })}
+        {/* <div className="flex items-center gap-1">
           <input type="hidden" name="extraAddonPrice" value={extraAddonPrice} />
           <input
             type="checkbox"
@@ -230,7 +280,7 @@ const BookingStepTwo = ({
               (₹{formatPrice(extraHelmetCharge)}/day)
             </span>
           </label>
-        </div>
+        </div> */}
       </div>
       <div className="w-full lg:w-[48%]">
         <SelectDropDownCoupon

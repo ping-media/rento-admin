@@ -7,12 +7,42 @@ const UserDisplayCell = ({ item, firstName, lastName, Contact }) => {
       key={item?._id}
       onClick={(e) => e.stopPropagation()}
     >
-      <p>{`${item?.userId?.firstName || firstName || "Random"} ${
-        item?.userId?.lastName || lastName || "User"
-      }`}</p>
+      <p
+        className={`${
+          !["/all-users", "/all-managers"].includes(location.pathname)
+            ? "hover:text-theme hover:underline"
+            : ""
+        }`}
+      >
+        <Link
+          to={
+            !["/all-users", "/all-managers"].includes(location.pathname)
+              ? `/all-users/${item?.userId[0]?._id || item?.userId?._id}`
+              : "#"
+          }
+        >
+          {`${
+            item?.userId[0]?.firstName ||
+            item?.userId?.firstName ||
+            firstName ||
+            "Random"
+          } ${
+            item?.userId[0]?.lastName ||
+            item?.userId?.lastName ||
+            lastName ||
+            "User"
+          }`}
+        </Link>
+      </p>
       <p className="text-xs hover:text-theme">
-        <Link to={`tel:${item?.userId?.contact || Contact || "#"}`}>
-          ({item?.userId?.contact || Contact || "NA"})
+        <Link
+          to={`tel:${
+            item?.userId[0]?.contact || item?.userId?.contact || Contact || "#"
+          }`}
+        >
+          (
+          {item?.userId[0]?.contact || item?.userId?.contact || Contact || "NA"}
+          )
         </Link>
       </p>
     </td>

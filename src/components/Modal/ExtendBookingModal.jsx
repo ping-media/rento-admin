@@ -7,6 +7,7 @@ import {
   addDaysToDate,
   addOneMinute,
   calculatePriceForExtendBooking,
+  calculateTotalAddOnPrice,
   formatFullDateAndTime,
 } from "../../utils/index";
 import { getData, postData } from "../../Data/index";
@@ -35,9 +36,16 @@ const ExtendBookingModal = ({ bookingData }) => {
   const handleExtendBooking = async (event) => {
     event.preventDefault();
     if (!newDate) return;
+
+    const finalAmount = calculatePriceForExtendBooking(
+      bookingData?.vehicleTableId?.perDayCost,
+      extensionDays,
+      Number(bookingData?.bookingPrice?.extraAddonPrice)
+    );
+
     const data = {
       _id: bookingData?._id,
-      vehicleTableId: bookingData?.vehicleTableId,
+      vehicleTableId: bookingData?.vehicleTableId?._id,
       BookingStartDateAndTime: addOneMinute(
         bookingData?.BookingEndDateAndTime
       ).replace(".000Z", "Z"),
@@ -51,18 +59,7 @@ const ExtendBookingModal = ({ bookingData }) => {
       extendAmount: {
         id: bookingData?.bookingPrice?.extendAmount?.length + 1,
         title: "extended",
-        amount:
-          calculatePriceForExtendBooking(
-            bookingData?.bookingPrice?.rentAmount,
-            extensionDays,
-            Number(bookingData?.bookingPrice?.extraAddonPrice)
-          ) < extendPrice
-            ? extendPrice
-            : calculatePriceForExtendBooking(
-                bookingData?.bookingPrice?.rentAmount,
-                extensionDays,
-                Number(bookingData?.bookingPrice?.extraAddonPrice)
-              ),
+        amount: finalAmount,
         paymentMethod: "",
         status: "unpaid",
       },
@@ -111,18 +108,27 @@ const ExtendBookingModal = ({ bookingData }) => {
   };
 
   useEffect(() => {
-    (async () => {
-      try {
-        setPlan((prev) => ({ ...prev, loading: true }));
-        const response = await getData("/getPlanData?page=1&limit=50", token);
-        if (response.status === 200) {
-          setPlan((prev) => ({ ...prev, data: response?.data }));
-        }
-      } finally {
-        setPlan((prev) => ({ ...prev, loading: false }));
-      }
-    })();
-  }, []);
+    // (async () => {
+    //   try {
+    //     setPlan((prev) => ({ ...prev, loading: true }));
+    //     const response = await getData("/getPlanData?page=1&limit=50", token);
+    //     if (response.status === 200) {
+    //       setPlan((prev) => ({ ...prev, data: response?.data }));
+    //     }
+    //   } finally {
+    //     setPlan((prev) => ({ ...prev, loading: false }));
+    //   }
+    // })();
+    if (
+      plan?.data === null &&
+      bookingData?.vehicleTableId?.vehiclePlan?.length
+    ) {
+      setPlan((prev) => ({
+        ...prev,
+        data: bookingData?.vehicleTableId?.vehiclePlan,
+      }));
+    }
+  }, [bookingData]);
 
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {
@@ -134,10 +140,21 @@ const ExtendBookingModal = ({ bookingData }) => {
   // for showing extend vehicle price on based on days
   useEffect(() => {
     if (Number(extensionDays) !== 0) {
-      const hasPlan = plan?.data.filter(
-        (plan) => Number(plan?.planDuration) === Number(extensionDays)
-      );
+      const hasPlan =
+        plan?.data?.length > 0
+          ? plan?.data?.filter(
+              (plan) => Number(plan?.planDuration) === Number(extensionDays)
+            )
+          : [];
       const planPrice = hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
+      const extraAddonPrice =
+        bookingData?.bookingPrice?.extraAddonDetails &&
+        bookingData?.bookingPrice?.extraAddonDetails?.length > 0
+          ? calculateTotalAddOnPrice(
+              bookingData?.bookingPrice?.extraAddonDetails,
+              extensionDays
+            )
+          : 0;
       if (planPrice > 0) {
         setIsPlanApplied(true);
       } else {
@@ -147,15 +164,16 @@ const ExtendBookingModal = ({ bookingData }) => {
         planPrice > 0
           ? planPrice
           : calculatePriceForExtendBooking(
-              bookingData?.bookingPrice?.rentAmount,
-              extensionDays
+              rides[0]?.vehicleTableId?.perDayCost,
+              extensionDays,
+              extraAddonPrice
             );
+
       if (Number(price) > 0) {
         setExtendPrice(price);
       }
     } else {
       setExtendPrice(0);
-      setIsPlanApplied(false);
     }
   }, [extensionDays]);
 

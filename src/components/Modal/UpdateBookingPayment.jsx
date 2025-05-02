@@ -119,7 +119,7 @@ const UpdateBookingPayment = ({ id }) => {
           timeLine: [
             {
               title: "Payment Updated",
-              date: new Date().toLocaleString(),
+              date: Date.now(),
               paymentAmount: updateData?.amount,
             },
           ],

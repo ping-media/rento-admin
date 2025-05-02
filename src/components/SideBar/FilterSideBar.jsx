@@ -89,10 +89,20 @@ const FilterSideBar = () => {
     }
   }, [location?.href]);
 
+  const getTodaysDate = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
   //   search data based on flags
   const searchDataBasedOnFilters = async (searchTerm) => {
     try {
       setLoading(true);
+      const todaysDate = getTodaysDate();
       const userType =
         location?.pathname === "/all-users"
           ? "userType=customer"
@@ -101,7 +111,11 @@ const FilterSideBar = () => {
       if (location?.pathname === "/all-bookings") {
         endpoint = searchTerm
           ? `/getBooking?${
-              searchTerm?.includes("Status=") ? "" : "search="
+              searchTerm?.includes("Status=")
+                ? searchTerm?.includes("rideStatus")
+                  ? "search=" + todaysDate?.toString() + "&"
+                  : ""
+                : "search="
             }${searchTerm}&page=${page}&limit=${limit}`
           : `/getBooking?page=${page}&limit=${limit}`;
       } else {
