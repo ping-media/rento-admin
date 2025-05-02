@@ -24,13 +24,6 @@ const UserDisplayCell = ({ item, firstName, lastName, Contact }) => {
             : ""
         }`}
       >
-        {/* <Link
-          to={
-            !["/all-users", "/all-managers"].includes(location.pathname)
-              ? `/all-users/${item?.userId?.[0]?._id || item?.userId?._id}`
-              : "#"
-          }
-        > */}
         <Link
           to={
             !["/all-users", "/all-managers"].includes(location.pathname)

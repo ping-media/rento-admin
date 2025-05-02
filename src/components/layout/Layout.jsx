@@ -34,6 +34,7 @@ const Layout = () => {
   const dispatch = useDispatch();
   //error message
   const { message, type } = useSelector((state) => state.error);
+  const { navigateLoad } = useSelector((state) => state.dashboard);
   //logedIn user
   const { theme } = useSelector((state) => state.theme);
   const { is_open } = useSelector((state) => state.sideBar);
@@ -122,6 +123,10 @@ const Layout = () => {
     dispatch(removemaintenanceIds());
     dispatch(handleIsHeaderChecked(false));
   }, [location.href]);
+
+  if (navigateLoad) {
+    return <PreLoader />;
+  }
 
   return !validateLoading && !loading ? (
     token !== null ? (

@@ -9,6 +9,7 @@ import {
 import {
   handleDashboardData,
   handleLoadingDashboardData,
+  handleNavigateLoad,
   resetDashboardData,
 } from "../Redux/DashboardSlice/DashboardSlice";
 import {
@@ -41,9 +42,9 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
   const response = new FormData(event.target);
   const result = Object.fromEntries(response.entries());
 
-  if (result?.email != "" && result?.password != "") {
-    // handling login
-    try {
+  try {
+    if (result?.email != "" && result?.password != "") {
+      // handling login
       dispatch(handleLoadingUserData());
       const response = await handleAdminLogin("/adminLogin", result);
       if (response?.status === 200) {
@@ -54,22 +55,25 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
             userStation: response?.Station,
           })
         );
-        handleAsyncError(dispatch, "Login Successfully", "success");
         // decrypting the user data and setting data
+        dispatch(handleNavigateLoad(true));
         dispatch(handleSetToken(response?.token));
         dispatch(handleSignIn(response?.data));
         const userType = response?.data?.userType?.toLowerCase();
         navigate(userType === "manager" ? "/all-bookings" : "/dashboard");
+        handleAsyncError(dispatch, "Login Successfully", "success");
       } else {
         handleAsyncError(dispatch, response?.message);
       }
-    } catch (error) {
-      handleAsyncError(dispatch, error?.message);
+    } else {
+      handleAsyncError(dispatch, "Invalid Email & Password");
     }
-  } else {
-    handleAsyncError(dispatch, "Invalid Email & Password");
+  } catch (error) {
+    handleAsyncError(dispatch, error?.message);
+  } finally {
+    setLoading(false);
+    dispatch(handleNavigateLoad(false));
   }
-  return setLoading(false);
 };
 
 // for fetching data & posting data
