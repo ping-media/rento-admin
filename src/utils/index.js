@@ -446,11 +446,8 @@ const calculatePriceForExtendBooking = (
   extraAddonPrice = 0
 ) => {
   const bookingPrice = Number(perDayCost) * Number(extensionDays);
-  const AddonPrice =
-    Number(extraAddonPrice) > 0
-      ? Number(extraAddonPrice) * Number(extensionDays)
-      : 0;
-  const newAddOnPrice = AddonPrice < 200 ? AddonPrice : 200;
+  const AddonPrice = Number(extraAddonPrice);
+  const newAddOnPrice = AddonPrice;
   const newBookingPrice = bookingPrice + newAddOnPrice;
   const tax = calculateTax(newBookingPrice, 18);
   const extendAmount = Number(newBookingPrice) + Number(tax);
@@ -596,6 +593,30 @@ const getFullYearMonthOptions = () => {
   return monthNames.map((month) => `${month} ${year}`);
 };
 
+const calculateTotalAddOnPrice = (addOns, days) => {
+  return addOns.reduce((total, item) => {
+    const multiplied = item.amount * days;
+
+    const finalAmount =
+      item.maxAmount > 0 && multiplied > item.maxAmount
+        ? item.maxAmount
+        : multiplied;
+
+    return total + finalAmount;
+  }, 0);
+};
+
+const formatMilliseconds = (ms) => {
+  return new Date(ms).toLocaleString("en-US", {
+    month: "numeric",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -636,4 +657,6 @@ export {
   getRandomNumber,
   formatDateToISOWithoutSecond,
   getFullYearMonthOptions,
+  calculateTotalAddOnPrice,
+  formatMilliseconds,
 };

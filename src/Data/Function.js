@@ -612,7 +612,7 @@ const updateTimeLine = async (data, token) => {
     timeLine: [
       {
         title: "Payment Link Created",
-        date: new Date().toLocaleString(),
+        date: Date.now(),
         PaymentLink: `${
           import.meta.env.VITE_FRONTEND_URL
         }/payment?id=${_id}&paymentStatus=${paymentStatus}&finalAmount=${finalAmount}`,
@@ -686,7 +686,7 @@ const updateTimeLineForPayment = async (
     timeLine: [
       {
         title: title,
-        date: new Date().toLocaleString(),
+        date: Date.now(),
         PaymentLink: paymentLink,
         paymentAmount: finalAmount,
         changeToVehicle: isvehicleNumbers || "",
@@ -732,7 +732,7 @@ const CreatePaymentLinkAndTimeline = async (data, token, title) => {
     timeLine: [
       {
         title: title,
-        date: new Date().toLocaleString(),
+        date: Date.now(),
         PaymentLink: paymentLink,
         paymentAmount: finalAmount,
       },

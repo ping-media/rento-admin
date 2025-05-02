@@ -21,6 +21,11 @@ import {
   removeTempIds,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleLogoutUser, validateUser } from "../../Data/Function";
+import { getData } from "../../Data/index";
+import {
+  addAddOn,
+  startAddOnLoading,
+} from "../../Redux/GeneralSlice/GeneralSlice";
 // modals
 const SignOutModal = lazy(() => import("../Modal/SignOutModal"));
 const DeleteModal = lazy(() => import("../Modal/DeleteModal"));
@@ -38,6 +43,8 @@ const Layout = () => {
   const { currentUser, token, user, loading } = useSelector(
     (state) => state.user
   );
+  // const { page, limit } = useSelector((state) => state.pagination);
+  const { extraAddOn } = useSelector((state) => state.general);
 
   //scrolltotop function
   const handleScrollToTop = () => {
@@ -94,6 +101,19 @@ const Layout = () => {
     })();
   }, []);
 
+  // addOn Data
+  useEffect(() => {
+    if (extraAddOn?.data?.length > 0) return;
+
+    (async () => {
+      dispatch(startAddOnLoading());
+      const response = await getData("/addOn?page=1&limit=50", token);
+      if (response?.status === 200) {
+        dispatch(addAddOn(response));
+      }
+    })();
+  }, []);
+
   //need to reset some value when ever user change page
   useEffect(() => {
     dispatch(handleRestPagination());
@@ -119,9 +139,9 @@ const Layout = () => {
               is_open
                 ? "translate-x-[-100%] lg:translate-x-[0]"
                 : "translate-x-[0] lg:translate-x-[-100%] lg:ml-[-18%]"
-            } w-[100%] lg:w-[18%] absolute lg:relative bg-black/50 lg:bg-transparent z-10 transition duration-300 ease-in-out dark:bg-slate-900`}
+            } w-[100%] lg:w-[18%] absolute lg:relative bg-black/50 lg:bg-transparent z-50 lg:z-10 transition duration-300 ease-in-out dark:bg-slate-900`}
           >
-            <div className="w-[83%] lg:w-[100%] bg-white relative z-20">
+            <div className="w-[83%] lg:w-[100%] bg-white">
               <SideBar />
             </div>
           </div>
@@ -133,7 +153,7 @@ const Layout = () => {
             <Header />
             <main>
               <div
-                className="px-6 py-4 overflow-hidden overflow-y-scroll no-scrollbar"
+                className="p-3 lg:px-6 lg:py-4 overflow-hidden overflow-y-scroll no-scrollbar"
                 ref={mainRef}
                 style={{ height: "calc(100vh - 90.4px)" }}
               >

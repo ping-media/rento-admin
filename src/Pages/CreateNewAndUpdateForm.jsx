@@ -73,16 +73,15 @@ const CreateNewAndUpdateForm = () => {
             }
           />
         )}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center flex-wrap justify-between gap-1 lg:gap-0 mb-5">
         <div className="flex items-center gap-2">
           {/* back button visiable on mobile screen  */}
           <button
-            className="flex lg:hidden items-center gap-1 p-2 rounded-lg border-2 border-theme bg-theme text-gray-100"
+            className="flex lg:hidden items-center gap-1 p-1 rounded-lg hover:bg-theme hover:text-gray-100"
             type="button"
             onClick={() => handlePreviousPage(navigate)}
           >
             {tableIcons?.backArrow}
-            <span className="text-sm">Back</span>
           </button>
           {/* heading render dynamically based on url  */}
           <h1 className="text-xl lg:text-2xl uppercase font-bold text-theme">
@@ -96,6 +95,8 @@ const CreateNewAndUpdateForm = () => {
               ? `${id ? "Edit" : "Add"} Vehicle`
               : location.pathname.includes("/all-users/")
               ? `${id ? "Edit" : "Add"} User`
+              : location.pathname.includes("/all-managers/")
+              ? `${id ? "Edit" : "Add"} Manager`
               : location.pathname.includes("/all-coupons/")
               ? `${id ? "Edit" : "Add"} Coupon`
               : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
@@ -130,7 +131,7 @@ const CreateNewAndUpdateForm = () => {
           </div>
         )}
       </div>
-      <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-5 mx-auto bg-white">
+      <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-3 lg:p-5 mx-auto bg-white">
         <>
           <FormComponent
             handleFormSubmit={(event) =>

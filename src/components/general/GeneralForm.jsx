@@ -7,6 +7,8 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postData } from "../../Data/index";
 import { addGeneral } from "../../Redux/GeneralSlice/GeneralSlice";
 import GeneralTable from "../../components/Table/GeneralTable";
+import GerneralAddAndUpdateForm from "./GerneralAddAndUpdateForm";
+import { tableIcons } from "../../Data/Icons";
 
 const GeneralForm = () => {
   const { general, loading } = useSelector((state) => state.general);
@@ -90,6 +92,7 @@ const GeneralForm = () => {
           specialDays: response?.data?.specialDays,
         };
         dispatch(addGeneral(newData));
+        setSpecialDaysModal(!specialDaysModal);
         handleAsyncError(dispatch, response?.message, "success");
         return;
       }
@@ -106,7 +109,7 @@ const GeneralForm = () => {
   if (loading) {
     return (
       <div className="w-full flex items-center justify-center h-full">
-        <Spinner />
+        <Spinner textColor="black" />
       </div>
     );
   }
@@ -155,104 +158,41 @@ const GeneralForm = () => {
       </form>
 
       <div className="border-b mb-3 flex items-center justify-between py-1">
-        <h2 className="text-md lg:text-lg font-semibold uppercase">
-          Special Days
-        </h2>
-        <button
-          className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap disabled:bg-gray-400"
-          onClick={() => setSpecialDaysModal(!specialDaysModal)}
-        >
-          Add Special Days
-        </button>
+        <div className="flex items-center gap-2">
+          {specialDaysModal && (
+            <button
+              className="p-1.5 hover:bg-theme hover:text-white rounded-md transition-all duration-200 ease-in-out"
+              onClick={() => setSpecialDaysModal(!specialDaysModal)}
+            >
+              {tableIcons?.backArrow}
+            </button>
+          )}
+          <h2 className="text-md lg:text-lg font-semibold uppercase">
+            Special Days
+          </h2>
+        </div>
+        {!specialDaysModal && (
+          <button
+            className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap disabled:bg-gray-400"
+            onClick={() => setSpecialDaysModal(!specialDaysModal)}
+          >
+            Add Special Days
+          </button>
+        )}
       </div>
 
       {/* this will show the special days in tabular format    */}
-      <p className="text-gray-400 italic py-1 text-xs">
+      {/* <p className="text-gray-400 italic py-1 text-xs">
         (Note: In order to remove price from special days you can delete the
         specials days from table.)
-      </p>
-      <GeneralTable />
+      </p> */}
+      {!specialDaysModal && <GeneralTable />}
 
-      <form
-        onSubmit={handleUpdateSpecialSettings}
-        className={`${specialDaysModal ? "" : "hidden"}`}
-      >
-        <div className="flex items-center flex-wrap gap-4 lg:mb-2">
-          <div className="w-full lg:w-[49%] mb-2 lg:mb-0">
-            <Input
-              placeholder="Starting Date"
-              item="From"
-              type="date"
-              value={
-                (general?.specialDays?.length > 0 &&
-                  general?.specialDays[0]?.From) ||
-                ""
-              }
-              require={true}
-            />
-          </div>
-          <div className="w-full lg:w-[49%] mb-2 lg:mb-0">
-            <Input
-              placeholder="Ending Date"
-              item="Too"
-              type="date"
-              value={
-                (general?.specialDays?.length > 0 &&
-                  general?.specialDays[0]?.Too) ||
-                ""
-              }
-              require={true}
-            />
-          </div>
-        </div>
-        <div className="flex items-center flex-wrap gap-4 lg:mb-2">
-          <div className="w-full lg:w-[49%] mb-2 lg:mb-0">
-            <Input
-              placeholder="Percentage"
-              item="Price"
-              type="number"
-              value={
-                (general?.specialDays?.length > 0 &&
-                  general?.specialDays[0]?.Price) ||
-                ""
-              }
-              require={true}
-            />
-            <p className="text-gray-400 italic text-xs mt-1">
-              The value entered above will be applied on slected days in
-              percentage.
-            </p>
-          </div>
-          <div className="w-full lg:w-[49%] mb-2 lg:mb-0">
-            <SelectDropDown
-              placeholder="Percentage Type(Increase/Decrease)"
-              item="PriceType"
-              options={["+", "-"]}
-              value={
-                (general?.specialDays?.length > 0 &&
-                  general?.specialDays[0]?.PriceType) ||
-                "+"
-              }
-              require={true}
-            />
-            <p className="text-gray-400 italic text-xs mt-1">
-              Based on the above value, the amount will be increased or
-              decreased on selected days.
-            </p>
-          </div>
-        </div>
-        <button
-          type="submit"
-          className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap disabled:bg-gray-400"
-          disabled={formLoading.specialDaysLoading}
-        >
-          {formLoading.specialDaysLoading
-            ? "Updating"
-            : general?.specialDays?.length === 0
-            ? "Add"
-            : "Update"}
-        </button>
-      </form>
+      <GerneralAddAndUpdateForm
+        handleUpdateSpecialSettings={handleUpdateSpecialSettings}
+        specialDaysModal={specialDaysModal}
+        formLoading={formLoading}
+      />
     </>
   );
 };

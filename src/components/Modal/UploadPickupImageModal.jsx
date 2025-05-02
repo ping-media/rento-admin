@@ -160,7 +160,7 @@ const UploadPickupImageModal = ({
             {
               title:
                 isChange && isChange === true ? "Ride Updated" : "Ride Started",
-              date: new Date().toLocaleString(),
+              date: Date.now(),
               vehicleName: vehicleMaster[0]?.vehicleName,
               vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
             },
