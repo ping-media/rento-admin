@@ -22,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { monthNames } from "../Data/commonData";
 
 const Dashboard = () => {
-  const { dasboardDataCount, loading, verifyLoading } = useSelector(
+  const { dasboardDataCount, loading } = useSelector(
     (state) => state.dashboard
   );
   const { token, loggedInRole, userStation } = useSelector(
@@ -38,7 +38,7 @@ const Dashboard = () => {
 
   //fetching dashboard data
   useEffect(() => {
-    if (verifyLoading && currentMonth === "") return;
+    if (currentMonth === "") return;
     // for manager role
     const roleBaseFilter =
       loggedInRole === "manager" ? `?stationId=${userStation?.stationId}` : "";
@@ -52,14 +52,14 @@ const Dashboard = () => {
         dasboardDataCount
       );
     }
-  }, [verifyLoading, token, loggedInRole, currentMonth]);
+  }, [token, loggedInRole, currentMonth]);
 
   // turning loading to false after all data is fetched
   useEffect(() => {
-    if (!verifyLoading && !loading && !dataCountLoading) {
+    if (!loading && !dataCountLoading) {
       setDashboardLoading(false);
     }
-  }, [verifyLoading, loading, dataCountLoading]);
+  }, [loading, dataCountLoading]);
 
   useEffect(() => {
     if (currentMonth === "") {

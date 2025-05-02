@@ -5,8 +5,12 @@ const DashboardSlice = createSlice({
   initialState: {
     dasboardDataCount: null,
     loading: false,
+    navigateLoad: false,
   },
   reducers: {
+    handleNavigateLoad: (state, action) => {
+      state.navigateLoad = action.payload;
+    },
     handleLoadingDashboardData: (state) => {
       state.loading = true;
     },
@@ -22,6 +26,7 @@ const DashboardSlice = createSlice({
 });
 
 export const {
+  handleNavigateLoad,
   handleLoadingDashboardData,
   handleDashboardData,
   resetDashboardData,
