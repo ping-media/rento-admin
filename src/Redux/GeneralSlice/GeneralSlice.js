@@ -32,6 +32,9 @@ const GeneralSlice = createSlice({
         item._id === updated._id ? { ...item, ...updated } : item
       );
     },
+    updateGSTStatus: (state, action) => {
+      state.general.GST.status = action.payload;
+    },
     addNewAddOnData: (state, action) => {
       state.extraAddOn.data = action.payload;
     },
@@ -61,6 +64,7 @@ export const {
   removeAddOnData,
   stopLoading,
   stopAddOnLoading,
+  updateGSTStatus,
   resetGeneral,
 } = GeneralSlice.actions;
 export default GeneralSlice.reducer;

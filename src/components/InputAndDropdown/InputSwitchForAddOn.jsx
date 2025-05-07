@@ -1,20 +1,35 @@
 import { useDispatch, useSelector } from "react-redux";
 import { postData } from "../../Data";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { updateAddOnData } from "../../Redux/GeneralSlice/GeneralSlice";
+import {
+  updateAddOnData,
+  updateGSTStatus,
+} from "../../Redux/GeneralSlice/GeneralSlice";
 
-const InputSwitchForAddOn = ({ value, id }) => {
+const InputSwitchForAddOn = ({ value, id, endpoint = "/manageAddOn" }) => {
   const { token } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   //   changing the locationStatus or vehicleStatus
   const handleChangeStatus = async () => {
     try {
-      if (!value && !id) return;
+      if (!value) return;
+
+      if (endpoint === "/manageAddOn") {
+        if (!id) return;
+      }
+
       const newStatus = value == "active" ? "inactive" : "active";
-      dispatch(updateAddOnData({ _id: id, status: newStatus }));
-      const data = { id: id, status: newStatus };
-      const response = await postData("/manageAddOn", data, token);
+      dispatch(
+        endpoint === "/manageAddOn"
+          ? updateAddOnData({ _id: id, status: newStatus })
+          : updateGSTStatus(newStatus)
+      );
+      const data =
+        endpoint === "/manageAddOn"
+          ? { id: id, status: newStatus }
+          : { gstStatus: newStatus };
+      const response = await postData(endpoint, data, token);
       if (response?.status != 200)
         return handleAsyncError(dispatch, response?.message);
     } catch (error) {

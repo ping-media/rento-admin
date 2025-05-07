@@ -6,6 +6,10 @@ import { useSelector } from "react-redux";
 const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
   const { loggedInRole } = useSelector((state) => state.user);
 
+  if (Columns?.length === 0) {
+    return;
+  }
+
   return (
     <>
       {Columns?.length > 0 && location.pathname == "/all-vehicles" && (
@@ -19,6 +23,12 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           />
         </th>
       )}
+      <th
+        scope="col"
+        className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+      >
+        SL No.
+      </th>
       {Columns.filter(
         (item) =>
           !item.includes("status") &&

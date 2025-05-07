@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   page: 1,
-  limit: 25,
+  limit: 100,
   searchTerm: null,
   searchType: "all",
   vehiclesFilter: {
