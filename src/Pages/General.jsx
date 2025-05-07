@@ -41,7 +41,7 @@ const General = () => {
     <>
       <div className="flex items-center flex-wrap justify-between">
         <h1 className="text-xl uppercase font-bold text-theme mb-5">
-          General Settings
+          Settings
         </h1>
         <div className="w-full md:w-2/5 lg:w-1/3">
           <TabButton

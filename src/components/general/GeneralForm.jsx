@@ -9,6 +9,7 @@ import { addGeneral } from "../../Redux/GeneralSlice/GeneralSlice";
 import GeneralTable from "../../components/Table/GeneralTable";
 import GerneralAddAndUpdateForm from "./GerneralAddAndUpdateForm";
 import { tableIcons } from "../../Data/Icons";
+import GSTTable from "../Table/GSTTable";
 
 const GeneralForm = () => {
   const { general, loading } = useSelector((state) => state.general);
@@ -117,6 +118,11 @@ const GeneralForm = () => {
   return (
     <>
       <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
+        Enable/Disable GST
+      </h2>
+      <GSTTable />
+
+      <h2 className="text-md lg:text-lg font-semibold mt-2 mb-3 border-b uppercase">
         Weekend Price
       </h2>
       <form onSubmit={handleUpdatweakendSettings} className="mb-5">
@@ -181,11 +187,6 @@ const GeneralForm = () => {
         )}
       </div>
 
-      {/* this will show the special days in tabular format    */}
-      {/* <p className="text-gray-400 italic py-1 text-xs">
-        (Note: In order to remove price from special days you can delete the
-        specials days from table.)
-      </p> */}
       {!specialDaysModal && <GeneralTable />}
 
       <GerneralAddAndUpdateForm

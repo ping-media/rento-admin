@@ -64,10 +64,8 @@ const SideBar = () => {
         <ul className="leading-9">
           {menuList
             .filter((item) => {
-              // Replace "userRole" with the actual role of the logged-in user
               if (item.roles?.includes(loggedInRole)) {
                 if (item.nestedLink) {
-                  // Filter nested links as well
                   item.nestedLink = item.nestedLink.filter((nestedItem) =>
                     nestedItem.roles?.includes(loggedInRole)
                   );

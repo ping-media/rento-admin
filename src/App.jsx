@@ -78,7 +78,7 @@ const App = () => {
               }
             />
             <Route
-              path="general"
+              path="settings"
               exact
               element={
                 <PrivateRouteBasedOnUser

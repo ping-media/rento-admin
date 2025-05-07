@@ -328,7 +328,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 <CheckBoxInput isId={item?._id} />
                               </td>
                             )}
-
+                            <td
+                              className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                              key={`slNo-${index}`}
+                            >
+                              {index + 1 < 10 ? `0${index + 1}` : index + 1}
+                            </td>
                             {/* Main columns render - filtering out status and special columns */}
                             {Columns.filter(
                               (column) =>
