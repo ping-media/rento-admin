@@ -11,6 +11,7 @@ import {
   removeUserDocuments,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { tableIcons } from "../../Data/Icons";
+import { Link } from "react-router-dom";
 
 const BookingUserDetails = ({ data, userId }) => {
   const { token } = useSelector((state) => state.user);
@@ -71,7 +72,14 @@ const BookingUserDetails = ({ data, userId }) => {
               item?.key === "Alt Mobile Number") &&
               item?.value !== "NA" && <CopyButton textToCopy={item?.value} />}
             {/* data  */}
-            {item.key === "Document Status" ? (
+            {item.key === "Full Name" ? (
+              <Link
+                to={`/all-users/${userId}`}
+                className="hover:underline hover:text-theme"
+              >
+                {item?.value}
+              </Link>
+            ) : item.key === "Document Status" ? (
               <div className="flex gap-2 items-center">
                 {item?.value === "yes" ? (
                   <p className="flex items-center">

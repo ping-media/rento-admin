@@ -131,6 +131,7 @@ const BookingStepTwo = ({
   }, [vehiclesFilter]);
 
   // for apply coupon
+
   useEffect(() => {
     if (coupon?.couponName === "" && coupon?.couponId === "") return;
     (async () => {
@@ -143,7 +144,9 @@ const BookingStepTwo = ({
             totalAmount:
               coupon?.totalPrice > 0
                 ? Number(coupon?.totalPrice)
-                : Number(stepTwoData?.totalPrice),
+                : Number(
+                    stepTwoData?.bookingPrice + stepTwoData?.extraAddonPrice
+                  ),
             isExtra: applyLoading,
           },
           token

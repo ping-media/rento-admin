@@ -254,6 +254,14 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
       return `${value} Days`;
     }
 
+    if (column.includes("email")) {
+      return (
+        <div title={value} className="truncate">
+          {value}
+        </div>
+      );
+    }
+
     if (column.includes("DateAndTime")) {
       return formatFullDateAndTime(value);
     }
@@ -516,8 +524,11 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       ? ""
                                       : "capitalize"
                                   } ${
-                                    // column?.includes("address")
-                                    ["address", "vehicleName"].includes(column)
+                                    [
+                                      "address",
+                                      "vehicleName",
+                                      "email",
+                                    ].includes(column)
                                       ? "max-w-40"
                                       : "whitespace-nowrap"
                                   }`}

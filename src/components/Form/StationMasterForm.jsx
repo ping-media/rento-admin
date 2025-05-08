@@ -43,6 +43,10 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
     fetchCollectedData("locationId", "stationId");
   }, []);
 
+  if (vehicleMaster?.length === 0) {
+    return <PreLoader />;
+  }
+
   return collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
       <p className="text-xs mt-1 text-gray-500 font-semibold italic mb-1">
@@ -57,7 +61,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"User"}
               name={"userId"}
               token={token}
-              value={id ? vehicleMaster[0]?.userId?._id : ""}
+              value={id ? vehicleMaster[0]?.userId?.[0]?._id : ""}
             />
           </div>
           <div className="w-full lg:w-[48%]">

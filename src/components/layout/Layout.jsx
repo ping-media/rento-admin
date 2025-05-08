@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { lazy, useEffect, useRef, useState } from "react";
+import { lazy, useCallback, useEffect, useRef, useState } from "react";
 import Header from "../Header/Header";
 import SideBar from "../SideBar/SideBar";
 import Alert from "../Alert/Alert";
@@ -24,8 +24,12 @@ import { handleLogoutUser, validateUser } from "../../Data/Function";
 import { getData } from "../../Data/index";
 import {
   addAddOn,
+  addGeneral,
   startAddOnLoading,
+  startLoading,
+  stopLoading,
 } from "../../Redux/GeneralSlice/GeneralSlice";
+import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 // modals
 const SignOutModal = lazy(() => import("../Modal/SignOutModal"));
 const DeleteModal = lazy(() => import("../Modal/DeleteModal"));
@@ -75,11 +79,29 @@ const Layout = () => {
     };
   }, []);
 
+  const getGeneralSettings = useCallback(async () => {
+    try {
+      dispatch(startLoading());
+      const response = await getData("/general", token);
+      if (response.success === true) {
+        dispatch(addGeneral(response.data));
+      } else if (response.success === false) {
+        handleAsyncError(
+          dispatch,
+          "Unable to Load General Settings! try refresh page"
+        );
+      }
+    } finally {
+      dispatch(stopLoading());
+    }
+  }, []);
+
   //decrypting loggedIn userData and storing in the state
   useEffect(() => {
     if (user != null) {
       dispatch(handleCurrentUser(user));
     }
+    getGeneralSettings();
   }, []);
 
   // if user is not found or inactive then logout for first time

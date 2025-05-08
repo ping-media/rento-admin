@@ -19,6 +19,7 @@ import { tableIcons } from "../../Data/Icons";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
+  const { GST } = useSelector((state) => state.general);
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -93,9 +94,10 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       )
     );
 
-    const tax = Math.round(
-      calculateTax(bookingPrice + totalExtraAddOnPrice, 18)
-    );
+    let tax = 0;
+    if (GST?.status === "active") {
+      tax = Math.round(calculateTax(bookingPrice + totalExtraAddOnPrice, 18));
+    }
 
     const totalPrice = bookingPrice + totalExtraAddOnPrice + tax;
 
