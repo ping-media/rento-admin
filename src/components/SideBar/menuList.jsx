@@ -92,7 +92,7 @@ const menuList = [
   },
   {
     menuImg: <LocationOnOutlinedIcon />,
-    menuTitle: "Location Master",
+    menuTitle: "Cities",
     menuLink: "/location-master",
     roles: ["admin"],
   },

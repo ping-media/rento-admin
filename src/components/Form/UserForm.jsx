@@ -57,7 +57,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
         >
           {location.pathname.includes("/all-users/") &&
             (!ridesLoading ? (
-              <div className="w-full lg:flex-1 order-2 lg:order-1">
+              <div className="w-full lg:flex-1 order-2">
                 <h2 className="text-lg text-theme font-semibold uppercase">
                   Rides History
                 </h2>
@@ -67,7 +67,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
               <PreLoader />
             ))}
           <form
-            className="mb-5 w-full lg:flex-1 order-1 lg:order-2"
+            className="mb-5 w-full lg:flex-1 order-1"
             onSubmit={handleFormSubmit}
           >
             <div className="flex flex-wrap gap-4">

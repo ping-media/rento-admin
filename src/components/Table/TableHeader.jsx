@@ -6,6 +6,13 @@ import { useSelector } from "react-redux";
 const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
   const { loggedInRole } = useSelector((state) => state.user);
 
+  const headerForBooking = [
+    { vehicleName: "vehicle" },
+    { BookingStartDateAndTime: "Pick Up" },
+    { BookingEndDateAndTime: "Drop Off" },
+    { bookingPrice: "Price" },
+  ];
+
   if (Columns?.length === 0) {
     return;
   }
@@ -54,6 +61,25 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </React.Fragment>
           );
         }
+
+        if (location?.pathname === "/all-bookings") {
+          const bookingHeader = headerForBooking.find(
+            (header) => Object.keys(header)[0] === item
+          );
+          if (bookingHeader) {
+            const label = Object.values(bookingHeader)[0];
+            return (
+              <th
+                scope="col"
+                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                key={item}
+              >
+                {label}
+              </th>
+            );
+          }
+        }
+
         if (item === "userId") {
           return (
             <th
@@ -61,9 +87,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
               className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               key={"userId"}
             >
-              {location.pathname == "/station-master"
-                ? "Managers & Phone"
-                : "User Name & Phone"}
+              {location.pathname == "/station-master" ? "Manager" : "User"}
             </th>
           );
         }

@@ -99,6 +99,8 @@ const CreateNewAndUpdateForm = () => {
               ? `${id ? "Edit" : "Add"} Manager`
               : location.pathname.includes("/all-coupons/")
               ? `${id ? "Edit" : "Add"} Coupon`
+              : location.pathname.includes("/location-master/")
+              ? `${id ? "Edit" : "Add"} City`
               : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
                   location.pathname
                 )}`}
@@ -108,17 +110,19 @@ const CreateNewAndUpdateForm = () => {
         {(location.pathname.includes("/all-users/") ||
           location.pathname.includes("/all-managers/")) && (
           <div className="flex items-center gap-2">
-            {(vehicleMaster?.[0]?.userId?.kycApproved === "yes" ||
-              vehicleMaster?.kycApproved === "yes") && (
-              <div className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md">
-                {vehicleMaster && vehicleMaster[0]
-                  ? vehicleMaster[0]?.userId?.kycApproved === "yes" &&
-                    "Verified"
-                  : vehicleMaster &&
-                    vehicleMaster?.kycApproved === "yes" &&
-                    "Verified"}
-              </div>
-            )}
+            <div className="bg-theme/90 text-gray-100 p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md">
+              {vehicleMaster && vehicleMaster[0] ? (
+                vehicleMaster[0]?.userId?.kycApproved === "yes" ? (
+                  <>{tableIcons?.verify} Verified</>
+                ) : (
+                  <>{tableIcons?.unVerify} Not Verified</>
+                )
+              ) : vehicleMaster && vehicleMaster?.kycApproved === "yes" ? (
+                <>{tableIcons?.verify} Verified</>
+              ) : (
+                <>{tableIcons?.unVerify} Not Verified</>
+              )}
+            </div>
             {location.pathname.includes("/all-managers/") &&
               !location.pathname.includes("/add-new") && (
                 <button
