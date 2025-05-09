@@ -15,17 +15,23 @@ const InputSwitch = ({ value, id }) => {
       const flag =
         location?.pathname === "/location-master"
           ? "locationStatus"
+          : location?.pathname === "/station-master"
+          ? "status"
           : "vehicleStatus";
       dispatch(handleUpdateStatus({ id: id, newStatus: newStatus, flag }));
       // creating endpoint dynamically
       const endpoint =
         location?.pathname === "/location-master"
           ? `/updateLocation?_id=${id}`
+          : location?.pathname === "/station-master"
+          ? `/createStation?_id=${id}`
           : `/createVehicle?_id=${id}`;
       // creating data dynamically
       const data =
         location?.pathname === "/location-master"
           ? { _id: id, locationStatus: newStatus }
+          : location?.pathname === "/station-master"
+          ? { _id: id, status: newStatus }
           : { _id: id, vehicleStatus: newStatus };
 
       const response = await postData(endpoint, data, token);

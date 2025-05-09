@@ -17,11 +17,7 @@ const UserStatusCell = ({ item, index }) => {
           isVerify ? "text-green-500" : "text-red-500/90"
         }`}
       >
-        {isVerify ? (
-          <>{tableIcons?.verify} verified</>
-        ) : (
-          <>{tableIcons?.unVerify} not verified</>
-        )}
+        {isVerify ? <>{tableIcons?.verify}</> : <>{tableIcons?.unVerify}</>}
       </p>
     </td>
   );

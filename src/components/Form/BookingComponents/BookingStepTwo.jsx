@@ -41,9 +41,11 @@ const BookingStepTwo = ({
     }
   };
 
+  // console.log(stepTwoData);
+
   // for calculating price
   useEffect(() => {
-    if (!data) return;
+    if (!data && CouponLoading) return;
     try {
       setLoading(true);
       const { bookingStartDate, bookingEndDate, selectedVehicle } = data;
@@ -59,23 +61,6 @@ const BookingStepTwo = ({
         bookingEndDate
       );
       setBookingDuration(durationBetweenStartAndEnd?.days);
-      // let newSelectedVehicle = selectedVehicle;
-      // if (plan?.data?.length > 0) {
-      //   const hasPlan = plan?.data?.filter(
-      //     (plan) => Number(plan?.planDuration) === Number(bookingDuration)
-      //   );
-      //   if (hasPlan) {
-      //     setPlan((prev) => ({ ...prev, selectedPlan: hasPlan }));
-      //     const planPrice =
-      //       hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
-      //     if (planPrice > 0) {
-      //       setIsPlanApplied(true);
-      //       newSelectedVehicle = { ...newSelectedVehicle, planPrice };
-      //     }
-      //   }
-      // } else {
-      //   setIsPlanApplied(false);
-      // }
       if (selectedVehicle?.vehiclePlan?.length > 0) {
         const isPlanMatch = selectedVehicle?.vehiclePlan?.filter(
           (plan) =>
@@ -108,6 +93,7 @@ const BookingStepTwo = ({
     data?.bookingEndDate,
     data?.selectedVehicle,
     selectedAddOns,
+    CouponLoading,
     // extraAddonPrice,
   ]);
 

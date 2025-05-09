@@ -322,6 +322,12 @@ const handleCreateAndUpdateVehicle = async (
     }
   }
 
+  if (location?.pathname?.includes("/station-master/")) {
+    if (result?.userId && result.userId === "") {
+      return handleAsyncError(dispatch, "Please assign manager first!");
+    }
+  }
+
   // for (const [key, value] of Object.entries(result)) {
   //   console.log(`${key}: ${value}`);
   // }

@@ -97,7 +97,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "vehicleTableId",
           "stationMasterUserId",
           "vehiclePlan",
-          // "perDayCost",
+          "pinCode",
           "vehicleBrand",
           "vehicleBasic",
           "stationId",
@@ -155,27 +155,19 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     if (
       location.pathname == "/payments" ||
       location.pathname == "/all-invoices"
-      // location.pathname == "/users-documents"
     ) {
       filteredKeys = filteredKeys.filter(
         (item) => !["userId", "paymentMethod"].includes(item)
       );
     }
 
-    if (
-      location.pathname == "/all-invoices"
-      // location.pathname == "/users-documents"
-    ) {
+    if (location.pathname == "/all-invoices") {
       filteredKeys = filteredKeys.filter(
         (item) => !["userId", "email", "paidInvoice"].includes(item)
       );
     }
 
     let header = [...filteredKeys];
-
-    // header = header.map((key) =>
-    //   key === "isCouponActive" ? "Coupon Status" : key
-    // );
 
     const statusColumns = header.filter(
       (key) => key.includes("Status") || key.includes("Active")
@@ -495,7 +487,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       {column.includes(
                                         "files"
                                       ) ? null : column.includes(
-                                          // ) //   ) //     `${item[column]?.length} Plan Applied` //   ) : ( //     "No Plan Applied" //   item[column]?.length === 0 ? ( // column.includes("Plan") ? (
                                           "maintenance"
                                         ) ? (
                                         <MaintenanceStatusBadge
@@ -551,7 +542,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 (location?.pathname === "/location-master" &&
                                   column.includes("Status")) ||
                                 (location?.pathname === "/all-vehicles" &&
-                                  column.includes("vehicleStatus"));
+                                  column.includes("vehicleStatus")) ||
+                                (location?.pathname === "/station-master" &&
+                                  column.includes("status"));
 
                               const statusKey = `status-${item._id}-${column}-${columnIndex}-${index}`;
 
