@@ -39,7 +39,7 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
       <div className="flex items-center justify-between lg:justify-start gap-2">
         <h1 className="text-xl xl:text-2xl uppercase font-bold text-theme">
           {location.pathname === "/station-master"
-            ? formatPathNameToTitle(location.pathname).replace("Master", "")
+            ? formatPathNameToTitle(location.pathname).replace(" Master", "s")
             : location.pathname === "/all-users"
             ? "All Customers"
             : location.pathname === "/all-plans"

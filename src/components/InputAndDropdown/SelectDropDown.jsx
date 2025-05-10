@@ -16,6 +16,7 @@ const SelectDropDown = ({
   zIndex = "z-10",
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
+  const [openDirection, setOpenDirection] = useState("bottom");
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef();
@@ -132,6 +133,23 @@ const SelectDropDown = ({
           }`
       : getLabel(matchedOption);
 
+  const toggleDropDown = () => {
+    if (!isDisabled) {
+      if (!isOpen && dropdownRef.current) {
+        const rect = dropdownRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+
+        if (spaceBelow < 200 && spaceAbove > 200) {
+          setOpenDirection("top");
+        } else {
+          setOpenDirection("bottom");
+        }
+      }
+      setIsOpen((prev) => !prev);
+    }
+  };
+
   return (
     <div className="w-full" ref={dropdownRef}>
       <label
@@ -152,9 +170,10 @@ const SelectDropDown = ({
               ? "bg-gray-300 bg-opacity-30 cursor-not-allowed"
               : "bg-white cursor-pointer"
           } text-gray-800 capitalize focus:outline-none focus:ring-0`}
-          onClick={() => {
-            if (!isDisabled) setIsOpen((prev) => !prev);
-          }}
+          // onClick={() => {
+          //   if (!isDisabled) setIsOpen((prev) => !prev);
+          // }}
+          onClick={toggleDropDown}
         >
           {displayLabel}
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-600">
@@ -164,7 +183,9 @@ const SelectDropDown = ({
 
         {isOpen && !isDisabled && (
           <div
-            className={`absolute ${zIndex} mt-2 w-full max-h-40 overflow-y-auto bg-white shadow-lg border border-gray-300 rounded-md`}
+            className={`absolute ${zIndex} w-full max-h-40 overflow-y-auto bg-white shadow-lg border border-gray-300 rounded-md ${
+              openDirection === "top" ? "bottom-full mb-2" : "mt-2"
+            }`}
           >
             {isSearchEnable && (
               <input

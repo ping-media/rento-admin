@@ -17,6 +17,7 @@ const SelectDropDownCoupon = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [openDirection, setOpenDirection] = useState("bottom");
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
   const debounceTimerRef = useRef(null);
@@ -57,7 +58,21 @@ const SelectDropDownCoupon = ({
     };
   }, [searchTerm]);
 
+  // const handleToggleDropdown = () => {
+  //   setIsOpen((prev) => !prev);
+  // };
   const handleToggleDropdown = () => {
+    if (!isOpen && dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      if (spaceBelow < 200 && spaceAbove > 200) {
+        setOpenDirection("top");
+      } else {
+        setOpenDirection("bottom");
+      }
+    }
     setIsOpen((prev) => !prev);
   };
 
@@ -119,7 +134,11 @@ const SelectDropDownCoupon = ({
           {tableIcons.downArrow}
         </div>
         {isOpen && (
-          <div className="absolute z-50 bg-white mt-2 w-full max-h-28 lg:max-h-40 overflow-y-auto rounded-md shadow-md border border-gray-300">
+          <div
+            className={`absolute z-50 bg-white w-full max-h-28 lg:max-h-40 overflow-y-auto rounded-md shadow-md border border-gray-300 ${
+              openDirection === "top" ? "bottom-full mb-2" : "mt-2"
+            }`}
+          >
             <input
               type="text"
               ref={searchInputRef}

@@ -132,7 +132,12 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             <div className="w-full lg:w-[48%]">
               <SelectDropDown
                 item={"stationId"}
-                options={stationData && stationData}
+                options={
+                  stationData &&
+                  stationData.filter(
+                    (station) => station?.status !== "inactive"
+                  )
+                }
                 value={id && vehicleMaster[0]?.stationId}
                 require={true}
               />

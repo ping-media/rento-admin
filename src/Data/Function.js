@@ -287,7 +287,6 @@ const fetchVehicleMasterById = debounce(
   },
   50
 );
-
 const handleCreateAndUpdateVehicle = async (
   event,
   dispatch,
@@ -320,6 +319,12 @@ const handleCreateAndUpdateVehicle = async (
     const vehicleName = result.vehicleName.toLowerCase();
     if (vehicleName.includes(result.vehicleBrand)) {
       result.vehicleName = vehicleName.replace(result.vehicleBrand, "");
+    }
+  }
+
+  if (location?.pathname?.includes("/station-master/")) {
+    if (result?.userId && result.userId === "") {
+      return handleAsyncError(dispatch, "Please assign manager first!");
     }
   }
 

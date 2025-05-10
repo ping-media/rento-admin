@@ -96,7 +96,9 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
 
     let tax = 0;
     if (GST?.status === "active") {
-      tax = Math.round(calculateTax(bookingPrice + totalExtraAddOnPrice, 18));
+      tax = Math.round(
+        calculateTax(bookingPrice + totalExtraAddOnPrice, GST?.percentage)
+      );
     }
 
     const totalPrice = bookingPrice + totalExtraAddOnPrice + tax;

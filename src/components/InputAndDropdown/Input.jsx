@@ -136,6 +136,7 @@ const Input = ({
           }
           onChange={(e) => handleChangeValue(e)}
           onKeyDown={handleKeyDown}
+          onWheel={(e) => e.target.blur()}
           onBlur={(e) =>
             handlevalidateInput ? handlevalidateInput(e, name || item) : {}
           }
