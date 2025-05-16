@@ -89,7 +89,14 @@ const fetchDashboardData = async (
     dispatch(handleLoadingDashboardData());
     if (dasboardDataCount === null) {
       const [dashboardResponse, paymentResponse] = await Promise.all([
-        getData(`/getAllDataCount${roleBaseFilter}`, token),
+        getData(
+          `/getAllDataCount${roleBaseFilter}${
+            roleBaseFilter ? "&" : "?"
+          }month=${currentMonthAndYear?.split(" ")[0]}&year=${
+            currentMonthAndYear?.split(" ")[1]
+          }`,
+          token
+        ),
         getData(
           `/getGraphData${roleBaseFilter}${
             roleBaseFilter ? "&" : "?"
@@ -327,11 +334,6 @@ const handleCreateAndUpdateVehicle = async (
       return handleAsyncError(dispatch, "Please assign manager first!");
     }
   }
-
-  // for (const [key, value] of Object.entries(result)) {
-  //   console.log(`${key}: ${value}`);
-  // }
-  // return;
 
   const endpoint = id
     ? `${

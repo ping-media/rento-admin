@@ -13,13 +13,15 @@ import LocationAndStationReducer from "./LocationAndStationSlice/LocationAndStat
 import PaginationReducer from "./PaginationSlice/PaginationSlice";
 import GeneralReducer from "./GeneralSlice/GeneralSlice";
 import MaintenanceReducer from "./MaintenanceSlice/MaintenanceSlice";
+import { encryptedAdminTransform } from "../utils/index";
 
 const userPersistConfig = {
   key: "user",
   version: "1",
   storage,
-  whitelist: ["token", "user", "loggedInRole", "userStation"],
-  blacklist: ["currentUser", "loading", "error"],
+  whitelist: ["token", "user", "currentUser", "loggedInRole", "userStation"],
+  blacklist: ["loading", "error"],
+  transforms: [encryptedAdminTransform],
 };
 
 const persistedUserReducer = persistReducer(userPersistConfig, userReducer);

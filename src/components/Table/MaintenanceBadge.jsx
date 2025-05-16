@@ -73,12 +73,12 @@ const MaintenanceStatusBadge = ({ maintenanceList = [] }) => {
       {isUpcoming && (
         <div className="mb-3">
           <span className="text-xs italic p-1 bg-gray-400/60 text-gray-100 rounded-md">
-            Maintenance: upcoming
+            upcoming
           </span>
         </div>
       )}
       <span
-        className={`p-1 lg:px-2 lg:py-1 ${bgClass} text-gray-100 rounded-md inline-block min-w-24`}
+        className={`p-1 lg:px-2 lg:py-1 ${bgClass} text-gray-100 rounded-md inline-block max-w-28 truncate`}
       >
         {reason}
       </span>

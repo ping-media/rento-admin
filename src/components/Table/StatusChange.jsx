@@ -1,7 +1,7 @@
 const StatusChange = ({ item, column }) => {
   return (
     <div
-      className={`p-1 lg:py-1.5 lg:px-2.5 ${
+      className={`p-1 lg:py-1.5 lg:px-2.5 border ${
         item[column] === "active" ||
         item[column] === "available" ||
         item[column] == "done" ||
@@ -10,15 +10,15 @@ const StatusChange = ({ item, column }) => {
         item[column] === "partiallyPay" ||
         item[column] === "completed" ||
         item[column] === "extended"
-          ? "bg-emerald-50"
+          ? "bg-emerald-50 border-emerald-100"
           : item[column] === "ongoing" || item[column] === "pending"
-          ? "bg-orange-50"
+          ? "bg-orange-50 border-orange-100"
           : item[column] === "refunded"
-          ? "bg-gray-400/50"
+          ? "bg-gray-400/50 border-gray-400/90"
           : item[column] === "failed"
-          ? "bg-red-100"
-          : "bg-red-50"
-      } rounded-full flex justify-center w-24 items-center gap-1`}
+          ? "bg-red-100 border-red-200"
+          : "bg-red-50 border-red-100"
+      } rounded-md flex justify-center w-24 items-center uppercase gap-1`}
     >
       <svg
         width="5"
@@ -74,6 +74,8 @@ const StatusChange = ({ item, column }) => {
       >
         {item[column] === "partially_paid"
           ? item[column].replace("_", " ")
+          : location.pathname === "/all-bookings" && item[column] === "done"
+          ? "Booked"
           : item[column]}
       </span>
     </div>

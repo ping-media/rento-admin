@@ -133,15 +133,7 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
               disabled={formLoading}
             >
-              {!formLoading ? (
-                `${
-                  location.pathname.includes("/all-users/")
-                    ? "Change"
-                    : "Forget"
-                } Password`
-              ) : (
-                <Spinner message={"loading..."} />
-              )}
+              {!formLoading ? `Submit` : <Spinner message={"loading..."} />}
             </button>
           </form>
         </div>

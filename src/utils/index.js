@@ -6,6 +6,7 @@ import {
 } from "../Redux/SideBarSlice/SideBarSlice";
 import { toggleClearVehicle } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { handleAsyncError } from "./Helper/handleAsyncError";
+import { createTransform } from "redux-persist";
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -617,6 +618,32 @@ const formatMilliseconds = (ms) => {
   });
 };
 
+const encryptedAdminTransform = createTransform(
+  // transform state on its way to being serialized and persisted
+  (inboundState) => {
+    const encrypted = CryptoJS.AES.encrypt(
+      JSON.stringify(inboundState),
+      import.meta.env.VITE_SECRET_KEY
+    ).toString();
+    return encrypted;
+  },
+
+  // transform state being rehydrated
+  (outboundState) => {
+    try {
+      const bytes = CryptoJS.AES.decrypt(
+        outboundState,
+        import.meta.env.VITE_SECRET_KEY
+      );
+      const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
+      return JSON.parse(decryptedStr);
+    } catch (error) {
+      console.error("Failed to decrypt admin state:", error);
+      return { email: null, userName: null, role: null, id: null };
+    }
+  }
+);
+
 export {
   formatDate,
   useIsMobile,
@@ -659,4 +686,5 @@ export {
   getFullYearMonthOptions,
   calculateTotalAddOnPrice,
   formatMilliseconds,
+  encryptedAdminTransform,
 };

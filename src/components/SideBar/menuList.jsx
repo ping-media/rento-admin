@@ -76,7 +76,7 @@ const menuList = [
     menuImg: <ReceiptOutlinedIcon />,
     menuTitle: "Invoices",
     menuLink: "/all-invoices",
-    roles: ["admin", "manager"],
+    roles: ["admin"],
   },
   {
     menuImg: <LoyaltyOutlinedIcon />,

@@ -22,7 +22,7 @@ const UserDisplayCell = ({ item, firstName, lastName, Contact }) => {
 
   return (
     <td
-      className="p-2 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize text-left"
+      className="px-2 py-1 whitespace-nowrap text-sm leading-5 font-medium text-gray-900 capitalize text-left"
       key={item?._id}
       onClick={(e) => e.stopPropagation()}
     >

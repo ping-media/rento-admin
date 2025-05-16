@@ -1,10 +1,9 @@
 import { tableIcons } from "../../Data/Icons";
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
-import { formatPrice } from "../../utils/index";
-import CustomMonthDropdown from "../../components/DropDown/CustomDropDown";
+// import { formatPrice } from "../../utils/index";
 
-const BarChart = ({ data, month, setMonth }) => {
+const BarChart = ({ data }) => {
   const [viewMode, setViewMode] = useState("Daily");
   // const options = ["Daily", "Weekly", "Monthly"];
   const options = ["Daily", "Weekly"];
@@ -246,29 +245,27 @@ const BarChart = ({ data, month, setMonth }) => {
   return (
     <div className="w-full bg-white p-2 rounded-lg">
       {/* View Mode Buttons */}
-      <div className="mb-5 flex items-center justify-end gap-2">
-        {options?.map((mode, index) => (
-          <button
-            className={`flex items-center gap-2 border-2 border-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-md ${
-              viewMode === mode
-                ? "bg-theme text-gray-100 border-theme"
-                : "text-theme"
-            }`}
-            onClick={() => setViewMode(mode)}
-            key={index}
-          >
-            {tableIcons?.dateCalender} {mode}
-          </button>
-        ))}
-        <CustomMonthDropdown
-          tableIcons={tableIcons}
-          value={month}
-          setValue={setMonth}
-        />
+      <div className="mb-3 pb-2 flex items-center justify-between border-b-2 border-theme/60 gap-2">
+        <h2 className="text-base font-bold text-theme">{`Total Revenue (${viewMode})`}</h2>
+        <div className="inline-flex items-center gap-2">
+          {options?.map((mode, index) => (
+            <button
+              className={`flex items-center gap-2 border-2 border-theme hover:bg-theme hover:text-gray-100 transition-all duration-200 ease-in-out hover:border-theme p-1 rounded-md ${
+                viewMode === mode
+                  ? "bg-theme text-gray-100 border-theme"
+                  : "text-theme"
+              }`}
+              onClick={() => setViewMode(mode)}
+              key={index}
+            >
+              {tableIcons?.dateCalender} {mode}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Summary Card */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100">
           <p className="text-gray-500 text-sm">This Month Bookings</p>
           <p className="text-2xl font-bold text-gray-800">
@@ -281,11 +278,10 @@ const BarChart = ({ data, month, setMonth }) => {
             ₹ {formatPrice(totals.totalRevenue)}
           </p>
         </div>
-      </div>
+      </div> */}
 
       {/* Total Price Chart */}
       <div className="w-full">
-        <h2 className="text-base font-bold mb-3">{`Total Revenue (${viewMode})`}</h2>
         <Chart
           options={totalPriceOptions}
           series={[{ name: "Total Revenue", data: chartData.totalPrice }]}

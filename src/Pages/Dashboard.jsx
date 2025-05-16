@@ -5,21 +5,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchDashboardData } from "../Data/Function";
 import PreLoader from "../components/Skeleton/PreLoader";
 import {
-  DirectionsCarRounded,
-  GroupRounded,
-  PersonRounded,
   BookOnlineRounded,
-  LocationOnRounded,
-  DockRounded,
-  DiscountRounded,
-  ReceiptRounded,
-  BookmarkBorderRounded,
-  ArticleRounded,
+  AccountBalanceRounded,
+  AccountTreeRounded,
 } from "@mui/icons-material";
 import { useMediaQuery } from "@mui/material";
 import NotFound from "./NotFound";
 import { useNavigate } from "react-router-dom";
 import { monthNames } from "../Data/commonData";
+import CustomMonthDropdown from "../components/DropDown/CustomDropDown";
+import { tableIcons } from "../Data/Icons";
 
 const Dashboard = () => {
   const { dasboardDataCount, loading } = useSelector(
@@ -79,43 +74,20 @@ const Dashboard = () => {
           return {
             count: dasboardDataCount?.dashboard[key],
             title:
-              "TOTAL " +
-              (key !== "Amount"
-                ? key.substring(0, key.length - 5).toUpperCase()
-                : "PAYMENTS"),
-            link:
               key !== "Amount"
-                ? key === "locationCount" || key === "stationsCount"
-                  ? key === "stationsCount"
-                    ? "/" + key.substring(0, key.length - 6) + "-master"
-                    : "/" + key.substring(0, key.length - 5) + "-master"
-                  : "/all-" + key.substring(0, key.length - 5)
-                : "/payments",
+                ? key.substring(0, key.length - 5).toUpperCase()
+                : "TOTAL REVENUE",
             icon:
-              key == "usersCount" ? (
-                <PersonRounded fontSize={isMobile ? "medium" : "large"} />
-              ) : key == "bookingsCount" ? (
+              key == "bookingsCount" ? (
                 <BookOnlineRounded fontSize={isMobile ? "medium" : "large"} />
-              ) : key == "vehiclesCount" ? (
-                <DirectionsCarRounded
+              ) : key == "Amount" ? (
+                <AccountBalanceRounded
                   fontSize={isMobile ? "medium" : "large"}
                 />
-              ) : key == "locationCount" ? (
-                <LocationOnRounded fontSize={isMobile ? "medium" : "large"} />
-              ) : key == "stationsCount" ? (
-                <DockRounded fontSize={isMobile ? "medium" : "large"} />
-              ) : key == "couponsCount" ? (
-                <DiscountRounded fontSize={isMobile ? "medium" : "large"} />
-              ) : key == "invoicesCount" ? (
-                <ReceiptRounded fontSize={isMobile ? "medium" : "large"} />
-              ) : key == "plansCount" ? (
-                <ArticleRounded fontSize={isMobile ? "medium" : "large"} />
-              ) : key == "ordersCount" ? (
-                <BookmarkBorderRounded
-                  fontSize={isMobile ? "medium" : "large"}
-                />
+              ) : key == "extendBookingCount" ? (
+                <AccountTreeRounded fontSize={isMobile ? "medium" : "large"} />
               ) : (
-                <GroupRounded fontSize={isMobile ? "medium" : "large"} />
+                <BookOnlineRounded fontSize={isMobile ? "medium" : "large"} />
               ),
           };
         });
@@ -133,23 +105,23 @@ const Dashboard = () => {
   return !loading && !dashboardLoading ? (
     dataCountResult && dataCountResult?.length > 0 ? (
       <>
-        <h1 className="text-xl uppercase font-bold text-theme mb-5">
-          Dashboard
-        </h1>
+        <div className="w-full flex items-center justify-between">
+          <h1 className="text-2xl uppercase font-bold text-theme mb-5">
+            Dashboard
+          </h1>
+          <CustomMonthDropdown
+            tableIcons={tableIcons}
+            value={currentMonth}
+            setValue={setCurrentMonth}
+          />
+        </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-5">
           {dataCountResult?.map((item, index) => (
             <InfoCard key={index} item={item} />
           ))}
         </div>
-        <h2 className="text-xl mb-5 font-bold uppercase text-theme">
-          Booking &amp; Payments
-        </h2>
         <div className="shadow-lg p-3 lg:p-5 rounded-2xl bg-white">
-          <BarChart
-            data={dasboardDataCount && dasboardDataCount?.payments}
-            month={currentMonth}
-            setMonth={setCurrentMonth}
-          />
+          <BarChart data={dasboardDataCount && dasboardDataCount?.payments} />
         </div>
       </>
     ) : (

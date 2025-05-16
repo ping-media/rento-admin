@@ -5,23 +5,30 @@ import { formatPrice, getDurationInDays } from "../../utils/index";
 
 const AdditionalInfo = () => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
+  const { loggedInRole } = useSelector((state) => state.user);
   return (
     <>
       {/* ride otp's  */}
-      <div className="mb-2">
-        <p className="text-gray-400 flex items-center">
-          <span className="font-semibold mr-1">Start OTP:</span>
-          {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
-          <CopyButton textToCopy={vehicleMaster[0]?.vehicleBasic?.startRide} />
-        </p>
-        {vehicleMaster[0]?.vehicleBasic?.endRide > 0 && (
+      {loggedInRole === "admin" && (
+        <div className="mb-2">
           <p className="text-gray-400 flex items-center">
-            <span className="font-semibold mr-1">End OTP:</span>
-            {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
-            <CopyButton textToCopy={vehicleMaster[0]?.vehicleBasic?.endRide} />
+            <span className="font-semibold mr-1">Start OTP:</span>
+            {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
+            <CopyButton
+              textToCopy={vehicleMaster[0]?.vehicleBasic?.startRide}
+            />
           </p>
-        )}
-      </div>
+          {vehicleMaster[0]?.vehicleBasic?.endRide > 0 && (
+            <p className="text-gray-400 flex items-center">
+              <span className="font-semibold mr-1">End OTP:</span>
+              {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
+              <CopyButton
+                textToCopy={vehicleMaster[0]?.vehicleBasic?.endRide}
+              />
+            </p>
+          )}
+        </div>
+      )}
       <div className="mt-1 mb-2.5">
         <p className="text-sm text-gray-400 mb-1">
           <span className="font-semibold mr-1">Free Limit:</span>

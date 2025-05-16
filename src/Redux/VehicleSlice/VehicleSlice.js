@@ -49,6 +49,12 @@ const vehicleSlice = createSlice({
         timeLine: [...(state.timeLineData?.timeLine || []), ...timeLine],
       };
     },
+    addNewMaintenanceData: (state, action) => {
+      state.maintenanceData.data = [
+        action.payload,
+        ...(state.maintenanceData.data || []),
+      ];
+    },
     handleIsHeaderChecked: (state, action) => {
       state.isHeaderChecked = action.payload;
     },
@@ -355,6 +361,7 @@ export const {
   updateTimeLineData,
   handleUpdateExtendVehicle,
   handleUpdateCompleteRide,
+  addNewMaintenanceData,
   toggleRefresh,
   addUserDocuments,
   removeUserDocuments,

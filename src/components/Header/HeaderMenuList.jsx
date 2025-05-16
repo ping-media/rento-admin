@@ -17,7 +17,7 @@ const HeaderMenuList = () => {
   ];
 
   return (
-    <div className="absolute w-40 lg:w-48 top-12 right-0 z-10 bg-white flex flex-col items-center text-left gap-2 border border-gray-200 rounded-md p-2 dark:bg-gray-800 dark:border-none">
+    <div className="absolute w-40 lg:w-48 top-12 right-0 z-50 bg-white flex flex-col items-center text-left gap-2 border border-gray-200 rounded-md p-2 dark:bg-gray-800 dark:border-none">
       <p className="border-b-2 text-center font-semibold py-1.5 w-full capitalize">
         {`${currentUser?.firstName} ${currentUser?.lastName}` || ""}
       </p>

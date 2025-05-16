@@ -43,7 +43,7 @@ const InputSwitch = ({ value, id }) => {
   };
 
   return (
-    <>
+    <div className="flex items-center justify-center">
       <label className="relative inline-flex items-center cursor-pointer">
         <input
           type="checkbox"
@@ -54,7 +54,7 @@ const InputSwitch = ({ value, id }) => {
         />
         <div className="group peer bg-white rounded-full duration-300 w-9 h-5 ring-2 ring-theme after:duration-300 after:bg-red-500 peer-checked:after:bg-green-500 peer-checked:ring-green-500 after:rounded-full after:absolute after:h-3 after:w-3 after:top-1 after:left-1 after:flex after:justify-center after:items-center peer-checked:after:translate-x-4 peer-hover:after:scale-95"></div>
       </label>
-    </>
+    </div>
   );
 };
 

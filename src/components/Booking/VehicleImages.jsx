@@ -1,5 +1,4 @@
 import PhotoView from "../../components/Form/User Components/PhotoView";
-// import { tableIcons } from "../../Data/Icons";
 import React from "react";
 import { useSelector } from "react-redux";
 
@@ -15,29 +14,6 @@ const VehicleImages = () => {
             uniqueId={key}
             key={key}
           />
-          // <div
-          //   className={`relative w-auto border-2 rounded-md p-1 h-full`}
-          //   key={key}
-          // >
-          //   <a
-          //     href={value?.imageUrl}
-          //     data-pswp-width="1920"
-          //     data-pswp-height="1080"
-          //     target="_blank"
-          //     rel="noreferrer"
-          //     className="flex items-center gap-1"
-          //   >
-          //     {value?.imageUrl ? (
-          //       <img
-          //         src={value?.imageUrl}
-          //         className="w-16 h-16 object-cover"
-          //         alt={value?.fileName}
-          //       />
-          //     ) : (
-          //       tableIcons?.image
-          //     )}
-          //   </a>
-          // </div>
         )
       )}
     </div>

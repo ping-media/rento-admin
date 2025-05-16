@@ -51,7 +51,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
         <div
           className={`${
             location.pathname.includes("/all-users/")
-              ? "flex items-center flex-wrap lg:items-start lg:grid lg:grid-cols-2"
+              ? "flex items-center flex-wrap lg:items-start lg:grid lg:grid-cols-2 gap-2"
               : ""
           }`}
         >
@@ -133,7 +133,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
                           })()
                         : ""
                     }
-                    require={true}
+                    require={location.pathname !== "/profile" ? true : false}
                   />
                 </div>
                 <div className="w-full lg:w-[48%]">
@@ -187,7 +187,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
               </>
               {!id && (
                 <div className="w-full lg:w-[48%]">
-                  <Input item={"password"} type="password" />
+                  <Input item={"password"} type="password" isPassword={true} />
                 </div>
               )}
               {location.pathname != "/profile" && (

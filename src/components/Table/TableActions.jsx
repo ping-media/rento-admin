@@ -26,7 +26,7 @@ const TableActions = ({
   };
 
   return (
-    <td className="p-2 whitespace-nowrap text-sm items-center gap-1">
+    <td className="px-2 py-1 whitespace-nowrap text-sm items-center gap-1">
       <div className="flex">
         {location.pathname == "/all-vehicles" && (
           <button

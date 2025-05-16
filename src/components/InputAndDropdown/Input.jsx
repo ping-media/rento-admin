@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { camelCaseToSpaceSeparated } from "../../utils";
 import { useDebounce } from "../../utils/Helper/debounce";
+import { tableIcons } from "../../Data/Icons";
 
 const Input = ({
   item,
@@ -21,12 +22,15 @@ const Input = ({
   placeholder,
   handlevalidateInput,
   excludeLocation,
+  isPassword = false,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   // for debouncing state
   const [isDebounceValue, setIsDebounceValue] = useState("");
   const debouncedDate = useDebounce(isDebounceValue, 500);
   const [isFirstRender, setIsFirstRender] = useState(true);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const inputRef = useRef(null);
 
   // changing the value
   const handleChangeValue = (e) => {
@@ -48,6 +52,16 @@ const Input = ({
     setDateChange && setDateChange(newDate);
     // this is to change the date based on filters
     onChangeFilterFun && setIsDebounceValue(e.target.value);
+  };
+
+  // for toggling from password to text
+  const togglePasswordToText = () => {
+    setPasswordVisible(!passwordVisible);
+    if (inputRef.current.type == "password") {
+      inputRef.current.type = "text";
+    } else {
+      inputRef.current.type = "password";
+    }
   };
 
   // for running function after there is a valid value
@@ -123,12 +137,14 @@ const Input = ({
           type={type}
           id={item}
           className={`block ${customClass} rounded-md ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none ${
-            item != "email"
-              ? item == "vehicleNumber"
+            item !== "email"
+              ? item === "vehicleNumber"
                 ? "uppercase"
+                : isPassword
+                ? ""
                 : "capitalize"
               : ""
-          } disabled:bg-gray-400 disabled:bg-opacity-20`}
+          } relative disabled:bg-gray-400 disabled:bg-opacity-20`}
           value={
             item === "vehicleNumber" || item === "couponName"
               ? inputValue.toUpperCase()
@@ -140,6 +156,7 @@ const Input = ({
           onBlur={(e) =>
             handlevalidateInput ? handlevalidateInput(e, name || item) : {}
           }
+          ref={inputRef}
           name={name || item}
           placeholder={`${
             item.includes("Proof")
@@ -151,6 +168,15 @@ const Input = ({
           disabled={disabled}
           required={require}
         />
+        {isPassword && (
+          <button
+            className="absolute right-2 top-10"
+            type="button"
+            onClick={togglePasswordToText}
+          >
+            {passwordVisible ? tableIcons.eyeOpen : tableIcons?.eyeClose}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -321,7 +321,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                             {/* Checkbox column for all-vehicles page */}
                             {location.pathname === "/all-vehicles" && (
                               <td
-                                className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                                className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900"
                                 key={`checkbox-${item._id}-${index}`}
                                 onClick={(e) => e.stopPropagation()}
                               >
@@ -329,7 +329,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               </td>
                             )}
                             <td
-                              className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                              className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900"
                               key={`slNo-${index}`}
                             >
                               {index + 1 < 10 ? `0${index + 1}` : index + 1}
@@ -393,7 +393,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               if (column === "couponName") {
                                 return (
                                   <td
-                                    className="p-2 max-w-36 lg:max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
+                                    className="px-2 py-1 max-w-36 lg:max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
                                     key={cellKey}
                                   >
                                     {item[column]}{" "}
@@ -405,7 +405,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               if (column === "openStartTime") {
                                 return (
                                   <td
-                                    className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                                    className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900"
                                     key={cellKey}
                                   >
                                     <p>{`${changeNumberIntoTime(
@@ -453,7 +453,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   <React.Fragment key={cellKey}>
                                     {location?.pathname === "/payments" && (
                                       <td
-                                        className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                                        className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900"
                                         key={paymentKey}
                                       >
                                         ₹{" "}
@@ -475,7 +475,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       </td>
                                     )}
                                     <td
-                                      className={`p-2 whitespace-nowrap text-sm font-medium text-gray-900 ${
+                                      className={`px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900 ${
                                         column.includes("maintenance")
                                           ? "capitalize"
                                           : ""
@@ -510,7 +510,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
 
                               return (
                                 <td
-                                  className={`p-2 text-sm font-medium text-gray-900 ${
+                                  className={`px-2 py-1 text-sm font-medium text-gray-900 ${
                                     column?.includes("email")
                                       ? ""
                                       : "capitalize"
@@ -520,7 +520,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       "vehicleName",
                                       "email",
                                     ].includes(column)
-                                      ? "max-w-40"
+                                      ? "max-w-32 truncate"
                                       : "whitespace-nowrap"
                                   }`}
                                   key={cellKey}
@@ -550,7 +550,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
 
                               return isVehicleOrLocationStatus ? (
                                 <td
-                                  className="p-2 whitespace-nowrap text-sm font-medium text-gray-900 pl-4"
+                                  className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900"
                                   key={statusKey}
                                   onClick={(e) => e.stopPropagation()}
                                 >
@@ -559,9 +559,24 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     id={item?._id}
                                   />
                                 </td>
+                              ) : column.includes("rideStatus") ? (
+                                <td
+                                  className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900"
+                                  key={statusKey}
+                                >
+                                  <p className="bg-gray-300/20 border border-gray-300/60 tracking-wider p-1 text-center rounded-md uppercase text-xs">
+                                    {["pending", "canceled"].includes(
+                                      item[column]
+                                    )
+                                      ? "Not Started"
+                                      : item[column] === "completed"
+                                      ? item[column]
+                                      : "Started"}
+                                  </p>
+                                </td>
                               ) : (
                                 <td
-                                  className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                                  className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900"
                                   key={statusKey}
                                 >
                                   <StatusChange item={item} column={column} />

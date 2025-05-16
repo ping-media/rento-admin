@@ -16,14 +16,14 @@ import { removeTempIds } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { tableIcons } from "../Data/Icons.jsx";
 import {
   toggleForgetPasswordModal,
-  // toogleKycModalActive,
+  toogleKycModalActive,
 } from "../Redux/SideBarSlice/SideBarSlice.js";
 const ForgetPasswordModal = lazy(() =>
   import("../components/Modal/ForgetPasswordModal.jsx")
 );
-// const UserKycApproveModal = lazy(() =>
-//   import("../components/Modal/UserKycApproveModal.jsx")
-// );
+const UserKycApproveModal = lazy(() =>
+  import("../components/Modal/UserKycApproveModal.jsx")
+);
 
 const CreateNewAndUpdateForm = () => {
   const navigate = useNavigate();
@@ -60,10 +60,10 @@ const CreateNewAndUpdateForm = () => {
 
   return !loading ? (
     <>
-      {/* {(location.pathname.includes("/all-users/") ||
+      {(location.pathname.includes("/all-users/") ||
         location.pathname.includes("/all-managers/")) && (
         <UserKycApproveModal />
-      )} */}
+      )}
       {location.pathname.includes("/all-managers/") &&
         !location.pathname.includes("/add-new") && (
           <ForgetPasswordModal
@@ -110,7 +110,19 @@ const CreateNewAndUpdateForm = () => {
         {(location.pathname.includes("/all-users/") ||
           location.pathname.includes("/all-managers/")) && (
           <div className="flex items-center gap-2">
-            <div className="bg-theme/90 text-gray-100 p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md">
+            <button
+              className="bg-theme/90 text-gray-100 p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md"
+              type="button"
+              onClick={() => dispatch(toogleKycModalActive())}
+              disabled={
+                (vehicleMaster &&
+                  vehicleMaster[0] &&
+                  vehicleMaster[0]?.userId?.kycApproved === "yes") ||
+                (vehicleMaster && vehicleMaster?.kycApproved === "yes")
+                  ? true
+                  : false
+              }
+            >
               {vehicleMaster && vehicleMaster[0] ? (
                 vehicleMaster[0]?.userId?.kycApproved === "yes" ? (
                   <>{tableIcons?.verify} Verified</>
@@ -122,7 +134,7 @@ const CreateNewAndUpdateForm = () => {
               ) : (
                 <>{tableIcons?.unVerify} Not Verified</>
               )}
-            </div>
+            </button>
             {location.pathname.includes("/all-managers/") &&
               !location.pathname.includes("/add-new") && (
                 <button

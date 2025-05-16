@@ -8,6 +8,7 @@ import Spinner from "../../components/Spinner/Spinner";
 // import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
 // import { blockReasonList } from "../../Data/commonData";
 import {
+  addNewMaintenanceData,
   handleMaintenanceLoading,
   removeBlockVehicleId,
   toggleRefresh,
@@ -70,7 +71,11 @@ const AddVehicleForServiceModal = ({ loading }) => {
       if (response?.status === 200) {
         dispatch(toggleVehicleServiceModal());
         dispatch(removeBlockVehicleId());
-        dispatch(toggleRefresh());
+        if (location.pathname.includes("/all-vehicles/details/")) {
+          dispatch(addNewMaintenanceData(data));
+        } else {
+          dispatch(toggleRefresh());
+        }
         return handleAsyncError(dispatch, response?.message, "success");
       } else {
         return handleAsyncError(dispatch, response?.message);
@@ -152,7 +157,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
               disabled={maintenanceLoading}
             >
               {!maintenanceLoading ? (
-                "Add vehicle"
+                "Submit"
               ) : (
                 <Spinner message={"loading..."} />
               )}

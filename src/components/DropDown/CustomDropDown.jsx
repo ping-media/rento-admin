@@ -31,11 +31,20 @@ const CustomMonthDropdown = ({ tableIcons, value = "", setValue }) => {
   return (
     <div className="relative inline-block" ref={dropdownRef}>
       <div
-        className="flex items-center gap-1 px-1 md:px-2 lg:px-3 py-1 border-2 border-theme rounded-md cursor-pointer text-theme"
+        className="min-w-36 flex items-center justify-between px-1 md:px-2 lg:px-3 py-1 border-2 border-theme rounded cursor-pointer"
         onClick={toggleDropdown}
       >
-        <span>{tableIcons?.dateCalender}</span>
-        <span className="flex-1">{selected}</span>
+        <div className="inline-flex items-center gap-1">
+          <span>{tableIcons?.dateCalender}</span>
+          <span className="flex-1">{selected}</span>
+        </div>
+        <span
+          className={`${
+            isOpen ? "rotate-180" : "rotate-0"
+          } transition-all ease-in-out duration-200`}
+        >
+          {tableIcons?.downArrow}
+        </span>
       </div>
 
       {isOpen && (

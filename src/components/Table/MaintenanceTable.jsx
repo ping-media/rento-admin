@@ -16,11 +16,14 @@ import {
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import DropDownComponent from "../../components/DropDown/DropDownComponent";
 import Pagination from "../../components/Pagination/Pagination";
+import ViewModal from "../../components/Modal/ViewModal";
 
 const MaintenanceTable = () => {
   const { vehicleMaster, loading, maintenanceData } = useSelector(
     (state) => state.vehicles
   );
+  const [isActive, setIsActive] = useState(false);
+  const [viewData, setViewData] = useState(null);
   const { token } = useSelector((state) => state.user);
   const [modifyingVehicleId, setModifyingVehicleId] = useState(null);
   const showRecordsOptions = [25, 50, 100, 200, 500];
@@ -106,8 +109,23 @@ const MaintenanceTable = () => {
     }
   };
 
+  const handleView = (id) => {
+    const data = maintenanceData?.data?.filter((d) => d._id === id);
+    if (data) {
+      setIsActive(!isActive);
+      setViewData(data[0]);
+    }
+  };
+
   return (
     <div className="flex flex-col">
+      {maintenanceData?.data?.length > 0 && viewData !== null && (
+        <ViewModal
+          isActive={isActive}
+          setIsActive={setIsActive}
+          {...viewData}
+        />
+      )}
       <div className=" overflow-x-auto">
         <div className="min-w-full inline-block align-middle">
           <div className="overflow-hidden">
@@ -136,6 +154,7 @@ const MaintenanceTable = () => {
                       <tr
                         className="bg-white transition-all duration-500 hover:bg-gray-50"
                         key={index}
+                        onClick={() => handleView(item?._id)}
                       >
                         <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ">
                           {item?.startDate
@@ -147,7 +166,7 @@ const MaintenanceTable = () => {
                             ? formatFullDateAndTime(item?.endDate)
                             : "NA"}
                         </td>
-                        <td className="p-2.5 max-w-24 break-words whitespace-wrap text-sm leading-6 font-medium text-gray-900 capitalize">
+                        <td className="p-2.5 max-w-24 truncate text-sm leading-6 font-medium text-gray-900 capitalize">
                           {item?.reason}
                         </td>
                         <td className="p-2.5 whitespace-nowrap text-sm items-center">
