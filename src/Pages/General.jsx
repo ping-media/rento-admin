@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import GeneralForm from "../components/general/GeneralForm";
 import TabButton from "../components/TabButton/TabButton";
 import GeneralAddOn from "../components/general/GeneralAddOn";
+import WebsiteForm from "../components/general/WebsiteForm";
+import OthersForm from "../components/general/OthersForm";
 
 const General = () => {
   const [tab, setTab] = useState("general");
@@ -9,14 +11,16 @@ const General = () => {
   return (
     <>
       <div className="flex items-center flex-wrap justify-between">
-        <h1 className="text-xl uppercase font-bold text-theme mb-5">
+        <h1 className="text-2xl uppercase font-bold text-theme mb-5">
           Settings
         </h1>
         <div className="w-full md:w-2/5 lg:w-1/3">
           <TabButton
             options={[
               { id: "general", title: "General" },
+              { id: "basic", title: "Basic" },
               { id: "addon", title: "Add-On" },
+              { id: "others", title: "Others" },
             ]}
             tab={tab}
             setTab={setTab}
@@ -26,6 +30,8 @@ const General = () => {
 
       <div className="bg-white p-2 shadow-md rounded-md">
         {tab === "general" && <GeneralForm />}
+        {tab === "basic" && <WebsiteForm />}
+        {tab === "others" && <OthersForm />}
         {tab === "addon" && <GeneralAddOn />}
       </div>
     </>

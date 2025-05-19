@@ -134,6 +134,8 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
     }
   }, []);
 
+  // console.log(suggestedData);
+
   return (
     <>
       {loading && <PreLoader />}

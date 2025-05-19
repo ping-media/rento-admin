@@ -14,6 +14,7 @@ import SelectDropDownCoupon from "../../InputAndDropdown/SelectDropDownCoupon";
 const BookingStepTwo = ({
   data,
   priceCalculate,
+  gst,
   setCoupon,
   coupon,
   plan,
@@ -31,7 +32,16 @@ const BookingStepTwo = ({
   const [loading, setLoading] = useState(false);
   const [bookingDuration, setBookingDuration] = useState(0);
   const [selectedAddOns, setSelectedAddOns] = useState([]);
-  // const extraHelmetCharge = 50;
+
+  const isData =
+    data && data?.selectedVehicle?._daysBreakdown?.length > 0
+      ? data?.selectedVehicle?._daysBreakdown
+      : [];
+
+  const dayBreakDown =
+    isData?.length > 0
+      ? isData?.filter((days) => days?.isWeekend === true)
+      : [];
 
   const handleAddonToggle = (checked, item) => {
     if (checked) {
@@ -130,16 +140,19 @@ const BookingStepTwo = ({
             totalAmount:
               coupon?.totalPrice > 0
                 ? Number(coupon?.totalPrice)
-                : Number(
-                    stepTwoData?.bookingPrice + stepTwoData?.extraAddonPrice
-                  ),
+                : Number(stepTwoData?.bookingPrice),
+            // : Number(
+            //     stepTwoData?.bookingPrice + stepTwoData?.extraAddonPrice
+            //   ),
             isExtra: applyLoading,
           },
           token
         );
         if (response?.status === 200) {
           const discountAmount = Math.round(Number(response?.data?.discount));
-          const finalAmount = Math.round(Number(response?.data?.finalAmount));
+          const finalAmount = Math.round(
+            Number(response?.data?.finalAmount) + stepTwoData?.extraAddonPrice
+          );
           if (finalAmount === 0) {
             setCoupon({ ...coupon, isDiscountZero: true });
           }
@@ -147,7 +160,8 @@ const BookingStepTwo = ({
             setCoupon({
               ...coupon,
               discountAmount: discountAmount,
-              totalPrice: Number(stepTwoData?.totalPrice),
+              totalPrice: Number(stepTwoData?.bookingPrice),
+              // totalPrice: Number(stepTwoData?.totalPrice),
               discountPrice: finalAmount,
             });
           }
@@ -163,7 +177,7 @@ const BookingStepTwo = ({
   const removeCoupon = () => {
     setStepTwoData({
       ...stepTwoData,
-      totalPrice: Number(coupon?.totalPrice),
+      totalPrice: Number(coupon?.totalPrice + stepTwoData?.extraAddonPrice),
     });
     setCoupon({
       couponName: "",
@@ -202,16 +216,24 @@ const BookingStepTwo = ({
             Plan Applied ({plan?.selectedPlan[0]?.planName || "--"})
           </p>
         )}
+        {!isPlanApplied && dayBreakDown?.length > 0 && (
+          <p className="text-xs font-semibold text-gray-500 mt-1">
+            Weekend Price Applied (₹{dayBreakDown[0]?.dailyRate || "--"} X
+            {dayBreakDown?.length} day(s))
+          </p>
+        )}
       </div>
-      <div className="w-full lg:w-[48%]">
-        <Input
-          item={"tax"}
-          type="number"
-          value={Number(stepTwoData?.tax) ?? ""}
-          require={true}
-          disabled={true}
-        />
-      </div>
+      {gst?.status === "active" && (
+        <div className="w-full lg:w-[48%]">
+          <Input
+            item={"tax"}
+            type="number"
+            value={Number(stepTwoData?.tax) ?? ""}
+            require={true}
+            disabled={true}
+          />
+        </div>
+      )}
       <div className="w-full lg:w-[48%]">
         <Input
           item={"totalPrice"}

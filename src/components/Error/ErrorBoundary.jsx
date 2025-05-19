@@ -1,4 +1,5 @@
 import React from "react";
+import InternalError from "../../assets/logo/internalError.png";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -17,9 +18,16 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: "2rem", textAlign: "center" }}>
-          <h1>Oops! Something went wrong.</h1>
-          <p>Please try refreshing the page.</p>
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <div className="w-60">
+            <img src={InternalError} alt="INTERNAL_ERROR" />
+          </div>
+          <div className="text-center">
+            <h1 className="font-semibold text-xl">
+              Oops! Something went wrong.
+            </h1>
+            <p>Please try refreshing the page.</p>
+          </div>
         </div>
       );
     }

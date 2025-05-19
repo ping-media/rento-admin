@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
-import Input from "../../components/InputAndDropdown/Input";
+import Input from "../InputAndDropdown/Input";
 import React, { useState } from "react";
-import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
-import Spinner from "../../components/Spinner/Spinner";
+import SelectDropDown from "../InputAndDropdown/SelectDropDown";
+import Spinner from "../Spinner/Spinner";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postData } from "../../Data/index";
 import { addGeneral } from "../../Redux/GeneralSlice/GeneralSlice";
-import GeneralTable from "../../components/Table/GeneralTable";
+import GeneralTable from "../Table/GeneralTable";
 import GerneralAddAndUpdateForm from "./GerneralAddAndUpdateForm";
 import { tableIcons } from "../../Data/Icons";
 import GSTTable from "../Table/GSTTable";

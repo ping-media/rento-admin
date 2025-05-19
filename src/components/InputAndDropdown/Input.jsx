@@ -22,6 +22,7 @@ const Input = ({
   placeholder,
   handlevalidateInput,
   excludeLocation,
+  isCapital = true,
   isPassword = false,
 }) => {
   const [inputValue, setInputValue] = useState(value);
@@ -137,14 +138,14 @@ const Input = ({
           type={type}
           id={item}
           className={`block ${customClass} rounded-md ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none ${
-            item !== "email"
+            item !== "email" && isCapital
               ? item === "vehicleNumber"
                 ? "uppercase"
                 : isPassword
                 ? ""
                 : "capitalize"
               : ""
-          } relative disabled:bg-gray-400 disabled:bg-opacity-20`}
+          } relative disabled:bg-gray-400/20 disabled:bg-opacity-20`}
           value={
             item === "vehicleNumber" || item === "couponName"
               ? inputValue.toUpperCase()

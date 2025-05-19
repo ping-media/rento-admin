@@ -20,6 +20,8 @@ const initialState = {
   isIdentityModalActive: false,
   isSelfieModalActive: false,
   isLicenseModalActive: false,
+  isTestimonialModalActive: false,
+  isSlidesModalActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -31,6 +33,14 @@ const SideBarSlice = createSlice({
     },
     toggleFilterSideBar: (state) => {
       state.isFilterOpen = state.isFilterOpen === true ? false : true;
+    },
+    toggleTestimonialModal: (state) => {
+      state.isTestimonialModalActive =
+        state.isTestimonialModalActive === true ? false : true;
+    },
+    toggleSlidesModal: (state) => {
+      state.isSlidesModalActive =
+        state.isSlidesModalActive === true ? false : true;
     },
     toggleModal: (state) => {
       state.isModelActive = state.isModelActive === false ? true : false;
@@ -105,6 +115,8 @@ const SideBarSlice = createSlice({
 export const {
   toggleFilterSideBar,
   toggleSideBar,
+  toggleTestimonialModal,
+  toggleSlidesModal,
   toggleModal,
   toggleRechargeModal,
   toggleVerifyUserModal,

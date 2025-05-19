@@ -112,9 +112,9 @@ const FilterSideBar = () => {
         endpoint = searchTerm
           ? `/getBooking?${
               searchTerm?.includes("Status=")
-                ? searchTerm?.includes("rideStatus")
-                  ? "search=" + todaysDate?.toString() + "&"
-                  : ""
+                ? // searchTerm?.includes("rideStatus")
+                  //   ? "search=" + todaysDate?.toString() + "&"
+                  ""
                 : "search="
             }${searchTerm}&page=${page}&limit=${limit}`
           : `/getBooking?page=${page}&limit=${limit}`;

@@ -597,7 +597,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                           </tr>
                         ))
                       ) : (
-                        <TableNotFound />
+                        <TableNotFound ColumnsCount={Columns?.length || 7} />
                       )
                     ) : (
                       <TableDataLoading />

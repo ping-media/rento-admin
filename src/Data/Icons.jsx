@@ -190,6 +190,18 @@ export const tableIcons = {
       <path d="M19 12H6M12 5l-7 7 7 7" />
     </svg>
   ),
+  remove: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+      className="size-5"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
+    </svg>
+  ),
   downArrow: (
     <svg
       xmlns="http://www.w3.org/2000/svg"

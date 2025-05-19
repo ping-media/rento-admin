@@ -1,27 +1,6 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-// const getData = async (url, token) => {
-//   const headers = {
-//     "Content-Type": "application/json",
-//     Accept: "application/json",
-//   };
-//   if (token) {
-//     headers["Authorization"] = `Bearer ${token}`;
-//     headers["token"] = `${token}`;
-//   }
-
-//   const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
-//     headers,
-//   });
-
-//   if (response.status == 200) {
-//     return response?.data;
-//   } else {
-//     return response?.message;
-//   }
-// };
-
 const getData = async (url, token, retries = 5, delay = 500) => {
   const headers = {
     "Content-Type": "application/json",
@@ -49,39 +28,16 @@ const getData = async (url, token, retries = 5, delay = 500) => {
       }
     } catch (error) {
       if (attempt < retries) {
-        // console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
         console.error("All retry attempts failed.");
-        const navigate = useNavigate(); // React Router navigation
+        const navigate = useNavigate();
         navigate("*");
         throw error;
       }
     }
   }
 };
-
-// const getFullData = async (url, token) => {
-//   const headers = {
-//     "Content-Type": "application/json",
-//     Accept: "application/json",
-//   };
-//   if (token) {
-//     headers["Authorization"] = `Bearer ${token}`;
-//     headers["token"] = `${token}`;
-//   } else {
-//     return "Error fetching Data. Try Again!";
-//   }
-//   const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
-//     headers,
-//   });
-
-//   if (response.status == 200) {
-//     return response;
-//   } else {
-//     return response?.message;
-//   }
-// };
 
 const getFullData = async (url, token, retries = 5, delay = 500) => {
   const headers = {

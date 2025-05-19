@@ -75,11 +75,15 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       setPlanData((prev) => ({ ...prev, data: null }));
     }
 
+    // const bookingPrice =
+    //   hasMatchPlan !== null && hasMatchPlan?.planPrice > 0
+    //     ? hasMatchPlan?.planPrice
+    //     : Number(durationBetweenStartAndEnd?.days) *
+    //       Number(selectedVehicle?.perDayCost);
     const bookingPrice =
       hasMatchPlan !== null && hasMatchPlan?.planPrice > 0
         ? hasMatchPlan?.planPrice
-        : Number(durationBetweenStartAndEnd?.days) *
-          Number(selectedVehicle?.perDayCost);
+        : Number(selectedVehicle?.totalRentalCost);
     const rentAmount = Number(selectedVehicle?.perDayCost);
 
     if (addOnArr?.length > 0) {
@@ -154,7 +158,9 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       let AmountLeftAfterUserPaid = 0;
       if (paymentMethodStatus === "partiallyPay") {
         const needToPay =
-          (Number(formData?.stepTwoData?.totalPrice) * 20) / 100;
+          !coupon?.isDiscountZero && coupon?.discountPrice > 0
+            ? (Number(coupon?.discountPrice) * 20) / 100
+            : (Number(formData?.stepTwoData?.totalPrice) * 20) / 100;
         userPaid = Number(needToPay);
         AmountLeftAfterUserPaid =
           Number(formData?.stepTwoData?.totalPrice) - Number(userPaid);
@@ -184,7 +190,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             coupon?.couponName != "" &&
             coupon?.couponId != "" &&
             coupon?.totalPrice > 0
-              ? coupon?.totalPrice
+              ? coupon?.totalPrice + formData?.stepTwoData?.extraAddonPrice
               : formData?.stepTwoData?.totalPrice,
           discountPrice:
             coupon?.couponName != "" &&
@@ -198,6 +204,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             coupon?.discountPrice > 0
               ? coupon?.discountPrice
               : 0,
+          isDiscountZero: coupon?.isDiscountZero,
           rentAmount: formData?.stepTwoData?.rentAmount,
           userPaid: Math.round(userPaid),
           AmountLeftAfterUserPaid: {
@@ -242,9 +249,6 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         rideStatus: result?.rideStatus || "pending",
       };
 
-      // console.log(data);
-      // return;
-
       if (result?.paymentMethod === "cash") {
         data = {
           ...data,
@@ -253,7 +257,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           paymentMethod: result?.paymentMethod,
         };
       }
-
+      // console.log(data);
+      // return;
       const bookingResponse = await postData("/createBooking", data, token);
       if (bookingResponse?.status === 200) {
         // updating the timeline for booking
@@ -370,6 +375,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             <BookingStepTwo
               data={formData?.stepOneData}
               priceCalculate={changePriceAccordingtoData}
+              gst={GST}
               setCoupon={setCoupon}
               coupon={coupon}
               setFormData={setFormData}
