@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import WebSettings from "./WebSettings";
 import { useDispatch, useSelector } from "react-redux";
 import PreLoader from "../Skeleton/PreLoader";
-import SocialMedia from "./socialMedia";
 import AppLink from "./AppLink";
 import { postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { updateGeneralInfo } from "../../Redux/GeneralSlice/GeneralSlice";
 import Spinner from "../Spinner/Spinner";
+import SocialMedia from "./SocialMedia.jsx";
 
 const Button = ({ label = "update", disabled = false }) => (
   <button
