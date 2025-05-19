@@ -36,28 +36,69 @@ const FilterSideBar = () => {
 
   //booking status  list
   const filterMenuList = [
-    { title: "All", searchTag: "" },
-    { title: "Pending Pickups", searchTag: "rideStatus=pending" },
+    { title: "All", searchTag: "", divider: false },
+    {
+      title: "Pending Pickups",
+      searchTag: "rideStatus=pending",
+      divider: false,
+    },
+    { title: "Pending Drops", searchTag: "rideStatus=ongoing", divider: false },
     {
       title: "Today's Pickups",
       searchTag: `search=${todaysDate}&rideStatus=pending`,
+      divider: false,
     },
+    {
+      title: "Today's Drops",
+      searchTag: `search=${todaysDate}&rideStatus=ongoing`,
+      divider: false,
+    },
+    {
+      title: "Completed (Booking)",
+      searchTag: "bookingStatus=done",
+      divider: false,
+    },
+    {
+      title: "Completed (Ride)",
+      searchTag: "rideStatus=completed",
+      divider: false,
+    },
+    {
+      title: "cancelled (Booking)",
+      searchTag: "bookingStatus=canceled",
+      divider: false,
+    },
+    {
+      title: "cancelled (Ride)",
+      searchTag: "rideStatus=canceled",
+      divider: false,
+    },
+    { title: "Extended", searchTag: "bookingStatus=extended", divider: true },
+
     {
       title: "Tomorrow's Pickups",
       searchTag: `search=${tomorrowDate}&rideStatus=pending`,
+      divider: false,
     },
-    { title: "ongoing", searchTag: "rideStatus=ongoing" },
-    { title: "Completed", searchTag: "rideStatus=completed" },
-    { title: "cancelled (Ride)", searchTag: "rideStatus=canceled" },
-    { title: "cancelled (Booking)", searchTag: "bookingStatus=canceled" },
-    { title: "Extended", searchTag: "bookingStatus=extended" },
-    { title: "Completed (Booking)", searchTag: "bookingStatus=done" },
-    { title: "Failed (Payment)", searchTag: "paymentStatus=failed" },
-    { title: "Refunded (Payment)", searchTag: "paymentStatus=refunded" },
-    { title: "Full Paid (Payment)", searchTag: "paymentStatus=paid" },
+    {
+      title: "Failed (Payment)",
+      searchTag: "paymentStatus=failed",
+      divider: false,
+    },
+    {
+      title: "Refunded (Payment)",
+      searchTag: "paymentStatus=refunded",
+      divider: false,
+    },
+    {
+      title: "Full Paid (Payment)",
+      searchTag: "paymentStatus=paid",
+      divider: false,
+    },
     {
       title: "Partially Paid (Payment)",
       searchTag: "paymentStatus=partiallyPay",
+      divider: false,
     },
   ];
 
@@ -251,15 +292,20 @@ const FilterSideBar = () => {
                 {menuList &&
                   menuList?.length > 0 &&
                   menuList?.map((item, index) => (
-                    <li key={index}>
-                      <FilterRadioInput
-                        title={item?.title}
-                        searchTag={item?.searchTag}
-                        onChangeFn={
-                          searchDataBasedOnFilters && searchDataBasedOnFilters
-                        }
-                      />
-                    </li>
+                    <>
+                      {item?.divider === true && (
+                        <div className="border-b-2 border-gray-400/60 w-full"></div>
+                      )}
+                      <li key={index}>
+                        <FilterRadioInput
+                          title={item?.title}
+                          searchTag={item?.searchTag}
+                          onChangeFn={
+                            searchDataBasedOnFilters && searchDataBasedOnFilters
+                          }
+                        />
+                      </li>
+                    </>
                   ))}
               </ul>
             </>
