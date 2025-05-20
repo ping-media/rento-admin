@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import {
   camelCaseToSpaceSeparated,
   formatPrice,
@@ -5,6 +6,7 @@ import {
 } from "../../utils/index";
 
 const BookingFareDetails = ({ rides }) => {
+  const { general } = useSelector((state) => state.general);
   return (
     <>
       {rides && (
@@ -106,6 +108,9 @@ const BookingFareDetails = ({ rides }) => {
                     ))
                   );
                 } else {
+                  if (key === "tax" && general?.GST?.status === "inactive") {
+                    return null;
+                  }
                   return (
                     <li
                       key={key}

@@ -30,6 +30,14 @@ const AdditionalInfo = () => {
         </div>
       )}
       <div className="mt-1 mb-2.5">
+        <p className="text-sm text-gray-400 uppercase">
+          <span className="font-semibold mr-1 capitalize">Payment Mode:</span>
+          <span className="border px-2 py-1 bg-green-400/20 border-teal-500 text-gray-500/90 rounded">
+            {vehicleMaster[0]?.paymentMethod}
+          </span>
+        </p>
+      </div>
+      <div className="mt-1 mb-2.5">
         <p className="text-sm text-gray-400 mb-1">
           <span className="font-semibold mr-1">Free Limit:</span>
           {vehicleMaster[0]?.vehicleBasic?.freeLimit
