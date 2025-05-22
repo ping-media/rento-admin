@@ -3,7 +3,7 @@ import { toggleChangeVehicleModal } from "../../Redux/SideBarSlice/SideBarSlice"
 import { useEffect, useState } from "react";
 import { getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
+// import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
 import {
   calculateTax,
   calculateTotalAddOnPrice,
@@ -12,9 +12,9 @@ import {
   formatDateToISOWithoutSecond,
   formatPrice,
   getDurationInDays,
-  getDurationInDaysAndHours,
+  // getDurationInDaysAndHours,
 } from "../../utils/index";
-import Input from "../../components/InputAndDropdown/Input";
+// import Input from "../../components/InputAndDropdown/Input";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import Spinner from "../../components/Spinner/Spinner";
 import {
@@ -27,17 +27,21 @@ import SelectDropDownVehicle from "../../components/InputAndDropdown/SelectDropD
 const ChangeVehicleModal = ({ bookingData }) => {
   const dispatch = useDispatch();
   const { isChangeVehicleModalActive } = useSelector((state) => state.sideBar);
+  const { general } = useSelector((state) => state.general);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
   const [isModalClose, setIsModalClose] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
+  // const [otpLoading, setOtpLoading] = useState(false);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [freeVehicles, setFreeVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const { token } = useSelector((state) => state.user);
   const [vehicleId, setVehicleId] = useState("");
+
+  const isGSTActive = general?.GST?.status === "active" ? true : false || false;
+  const GSTPercentage = general?.GST?.percentage || 18;
 
   //   for fetching vehicle based on  dynamic date and time
   useEffect(() => {
@@ -141,7 +145,10 @@ const ChangeVehicleModal = ({ bookingData }) => {
       );
     }
     const finalBookingPrice = Number(extraCharges) + Number(bookingPrice);
-    const tax = calculateTax(finalBookingPrice, 18);
+    let tax = 0;
+    if (isGSTActive) {
+      tax = calculateTax(finalBookingPrice, GSTPercentage);
+    }
     const totalPrice = Number(finalBookingPrice) + Number(tax);
     const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
     const oldTotalPrice = bookingData?.bookingPrice?.totalPrice;
@@ -206,7 +213,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
       firstName: vehicleMaster[0]?.userId?.firstName,
       managerContact: vehicleMaster[0]?.stationMasterUserId?.contact,
     };
-    console.log(data);
+    // console.log(data);
     return setSelectedVehicle(data);
   };
 
@@ -260,24 +267,24 @@ const ChangeVehicleModal = ({ bookingData }) => {
   };
 
   //   for sending the otp
-  const handleSendOtp = async () => {
-    try {
-      setOtpLoading(true);
-      const data = {
-        contact: bookingData?.userId?.contact,
-      };
-      const response = await postData("/otpGenerat", data, token);
-      if (response?.status === 200) {
-        return handleAsyncError(dispatch, response?.message, "success");
-      } else {
-        return handleAsyncError(dispatch, response?.message);
-      }
-    } catch (error) {
-      return handleAsyncError(dispatch, error?.message);
-    } finally {
-      setOtpLoading(false);
-    }
-  };
+  // const handleSendOtp = async () => {
+  //   try {
+  //     setOtpLoading(true);
+  //     const data = {
+  //       contact: bookingData?.userId?.contact,
+  //     };
+  //     const response = await postData("/otpGenerat", data, token);
+  //     if (response?.status === 200) {
+  //       return handleAsyncError(dispatch, response?.message, "success");
+  //     } else {
+  //       return handleAsyncError(dispatch, response?.message);
+  //     }
+  //   } catch (error) {
+  //     return handleAsyncError(dispatch, error?.message);
+  //   } finally {
+  //     setOtpLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     if (!isChangeVehicleModalActive) {
@@ -300,7 +307,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-xl">
-        <div className="flex justify-between p-2">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Change Vehicle
           </h2>
@@ -325,7 +332,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
+        <div className="p-6 pt-2 text-center">
           {vehicleLoading && <PreLoader />}
           <form onSubmit={handleChangeVehicle}>
             <div className="w-full bg-gray-300 rounded-lg bg-opacity-75 py-2 px-2.5 mb-2">
@@ -345,6 +352,10 @@ const ChangeVehicleModal = ({ bookingData }) => {
                   "totalPrice",
                   "discountTotalPrice",
                 ].map((key, index) => {
+                  if (!isGSTActive && key === "tax") {
+                    return null;
+                  }
+
                   const value = bookingData?.bookingPrice?.[key];
                   if (value !== undefined || value !== 0) {
                     if (bookingData?.bookingPrice?.[key] === 0) {

@@ -35,6 +35,7 @@ const BookingDetail = ({ pickupImagesLoading }) => {
   const { vehicleMaster, vehiclePickupImage } = useSelector(
     (state) => state.vehicles
   );
+  const { loggedInRole } = useSelector((state) => state.user);
   const [data, setData] = useState(null);
   const [tab, setTab] = useState("booking");
   const dispatch = useDispatch();
@@ -107,6 +108,15 @@ const BookingDetail = ({ pickupImagesLoading }) => {
         // ],
         moreInfo: [
           {
+            key: "Booked On",
+            value: `${
+              vehicleMaster &&
+              formatFullDateAndTime(
+                vehicleMaster && vehicleMaster[0]?.createdAt
+              )
+            }`,
+          },
+          {
             key: "Pick Up Location",
             value: `${vehicleMaster && vehicleMaster[0]?.stationName}`,
           },
@@ -131,15 +141,6 @@ const BookingDetail = ({ pickupImagesLoading }) => {
                 (vehicleMaster &&
                   vehicleMaster[0]?.extendBooking?.originalEndDate) ||
                   (vehicleMaster && vehicleMaster[0]?.BookingEndDateAndTime)
-              )
-            }`,
-          },
-          {
-            key: "Booked On",
-            value: `${
-              vehicleMaster &&
-              formatFullDateAndTime(
-                vehicleMaster && vehicleMaster[0]?.createdAt
               )
             }`,
           },
@@ -200,7 +201,7 @@ const BookingDetail = ({ pickupImagesLoading }) => {
           </div> */}
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
-              More Information
+              Booking Information
             </h2>
             <BookingStatusFlag
               title={"Ride Status"}
@@ -314,24 +315,25 @@ const BookingDetail = ({ pickupImagesLoading }) => {
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
               Additional Information
             </h2>
-            {((vehicleMaster &&
-              vehicleMaster[0]?.bookingPrice?.diffAmount &&
-              vehicleMaster[0]?.bookingPrice?.diffAmount?.length > 0 &&
-              vehicleMaster[0]?.bookingPrice?.diffAmount?.filter(
-                (record) => record?.status !== "paid"
-              )?.length > 0) ||
-              (vehicleMaster &&
-                vehicleMaster[0]?.bookingPrice?.extendAmount &&
-                vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0 &&
-                vehicleMaster[0]?.bookingPrice?.extendAmount?.filter(
+            {loggedInRole === "admin" &&
+              ((vehicleMaster &&
+                vehicleMaster[0]?.bookingPrice?.diffAmount &&
+                vehicleMaster[0]?.bookingPrice?.diffAmount?.length > 0 &&
+                vehicleMaster[0]?.bookingPrice?.diffAmount?.filter(
                   (record) => record?.status !== "paid"
-                )?.length > 0)) && (
-              <Button
-                title={"Update Payment"}
-                customClass={"text-sm bg-theme text-gray-100 px-1.5 py-1"}
-                fn={() => dispatch(togglePaymentUpdateModal())}
-              />
-            )}
+                )?.length > 0) ||
+                (vehicleMaster &&
+                  vehicleMaster[0]?.bookingPrice?.extendAmount &&
+                  vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0 &&
+                  vehicleMaster[0]?.bookingPrice?.extendAmount?.filter(
+                    (record) => record?.status !== "paid"
+                  )?.length > 0)) && (
+                <Button
+                  title={"Update Payment"}
+                  customClass={"text-sm bg-theme text-gray-100 px-1.5 py-1"}
+                  fn={() => dispatch(togglePaymentUpdateModal())}
+                />
+              )}
           </div>
           <div className="mb-3">
             <AdditionalInfo />

@@ -22,6 +22,7 @@ import PreLoader from "../../components/Skeleton/PreLoader";
 
 const ExtendBookingModal = ({ bookingData }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
+  const { general } = useSelector((state) => state.general);
   const { token } = useSelector((state) => state.user);
   const [plan, setPlan] = useState({ data: null, loading: false });
   const [isPlanApplied, setIsPlanApplied] = useState(false);
@@ -40,15 +41,21 @@ const ExtendBookingModal = ({ bookingData }) => {
     const finalAmount = calculatePriceForExtendBooking(
       bookingData?.vehicleTableId?.perDayCost,
       extensionDays,
-      Number(bookingData?.bookingPrice?.extraAddonPrice)
+      Number(bookingData?.bookingPrice?.extraAddonPrice),
+      general?.GST?.status === "inactive" ? false : true || false,
+      general?.GST?.percentage || 18
     );
+
+    const newStartDate = addOneMinute(
+      bookingData?.BookingEndDateAndTime
+    ).replace(".000Z", "Z");
+
+    const extendAmountList = bookingData?.bookingPrice?.extendAmount || [];
 
     const data = {
       _id: bookingData?._id,
       vehicleTableId: bookingData?.vehicleTableId?._id,
-      BookingStartDateAndTime: addOneMinute(
-        bookingData?.BookingEndDateAndTime
-      ).replace(".000Z", "Z"),
+      BookingStartDateAndTime: newStartDate,
       BookingEndDateAndTime: newDate,
       bookingPrice: bookingData?.bookingPrice,
       extendBooking: bookingData?.extendBooking,
@@ -57,9 +64,13 @@ const ExtendBookingModal = ({ bookingData }) => {
         BookingEndDateAndTime: bookingData?.BookingEndDateAndTime,
       },
       extendAmount: {
-        id: bookingData?.bookingPrice?.extendAmount?.length + 1,
+        id: extendAmountList.length + 1,
         title: "extended",
+        extendDuration: extensionDays,
         amount: finalAmount,
+        addOnAmount: Number(bookingData?.bookingPrice?.extraAddonPrice),
+        BookingStartDateAndTime: newStartDate,
+        bookingEndDateAndTime: newDate,
         paymentMethod: "",
         status: "unpaid",
       },
@@ -69,11 +80,7 @@ const ExtendBookingModal = ({ bookingData }) => {
     try {
       setFormLoading(true);
       const response = await postData(
-        `/extendBooking?BookingStartDateAndTime=${addOneMinute(
-          bookingData?.BookingEndDateAndTime
-        )}&BookingEndDateAndTime=${newDate}&stationId=${
-          bookingData?.stationId
-        }`,
+        `/extendBooking?BookingStartDateAndTime=${newStartDate}&BookingEndDateAndTime=${newDate}&stationId=${bookingData?.stationId}`,
         {
           ...data,
           contact: bookingData?.userId?.contact,
@@ -108,17 +115,6 @@ const ExtendBookingModal = ({ bookingData }) => {
   };
 
   useEffect(() => {
-    // (async () => {
-    //   try {
-    //     setPlan((prev) => ({ ...prev, loading: true }));
-    //     const response = await getData("/getPlanData?page=1&limit=50", token);
-    //     if (response.status === 200) {
-    //       setPlan((prev) => ({ ...prev, data: response?.data }));
-    //     }
-    //   } finally {
-    //     setPlan((prev) => ({ ...prev, loading: false }));
-    //   }
-    // })();
     if (
       plan?.data === null &&
       bookingData?.vehicleTableId?.vehiclePlan?.length
@@ -155,18 +151,22 @@ const ExtendBookingModal = ({ bookingData }) => {
               extensionDays
             )
           : 0;
+
       if (planPrice > 0) {
         setIsPlanApplied(true);
       } else {
         setIsPlanApplied(false);
       }
+
       const price =
         planPrice > 0
           ? planPrice
           : calculatePriceForExtendBooking(
-              rides[0]?.vehicleTableId?.perDayCost,
+              bookingData?.vehicleTableId?.perDayCost,
               extensionDays,
-              extraAddonPrice
+              extraAddonPrice,
+              general?.GST?.status === "inactive" ? false : true || false,
+              general?.GST?.percentage || 18
             );
 
       if (Number(price) > 0) {
@@ -188,7 +188,7 @@ const ExtendBookingModal = ({ bookingData }) => {
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-lg">
-        <div className="flex justify-between p-2">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Extend Booking
           </h2>
@@ -213,7 +213,7 @@ const ExtendBookingModal = ({ bookingData }) => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
+        <div className="p-6 pt-2 text-center">
           <form onSubmit={handleExtendBooking}>
             <div className="mb-2">
               <p className="text-gray-400 text-left">
@@ -277,8 +277,8 @@ const ExtendBookingModal = ({ bookingData }) => {
 
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
-              disabled={formLoading}
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/80"
+              disabled={extensionDays == 0 ? true : false || formLoading}
             >
               {!formLoading ? (
                 "Extend Booking"

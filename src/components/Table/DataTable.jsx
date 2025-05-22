@@ -104,6 +104,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "createdAt",
           "updatedAt",
           "latitude",
+          "bookedFrom",
           "longitude",
           "imageFileName",
           "__v",

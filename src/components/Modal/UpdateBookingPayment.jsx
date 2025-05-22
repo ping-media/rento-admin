@@ -104,7 +104,7 @@ const UpdateBookingPayment = ({ id }) => {
         _id: id,
       };
 
-      // return console.log(updateData, data);
+      return console.log(updateData, data);
 
       const isUpdate = await cancelBookingById(id, data, token);
       if (isUpdate === true) {
@@ -156,7 +156,7 @@ const UpdateBookingPayment = ({ id }) => {
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-md">
-        <div className="flex justify-between p-2">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Update Payment Record
           </h2>
@@ -181,7 +181,7 @@ const UpdateBookingPayment = ({ id }) => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
+        <div className="p-6 pt-2 text-center">
           <form onSubmit={handlUpdateBookingPaymentRecord}>
             <div className="text-left mb-2">
               <SelectDropDown
@@ -189,6 +189,7 @@ const UpdateBookingPayment = ({ id }) => {
                 options={["extendVehicle", "vehicleChange"]}
                 setIsLocationSelected={setPaymentFor}
                 require={true}
+                isSearchEnable={false}
               />
             </div>
             {/* {paymentFor !== "CashPayment" && ( */}
@@ -199,7 +200,7 @@ const UpdateBookingPayment = ({ id }) => {
                   (record) => record?.status !== "paid"
                 )}
                 setIsLocationSelected={setPaymentRecordId}
-                // require={paymentFor !== "CashPayment" ? true : false}
+                isSearchEnable={false}
                 require={true}
               />
             </div>
@@ -209,6 +210,7 @@ const UpdateBookingPayment = ({ id }) => {
                 item={"PaymentMode"}
                 options={["online", "cash"]}
                 setIsLocationSelected={setPaymentMode}
+                isSearchEnable={false}
                 require={true}
               />
             </div>

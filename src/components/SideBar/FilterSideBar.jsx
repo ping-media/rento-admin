@@ -5,12 +5,12 @@ import FilterRadioInput from "./FilterRadioInput";
 import { getData } from "../../Data/index";
 import { fetchVehicleMasterData } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { formatDateToISO } from "../../utils/index";
 import {
   resetVehiclesFilter,
-  setMaintenanceType,
+  // setMaintenanceType,
   setSearch,
   setVehicleName,
 } from "../../Redux/PaginationSlice/PaginationSlice";
@@ -74,7 +74,6 @@ const FilterSideBar = () => {
       divider: false,
     },
     { title: "Extended", searchTag: "bookingStatus=extended", divider: true },
-
     {
       title: "Tomorrow's Pickups",
       searchTag: `search=${tomorrowDate}&rideStatus=pending`,
@@ -130,20 +129,20 @@ const FilterSideBar = () => {
     }
   }, [location?.href]);
 
-  const getTodaysDate = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
+  // const getTodaysDate = () => {
+  //   const now = new Date();
+  //   const year = now.getFullYear();
+  //   const month = String(now.getMonth() + 1).padStart(2, "0");
+  //   const day = String(now.getDate()).padStart(2, "0");
 
-    return `${year}-${month}-${day}`;
-  };
+  //   return `${year}-${month}-${day}`;
+  // };
 
   //   search data based on flags
   const searchDataBasedOnFilters = async (searchTerm) => {
     try {
       setLoading(true);
-      const todaysDate = getTodaysDate();
+      // const todaysDate = getTodaysDate();
       const userType =
         location?.pathname === "/all-users"
           ? "userType=customer"
@@ -222,14 +221,14 @@ const FilterSideBar = () => {
   };
 
   // for fetching maintenance vehicles
-  const handleMaintenanceFilter = () => {
-    if (vehiclesFilter?.maintenanceType === "") {
-      dispatch(setMaintenanceType("upcoming"));
-    } else {
-      dispatch(setMaintenanceType(""));
-    }
-    dispatch(toggleFilterSideBar());
-  };
+  // const handleMaintenanceFilter = () => {
+  //   if (vehiclesFilter?.maintenanceType === "") {
+  //     dispatch(setMaintenanceType("upcoming"));
+  //   } else {
+  //     dispatch(setMaintenanceType(""));
+  //   }
+  //   dispatch(toggleFilterSideBar());
+  // };
 
   return (
     <div
@@ -239,7 +238,7 @@ const FilterSideBar = () => {
     >
       {loading && <PreLoader />}
       <div
-        className={`shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200 w-full lg:w-[25%] lg:float-right ${
+        className={`shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200 w-full lg:w-[22%] lg:float-right ${
           isFilterOpen ? "translate-x-[0]" : "translate-x-[100%]"
         } transition-all duration-300 ease-in-out`}
       >
@@ -273,7 +272,7 @@ const FilterSideBar = () => {
           className="px-3.5 py-3 overflow-y-scroll no-scrollbar"
           style={{ height: "calc(100vh - 88px)" }}
         >
-          {location.pathname === "/all-bookings" && (
+          {/* {location.pathname === "/all-bookings" && (
             <div className="mb-3">
               <Input
                 item={"startDateAndTime"}
@@ -283,20 +282,20 @@ const FilterSideBar = () => {
                 }
               />
             </div>
-          )}
+          )} */}
 
           {location.pathname !== "/all-vehicles" && (
             <>
-              <h2 className="font-semibold uppercase mb-2">Status:</h2>
+              {/* <h2 className="font-semibold uppercase mb-2">Common UsedStatus:</h2> */}
               <ul className="leading-8">
                 {menuList &&
                   menuList?.length > 0 &&
                   menuList?.map((item, index) => (
-                    <>
+                    <React.Fragment key={index}>
                       {item?.divider === true && (
-                        <div className="border-b-2 border-gray-400/60 w-full"></div>
+                        <li className="border-b-2 border-gray-400/60 w-full my-2"></li>
                       )}
-                      <li key={index}>
+                      <li>
                         <FilterRadioInput
                           title={item?.title}
                           searchTag={item?.searchTag}
@@ -305,7 +304,7 @@ const FilterSideBar = () => {
                           }
                         />
                       </li>
-                    </>
+                    </React.Fragment>
                   ))}
               </ul>
             </>
