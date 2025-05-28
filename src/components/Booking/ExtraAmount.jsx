@@ -6,6 +6,18 @@ const ExtraAmount = ({ item }) => {
       <span className="text-sm text-gray-400 font-semibold capitalize">
         {camelCaseToSpaceSeparated(item?.title)}:
       </span>
+      <span className="text-sm text-gray-400 hidden lg:inline">
+        ₹
+        {item?.extendDuration
+          ? formatPrice(
+              (item?.amount - item?.addOnAmount) / Number(item?.extendDuration)
+            )
+          : "--"}
+      </span>
+      <span className="text-sm text-gray-400 hidden lg:inline">
+        x {item?.extendDuration || "--"} day(s) + ₹
+        {item?.addOnAmount ? formatPrice(item?.addOnAmount) : "--"} =
+      </span>
       <span className="text-sm text-gray-400">
         ₹{formatPrice(item?.amount)}
       </span>

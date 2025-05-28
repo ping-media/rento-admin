@@ -149,7 +149,7 @@ const AdditionalInfo = () => {
         <h2 className="text-md text-gray-600 font-bold mb-2">
           Change Vehicle Summary
         </h2>
-        <div className="mb-2">
+        <div className="mb-2 w-full">
           {vehicleMaster[0]?.bookingPrice?.diffAmount &&
           vehicleMaster[0]?.bookingPrice?.diffAmount?.length > 0 ? (
             <ul className="leading-6 lg:leading-7 list-disc">

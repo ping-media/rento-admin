@@ -10,10 +10,12 @@ import {
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
+import TextArea from "../../components/InputAndDropdown/TextArea";
 
 const UpdateBookingPayment = ({ id }) => {
   const { isPaymentUpdateModalActive } = useSelector((state) => state.sideBar);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
+  const { currentUser } = useSelector((state) => state.user);
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
   const [paymentMode, setPaymentMode] = useState("");
@@ -34,6 +36,10 @@ const UpdateBookingPayment = ({ id }) => {
           paymentRecord.push({
             id: item?.id,
             title: item?.title,
+            BookingStartDateAndTime: item?.BookingStartDateAndTime,
+            bookingEndDateAndTime: item?.bookingEndDateAndTime,
+            extendDuration: item?.extendDuration,
+            addOnAmount: item?.addOnAmount,
             amount: item?.amount,
             status: item?.status || "unpaid",
           });
@@ -74,6 +80,9 @@ const UpdateBookingPayment = ({ id }) => {
   // for updating the payment for specific booking
   const handlUpdateBookingPaymentRecord = async (event) => {
     event.preventDefault();
+    const response = new FormData(event.target);
+    const result = Object.fromEntries(response.entries());
+
     setFormLoading(true);
     try {
       if (paymentFor === "" && paymentRecordId === 0 && paymentMode === "")
@@ -82,7 +91,7 @@ const UpdateBookingPayment = ({ id }) => {
       // through this we can dynamically change the data in extendAmount or in diffAmount
       const For =
         paymentFor === "extendVehicle" ? "extendAmount" : "diffAmount";
-      const updateData = paymentRecord.find(
+      let updateData = paymentRecord.find(
         (item) => item.id === Number(paymentRecordId)
       );
       if (updateData) {
@@ -94,7 +103,7 @@ const UpdateBookingPayment = ({ id }) => {
         }
       }
       // creating data for updating the database
-      const data = {
+      let data = {
         bookingPrice: {
           ...vehicleMaster[0].bookingPrice,
           [For]: vehicleMaster[0]?.bookingPrice?.[For]?.map((item) =>
@@ -104,7 +113,18 @@ const UpdateBookingPayment = ({ id }) => {
         _id: id,
       };
 
-      return console.log(updateData, data);
+      if (result?.note !== "") {
+        data = {
+          ...data,
+          Note: {
+            key: `${currentUser?.firstName} (${currentUser?.userType})`,
+            value: result?.note,
+            noteType: "general",
+          },
+        };
+      }
+
+      // return console.log(updateData, data);
 
       const isUpdate = await cancelBookingById(id, data, token);
       if (isUpdate === true) {
@@ -203,6 +223,9 @@ const UpdateBookingPayment = ({ id }) => {
                 isSearchEnable={false}
                 require={true}
               />
+            </div>
+            <div className="text-left mb-2">
+              <TextArea item="note" name="note" />
             </div>
             {/* )} */}
             <div className="text-left mb-2">

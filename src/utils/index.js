@@ -442,13 +442,13 @@ const addDaysToDate = (dateString, days) => {
 };
 
 const calculatePriceForExtendBooking = (
-  perDayCost,
-  extensionDays,
+  totalRentalCost,
+  // extensionDays,
   extraAddonPrice = 0,
   isGSTActive = false,
   GSTPercentage = 18
 ) => {
-  const bookingPrice = Number(perDayCost) * Number(extensionDays);
+  const bookingPrice = Number(totalRentalCost);
   const AddonPrice = Number(extraAddonPrice);
   const newAddOnPrice = AddonPrice;
   const newBookingPrice = bookingPrice + newAddOnPrice;

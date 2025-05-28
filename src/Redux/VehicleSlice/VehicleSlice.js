@@ -74,6 +74,9 @@ const vehicleSlice = createSlice({
         ...state.vehicleMaster[0],
         bookingPrice: bookingPrice,
       };
+      if (action.payload?.Note) {
+        state.vehicleMaster[0]?.notes.push(Note);
+      }
     },
     handleUpdateCompleteRide: (state, action) => {
       const { rideStatus, lateFeeBasedOnHour, lateFeeBasedOnKM } =

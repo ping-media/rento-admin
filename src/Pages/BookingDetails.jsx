@@ -24,6 +24,7 @@ import GenerateInvoiceButton from "../components/Table/GenerateInvoiceButton";
 import { getData, postData } from "../Data/index";
 import UpdateBookingPayment from "../components/Modal/UpdateBookingPayment";
 import NoData from "../components/Error/NoData";
+import TabButton from "../components/TabButton/TabButton";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
@@ -39,6 +40,7 @@ const BookingDetails = () => {
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
   const [loadingStates, setLoadingStates] = useState({});
   const [imagesLoading, setImagesLoading] = useState(false);
+  const [tab, setTab] = useState("customer");
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [reminderLoading, setReminderLoading] = useState(false);
   const [isVehicleChanging, setIsVehicleChanging] = useState(false);
@@ -302,7 +304,18 @@ const BookingDetails = () => {
         </div>
       </div>
       <div className="mt-5">
-        <BookingDetail pickupImagesLoading={imagesLoading} />
+        <div className="w-full lg:hidden mb-5 lg:mb-0">
+          <TabButton
+            options={[
+              { id: "customer", title: "Customer" },
+              { id: "booking", title: "Booking" },
+              { id: "payment", title: "Payment" },
+            ]}
+            tab={tab}
+            setTab={setTab}
+          />
+        </div>
+        <BookingDetail pickupImagesLoading={imagesLoading} tabs={tab} />
       </div>
     </>
   ) : (

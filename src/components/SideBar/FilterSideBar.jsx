@@ -24,6 +24,7 @@ const FilterSideBar = () => {
   const { token } = useSelector((state) => state.user);
   const [menuList, setMenuList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [filterState, setFilterState] = useState("All");
   const [formLoading, setFormLoading] = useState(false);
 
   const todaysDate = formatDateToISO(new Date())
@@ -39,10 +40,14 @@ const FilterSideBar = () => {
     { title: "All", searchTag: "", divider: false },
     {
       title: "Pending Pickups",
-      searchTag: "rideStatus=pending",
+      searchTag: "rideStatus=pending&sortBy=BookingStartDateAndTime",
       divider: false,
     },
-    { title: "Pending Drops", searchTag: "rideStatus=ongoing", divider: false },
+    {
+      title: "Pending Drops",
+      searchTag: "rideStatus=ongoing&sortBy=BookingEndDateAndTime",
+      divider: false,
+    },
     {
       title: "Today's Pickups",
       searchTag: `search=${todaysDate}&rideStatus=pending`,
@@ -286,7 +291,6 @@ const FilterSideBar = () => {
 
           {location.pathname !== "/all-vehicles" && (
             <>
-              {/* <h2 className="font-semibold uppercase mb-2">Common UsedStatus:</h2> */}
               <ul className="leading-8">
                 {menuList &&
                   menuList?.length > 0 &&
@@ -299,9 +303,11 @@ const FilterSideBar = () => {
                         <FilterRadioInput
                           title={item?.title}
                           searchTag={item?.searchTag}
+                          isChecked={filterState === item?.title}
                           onChangeFn={
                             searchDataBasedOnFilters && searchDataBasedOnFilters
                           }
+                          setFilterState={setFilterState}
                         />
                       </li>
                     </React.Fragment>

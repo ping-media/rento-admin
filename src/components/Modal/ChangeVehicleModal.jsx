@@ -67,7 +67,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
             "Z"
           )}&BookingEndDateAndTime=${
             bookingData?.BookingEndDateAndTime
-          }&page=1&limit=25`;
+          }&page=1&limit=100`;
         }
         const response = await getData(endpoint, token);
         if (response?.status === 200) {
@@ -129,11 +129,11 @@ const ChangeVehicleModal = ({ bookingData }) => {
     }
     // calculate the price
     const isPackageApplied = bookingData?.bookingPrice?.isPackageApplied;
-    const bookingPriceWithoutHelmet = Number(changeToNewVehicle?.perDayCost);
+    // const bookingPriceWithoutHelmet = Number(changeToNewVehicle?.perDayCost);
     const bookingPrice =
       Plan !== null && isPackageApplied
         ? Plan?.planPrice
-        : Number(bookingPriceWithoutHelmet) * Number(daysLeft);
+        : changeToNewVehicle?.totalRentalCost;
     let extraCharges = 0;
     if (
       bookingData?.bookingPrice?.extraAddonDetails &&

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
 import { tableIcons } from "../../../Data/Icons";
@@ -13,7 +13,7 @@ const PhotoView = ({
   deleteFn,
   rowId,
 }) => {
-  const isMobile = window.innerWidth <= 768;
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     if (item) {
@@ -24,6 +24,16 @@ const PhotoView = ({
       });
       lightbox.init();
       return () => lightbox.destroy();
+    }
+  }, [item]);
+
+  useEffect(() => {
+    if (item?.imageUrl || item?.link) {
+      const img = new Image();
+      img.src = item.imageUrl || item.link;
+      img.onload = () => {
+        setImageSize({ width: img.naturalWidth, height: img.naturalHeight });
+      };
     }
   }, [item]);
 
@@ -48,10 +58,16 @@ const PhotoView = ({
           >
             <a
               href={item.imageUrl || item.link}
-              data-pswp-width={isMobile ? 720 : 1920}
-              data-pswp-height={isMobile ? 1280 : 1080}
+              data-pswp-width={imageSize.width}
+              data-pswp-height={imageSize.height}
               target="_blank"
               rel="noreferrer"
+              style={{
+                aspectRatio:
+                  imageSize.width && imageSize.height
+                    ? `${imageSize.width} / ${imageSize.height}`
+                    : "auto",
+              }}
             >
               <img
                 src={item.imageUrl || item.link}

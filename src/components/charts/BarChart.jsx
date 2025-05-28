@@ -1,12 +1,12 @@
 import { tableIcons } from "../../Data/Icons";
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
-// import { formatPrice } from "../../utils/index";
 
 const BarChart = ({ data }) => {
   const [viewMode, setViewMode] = useState("Daily");
   // const options = ["Daily", "Weekly", "Monthly"];
   const options = ["Daily", "Weekly"];
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
   const processDataForView = (data) => {
     if (!data || data.length === 0) return [];
@@ -142,8 +142,10 @@ const BarChart = ({ data }) => {
       },
       labels: {
         rotate: -45,
+        hideOverlappingLabels: true,
+        trim: true,
         style: {
-          fontSize: "12px",
+          fontSize: "10px",
         },
       },
     },
@@ -170,7 +172,7 @@ const BarChart = ({ data }) => {
       },
     },
     dataLabels: {
-      enabled: true,
+      enabled: !isMobile,
       formatter: (val) => {
         if (val === 0) return "";
         if (val >= 10000) return `₹${(val / 1000).toFixed(0)}K`;
@@ -243,7 +245,7 @@ const BarChart = ({ data }) => {
   );
 
   return (
-    <div className="w-full bg-white p-2 rounded-lg">
+    <div className="w-full bg-white sm:px-4 md:px-6 px-2 py-4 rounded-lg">
       {/* View Mode Buttons */}
       <div className="mb-3 pb-2 flex items-center justify-between border-b-2 border-theme/60 gap-2">
         <h2 className="text-base font-bold text-theme">{`Total Revenue (${viewMode})`}</h2>
@@ -281,13 +283,15 @@ const BarChart = ({ data }) => {
       </div> */}
 
       {/* Total Price Chart */}
-      <div className="w-full">
-        <Chart
-          options={totalPriceOptions}
-          series={[{ name: "Total Revenue", data: chartData.totalPrice }]}
-          type="bar"
-          height={400}
-        />
+      <div className="w-full overflow-x-auto">
+        <div className="min-w-[600px]">
+          <Chart
+            options={totalPriceOptions}
+            series={[{ name: "Total Revenue", data: chartData.totalPrice }]}
+            type="bar"
+            height={400}
+          />
+        </div>
       </div>
     </div>
   );

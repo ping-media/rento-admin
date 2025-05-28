@@ -703,6 +703,8 @@ const updateTimeLineForPayment = async (
         paymentAmount: finalAmount,
         changeToVehicle: isvehicleNumbers || "",
         id: paymentId,
+        extendDate:
+          isChange === "extend" ? extendAmount?.bookingEndDateAndTime : "",
       },
     ],
   };

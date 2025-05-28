@@ -75,7 +75,9 @@ const Dashboard = () => {
             count: dasboardDataCount?.dashboard[key],
             title:
               key !== "Amount"
-                ? key.substring(0, key.length - 5).toUpperCase()
+                ? key === "bookingsCount"
+                  ? "TOTAL BOOKINGS"
+                  : key.substring(0, key.length - 5).toUpperCase()
                 : "TOTAL REVENUE",
             icon:
               key == "bookingsCount" ? (

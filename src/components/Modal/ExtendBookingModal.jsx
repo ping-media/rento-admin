@@ -9,6 +9,7 @@ import {
   calculatePriceForExtendBooking,
   calculateTotalAddOnPrice,
   formatFullDateAndTime,
+  formatPrice,
 } from "../../utils/index";
 import { getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
@@ -19,6 +20,7 @@ import {
 import { updateTimeLineForPayment } from "../../Data/Function";
 import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
 import PreLoader from "../../components/Skeleton/PreLoader";
+import { debounce } from "lodash";
 
 const ExtendBookingModal = ({ bookingData }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
@@ -27,24 +29,46 @@ const ExtendBookingModal = ({ bookingData }) => {
   const [plan, setPlan] = useState({ data: null, loading: false });
   const [isPlanApplied, setIsPlanApplied] = useState(false);
   const [extensionDays, setExtensionDays] = useState(0);
+  const [addOnPrice, setAddOnPrice] = useState(0);
+  const [freeVehicle, setFreeVehicle] = useState(null);
   const [extendPrice, setExtendPrice] = useState(0);
   const [newDate, setNewDate] = useState("");
+  const [priceLoading, setPriceLoading] = useState(false);
 
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
+
+  const checkFreeVehicle = async () => {
+    try {
+      setPriceLoading(true);
+      const isVehicleFree = await getData(
+        `/getAllVehiclesAvailable?_id=${
+          bookingData?.vehicleTableId?._id
+        }&BookingStartDateAndTime=${addOneMinute(
+          bookingData?.BookingEndDateAndTime
+        ).replace(".000Z", "Z")}&BookingEndDateAndTime=${newDate}`,
+        token
+      );
+      if (isVehicleFree?.status === 200) {
+        setFreeVehicle(
+          isVehicleFree?.data?.length > 0 ? isVehicleFree?.data[0] : null
+        );
+        if (isVehicleFree?.data?.length === 0) {
+          handleAsyncError(dispatch, isVehicleFree?.message);
+          return;
+        }
+      }
+    } catch (error) {
+      handleAsyncError(dispatch, "Unable to get Vehicle Info! try again");
+    } finally {
+      setPriceLoading(false);
+    }
+  };
 
   // extend bookng function
   const handleExtendBooking = async (event) => {
     event.preventDefault();
     if (!newDate) return;
-
-    const finalAmount = calculatePriceForExtendBooking(
-      bookingData?.vehicleTableId?.perDayCost,
-      extensionDays,
-      Number(bookingData?.bookingPrice?.extraAddonPrice),
-      general?.GST?.status === "inactive" ? false : true || false,
-      general?.GST?.percentage || 18
-    );
 
     const newStartDate = addOneMinute(
       bookingData?.BookingEndDateAndTime
@@ -67,8 +91,8 @@ const ExtendBookingModal = ({ bookingData }) => {
         id: extendAmountList.length + 1,
         title: "extended",
         extendDuration: extensionDays,
-        amount: finalAmount,
-        addOnAmount: Number(bookingData?.bookingPrice?.extraAddonPrice),
+        amount: extendPrice,
+        addOnAmount: addOnPrice,
         BookingStartDateAndTime: newStartDate,
         bookingEndDateAndTime: newDate,
         paymentMethod: "",
@@ -97,7 +121,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         const timeLineData = await updateTimeLineForPayment(
           data,
           token,
-          "Booking Extended"
+          "Extension Payment Link"
         );
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
@@ -125,6 +149,19 @@ const ExtendBookingModal = ({ bookingData }) => {
       }));
     }
   }, [bookingData]);
+
+  useEffect(() => {
+    if (!bookingData || !newDate) return;
+
+    const debouncedCheck = debounce(() => {
+      checkFreeVehicle();
+    }, 200);
+    debouncedCheck();
+
+    return () => {
+      debouncedCheck.cancel();
+    };
+  }, [bookingData, newDate]);
 
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {
@@ -160,10 +197,9 @@ const ExtendBookingModal = ({ bookingData }) => {
 
       const price =
         planPrice > 0
-          ? planPrice
+          ? planPrice + extraAddonPrice
           : calculatePriceForExtendBooking(
-              bookingData?.vehicleTableId?.perDayCost,
-              extensionDays,
+              freeVehicle?.totalRentalCost,
               extraAddonPrice,
               general?.GST?.status === "inactive" ? false : true || false,
               general?.GST?.percentage || 18
@@ -171,11 +207,12 @@ const ExtendBookingModal = ({ bookingData }) => {
 
       if (Number(price) > 0) {
         setExtendPrice(price);
+        setAddOnPrice(extraAddonPrice);
       }
     } else {
       setExtendPrice(0);
     }
-  }, [extensionDays]);
+  }, [extensionDays, freeVehicle]);
 
   if (plan?.loading) {
     return <PreLoader />;
@@ -246,6 +283,31 @@ const ExtendBookingModal = ({ bookingData }) => {
                   </p>
                 </div>
               )}
+              <div className="mb-2 bg-gray-500/30 rounded-md p-2">
+                <div className="w-full flex items-center justify-between mb-1">
+                  <p>Vehicle Rental Cost:</p>
+                  <p>
+                    ₹{" "}
+                    {priceLoading
+                      ? "--"
+                      : extendPrice > 0 && extensionDays > 0
+                      ? formatPrice(extendPrice - addOnPrice)
+                      : "--"}
+                  </p>
+                </div>
+                <div className="w-full flex items-center justify-between mb-1">
+                  <p>Add On Cost:</p>
+                  <p>
+                    ₹{" "}
+                    {priceLoading
+                      ? "--"
+                      : addOnPrice >= 0 && extensionDays > 0
+                      ? formatPrice(addOnPrice)
+                      : "--"}
+                  </p>
+                </div>
+              </div>
+
               <div className="mb-2">
                 <p
                   className={`text-gray-400 text-left ${
@@ -261,17 +323,18 @@ const ExtendBookingModal = ({ bookingData }) => {
                 </p>
               </div>
               <div className={`mb-2`}>
-                <p className="text-theme text-left flex items-center">
-                  <span className="font-semibold text-black mr-1">
-                    New Amount:
-                  </span>
-
-                  <ChangeTextToInput
-                    value={extendPrice}
-                    setValue={(e) => setExtendPrice(e.target.value)}
-                    type={"number"}
-                  />
-                </p>
+                <div className="flex items-center text-theme text-left">
+                  <p className="font-semibold text-black mr-1">New Amount:</p>
+                  {priceLoading ? (
+                    <p className="w-20 h-5 bg-gray-300/80 rounded-md animate-pulse"></p>
+                  ) : (
+                    <ChangeTextToInput
+                      value={extendPrice}
+                      setValue={(e) => setExtendPrice(e.target.value)}
+                      type={"number"}
+                    />
+                  )}
+                </div>
               </div>
             </div>
 

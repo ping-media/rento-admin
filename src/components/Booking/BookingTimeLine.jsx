@@ -3,6 +3,7 @@ import PreLoader from "../../components/Skeleton/PreLoader";
 import { useSelector } from "react-redux";
 import CopyButton from "../../components/Buttons/CopyButton";
 import {
+  formatFullDateAndTime,
   formatMilliseconds,
   formatPrice,
   removeSecondsFromDateAndTime,
@@ -116,6 +117,12 @@ const BookingTimeLine = () => {
                               {item?.changeToVehicle}
                             </p>
                           )}
+                        {item?.extendDate && (
+                          <p className="text-gray-800 leading-tight text-xs">
+                            Extension till{" "}
+                            {formatFullDateAndTime(item?.extendDate)}
+                          </p>
+                        )}
                         <p className="text-gray-700 leading-tight text-xs">
                           {removeSecondsFromDateAndTime(item?.date)}
                         </p>

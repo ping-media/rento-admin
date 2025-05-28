@@ -4,9 +4,23 @@ import {
   formatPrice,
   getDurationInDays,
 } from "../../utils/index";
+import Tooltip from "../../components/Tooltip/Tooltip";
 
 const BookingFareDetails = ({ rides }) => {
   const { general } = useSelector((state) => state.general);
+
+  const weekDays = rides?.bookingPrice?.daysBreakdown
+    ? rides?.bookingPrice?.daysBreakdown.filter(
+        (breakup) => breakup?.isWeekend === false
+      )
+    : [];
+
+  const weekend = rides?.bookingPrice?.daysBreakdown
+    ? rides?.bookingPrice?.daysBreakdown.filter(
+        (breakup) => breakup?.isWeekend === true
+      )
+    : [];
+
   return (
     <>
       {rides && (
@@ -48,7 +62,8 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "additionalPrice" &&
                   key !== "refundAmount" &&
                   // !(key === "extraAddonPrice" && value === 0)
-                  key !== "extraAddonPrice"
+                  key !== "extraAddonPrice" &&
+                  key !== "daysBreakdown"
               ) // Exclude totalPrice
               .map(([key, value]) => {
                 if (typeof value === "object") {
@@ -118,11 +133,58 @@ const BookingFareDetails = ({ rides }) => {
                     >
                       <div className="my-1">
                         <p className="text-sm font-semibold uppercase">
-                          {key == "tax"
-                            ? `${camelCaseToSpaceSeparated(key)} (18% GST)`
+                          {key === "tax"
+                            ? `${camelCaseToSpaceSeparated(key)} (${
+                                general?.GST?.percentage
+                              }% GST)`
                             : camelCaseToSpaceSeparated(key)}
+                          {key === "bookingPrice" &&
+                            rides?.bookingPrice?.daysBreakdown && (
+                              <span className="ml-1">
+                                <Tooltip
+                                  underLine={false}
+                                  buttonMessage="(?)"
+                                  tooltipData={
+                                    <ul className="max-h-80 overflow-y-scroll no-scrollbar">
+                                      {weekDays?.length > 0 && (
+                                        <li className="w-full">
+                                          <div className="flex items-center gap-1 w-full">
+                                            <p className="text-xs font-semibold">
+                                              Weak Day:
+                                            </p>
+                                            <p className="text-xs">
+                                              ₹
+                                              {formatPrice(
+                                                Number(weekDays[0]?.dailyRate)
+                                              )}{" "}
+                                              x {weekDays?.length} day(s)
+                                            </p>
+                                          </div>
+                                        </li>
+                                      )}
+                                      {weekend?.length > 0 && (
+                                        <li className="w-full">
+                                          <div className="flex items-center gap-1 w-full">
+                                            <p className="text-xs font-semibold">
+                                              Weekend:
+                                            </p>
+                                            <p className="text-xs">
+                                              ₹
+                                              {formatPrice(
+                                                Number(weekend[0]?.dailyRate)
+                                              )}{" "}
+                                              x {weekend?.length} day(s)
+                                            </p>
+                                          </div>
+                                        </li>
+                                      )}
+                                    </ul>
+                                  }
+                                />
+                              </span>
+                            )}
                         </p>
-                        {key != "tax" &&
+                        {/* {key != "tax" &&
                           key != "userPaid" &&
                           value != 0 &&
                           !rides?.bookingPrice.isPackageApplied && (
@@ -155,7 +217,7 @@ const BookingFareDetails = ({ rides }) => {
                                   }`}
                               )
                             </p>
-                          )}
+                          )} */}
                       </div>
                       <p>{`₹${formatPrice(value)}`}</p>
                     </li>
