@@ -17,6 +17,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const [zipCodeValue, setZipcodeValue] = useState(null);
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+  const [mapUrl, setMapUrl] = useState("");
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
 
@@ -109,11 +110,17 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               name="longitude"
               value={id ? Number(vehicleMaster[0]?.longitude) : longitude}
             />
+            <input
+              type="hidden"
+              name="mapLink"
+              value={id ? vehicleMaster[0]?.mapLink || mapUrl : mapUrl}
+            />
             {/* seaching address & lat & long  */}
             <GoogleSearchLocation
               item={"address"}
               setLatitude={setLatitude}
               setLongitude={setLongitude}
+              setUrl={setMapUrl}
               value={id && vehicleMaster[0]?.address}
             />
           </div>
