@@ -17,7 +17,7 @@ const ImageUploadAndPreview = ({
 }) => {
   const fileInputRef = useRef(null);
   const dispatch = useDispatch();
-  const MAX_FILE_SIZE = 2 * 1024 * 1024;
+  // const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -26,10 +26,10 @@ const ImageUploadAndPreview = ({
       return;
     }
 
-    if (file.size > MAX_FILE_SIZE) {
-      handleAsyncError(dispatch, "File is too large. Max allowed size is 2MB.");
-      return;
-    }
+    // if (file.size > MAX_FILE_SIZE) {
+    //   handleAsyncError(dispatch, "File is too large. Max allowed size is 2MB.");
+    //   return;
+    // }
     setImageChanger?.(file);
     setImageMultiChanger?.((prev) => ({ ...prev, [title]: file }));
 
