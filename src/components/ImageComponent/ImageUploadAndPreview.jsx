@@ -1,7 +1,8 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { camelCaseToSpaceSeparated } from "../../utils/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { useDispatch } from "react-redux";
+import imageCompression from "browser-image-compression";
 
 const ImageUploadAndPreview = ({
   image,
@@ -17,20 +18,39 @@ const ImageUploadAndPreview = ({
 }) => {
   const fileInputRef = useRef(null);
   const dispatch = useDispatch();
+  const [isCompressing, setIsCompressing] = useState(false);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) {
       handleAsyncError(dispatch, "No file selected.");
       return;
     }
+    try {
+      setIsCompressing(true);
+      let compressedFile = file;
 
-    setImageChanger?.(file);
-    setImageMultiChanger?.((prev) => ({ ...prev, [title]: file }));
+      if (file.size > 1024 * 1024) {
+        compressedFile = await imageCompression(file, {
+          maxSizeMB: 0.7,
+          useWebWorker: true,
+          initialQuality: 0.7,
+          fileType: "image/jpeg",
+        });
+      }
 
-    const url = URL.createObjectURL(file);
-    setImageUrlChanger?.(url);
-    setImageUrlMultiChanger?.((prev) => ({ ...prev, [title]: url }));
+      setImageChanger?.(compressedFile);
+      setImageMultiChanger?.((prev) => ({ ...prev, [title]: compressedFile }));
+
+      const url = URL.createObjectURL(compressedFile);
+      setImageUrlChanger?.(url);
+      setImageUrlMultiChanger?.((prev) => ({ ...prev, [title]: url }));
+    } catch (error) {
+      console.error("Image compression failed:", error);
+      handleAsyncError(dispatch, "Failed to compress image.");
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   // for deleting image
@@ -70,7 +90,16 @@ const ImageUploadAndPreview = ({
           required={isRequired}
         />
 
-        {imagesUrl ? (
+        {isCompressing ? (
+          // <div className="flex justify-center items-center h-28">
+          //   <span className="text-gray-600 text-sm animate-pulse">
+          //     Compressing image...
+          //   </span>
+          // </div>
+          <div className="flex justify-center items-center h-28">
+            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-theme"></div>
+          </div>
+        ) : imagesUrl ? (
           <>
             {/* Remove Button */}
             <div className="lg:absolute block text-right right-8 z-50 mb-5">

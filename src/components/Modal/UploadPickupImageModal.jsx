@@ -185,6 +185,194 @@ const UploadPickupImageModal = ({
   //   }
   // };
 
+  // compressor image function
+  // const handleUploadPickupImages = async (event) => {
+  //   event.preventDefault();
+  //   setLoading(true);
+
+  //   const isAnyImageMissing = Object.values(imagesUrl).some(
+  //     (value) => value === ""
+  //   );
+  //   if (isAnyImageMissing)
+  //     return handleAsyncError(dispatch, "All Images Required!.");
+
+  //   if (!tempVehicleData)
+  //     return handleAsyncError(dispatch, "All fields required.");
+
+  //   const rawFormData = new FormData(event.target);
+  //   const compressedFormData = new FormData();
+
+  //   // Copy all non-file fields
+  //   for (let [key, value] of rawFormData.entries()) {
+  //     if (!(value instanceof File)) {
+  //       compressedFormData.append(key, value);
+  //     }
+  //   }
+
+  //   let hasFiles = false;
+
+  //   for (let [key, value] of rawFormData.entries()) {
+  //     if (value instanceof File) {
+  //       hasFiles = true;
+
+  //       try {
+  //         const compressedFile = await imageCompression(value, {
+  //           maxSizeMB: 0.2,
+  //           useWebWorker: true,
+  //         });
+
+  //         compressedFormData.append(key, compressedFile);
+  //       } catch (err) {
+  //         console.error("Compression failed:", err);
+  //         compressedFormData.append(key, value);
+  //       }
+  //     }
+  //   }
+
+  //   if (!hasFiles) {
+  //     return handleAsyncError(
+  //       dispatch,
+  //       "Unable to upload! No images provided."
+  //     );
+  //   }
+
+  //   // Add required fields
+  //   compressedFormData.append("userId", tempVehicleData?.userId?._id);
+  //   compressedFormData.append("bookingId", tempVehicleData?.bookingId);
+  //   compressedFormData.append("_id", tempVehicleData?._id);
+
+  //   // changing the data based on id is present or not
+  //   let currentData = !isBookingIdPresent ? vehicleMaster?.data : vehicleMaster;
+
+  //   let currentBooking = currentData?.find(
+  //     (item) => item?._id == tempVehicleData?._id
+  //   );
+
+  //   // for paymentmethod update in booking price
+  //   const updatePaymentMode =
+  //     compressedFormData.get("PaymentMode") ||
+  //     currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
+
+  //   let updatedBooking;
+
+  //   if (currentBooking?.paymentMethod?.toLowerCase() === "cash") {
+  //     updatedBooking = {
+  //       ...currentBooking,
+  //       bookingPrice: {
+  //         ...currentBooking.bookingPrice,
+  //         payOnPickupMethod: updatePaymentMode || "cash",
+  //       },
+  //       paymentStatus: "paid",
+  //       rideStatus: "ongoing",
+  //     };
+  //   } else {
+  //     if (isChange === true) {
+  //       // for hiding the finish button and show update ride button
+  //       setIsChange && setIsChange(false);
+  //     } else {
+  //       updatedBooking = {
+  //         ...currentBooking,
+  //         bookingPrice: {
+  //           ...currentBooking.bookingPrice,
+  //           isPickupImageAdded: true,
+  //           AmountLeftAfterUserPaid: {
+  //             ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
+  //             status: "paid",
+  //             paymentMethod:
+  //               updatePaymentMode ||
+  //               currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
+  //                 ?.paymentMethod,
+  //           },
+  //         },
+  //         paymentStatus: "paid",
+  //         rideStatus: "ongoing",
+  //       };
+  //     }
+  //   }
+
+  //   try {
+  //     if (isChange && isChange === true) {
+  //       compressedFormData.append(
+  //         "vehicleNumber",
+  //         currentBooking?.vehicleBasic?.vehicleNumber
+  //       );
+  //       compressedFormData.append("isVehicleUpdate", true);
+  //     }
+
+  //     // let totalSize = 0;
+  //     // for (const [key, value] of compressedFormData.entries()) {
+  //     //   if (value instanceof File) {
+  //     //     console.log(
+  //     //       `${key}: ${value.name} - ${(value.size / 1024 / 1024).toFixed(
+  //     //         2
+  //     //       )} MB`,
+  //     //       value
+  //     //     );
+  //     //     totalSize += value.size;
+  //     //   } else {
+  //     //     console.log(`${key}: ${value}`);
+  //     //   }
+  //     // }
+  //     // console.log(
+  //     //   `Total file payload size: ${(totalSize / 1024 / 1024).toFixed(2)} MB`
+  //     // );
+
+  //     for (let [key, val] of compressedFormData.entries()) {
+  //       console.log(key, val instanceof File ? val.name : val);
+  //     }
+
+  //     return;
+
+  //     const responseImage = await postMultipleData(
+  //       "/pickupImage",
+  //       compressedFormData,
+  //       token
+  //     );
+
+  //     if (responseImage?.status === 200) {
+  //       setImage([]);
+  //       setImageUrl([]);
+  //       dispatch(togglePickupImageModal());
+  //       updatedBooking = {
+  //         ...updatedBooking,
+  //         vehicleBasic: {
+  //           ...updatedBooking?.vehicleBasic,
+  //           endRide: responseImage?.endOtp || 0,
+  //         },
+  //       };
+  //       dispatch(handleInvoiceCreated(updatedBooking));
+  //       // updating the timeline for booking
+  //       const timeLineData = {
+  //         currentBooking_id: vehicleMaster && vehicleMaster[0]?._id,
+  //         timeLine: [
+  //           {
+  //             title:
+  //               isChange && isChange === true ? "Ride Updated" : "Ride Started",
+  //             date: Date.now(),
+  //             vehicleName: vehicleMaster[0]?.vehicleName,
+  //             vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
+  //           },
+  //         ],
+  //       };
+  //       await postData("/createTimeline", timeLineData, token);
+  //       // for updating timeline redux data
+  //       dispatch(updateTimeLineData(timeLineData));
+  //       handleAsyncError(dispatch, responseImage?.message, "success");
+  //     } else {
+  //       if (responseImage?.isKyc === false) {
+  //         setIsKycApproved(true);
+  //       }
+  //       handleAsyncError(dispatch, responseImage?.message);
+  //     }
+  //   } catch (error) {
+  //     handleAsyncError(dispatch, error?.message);
+  //   } finally {
+  //     setIsChange(false);
+  //     setLoading(false);
+  //   }
+  // };
+
+  // new image compress per image
   const handleUploadPickupImages = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -192,39 +380,30 @@ const UploadPickupImageModal = ({
     const isAnyImageMissing = Object.values(imagesUrl).some(
       (value) => value === ""
     );
-    if (isAnyImageMissing)
+    if (isAnyImageMissing) {
       return handleAsyncError(dispatch, "All Images Required!.");
+    }
 
-    if (!tempVehicleData)
+    if (!tempVehicleData) {
       return handleAsyncError(dispatch, "All fields required.");
+    }
 
     const rawFormData = new FormData(event.target);
-    const compressedFormData = new FormData();
+    const finalFormData = new FormData();
 
     // Copy all non-file fields
     for (let [key, value] of rawFormData.entries()) {
       if (!(value instanceof File)) {
-        compressedFormData.append(key, value);
+        finalFormData.append(key, value);
       }
     }
 
     let hasFiles = false;
 
-    for (let [key, value] of rawFormData.entries()) {
-      if (value instanceof File) {
+    for (const file of Object.values(image)) {
+      if (file instanceof File || file instanceof Blob) {
         hasFiles = true;
-
-        try {
-          const compressedFile = await imageCompression(value, {
-            maxSizeMB: 0.2,
-            useWebWorker: true,
-          });
-
-          compressedFormData.append(key, compressedFile);
-        } catch (err) {
-          console.error("Compression failed:", err);
-          compressedFormData.append(key, value);
-        }
+        finalFormData.append("images", file);
       }
     }
 
@@ -235,10 +414,9 @@ const UploadPickupImageModal = ({
       );
     }
 
-    // Add required fields
-    compressedFormData.append("userId", tempVehicleData?.userId?._id);
-    compressedFormData.append("bookingId", tempVehicleData?.bookingId);
-    compressedFormData.append("_id", tempVehicleData?._id);
+    finalFormData.append("userId", tempVehicleData?.userId?._id);
+    finalFormData.append("bookingId", tempVehicleData?.bookingId);
+    finalFormData.append("_id", tempVehicleData?._id);
 
     // changing the data based on id is present or not
     let currentData = !isBookingIdPresent ? vehicleMaster?.data : vehicleMaster;
@@ -249,7 +427,7 @@ const UploadPickupImageModal = ({
 
     // for paymentmethod update in booking price
     const updatePaymentMode =
-      compressedFormData.get("PaymentMode") ||
+      finalFormData.get("PaymentMode") ||
       currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
 
     let updatedBooking;
@@ -266,7 +444,6 @@ const UploadPickupImageModal = ({
       };
     } else {
       if (isChange === true) {
-        // for hiding the finish button and show update ride button
         setIsChange && setIsChange(false);
       } else {
         updatedBooking = {
@@ -290,24 +467,51 @@ const UploadPickupImageModal = ({
     }
 
     try {
-      if (isChange && isChange === true) {
-        compressedFormData.append(
+      if (isChange) {
+        finalFormData.append(
           "vehicleNumber",
           currentBooking?.vehicleBasic?.vehicleNumber
         );
-        compressedFormData.append("isVehicleUpdate", true);
+        finalFormData.append("isVehicleUpdate", true);
       }
+
+      // let totalSize = 0;
+      // for (const [key, value] of finalFormData.entries()) {
+      //   if (value instanceof File) {
+      //     console.log(
+      //       `${key}: ${value.name} - ${(value.size / 1024 / 1024).toFixed(
+      //         2
+      //       )} MB`,
+      //       value
+      //     );
+      //     totalSize += value.size;
+      //   } else {
+      //     console.log(`${key}: ${value}`);
+      //   }
+      // }
+      // console.log(
+      //   `Total file payload size: ${(totalSize / 1024 / 1024).toFixed(2)} MB`
+      // );
+      // return;
 
       const responseImage = await postMultipleData(
         "/pickupImage",
-        compressedFormData,
+        finalFormData,
         token
       );
 
       if (responseImage?.status === 200) {
-        setImage([]);
+        setImage({
+          vehicleFront: null,
+          vehicleLeft: null,
+          vehicleRight: null,
+          vehicleBack: null,
+          odoMeterReading: null,
+          others: null,
+        });
         setImageUrl([]);
         dispatch(togglePickupImageModal());
+
         updatedBooking = {
           ...updatedBooking,
           vehicleBasic: {

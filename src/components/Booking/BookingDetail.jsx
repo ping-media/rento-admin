@@ -76,36 +76,6 @@ const BookingDetail = ({ pickupImagesLoading, tabs }) => {
               "no",
           },
         ],
-        // managerInfo: [
-        //   {
-        //     key: "Full Name",
-        //     value:
-        //       vehicleMaster &&
-        //       `${vehicleMaster[0]?.stationMasterUserId?.firstName} ${vehicleMaster[0]?.stationMasterUserId?.lastName}`,
-        //   },
-        //   {
-        //     key: "Mobile Number",
-        //     value: `${
-        //       (vehicleMaster &&
-        //         vehicleMaster[0]?.stationMasterUserId?.contact) ||
-        //       "NA"
-        //     }`,
-        //   },
-        //   {
-        //     key: "Alt Mobile Number",
-        //     value: `${
-        //       (vehicleMaster &&
-        //         vehicleMaster[0]?.stationMasterUserId?.altContact) ||
-        //       "NA"
-        //     }`,
-        //   },
-        //   {
-        //     key: "Email",
-        //     value:
-        //       vehicleMaster &&
-        //       `${vehicleMaster[0]?.stationMasterUserId?.email}`,
-        //   },
-        // ],
         moreInfo: [
           {
             key: "Booked On",
@@ -193,19 +163,6 @@ const BookingDetail = ({ pickupImagesLoading, tabs }) => {
               />
             </div>
           </div>
-          {/* <div className="flex items-center justify-between mb-3">
-            <h2 className="text-md lg:text-lg font-semibold text-gray-500">
-              Manager Information
-            </h2>
-            <BookingStatusFlag
-              title={"Manager Status"}
-              rides={vehicleMaster[0]?.stationMasterUserId}
-              flag={"status"}
-            />
-          </div> */}
-          {/* <div className="border-2 p-2 border-gray-300 rounded-lg mb-4">
-            <BookingMoreInfo data={data} datatype={"managerInfo"} />
-          </div> */}
           <div className={`${tabs !== "booking" && "hidden lg:block"}`}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-md lg:text-lg font-semibold text-gray-500">

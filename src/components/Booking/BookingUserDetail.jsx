@@ -36,11 +36,11 @@ const BookingUserDetails = ({ data, userId }) => {
     }
   };
 
-  useEffect(() => {
-    if (userId) {
-      handleFetchDocuments();
-    }
-  }, [userId]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     handleFetchDocuments();
+  //   }
+  // }, [userId]);
 
   useEffect(() => {
     return () => {
@@ -121,7 +121,7 @@ const BookingUserDetails = ({ data, userId }) => {
         </div>
       ))}
       {/* user documents  */}
-      <UserDocuments data={userDocuments?.[0]?.files} hookLoading={loading} />
+      {/* <UserDocuments data={userDocuments?.[0]?.files} hookLoading={loading} /> */}
     </>
   );
 };
