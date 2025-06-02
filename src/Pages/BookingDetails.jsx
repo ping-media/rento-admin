@@ -51,14 +51,14 @@ const BookingDetails = () => {
   // through this we are fetching single vehicle data
   const fetchSingleVehicleDetails = useCallback(async () => {
     if (id) {
-      const bookingId = id.split("-")[0];
+      const bookingId = id.split("_")[0];
       fetchVehicleMasterById(
         dispatch,
         bookingId,
         token,
         "/getBookings",
-        "/getTimelineData",
-        "/getBookings"
+        "/getTimelineData"
+        // "/getBookings"
       );
     }
   }, [id, token]);
@@ -221,15 +221,13 @@ const BookingDetails = () => {
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">
         <h1 className="text-2xl uppercase font-bold text-theme">
-          Booking Id (#{id.split("-")[1] || "--"})
+          Booking Id (#{id.split("_")[1] || "--"})
         </h1>
         {/* actions for cancel & start ride  */}
         <div className="flex flex-wrap gap-2">
           {/* for starting & completing ride  */}
           {vehicleMaster[0]?.rideStatus !== "ongoing" &&
             vehicleMaster[0]?.rideStatus !== "completed" && (
-              // vehicleMaster[0]?.BookingStartDateAndTime.split("T")[0] <=
-              //   formatDateToISO(new Date()).split("T")[0] &&
               <Button
                 title={
                   vehicleMaster[0]?.rideStatus === "completed"

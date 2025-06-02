@@ -132,7 +132,7 @@ const BookingFareDetails = ({ rides }) => {
                       className="flex items-center justify-between border-b-2"
                     >
                       <div className="my-1">
-                        <p className="text-sm font-semibold uppercase">
+                        <div className="text-sm font-semibold uppercase">
                           {key === "tax"
                             ? `${camelCaseToSpaceSeparated(key)} (${
                                 general?.GST?.percentage
@@ -183,7 +183,7 @@ const BookingFareDetails = ({ rides }) => {
                                 />
                               </span>
                             )}
-                        </p>
+                        </div>
                         {/* {key != "tax" &&
                           key != "userPaid" &&
                           value != 0 &&

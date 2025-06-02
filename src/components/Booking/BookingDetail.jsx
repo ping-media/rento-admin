@@ -3,16 +3,16 @@ import VehicleInfo from "../VehicleDetails/VehicleInfo";
 import { lazy, useEffect, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
-  formatDateTimeISTForUser,
+  // formatDateTimeISTForUser,
   formatDateToISOWithoutSecond,
   formatFullDateAndTime,
-  formatPrice,
+  // formatPrice,
 } from "../../utils/index";
 import BookingFareDetails from "./BookingFareDetails";
 import BookingUserDetails from "./BookingUserDetail";
 import BookingStatusFlag from "./BookingStatusFlag";
 import BookingMoreInfo from "./BookingMoreInfo";
-import CopyButton from "../../components/Buttons/CopyButton";
+// import CopyButton from "../../components/Buttons/CopyButton";
 import BookingNote from "./BookingNote";
 import {
   toggleChangeVehicleModal,
@@ -179,8 +179,6 @@ const BookingDetail = ({ pickupImagesLoading, tabs }) => {
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-md lg:text-lg font-semibold text-gray-500 flex items-center">
                 Customer Information
-                {/* {`BookingId: #${vehicleMaster[0]?.bookingId}`}{" "}
-                <CopyButton textToCopy={`#${vehicleMaster[0]?.bookingId}`} /> */}
               </h2>
               <BookingStatusFlag
                 title={"Booking Status"}
@@ -277,56 +275,32 @@ const BookingDetail = ({ pickupImagesLoading, tabs }) => {
             tabs !== "payment" && "hidden"
           } lg:block flex-1 px-6 py-4 bg-white shadow-md rounded-lg`}
         >
-          <div className="flex lg:items-center justify-between mb-2 lg:mb-5">
+          <div className="flex lg:items-center justify-between">
             <div>
               <h2 className="font-bold uppercase text-md lg:text-lg flex flex-wrap items-center gap-2">
                 {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
-                {!(
-                  vehicleMaster[0]?.rideStatus === "completed" ||
-                  vehicleMaster[0]?.bookingStatus === "canceled" ||
-                  vehicleMaster[0]?.BookingEndDateAndTime <
-                    formatDateToISOWithoutSecond(new Date())
-                ) && (
-                  <button
-                    className="hidden lg:block text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"
-                    type="button"
-                    onClick={() => dispatch(toggleChangeVehicleModal())}
-                  >
-                    Change Vehicle
-                  </button>
-                )}
               </h2>
-              <small className="text-sm text-gray-400">
-                Vehicle Number: ({vehicleMaster[0]?.vehicleBasic?.vehicleNumber}
-                )
-              </small>
             </div>
-            <div>
-              <h2 className="font-semibold uppercase hidden lg:block text-sm">
-                Rental Price
-              </h2>
-              <p className="font-bold text-sm text-lg">
-                ₹
-                {vehicleMaster &&
-                  formatPrice(vehicleMaster[0]?.bookingPrice?.rentAmount)}
-                /DAY
-              </p>
-            </div>
+            {!(
+              vehicleMaster[0]?.rideStatus === "completed" ||
+              vehicleMaster[0]?.bookingStatus === "canceled" ||
+              vehicleMaster[0]?.BookingEndDateAndTime <
+                formatDateToISOWithoutSecond(new Date())
+            ) && (
+              <button
+                className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"
+                type="button"
+                onClick={() => dispatch(toggleChangeVehicleModal())}
+              >
+                Change Vehicle
+              </button>
+            )}
           </div>
-          {!(
-            vehicleMaster[0]?.rideStatus === "completed" ||
-            vehicleMaster[0]?.bookingStatus === "canceled" ||
-            vehicleMaster[0]?.BookingEndDateAndTime <
-              formatDateToISOWithoutSecond(new Date())
-          ) && (
-            <button
-              className="lg:hidden mb-3 lg:mb-0 w-full text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"
-              type="button"
-              onClick={() => dispatch(toggleChangeVehicleModal())}
-            >
-              Change Vehicle
-            </button>
-          )}
+
+          <small className="text-sm text-gray-400 mb-2 lg:mb-5">
+            Vehicle Number: ({vehicleMaster[0]?.vehicleBasic?.vehicleNumber})
+          </small>
+
           <div className="hidden lg:block">
             <VehicleInfo
               vehicleImage={vehicleMaster[0]?.vehicleImage}

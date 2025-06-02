@@ -187,6 +187,7 @@ const UploadPickupImageModal = ({
 
   const handleUploadPickupImages = async (event) => {
     event.preventDefault();
+    setLoading(true);
 
     const isAnyImageMissing = Object.values(imagesUrl).some(
       (value) => value === ""
@@ -215,8 +216,7 @@ const UploadPickupImageModal = ({
 
         try {
           const compressedFile = await imageCompression(value, {
-            maxSizeMB: 2,
-            // maxWidthOrHeight: 1080,
+            maxSizeMB: 0.2,
             useWebWorker: true,
           });
 
@@ -289,7 +289,6 @@ const UploadPickupImageModal = ({
       }
     }
 
-    setLoading(true);
     try {
       if (isChange && isChange === true) {
         compressedFormData.append(

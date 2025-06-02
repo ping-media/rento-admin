@@ -6,7 +6,10 @@ import { Link, useNavigate } from "react-router-dom";
 const BookingCard = ({ item }) => {
   const navigate = useNavigate();
   return (
-    <div onClick={() => navigate(`details/${item?._id}`)} key={item?._id}>
+    <div
+      onClick={() => navigate(`details/${item?._id}_${item?.bookingId}`)}
+      key={item?._id}
+    >
       <div className="bg-white rounded-md shadow-md px-2 py-2 mb-5">
         {/* top header for booking */}
         <div className="flex items-center justify-between pb-1 mb-1 border-b-2">
