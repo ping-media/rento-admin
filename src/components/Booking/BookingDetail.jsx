@@ -178,8 +178,9 @@ const BookingDetail = ({ pickupImagesLoading, tabs }) => {
           <div className={`${tabs !== "customer" && "hidden lg:block"}`}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-md lg:text-lg font-semibold text-gray-500 flex items-center">
-                {`BookingId: #${vehicleMaster[0]?.bookingId}`}{" "}
-                <CopyButton textToCopy={`#${vehicleMaster[0]?.bookingId}`} />
+                Customer Information
+                {/* {`BookingId: #${vehicleMaster[0]?.bookingId}`}{" "}
+                <CopyButton textToCopy={`#${vehicleMaster[0]?.bookingId}`} /> */}
               </h2>
               <BookingStatusFlag
                 title={"Booking Status"}

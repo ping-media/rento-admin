@@ -51,9 +51,10 @@ const BookingDetails = () => {
   // through this we are fetching single vehicle data
   const fetchSingleVehicleDetails = useCallback(async () => {
     if (id) {
+      const bookingId = id.split("-")[0];
       fetchVehicleMasterById(
         dispatch,
-        id,
+        bookingId,
         token,
         "/getBookings",
         "/getTimelineData",
@@ -220,7 +221,7 @@ const BookingDetails = () => {
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">
         <h1 className="text-2xl uppercase font-bold text-theme">
-          Booking Details
+          Booking Id (#{id.split("-")[1] || "--"})
         </h1>
         {/* actions for cancel & start ride  */}
         <div className="flex flex-wrap gap-2">

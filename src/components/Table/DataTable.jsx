@@ -219,16 +219,19 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   };
 
   // let user enter in view page or edit page when click on table row
-  const handleViewData = (id) => {
-    navigate(
-      location.pathname === "/all-bookings" ||
-        location.pathname === "/all-vehicles" ||
-        location.pathname === "/all-invoices"
+  const handleViewData = (item) => {
+    const { _id: id, bookingId } = item;
+    const url =
+      location.pathname === "/all-bookings"
+        ? `details/${id}-${bookingId}`
+        : location.pathname === "/all-vehicles" ||
+          location.pathname === "/all-invoices"
         ? `details/${id}`
         : location?.pathname === "/payments"
         ? "#"
-        : `${id}`
-    );
+        : `${id}`;
+
+    navigate(url);
   };
 
   const renderCellContent = (column, value) => {
@@ -317,7 +320,8 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                           <tr
                             className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"
                             key={`row-${item._id}-${index}`}
-                            onClick={() => handleViewData(item?._id)}
+                            // onClick={() => handleViewData(item?._id)}
+                            onClick={() => handleViewData(item)}
                           >
                             {/* Checkbox column for all-vehicles page */}
                             {location.pathname === "/all-vehicles" && (
