@@ -3,16 +3,13 @@ import VehicleInfo from "../VehicleDetails/VehicleInfo";
 import { lazy, useEffect, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
-  // formatDateTimeISTForUser,
   formatDateToISOWithoutSecond,
   formatFullDateAndTime,
-  // formatPrice,
 } from "../../utils/index";
 import BookingFareDetails from "./BookingFareDetails";
 import BookingUserDetails from "./BookingUserDetail";
 import BookingStatusFlag from "./BookingStatusFlag";
 import BookingMoreInfo from "./BookingMoreInfo";
-// import CopyButton from "../../components/Buttons/CopyButton";
 import BookingNote from "./BookingNote";
 import {
   toggleChangeVehicleModal,
@@ -31,10 +28,8 @@ const ExtendBookingModal = lazy(() =>
   import("../../components/Modal/ExtendBookingModal")
 );
 
-const BookingDetail = ({ pickupImagesLoading, tabs }) => {
-  const { vehicleMaster, vehiclePickupImage } = useSelector(
-    (state) => state.vehicles
-  );
+const BookingDetail = ({ tabs }) => {
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { loggedInRole } = useSelector((state) => state.user);
   const [data, setData] = useState(null);
   const [tab, setTab] = useState("booking");
@@ -181,10 +176,8 @@ const BookingDetail = ({ pickupImagesLoading, tabs }) => {
               <h2 className="text-md lg:text-lg font-semibold text-gray-500 mt-5">
                 Vehicle Images
               </h2>
-              {pickupImagesLoading ? (
-                <Spinner />
-              ) : !pickupImagesLoading && vehiclePickupImage?.length > 0 ? (
-                <VehicleImages />
+              {vehicleMaster[0]?.pickupImage !== null ? (
+                <VehicleImages pickupImage={vehicleMaster[0]?.pickupImage} />
               ) : (
                 <p className="text-sm italic text-gray-400">
                   No vehicles Images Found.

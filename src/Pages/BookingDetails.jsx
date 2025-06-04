@@ -57,8 +57,8 @@ const BookingDetails = () => {
         bookingId,
         token,
         "/getBookings",
-        "/getTimelineData"
-        // "/getBookings"
+        "/getTimelineData",
+        "/getBookings"
       );
     }
   }, [id, token]);
@@ -70,29 +70,6 @@ const BookingDetails = () => {
       dispatch(resetUserRideInfo());
     };
   }, [fetchSingleVehicleDetails]);
-
-  // for fetching pickupImages using booking Number
-  useEffect(() => {
-    if (vehicleMaster === null) return;
-    (async () => {
-      try {
-        setImagesLoading(true);
-        const response = await getData(
-          `/getPickupImage?bookingId=${vehicleMaster[0]?.bookingId}`,
-          token
-        );
-        dispatch(addPickupImages(response?.data));
-      } catch (error) {
-        return handleAsyncError(dispatch, error?.message);
-      } finally {
-        setImagesLoading(false);
-      }
-    })();
-
-    return () => {
-      dispatch(resetPickupImages());
-    };
-  }, [vehicleMaster]);
 
   // start ride
   const handleStartRideAndAddImages = () => {
@@ -201,7 +178,7 @@ const BookingDetails = () => {
 
   return !loading && vehicleMaster?.length === 1 ? (
     <>
-      {/* modal  */}
+      {/* cancel modal */}
       <CancelModal
         title={"cancel booking"}
         handleDelete={handleCancelBooking}
@@ -210,13 +187,17 @@ const BookingDetails = () => {
         value={Note}
         setValueChange={setNote}
       />
+      {/* pickupImage modal */}
       <UploadPickupImageModal
         isBookingIdPresent={id ? true : false}
         isChange={isVehicleChanging}
         setIsChange={setIsVehicleChanging}
       />
+      {/* update bookingpayment modal */}
       <UpdateBookingPayment id={id} />
+      {/* Kyc modal */}
       <UserKycApproveModal />
+      {/* ride end modal */}
       <RideEndModal id={id} />
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">

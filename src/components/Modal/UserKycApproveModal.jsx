@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toogleKycModalActive } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
 import { getData, postData } from "../../Data/index";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { useEffect, useState } from "react";
 import Spinner from "../../components/Spinner/Spinner";
@@ -16,6 +16,7 @@ const UserKycApproveModal = () => {
     (state) => state.vehicles
   );
   const { id } = useParams();
+  const location = useLocation();
   const { token } = useSelector((state) => state.user);
   const [userDocument, setUserDocument] = useState([]);
   const [formError, setFormError] = useState({
@@ -59,7 +60,11 @@ const UserKycApproveModal = () => {
   const handleFetchDocuments = async () => {
     try {
       setUserDocumentLoading(true);
-      const response = await getData(`/getDocument?userId=${id}`, token);
+      let docId = id;
+      if (location.pathname.includes("/all-bookings/details/")) {
+        docId = id.split("_")[0];
+      }
+      const response = await getData(`/getDocument?userId=${docId}`, token);
       if (response?.status !== 200) {
         return handleAsyncError(dispatch, response?.message);
       }
@@ -122,7 +127,7 @@ const UserKycApproveModal = () => {
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white w-full lg:max-w-xl">
-        <div className="flex justify-between p-2">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme text-lg uppercase font-semibold">
             Kyc Verify
           </h2>
@@ -147,7 +152,7 @@ const UserKycApproveModal = () => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
+        <div className="p-6 pt-2 text-center">
           {/* user documents  */}
           <div className="lg:flex items-center gap-2 mb-3">
             {!userDocumentLoading ? (

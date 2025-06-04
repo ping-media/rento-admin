@@ -2,7 +2,6 @@ import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-// import AdjustRoundedIcon from "@mui/icons-material/AdjustRounded";
 import EmojiTransportationOutlinedIcon from "@mui/icons-material/EmojiTransportationOutlined";
 import LoyaltyOutlinedIcon from "@mui/icons-material/LoyaltyOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
@@ -38,7 +37,7 @@ const menuList = [
     menuImg: <PersonOutlinedIcon />,
     menuTitle: "Customers",
     menuLink: "/all-users",
-    roles: ["admin"],
+    roles: ["admin", "manager"],
   },
   // {
   //   menuImg: <PersonOutlinedIcon />,

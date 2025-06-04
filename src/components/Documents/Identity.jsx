@@ -5,6 +5,7 @@ import Spinner from "../Spinner/Spinner";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import InputFile from "../../components/InputAndDropdown/InputFile";
 import { useParams } from "react-router-dom";
+import ImageUploadAndPreview from "../../components/ImageComponent/ImageUploadAndPreview";
 
 const Identity = () => {
   const dispatch = useDispatch();
@@ -13,6 +14,19 @@ const Identity = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [frontImage, setFrontImage] = useState(null);
   const [backImage, setBackImage] = useState(null);
+  const [imagesUrl, setImageUrl] = useState({
+    aadhaarFrontImage: "",
+    aadhaarBackImage: "",
+  });
+  const [image, setImage] = useState({
+    aadhaarFrontImage: null,
+    aadhaarBackImage: null,
+  });
+
+  const docImages = [
+    { title: "aadhaarFrontImage" },
+    { title: "aadhaarBackImage" },
+  ];
 
   const handleUploadIdentity = async (e) => {
     setFormLoading(true);
@@ -60,11 +74,23 @@ const Identity = () => {
         <form className="flex flex-wrap gap-4" onSubmit={handleUploadIdentity}>
           <div className="w-full lg:flex-1 order-1 lg:order-2">
             <div className="flex flex-wrap items-center gap-2">
+              {/* {docImages.map((item, index) => (
+                <div key={index}>
+                  <ImageUploadAndPreview
+                    title={item?.title}
+                    image={image[item?.title]}
+                    setImageMultiChanger={setImage}
+                    imagesUrl={imagesUrl[item?.title]}
+                    setImageUrlMultiChanger={setImageUrl}
+                    name="images"
+                  />
+                </div>
+              ))} */}
               <div className="mb-5 w-full lg:flex-1">
                 <InputFile
                   name={"images"}
                   labelDesc={"Aadhaar Image"}
-                  labelId={"Front aadhaarFrontImage"}
+                  labelId={"aadhaarFrontImage"}
                   image={frontImage}
                   setImage={setFrontImage}
                 />

@@ -11,6 +11,7 @@ import { Link, useParams } from "react-router-dom";
 
 const UserDocuments = ({ data, dataId, hookLoading }) => {
   const [loading, setLoading] = useState(false);
+  // const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const { id } = useParams();
   const dispatch = useDispatch();
 
