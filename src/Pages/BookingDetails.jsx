@@ -189,16 +189,16 @@ const BookingDetails = () => {
       />
       {/* pickupImage modal */}
       <UploadPickupImageModal
-        isBookingIdPresent={id ? true : false}
+        isBookingIdPresent={id.split("_")[0] ? true : false}
         isChange={isVehicleChanging}
         setIsChange={setIsVehicleChanging}
       />
       {/* update bookingpayment modal */}
-      <UpdateBookingPayment id={id} />
+      <UpdateBookingPayment id={id.split("_")[0]} />
       {/* Kyc modal */}
       <UserKycApproveModal />
       {/* ride end modal */}
-      <RideEndModal id={id} />
+      <RideEndModal id={id.split("_")[0]} />
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">
         <h1 className="text-2xl uppercase font-bold text-theme">
@@ -207,33 +207,35 @@ const BookingDetails = () => {
         {/* actions for cancel & start ride  */}
         <div className="flex flex-wrap gap-2">
           {/* for starting & completing ride  */}
-          {vehicleMaster[0]?.rideStatus !== "ongoing" &&
-            vehicleMaster[0]?.rideStatus !== "completed" && (
-              <Button
-                title={
-                  vehicleMaster[0]?.rideStatus === "completed"
-                    ? "Ride Finished"
-                    : "Start Ride"
-                }
-                fn={handleStartRideAndAddImages}
-                disable={
-                  vehicleMaster[0]?.bookingStatus === "canceled" ||
-                  vehicleMaster[0]?.rideStatus === "completed"
-                }
-              />
-            )}
-          {/* for completing ride  */}
-          {vehicleMaster[0]?.rideStatus === "ongoing" && (
+          {((vehicleMaster[0]?.rideStatus !== "ongoing" &&
+            vehicleMaster[0]?.rideStatus !== "completed") ||
+            vehicleMaster[0]?.changeVehicle) && (
             <Button
-              title={"Finish Ride"}
-              fn={() => dispatch(toggleRideEndModal())}
-              disable={
-                vehicleMaster[0]?.rideStatus === "pending" ||
-                vehicleMaster[0]?.bookingStatus === "canceled"
+              title={
+                vehicleMaster[0]?.rideStatus === "completed"
+                  ? "Ride Finished"
+                  : "Start Ride"
               }
-              loading={vehicleLoading}
+              fn={handleStartRideAndAddImages}
+              disable={
+                vehicleMaster[0]?.bookingStatus === "canceled" ||
+                vehicleMaster[0]?.rideStatus === "completed"
+              }
             />
           )}
+          {/* for completing ride  */}
+          {vehicleMaster[0]?.rideStatus === "ongoing" &&
+            !vehicleMaster[0]?.changeVehicle && (
+              <Button
+                title={"Finish Ride"}
+                fn={() => dispatch(toggleRideEndModal())}
+                disable={
+                  vehicleMaster[0]?.rideStatus === "pending" ||
+                  vehicleMaster[0]?.bookingStatus === "canceled"
+                }
+                loading={vehicleLoading}
+              />
+            )}
 
           {/* for cancel ride */}
           {vehicleMaster[0]?.rideStatus !== "completed" && (

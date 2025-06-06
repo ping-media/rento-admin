@@ -1,37 +1,77 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postMultipleData } from "../../Data/index";
 import Spinner from "../../components/Spinner/Spinner";
-import InputFile from "../../components/InputAndDropdown/InputFile";
 import { useParams } from "react-router-dom";
+import ImageUploadAndPreview from "../../components/ImageComponent/ImageUploadAndPreview";
 
 const Selfie = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
-  const [frontImage, setFrontImage] = useState(null);
+  const [imagesUrl, setImageUrl] = useState({
+    SelfieImage: "",
+  });
+  const [image, setImage] = useState({
+    SelfieImage: null,
+  });
+
+  const docImages = [{ title: "SelfieImage" }];
 
   const handleUploadSelfie = async (e) => {
     setFormLoading(true);
     e.preventDefault();
-    let formData = new FormData(e.target);
-    let result = Object.fromEntries(formData.entries());
-    if (!result) return handleAsyncError(dispatch, "choose vaild image first!");
+    const isAnyImageMissing = Object.values(imagesUrl).some(
+      (value) => value === ""
+    );
+    if (isAnyImageMissing) {
+      return handleAsyncError(dispatch, "All Images Required!.");
+    }
 
-    formData.append("userId", id);
-    formData.append("docType", "Selfie");
+    const rawFormData = new FormData(e.target);
+    const finalFormData = new FormData();
+
+    for (let [key, value] of rawFormData.entries()) {
+      if (!(value instanceof File)) {
+        finalFormData.append(key, value);
+      }
+    }
+
+    let hasFiles = false;
+
+    for (const file of Object.values(image)) {
+      if (file instanceof File || file instanceof Blob) {
+        hasFiles = true;
+        finalFormData.append("images", file);
+      }
+    }
+
+    if (!hasFiles) {
+      return handleAsyncError(
+        dispatch,
+        "Unable to upload! No images provided."
+      );
+    }
+
+    finalFormData.append("userId", id);
+    finalFormData.append("docType", "Selfie");
 
     try {
       const response = await postMultipleData(
         "/uploadDocument",
-        formData,
+        finalFormData,
         token
       );
       if (response?.status === 200) {
         handleAsyncError(dispatch, response?.message, "success");
-        // setFrontImage(null);
+        setImage({
+          SelfieImage: null,
+        });
+        setImageUrl({
+          SelfieImage: "",
+        });
       } else {
         handleAsyncError(dispatch, response?.message);
       }
@@ -40,13 +80,6 @@ const Selfie = () => {
     }
     return setFormLoading(false);
   };
-
-  //   for clean cleaning the state
-  useEffect(() => {
-    return () => {
-      setFrontImage(null);
-    };
-  }, []);
 
   return (
     <div className="relative shadow-xl rounded bg-white w-full">
@@ -57,18 +90,24 @@ const Selfie = () => {
       <div className="px-4 lg:px-6 pb-3 text-center lg:text-left">
         <form className="flex flex-wrap gap-4" onSubmit={handleUploadSelfie}>
           <div className="w-full lg:flex-1 order-1 lg:order-2">
-            <div className="mb-5">
-              <InputFile
-                name={"images"}
-                labelDesc={"Selfie"}
-                labelId={"SelfieImage"}
-                image={frontImage}
-                setImage={setFrontImage}
-              />
-            </div>
+            {docImages.map((item, index) => (
+              <div className="mb-5" key={index}>
+                <ImageUploadAndPreview
+                  title={item?.title}
+                  image={image[item?.title]}
+                  setImageMultiChanger={setImage}
+                  imagesUrl={imagesUrl[item?.title]}
+                  setImageUrlMultiChanger={setImageUrl}
+                  name="images"
+                />
+              </div>
+            ))}
             <button
               className="bg-theme-black px-4 py-2 rounded-md text-gray-100 disabled:bg-gray-400"
-              disabled={formLoading || (frontImage != null ? false : true)}
+              disabled={
+                formLoading ||
+                Object.values(imagesUrl).some((value) => value === "")
+              }
             >
               {formLoading ? (
                 <Spinner message={"loading..."} />

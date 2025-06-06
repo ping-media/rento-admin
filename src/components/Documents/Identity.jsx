@@ -1,9 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { postMultipleData } from "../../Data";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Spinner from "../Spinner/Spinner";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import InputFile from "../../components/InputAndDropdown/InputFile";
 import { useParams } from "react-router-dom";
 import ImageUploadAndPreview from "../../components/ImageComponent/ImageUploadAndPreview";
 
@@ -12,8 +11,6 @@ const Identity = () => {
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
-  const [frontImage, setFrontImage] = useState(null);
-  const [backImage, setBackImage] = useState(null);
   const [imagesUrl, setImageUrl] = useState({
     aadhaarFrontImage: "",
     aadhaarBackImage: "",
@@ -31,23 +28,62 @@ const Identity = () => {
   const handleUploadIdentity = async (e) => {
     setFormLoading(true);
     e.preventDefault();
-    let formData = new FormData(e.target);
-    let result = Object.fromEntries(formData.entries());
-    if (!result) return handleAsyncError(dispatch, "choose vaild image first!");
 
-    formData.append("userId", id);
-    formData.append("docType", "aadhar");
+    const isAnyImageMissing = Object.values(imagesUrl).some(
+      (value) => value === ""
+    );
+    if (isAnyImageMissing) {
+      return handleAsyncError(dispatch, "All Images Required!.");
+    }
+
+    const rawFormData = new FormData(e.target);
+    const finalFormData = new FormData();
+
+    for (let [key, value] of rawFormData.entries()) {
+      if (!(value instanceof File)) {
+        finalFormData.append(key, value);
+      }
+    }
+
+    let hasFiles = false;
+
+    for (const file of Object.values(image)) {
+      if (file instanceof File || file instanceof Blob) {
+        hasFiles = true;
+        finalFormData.append("images", file);
+      }
+    }
+
+    if (!hasFiles) {
+      return handleAsyncError(
+        dispatch,
+        "Unable to upload! No images provided."
+      );
+    }
+
+    finalFormData.append("userId", id);
+    finalFormData.append("docType", "aadhar");
 
     try {
       const response = await postMultipleData(
         "/uploadDocument",
-        formData,
+        finalFormData,
         token
       );
       if (response?.status == 200) {
         handleAsyncError(dispatch, response?.message, "success");
-        // setFrontImage(null);
-        // setBackImage(null);
+        setImage({
+          vehicleFront: null,
+          vehicleLeft: null,
+          vehicleRight: null,
+          vehicleBack: null,
+          odoMeterReading: null,
+          others: null,
+        });
+        setImageUrl({
+          aadhaarFrontImage: "",
+          aadhaarBackImage: "",
+        });
       } else {
         handleAsyncError(dispatch, response?.message);
       }
@@ -56,14 +92,6 @@ const Identity = () => {
     }
     return setFormLoading(false);
   };
-
-  //   for clean cleaning the state
-  useEffect(() => {
-    return () => {
-      setFrontImage(null);
-      setBackImage(null);
-    };
-  }, []);
 
   return (
     <div className="relative shadow-xl rounded bg-white w-full">
@@ -74,8 +102,8 @@ const Identity = () => {
         <form className="flex flex-wrap gap-4" onSubmit={handleUploadIdentity}>
           <div className="w-full lg:flex-1 order-1 lg:order-2">
             <div className="flex flex-wrap items-center gap-2">
-              {/* {docImages.map((item, index) => (
-                <div key={index}>
+              {docImages.map((item, index) => (
+                <div className="mb-5 w-full lg:flex-1" key={index}>
                   <ImageUploadAndPreview
                     title={item?.title}
                     image={image[item?.title]}
@@ -85,30 +113,13 @@ const Identity = () => {
                     name="images"
                   />
                 </div>
-              ))} */}
-              <div className="mb-5 w-full lg:flex-1">
-                <InputFile
-                  name={"images"}
-                  labelDesc={"Aadhaar Image"}
-                  labelId={"aadhaarFrontImage"}
-                  image={frontImage}
-                  setImage={setFrontImage}
-                />
-              </div>
-              <div className="mb-5 w-full lg:flex-1">
-                <InputFile
-                  name={"images"}
-                  labelDesc={"Back Aadhaar Image"}
-                  labelId={"aadhaarBackImage"}
-                  image={backImage}
-                  setImage={setBackImage}
-                />
-              </div>
+              ))}
             </div>
             <button
               className="bg-theme-black px-4 py-2 rounded-md text-gray-100 disabled:bg-gray-400"
               disabled={
-                formLoading || (frontImage && backImage != null ? false : true)
+                formLoading ||
+                Object.values(imagesUrl).some((value) => value === "")
               }
             >
               {formLoading ? (

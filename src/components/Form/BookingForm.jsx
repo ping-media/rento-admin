@@ -75,11 +75,6 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       setPlanData((prev) => ({ ...prev, data: null }));
     }
 
-    // const bookingPrice =
-    //   hasMatchPlan !== null && hasMatchPlan?.planPrice > 0
-    //     ? hasMatchPlan?.planPrice
-    //     : Number(durationBetweenStartAndEnd?.days) *
-    //       Number(selectedVehicle?.perDayCost);
     const bookingPrice =
       hasMatchPlan !== null && hasMatchPlan?.planPrice > 0
         ? hasMatchPlan?.planPrice
@@ -292,7 +287,9 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           };
           await postData("/createTimeline", timeLineData, token);
           handleAsyncError(dispatch, "Ride Created Successfully", "success");
-          navigate(`/all-bookings/details/${bookingResponse?.data?._id}`);
+          navigate(
+            `/all-bookings/details/${bookingResponse?.data?._id}_${bookingResponse?.data?.bookingId}`
+          );
           return;
         }
       } else {

@@ -43,26 +43,22 @@ const RideEndModal = ({ id }) => {
       BookingEndDateAndTime,
       vehicleBasic,
       bookingPrice,
-      extendBooking,
     } = vehicleMaster[0];
     // void calulating the rate before end date
     const isCurrentDateIsSmall =
       BookingEndDateAndTime.split("T")[0] >
       formatDateToISO(new Date()).split("T")[0];
 
-    const newBookingEndDateAndTime = extendBooking?.originalEndDate
-      ? extendBooking?.originalEndDate
-      : BookingEndDateAndTime;
-
     const bookingDuration = getDurationInDaysAndHours(
       BookingStartDateAndTime,
-      newBookingEndDateAndTime
+      BookingEndDateAndTime
     );
     let extendBookingDuration = null;
 
-    if (extendBooking?.originalEndDate) {
+    if (bookingPrice?.extendAmount && bookingPrice?.extendAmount?.length > 0) {
       extendBookingDuration = getDurationInDaysAndHours(
-        extendBooking?.originalEndDate,
+        bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
+          ?.BookingStartDateAndTime,
         BookingEndDateAndTime
       );
     }
@@ -72,34 +68,43 @@ const RideEndModal = ({ id }) => {
       formatDateToISO(new Date()).replace(".000Z", "Z")
     );
 
+    const extendBookings =
+      bookingPrice?.extendAmount && bookingPrice?.extendAmount?.length > 0
+        ? bookingPrice?.extendAmount
+        : [];
+
     let refundAmount = 0;
     let extensionAmount = 0;
+
     if (isCurrentDateIsSmall) {
       const totalPrice =
         bookingPrice?.discountTotalPrice > 0
           ? bookingPrice?.discountTotalPrice
           : bookingPrice?.totalPrice;
+
       if (Number(bookingDuration?.days) > 0) {
-        refundAmount =
-          (Number(totalPrice) / Number(bookingDuration?.days)) *
-          Number(duration?.days);
-      } else if (extendBookingDuration !== null) {
-        if (bookingPrice?.extendAmount?.length === 0) return;
+        refundAmount = Number(totalPrice);
+      }
+      if (extendBookingDuration !== null) {
         const totalAmount =
           bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
             ?.status === "paid"
             ? bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
                 ?.amount
             : 0;
+
         if (totalAmount > 0) {
-          extensionAmount =
-            (Number(totalAmount) / Number(extendBookingDuration?.days)) *
-            Number(duration?.days);
+          extensionAmount = Number(totalAmount);
         }
       }
-      const totalRefundAmount =
+
+      const subRefundAmount =
         (refundAmount > 0 ? refundAmount : 0) +
         (extensionAmount > 0 ? extensionAmount : 0);
+      const totalRefundAmount =
+        (subRefundAmount / Number(bookingDuration?.days)) *
+        Number(duration?.days);
+
       setRefundAmount(Math.round(totalRefundAmount));
     }
 
@@ -119,16 +124,24 @@ const RideEndModal = ({ id }) => {
       BookingStartDateAndTime,
       BookingEndDateAndTime
     );
+
+    let fullBookingDuration = 0 + (Number(daysBtwDates?.days) || 0);
+
+    fullBookingDuration = extendBookings.reduce(
+      (sum, extend) => sum + Number(extend?.extendDuration || 0),
+      0
+    );
+
     let allowKm =
-      (Number(daysBtwDates?.days) === 0 ? 1 : Number(daysBtwDates?.days)) *
+      (Number(fullBookingDuration) === 0 ? 1 : Number(fullBookingDuration)) *
       Number(vehicleBasic?.freeLimit);
 
     if (isCurrentDateIsSmall) {
-      const removeKm = Number(duration?.days) * Number(vehicleBasic?.freeLimit);
+      const removeKm =
+        Number(fullBookingDuration) * Number(vehicleBasic?.freeLimit);
       allowKm = allowKm - removeKm;
     }
     const lateFeeBasedOnKM = (lateKm - allowKm) * vehicleBasic?.extraKmCharge;
-    console.log(allowKm, lateFeeBasedOnKM);
 
     setLateFees({
       lateFeeBasedOnHour: lateFeeBasedOnHour || 0,
@@ -221,8 +234,10 @@ const RideEndModal = ({ id }) => {
   useEffect(() => {
     if (vehiclePickupImage !== null) {
       setOldMeterReading(vehiclePickupImage[0]?.startMeterReading);
+    } else if (vehicleMaster[0]?.pickupImage !== null) {
+      setOldMeterReading(vehicleMaster[0]?.pickupImage?.startMeterReading);
     }
-  }, [vehiclePickupImage]);
+  }, [vehiclePickupImage, vehicleMaster]);
 
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {
@@ -237,7 +252,7 @@ const RideEndModal = ({ id }) => {
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-lg">
-        <div className="flex justify-between p-2">
+        <div className="flex justify-between border-b p-1">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Finish Ride
           </h2>
@@ -262,7 +277,7 @@ const RideEndModal = ({ id }) => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
+        <div className="p-6 pt-2 text-center">
           {/* if payment are pending this message will be show  */}
           {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
             vehicleMaster[0]?.bookingPrice?.diffAmount?.every(
@@ -284,22 +299,11 @@ const RideEndModal = ({ id }) => {
                 <span className="font-semibold">Start Meter Reading:</span>{" "}
                 {oldMeterReading}
               </p>
-              {refundAmount > 0 && (
-                <div className="text-theme mb-1 flex items-center">
-                  <span className="font-semibold text-gray-400">
-                    Refund Amount:
-                  </span>{" "}
-                  <ChangeTextToInput
-                    value={Number(refundAmount)}
-                    setValue={(e) => setRefundAmount(e.target.value)}
-                    type={"number"}
-                  />
-                </div>
-              )}
               {lateFees?.lateFeeBasedOnKM > 0 && (
                 <div className="text-theme mb-1 flex items-center">
                   <span className="font-semibold text-gray-400">
-                    late Fee Based On KM:
+                    {/* late Fee Based On KM: */}
+                    Extra KM Charge:
                   </span>{" "}
                   <ChangeTextToInput
                     value={Number(lateFees?.lateFeeBasedOnKM)}
@@ -316,7 +320,8 @@ const RideEndModal = ({ id }) => {
               {lateFees?.lateFeeBasedOnHour > 0 && (
                 <div className="text-theme flex items-center">
                   <span className="font-semibold text-gray-400 mb-2">
-                    late Fee Based On Hour:
+                    {/* late Fee Based On Hour: */}
+                    Extra Hour Charge:
                   </span>{" "}
                   <ChangeTextToInput
                     value={Number(lateFees?.lateFeeBasedOnHour)}
@@ -332,7 +337,7 @@ const RideEndModal = ({ id }) => {
               )}
               {(lateFees?.lateFeeBasedOnKM > 0 ||
                 lateFees?.lateFeeBasedOnHour > 0) && (
-                <p className="text-theme">
+                <p className="text-theme border-t">
                   <span className="font-semibold text-gray-400">
                     Total Late Fee:
                   </span>{" "}
@@ -342,6 +347,19 @@ const RideEndModal = ({ id }) => {
                       Number(lateFees?.lateFeeBasedOnKM)
                   )}
                 </p>
+              )}
+
+              {refundAmount > 0 && (
+                <div className="text-theme mb-1 flex items-center mt-2">
+                  <span className="font-semibold text-gray-400">
+                    Refund Amount:
+                  </span>{" "}
+                  <ChangeTextToInput
+                    value={Number(refundAmount)}
+                    setValue={(e) => setRefundAmount(e.target.value)}
+                    type={"number"}
+                  />
+                </div>
               )}
             </div>
             <div className="mb-2">
@@ -380,7 +398,7 @@ const RideEndModal = ({ id }) => {
             </div>
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
+              className="mt-2 text-center bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
               disabled={formLoading || endRide === 0}
             >
               {!formLoading ? "End Ride" : <Spinner message={"loading..."} />}

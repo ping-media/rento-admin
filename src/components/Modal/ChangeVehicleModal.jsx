@@ -3,7 +3,6 @@ import { toggleChangeVehicleModal } from "../../Redux/SideBarSlice/SideBarSlice"
 import { useEffect, useState } from "react";
 import { getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-// import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
 import {
   calculateTax,
   calculateTotalAddOnPrice,
@@ -12,9 +11,7 @@ import {
   formatDateToISOWithoutSecond,
   formatPrice,
   getDurationInDays,
-  // getDurationInDaysAndHours,
 } from "../../utils/index";
-// import Input from "../../components/InputAndDropdown/Input";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import Spinner from "../../components/Spinner/Spinner";
 import {
@@ -23,6 +20,7 @@ import {
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { updateTimeLineForPayment } from "../../Data/Function";
 import SelectDropDownVehicle from "../../components/InputAndDropdown/SelectDropDownVehicle";
+import PriceList from "../../components/Form/VehicleComponents/PriceList";
 
 const ChangeVehicleModal = ({ bookingData }) => {
   const dispatch = useDispatch();
@@ -32,7 +30,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const [formLoading, setFormLoading] = useState(false);
   const [isModalClose, setIsModalClose] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
-  // const [otpLoading, setOtpLoading] = useState(false);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [freeVehicles, setFreeVehicles] = useState([]);
@@ -42,6 +39,22 @@ const ChangeVehicleModal = ({ bookingData }) => {
 
   const isGSTActive = general?.GST?.status === "active" ? true : false || false;
   const GSTPercentage = general?.GST?.percentage || 18;
+
+  const extendBookings =
+    bookingData?.bookingPrice?.extendAmount?.length > 0
+      ? bookingData?.bookingPrice?.extendAmount?.filter(
+          (extend) => extend?.status === "paid"
+        )
+      : [];
+  const extendBookingDuration = extendBookings.reduce(
+    (sum, extend) => sum + Number(extend?.extendDuration || 0),
+    0
+  );
+
+  const extendBookingTotal = extendBookings.reduce(
+    (sum, extend) => sum + Number(extend?.amount || 0),
+    0
+  );
 
   //   for fetching vehicle based on  dynamic date and time
   useEffect(() => {
@@ -93,7 +106,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
         changeToNewVehicle?.vehiclePlan) ||
       null;
     const currentDateAndTime = formatDateToISOWithoutSecond(new Date());
-    const extendStartDate = bookingData?.extendBooking?.originalEndDate || "";
+    // const extendStartDate = bookingData?.extendBooking?.originalEndDate || "";
+    const extendStartDate =
+      bookingData?.bookingPrice?.extendAmount[
+        bookingData?.bookingPrice?.extendAmount?.length - 1
+      ]?.BookingStartDateAndTime || "";
+
     // getting start date whether according to extend or first booking
     let startDate = "";
     if (extendStartDate === "") {
@@ -129,7 +147,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
     }
     // calculate the price
     const isPackageApplied = bookingData?.bookingPrice?.isPackageApplied;
-    // const bookingPriceWithoutHelmet = Number(changeToNewVehicle?.perDayCost);
     const bookingPrice =
       Plan !== null && isPackageApplied
         ? Plan?.planPrice
@@ -204,7 +221,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
         refundableDeposit: changeToNewVehicle?.refundableDeposit,
         speedLimit: changeToNewVehicle?.speedLimit,
         vehicleNumber: changeToNewVehicle?.vehicleNumber,
-        freeLimit: Number(changeToNewVehicle?.freeKms) * Number(daysLeft),
+        freeLimit: Number(changeToNewVehicle?.freeKms),
         lateFee: changeToNewVehicle?.lateFee,
         extraKmCharge: changeToNewVehicle?.extraKmsCharges,
         startRide: bookingData?.vehicleBasic?.startRide,
@@ -213,7 +230,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
       firstName: vehicleMaster[0]?.userId?.firstName,
       managerContact: vehicleMaster[0]?.stationMasterUserId?.contact,
     };
-    // console.log(data);
+
     return setSelectedVehicle(data);
   };
 
@@ -345,54 +362,17 @@ const ChangeVehicleModal = ({ bookingData }) => {
                 </p>
               </div>
               <ul className="leading-7 text-left mb-1">
-                {[
-                  "rentAmount",
-                  "extraAddonPrice",
-                  "tax",
-                  "totalPrice",
-                  "discountTotalPrice",
-                ].map((key, index) => {
-                  if (!isGSTActive && key === "tax") {
-                    return null;
-                  }
-
-                  const value = bookingData?.bookingPrice?.[key];
-                  if (value !== undefined || value !== 0) {
-                    if (bookingData?.bookingPrice?.[key] === 0) {
-                      return null;
-                    }
-                    return (
-                      <li
-                        className={`capitalize ${
-                          key === "discountTotalPrice" || key === "totalPrice"
-                            ? "font-semibold"
-                            : ""
-                        }`}
-                        key={index}
-                      >
-                        {key != "extraAddonPrice"
-                          ? camelCaseToSpaceSeparated(key)
-                          : "Additional Charges"}
-                        : ₹
-                        {key === "rentAmount" || key === "extraAddonPrice"
-                          ? key === "rentAmount" &&
-                            bookingData?.bookingPrice?.isPackageApplied
-                            ? `${formatPrice(
-                                bookingData?.bookingPrice?.bookingPrice
-                              )}`
-                            : key === "extraAddonPrice"
-                            ? formatPrice(value)
-                            : `${formatPrice(value)} x ${getDurationInDays(
-                                bookingData?.BookingStartDateAndTime,
-                                bookingData?.BookingEndDateAndTime
-                              )} day(s)`
-                          : formatPrice(value)}
-                      </li>
-                    );
-                  } else {
-                    return null;
-                  }
-                })}
+                <PriceList
+                  options={[
+                    "bookingPrice",
+                    "extraAddonPrice",
+                    "tax",
+                    "totalPrice",
+                    "discountTotalPrice",
+                  ]}
+                  bookingData={bookingData}
+                  isGSTActive={isGSTActive}
+                />
               </ul>
               {selectedVehicle !== null && (
                 <>
@@ -407,45 +387,17 @@ const ChangeVehicleModal = ({ bookingData }) => {
                     </p>
                   </div>
                   <ul className="leading-7 text-left mb-1">
-                    {["rentAmount", "extraAddonPrice", "tax", "totalPrice"].map(
-                      (key, index) => {
-                        const value = selectedVehicle?.bookingPrice?.[key];
-                        if (bookingData?.bookingPrice?.[key] === 0) {
-                          return null;
-                        }
-                        if (value !== undefined) {
-                          return (
-                            <li
-                              className={`capitalize ${
-                                key === "totalPrice" ? "font-semibold" : ""
-                              }`}
-                              key={index}
-                            >
-                              {key != "extraAddonPrice"
-                                ? camelCaseToSpaceSeparated(key)
-                                : "Additional Charges"}
-                              : ₹
-                              {key === "rentAmount" || key === "extraAddonPrice"
-                                ? key === "rentAmount" &&
-                                  bookingData?.bookingPrice?.isPackageApplied &&
-                                  selectedPlan !== null
-                                  ? `${formatPrice(selectedPlan?.planPrice)}`
-                                  : key === "extraAddonPrice"
-                                  ? formatPrice(value)
-                                  : `${formatPrice(
-                                      value
-                                    )} x ${getDurationInDays(
-                                      bookingData?.BookingStartDateAndTime,
-                                      bookingData?.BookingEndDateAndTime
-                                    )} day(s)`
-                                : formatPrice(value)}
-                            </li>
-                          );
-                        } else {
-                          return null;
-                        }
-                      }
-                    )}
+                    <PriceList
+                      options={[
+                        "bookingPrice",
+                        "extraAddonPrice",
+                        "tax",
+                        "totalPrice",
+                      ]}
+                      bookingData={bookingData}
+                      isGSTActive={isGSTActive}
+                      selectedVehicle={selectedVehicle}
+                    />
                   </ul>
                   {selectedVehicle &&
                   selectedVehicle?.bookingPrice?.diffAmount[

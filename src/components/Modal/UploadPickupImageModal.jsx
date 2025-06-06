@@ -171,6 +171,7 @@ const UploadPickupImageModal = ({
             ...updatedBooking?.vehicleBasic,
             endRide: responseImage?.endOtp || 0,
           },
+          pickupImage: responseImage?.newDocument,
         };
         dispatch(handleInvoiceCreated(updatedBooking));
         // updating the timeline for booking

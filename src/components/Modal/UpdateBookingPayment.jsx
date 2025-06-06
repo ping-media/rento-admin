@@ -151,7 +151,11 @@ const UpdateBookingPayment = ({ id }) => {
         const { _id, ...dataForRedux } = data;
         return dispatch(handleUpdateDateForPayment(dataForRedux));
       }
-      if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
+      if (isUpdate !== true)
+        return handleAsyncError(
+          dispatch,
+          "unable to update the booking payment! try again"
+        );
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
     } finally {

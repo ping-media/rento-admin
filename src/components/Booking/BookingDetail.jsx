@@ -18,7 +18,6 @@ import {
 import BookingTimeLine from "./BookingTimeLine";
 import AdditionalInfo from "./AdditionalInfo";
 import Button from "../Buttons/Button";
-import Spinner from "../../components/Spinner/Spinner";
 import VehicleImages from "./VehicleImages";
 import UserRideTimeLine from "./UserRideTimeLine";
 const ChangeVehicleModal = lazy(() =>
@@ -72,15 +71,15 @@ const BookingDetail = ({ tabs }) => {
           },
         ],
         moreInfo: [
-          {
-            key: "Booked On",
-            value: `${
-              vehicleMaster &&
-              formatFullDateAndTime(
-                vehicleMaster && vehicleMaster[0]?.createdAt
-              )
-            }`,
-          },
+          // {
+          //   key: "Booked On",
+          //   value: `${
+          //     vehicleMaster &&
+          //     formatFullDateAndTime(
+          //       vehicleMaster && vehicleMaster[0]?.createdAt
+          //     )
+          //   }`,
+          // },
           {
             key: "Pick Up Location",
             value: `${vehicleMaster && vehicleMaster[0]?.stationName}`,
