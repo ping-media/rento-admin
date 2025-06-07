@@ -46,6 +46,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
           (extend) => extend?.status === "paid"
         )
       : [];
+
   const extendBookingDuration = extendBookings.reduce(
     (sum, extend) => sum + Number(extend?.extendDuration || 0),
     0
@@ -101,10 +102,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const changeToNewVehicle = freeVehicles?.find(
       (item) => item?._id == vehicleId
     );
+    console.log(changeToNewVehicle);
     const NewVehicleHavePlan =
       (changeToNewVehicle?.vehiclePlan?.length > 0 &&
         changeToNewVehicle?.vehiclePlan) ||
       null;
+
     const currentDateAndTime = formatDateToISOWithoutSecond(new Date());
     // const extendStartDate = bookingData?.extendBooking?.originalEndDate || "";
     const extendStartDate =
@@ -168,13 +171,15 @@ const ChangeVehicleModal = ({ bookingData }) => {
     }
     const totalPrice = Number(finalBookingPrice) + Number(tax);
     const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
-    const oldTotalPrice = bookingData?.bookingPrice?.totalPrice;
+    const oldTotalPrice =
+      bookingData?.bookingPrice?.totalPrice + Number(extendBookingTotal);
 
     // calculating the diffAmount
     const diffAmount =
       Number(oldDiscountPrice) > 0
         ? Number(totalPrice) - Number(oldDiscountPrice)
         : Number(totalPrice) - Number(oldTotalPrice);
+
     const finalDiffAmount = diffAmount <= 0 ? 0 : Math.round(diffAmount);
     const refundAmount = diffAmount < 0 ? Math.abs(diffAmount) : 0;
 
@@ -197,17 +202,20 @@ const ChangeVehicleModal = ({ bookingData }) => {
         tax: tax,
         totalPrice: totalPrice,
         rentAmount: Number(changeToNewVehicle?.perDayCost),
+        daysBreakdown: changeToNewVehicle?._daysBreakdown || [],
         diffAmount: [
           ...(bookingData?.diffAmount || []),
           {
-            id: bookingData?.diffAmount?.length + 1,
+            id: bookingData?.diffAmount?.length + 1 || 1,
             title: "changedVehicle",
             amount: finalDiffAmount,
             refundAmount: refundAmount,
             paymentMethod: "",
             status: finalDiffAmount > 0 ? "unpaid" : "paid",
+            rideStatus: false,
           },
         ],
+        extendAmount: bookingData?.bookingPrice?.extraAddonDetails,
       },
       changeVehicle: {
         vehicleMasterId: bookingData?.vehicleMasterId,
@@ -252,6 +260,10 @@ const ChangeVehicleModal = ({ bookingData }) => {
       // otp,
       contact: bookingData?.userId?.contact,
     };
+
+    // console.log(data);
+    // return;
+
     if (!data)
       return handleAsyncError(dispatch, "unable to change vehicle! try again.");
     try {
@@ -365,11 +377,15 @@ const ChangeVehicleModal = ({ bookingData }) => {
                 <PriceList
                   options={[
                     "bookingPrice",
+                    "discountTotalPrice",
                     "extraAddonPrice",
                     "tax",
                     "totalPrice",
-                    "discountTotalPrice",
                   ]}
+                  extendBooking={{
+                    duration: extendBookingDuration,
+                    amount: extendBookingTotal,
+                  }}
                   bookingData={bookingData}
                   isGSTActive={isGSTActive}
                 />

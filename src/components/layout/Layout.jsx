@@ -4,7 +4,6 @@ import { lazy, useCallback, useEffect, useRef, useState } from "react";
 import Header from "../Header/Header";
 import SideBar from "../SideBar/SideBar";
 import Alert from "../Alert/Alert";
-// import ScrollToTopButton from "../ScrollButton/ScrollToTopButton";
 import PreLoader from "../Skeleton/PreLoader";
 import {
   handleCurrentUser,
@@ -43,41 +42,11 @@ const Layout = () => {
   const { theme } = useSelector((state) => state.theme);
   const { is_open } = useSelector((state) => state.sideBar);
   const mainRef = useRef(null);
-  const [visible, setVisible] = useState(false);
   const [validateLoading, setValidateLoading] = useState(false);
   const { currentUser, token, user, loading } = useSelector(
     (state) => state.user
   );
-  // const { page, limit } = useSelector((state) => state.pagination);
   const { extraAddOn } = useSelector((state) => state.general);
-
-  //scrolltotop function
-  const handleScrollToTop = () => {
-    if (mainRef.current) {
-      mainRef.current.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  // hide the button until user scroll to certain height
-  useEffect(() => {
-    const handleScroll = () => {
-      if (mainRef.current) {
-        setVisible(mainRef.current.scrollTop > 200);
-      }
-    };
-    const div = mainRef.current;
-    if (div) {
-      div.addEventListener("scroll", handleScroll);
-    }
-    return () => {
-      if (div) {
-        div.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, []);
 
   const getGeneralSettings = useCallback(async () => {
     try {
@@ -184,10 +153,6 @@ const Layout = () => {
                 ref={mainRef}
                 style={{ height: "calc(100vh - 90.4px)" }}
               >
-                {/* scrolltotop button  */}
-                {/* {visible && (
-                  <ScrollToTopButton handleClick={handleScrollToTop} />
-                )} */}
                 <Outlet />
               </div>
             </main>

@@ -125,22 +125,43 @@ const RideEndModal = ({ id }) => {
       BookingEndDateAndTime
     );
 
-    let fullBookingDuration = 0 + (Number(daysBtwDates?.days) || 0);
+    // let fullBookingDuration = 0 + (Number(daysBtwDates?.days) || 0);
+    // let fullBookingDuration = 0;
 
-    fullBookingDuration = extendBookings.reduce(
-      (sum, extend) => sum + Number(extend?.extendDuration || 0),
-      0
+    // fullBookingDuration = extendBookings.reduce(
+    //   (sum, extend) => sum + Number(extend?.extendDuration || 0),
+    //   0
+    // );
+
+    let fullBookingDuration = Number(daysBtwDates?.days) || 0;
+
+    // checking unpaid extend booking and removing there duration out of it
+    const isBookingExtend = extendBookings?.filter(
+      (booking) => booking.status === "unpaid"
     );
+
+    const extendDuration =
+      isBookingExtend?.length > 0
+        ? isBookingExtend.reduce(
+            (sum, extend) => sum + Number(extend?.extendDuration || 0),
+            0
+          )
+        : 0;
+
+    if (extendDuration > 0) {
+      fullBookingDuration =
+        Number(fullBookingDuration) - Number(extendDuration);
+    }
 
     let allowKm =
       (Number(fullBookingDuration) === 0 ? 1 : Number(fullBookingDuration)) *
       Number(vehicleBasic?.freeLimit);
 
-    if (isCurrentDateIsSmall) {
-      const removeKm =
-        Number(fullBookingDuration) * Number(vehicleBasic?.freeLimit);
-      allowKm = allowKm - removeKm;
-    }
+    // if (isCurrentDateIsSmall) {
+    //   const removeKm =
+    //     Number(fullBookingDuration) * Number(vehicleBasic?.freeLimit);
+    //   allowKm = allowKm - removeKm;
+    // }
     const lateFeeBasedOnKM = (lateKm - allowKm) * vehicleBasic?.extraKmCharge;
 
     setLateFees({

@@ -45,7 +45,8 @@ const FilterSideBar = () => {
     },
     {
       title: "Pending Drops",
-      searchTag: "rideStatus=ongoing&sortBy=BookingEndDateAndTime",
+      searchTag:
+        "rideStatus=ongoing&sortBy=BookingEndDateAndTime&sortOrder=asc",
       divider: false,
     },
     {
@@ -357,27 +358,6 @@ const FilterSideBar = () => {
                   {formLoading ? "Appling" : "Apply"}
                 </button>
               </form>
-
-              {/* <div>
-                <h2 className="text-lg w-full mb-2 border-b">
-                  Maintenance Filter
-                </h2>
-                <label
-                  className="inline-flex items-center text-sm"
-                  htmlFor="maintenanceType"
-                >
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 accent-red-600"
-                    id="maintenanceType"
-                    onChange={handleMaintenanceFilter}
-                    checked={
-                      vehiclesFilter?.maintenanceType !== "" ? true : false
-                    }
-                  />
-                  <span className="mx-1">Active Maintenance</span>
-                </label>
-              </div> */}
             </>
           )}
         </div>

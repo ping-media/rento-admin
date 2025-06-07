@@ -163,7 +163,7 @@ const BarChart = ({ data }) => {
     },
     plotOptions: {
       bar: {
-        columnWidth: "60%",
+        columnWidth: chartData.categories.length <= 3 ? "20%" : "60%",
         borderRadius: 4,
         distributed: viewMode === "Daily",
         dataLabels: {

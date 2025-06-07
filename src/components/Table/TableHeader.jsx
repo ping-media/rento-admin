@@ -93,11 +93,10 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
         }
         if (item === "bookingPrice" && location.pathname === "/payments") {
           return (
-            <>
+            <React.Fragment key={"userPaymentRecived"}>
               <th
                 scope="col"
                 className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
-                key={"userPaymentRecived"}
               >
                 Payment Recived
               </th>
@@ -108,7 +107,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
               >
                 booking price
               </th>
-            </>
+            </React.Fragment>
           );
         }
         if (item === "openStartTime") {

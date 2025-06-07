@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { getFullYearMonthOptions } from "../../utils/index";
 
 const CustomMonthDropdown = ({ tableIcons, value = "", setValue }) => {
-  const options = getFullYearMonthOptions(12);
+  const options = getFullYearMonthOptions(6);
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(value !== "" ? value : options[0]);
   const dropdownRef = useRef(null);

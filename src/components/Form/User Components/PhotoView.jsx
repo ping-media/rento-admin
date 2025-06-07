@@ -12,6 +12,8 @@ const PhotoView = ({
   alt = "Images",
   deleteFn,
   rowId,
+  variant = "full",
+  dataId,
 }) => {
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
@@ -46,7 +48,9 @@ const PhotoView = ({
               <button
                 type="button"
                 className={`p-1 rounded-full bg-white group transition-all duration-500 flex item-center hover:text-white hover:bg-theme`}
-                onClick={() => deleteFn(item?._id)}
+                onClick={() =>
+                  dataId ? deleteFn(dataId, item) : deleteFn(item?._id)
+                }
               >
                 {rowId !== item?._id ? tableIcons?.delete : <Spinner />}
               </button>
@@ -56,25 +60,45 @@ const PhotoView = ({
             className={`relative ${className} border rounded-md p-1`}
             key={item?._id}
           >
-            <a
-              href={item.imageUrl || item.link}
-              data-pswp-width={imageSize.width}
-              data-pswp-height={imageSize.height}
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                aspectRatio:
-                  imageSize.width && imageSize.height
-                    ? `${imageSize.width} / ${imageSize.height}`
-                    : "auto",
-              }}
-            >
-              <img
-                src={item.imageUrl || item.link}
-                alt={item.fileName || alt}
-                className="w-full h-full object-contain brightness-95"
-              />
-            </a>
+            {variant === "full" ? (
+              <a
+                href={item.imageUrl || item.link}
+                data-pswp-width={imageSize.width}
+                data-pswp-height={imageSize.height}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  aspectRatio:
+                    imageSize.width && imageSize.height
+                      ? `${imageSize.width} / ${imageSize.height}`
+                      : "auto",
+                }}
+              >
+                <img
+                  src={item.imageUrl || item.link}
+                  alt={item.fileName || alt}
+                  className="w-full h-full object-contain brightness-95"
+                />
+              </a>
+            ) : (
+              <a
+                href={item.imageUrl}
+                data-pswp-width={imageSize.width}
+                data-pswp-height={imageSize.height}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  aspectRatio:
+                    imageSize.width && imageSize.height
+                      ? `${imageSize.width} / ${imageSize.height}`
+                      : "auto",
+                }}
+                className="flex items-center gap-1"
+              >
+                {tableIcons?.image}
+                {item?.fileName?.split("_")[3]}
+              </a>
+            )}
           </div>
         </div>
       ) : (

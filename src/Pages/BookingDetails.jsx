@@ -13,18 +13,17 @@ import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 import PreLoader from "../components/Skeleton/PreLoader";
 import { cancelBookingById, fetchVehicleMasterById } from "../Data/Function";
 import {
-  addPickupImages,
   addTempVehicleData,
   handleUpdateFlags,
-  resetPickupImages,
   resetUserRideInfo,
   updateTimeLineData,
 } from "../Redux/VehicleSlice/VehicleSlice";
 import GenerateInvoiceButton from "../components/Table/GenerateInvoiceButton";
-import { getData, postData } from "../Data/index";
+import { postData } from "../Data/index";
 import UpdateBookingPayment from "../components/Modal/UpdateBookingPayment";
 import NoData from "../components/Error/NoData";
 import TabButton from "../components/TabButton/TabButton";
+import MenuToggle from "../components/MenuList/MenuToggle";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
@@ -43,7 +42,7 @@ const BookingDetails = () => {
   const [tab, setTab] = useState("customer");
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [reminderLoading, setReminderLoading] = useState(false);
-  const [isVehicleChanging, setIsVehicleChanging] = useState(false);
+  // const [isVehicleChanging, setIsVehicleChanging] = useState(false);
   const [Note, setNote] = useState("");
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
   const dispatch = useDispatch();
@@ -176,6 +175,15 @@ const BookingDetails = () => {
     return <NoData message="Booking Not Found" />;
   }
 
+  const diffData = vehicleMaster?.[0]?.bookingPrice?.diffAmount
+    ? vehicleMaster[0]?.bookingPrice?.diffAmount[
+        vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
+      ]
+    : null;
+  const isChange =
+    (diffData !== null && diffData?.rideStatus === false ? true : false) ||
+    false;
+
   return !loading && vehicleMaster?.length === 1 ? (
     <>
       {/* cancel modal */}
@@ -190,9 +198,16 @@ const BookingDetails = () => {
       {/* pickupImage modal */}
       <UploadPickupImageModal
         isBookingIdPresent={id.split("_")[0] ? true : false}
-        isChange={isVehicleChanging}
-        setIsChange={setIsVehicleChanging}
+        // isChange={
+        //   vehicleMaster[0]?.bookingPrice?.diffAmount &&
+        //   vehicleMaster[0]?.bookingPrice?.diffAmount[
+        //     vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
+        //   ]?.rideStatus === true
+        //     ? true
+        //     : false
+        // }
       />
+
       {/* update bookingpayment modal */}
       <UpdateBookingPayment id={id.split("_")[0]} />
       {/* Kyc modal */}
@@ -209,7 +224,10 @@ const BookingDetails = () => {
           {/* for starting & completing ride  */}
           {((vehicleMaster[0]?.rideStatus !== "ongoing" &&
             vehicleMaster[0]?.rideStatus !== "completed") ||
-            vehicleMaster[0]?.changeVehicle) && (
+            (vehicleMaster[0]?.bookingPrice?.diffAmount &&
+              !vehicleMaster[0]?.bookingPrice?.diffAmount[
+                vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
+              ]?.rideStatus)) && (
             <Button
               title={
                 vehicleMaster[0]?.rideStatus === "completed"
@@ -224,21 +242,24 @@ const BookingDetails = () => {
             />
           )}
           {/* for completing ride  */}
-          {vehicleMaster[0]?.rideStatus === "ongoing" &&
-            !vehicleMaster[0]?.changeVehicle && (
-              <Button
-                title={"Finish Ride"}
-                fn={() => dispatch(toggleRideEndModal())}
-                disable={
-                  vehicleMaster[0]?.rideStatus === "pending" ||
-                  vehicleMaster[0]?.bookingStatus === "canceled"
-                }
-                loading={vehicleLoading}
-              />
-            )}
+          {vehicleMaster[0]?.rideStatus === "ongoing" && !isChange && (
+            <Button
+              title={"Finish Ride"}
+              fn={() => dispatch(toggleRideEndModal())}
+              disable={
+                vehicleMaster[0]?.rideStatus === "pending" ||
+                vehicleMaster[0]?.bookingStatus === "canceled"
+              }
+              loading={vehicleLoading}
+            />
+          )}
 
           {/* for cancel ride */}
-          {vehicleMaster[0]?.rideStatus !== "completed" && (
+          {!(
+            vehicleMaster[0]?.bookingStatus == "canceled" ||
+            vehicleMaster[0]?.rideStatus == "ongoing" ||
+            vehicleMaster[0]?.rideStatus == "completed"
+          ) && (
             <Button
               title={"Cancel Booking"}
               fn={handleCancelBooking}
@@ -263,26 +284,33 @@ const BookingDetails = () => {
               fn={() => dispatch(toggleBookingExtendModal())}
             />
           )}
-          {/* for sending reminder  */}
-          <Button
-            title={"Send Reminder"}
-            fn={handleSendRemainder}
-            disable={
-              vehicleMaster[0]?.bookingStatus === "canceled" ||
-              vehicleMaster[0]?.rideStatus === "completed"
-            }
-            loading={reminderLoading}
-            customLoadingMessage="sending"
+
+          <MenuToggle
+            menuList={[
+              <Button
+                title={"Send Reminder"}
+                fn={handleSendRemainder}
+                disable={
+                  vehicleMaster[0]?.bookingStatus === "canceled" ||
+                  vehicleMaster[0]?.rideStatus === "completed"
+                }
+                loading={reminderLoading}
+                customLoadingMessage="sending"
+                variant="link"
+                customClass="w-full p-1.5 text-sm lg:px-2.5 lg:py-1.5"
+              />,
+              <>
+                {vehicleMaster[0]?.bookingStatus !== "canceled" &&
+                  vehicleMaster[0]?.paymentStatus !== "pending" && (
+                    <GenerateInvoiceButton
+                      item={vehicleMaster && vehicleMaster[0]}
+                      loadingStates={loadingStates}
+                      setLoadingStates={setLoadingStates}
+                    />
+                  )}
+              </>,
+            ]}
           />
-          {/* for invoice generate  */}
-          {vehicleMaster[0]?.bookingStatus !== "canceled" &&
-            vehicleMaster[0]?.paymentStatus !== "pending" && (
-              <GenerateInvoiceButton
-                item={vehicleMaster && vehicleMaster[0]}
-                loadingStates={loadingStates}
-                setLoadingStates={setLoadingStates}
-              />
-            )}
         </div>
       </div>
       <div className="mt-5">

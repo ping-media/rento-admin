@@ -516,7 +516,7 @@ export const tableIcons = {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="size-4 lg:size-5"
+      className="size-5 lg:size-6"
     >
       <path
         strokeLinecap="round"

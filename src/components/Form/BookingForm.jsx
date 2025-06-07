@@ -211,6 +211,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             planData?.selectedPlan?.length > 0
               ? true
               : false,
+          daysBreakdown:
+            formData?.stepOneData?.selectedVehicle?._daysBreakdown || [],
           extendAmount: [],
         },
         vehicleBasic: {

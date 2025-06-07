@@ -15,8 +15,8 @@ import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 
 const UploadPickupImageModal = ({
   isBookingIdPresent = false,
-  isChange,
-  setIsChange,
+  // isChange,
+  // setIsChange,
 }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const { token } = useSelector((state) => state.user);
@@ -43,6 +43,15 @@ const UploadPickupImageModal = ({
   });
   const [loading, setLoading] = useState(false);
   const [isKycApproved, setIsKycApproved] = useState(false);
+
+  const diffData = vehicleMaster?.[0]?.bookingPrice?.diffAmount
+    ? vehicleMaster[0]?.bookingPrice?.diffAmount[
+        vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
+      ]
+    : null;
+  const isChange =
+    (diffData !== null && diffData?.rideStatus === false ? true : false) ||
+    false;
 
   // new image compress per image
   const handleUploadPickupImages = async (event) => {
@@ -115,9 +124,10 @@ const UploadPickupImageModal = ({
         rideStatus: "ongoing",
       };
     } else {
-      if (isChange === true) {
-        setIsChange && setIsChange(false);
-      } else {
+      // if (isChange === true) {
+      //   setIsChange && setIsChange(false);
+      // } else {
+      if (!isChange) {
         updatedBooking = {
           ...currentBooking,
           bookingPrice: {
@@ -145,6 +155,12 @@ const UploadPickupImageModal = ({
           currentBooking?.vehicleBasic?.vehicleNumber
         );
         finalFormData.append("isVehicleUpdate", true);
+        finalFormData.append(
+          "diffAmountId",
+          currentBooking?.bookingPrice?.diffAmount[
+            currentBooking?.bookingPrice?.diffAmount?.length - 1
+          ]?.id
+        );
       }
 
       const responseImage = await postMultipleData(
@@ -165,14 +181,32 @@ const UploadPickupImageModal = ({
         setImageUrl([]);
         dispatch(togglePickupImageModal());
 
-        updatedBooking = {
-          ...updatedBooking,
-          vehicleBasic: {
-            ...updatedBooking?.vehicleBasic,
-            endRide: responseImage?.endOtp || 0,
-          },
-          pickupImage: responseImage?.newDocument,
-        };
+        if (isChange) {
+          updatedBooking = {
+            ...updatedBooking,
+            bookingPrice: {
+              ...updatedBooking?.bookingPrice,
+              diffAmount: updatedBooking.bookingPrice.diffAmount.map((item) =>
+                item.id ===
+                currentBooking?.bookingPrice?.diffAmount[
+                  currentBooking?.bookingPrice?.diffAmount?.length - 1
+                ]?.id
+                  ? { ...item, rideStatus: true }
+                  : item
+              ),
+            },
+          };
+        } else {
+          updatedBooking = {
+            ...updatedBooking,
+            vehicleBasic: {
+              ...updatedBooking?.vehicleBasic,
+              endRide: responseImage?.endOtp || 0,
+            },
+            pickupImage: responseImage?.newDocument,
+          };
+        }
+
         dispatch(handleInvoiceCreated(updatedBooking));
         // updating the timeline for booking
         const timeLineData = {
@@ -200,7 +234,7 @@ const UploadPickupImageModal = ({
     } catch (error) {
       handleAsyncError(dispatch, error?.message);
     } finally {
-      setIsChange(false);
+      // setIsChange && setIsChange(false);
       setLoading(false);
     }
   };
@@ -208,13 +242,13 @@ const UploadPickupImageModal = ({
   //   close modal and clear value
   const handleClearAndClose = () => {
     // dispatch(removeTempVehicleData());
-    setIsChange(false);
+    // setIsChange && setIsChange(false);
     return dispatch(togglePickupImageModal());
   };
 
   // close modal and send to kyc page
   const handleCloseModalAndVerifyUser = (id) => {
-    setIsChange(false);
+    // setIsChange(false);
     dispatch(togglePickupImageModal());
     return navigate(`/all-users/${id}`);
   };
@@ -298,47 +332,50 @@ const UploadPickupImageModal = ({
             </div>
             {(vehicleMaster[0]?.paymentMethod === "cash" ||
               vehicleMaster[0]?.paymentStatus === "partially_paid" ||
-              vehicleMaster[0]?.paymentStatus === "partiallyPay") && (
-              <div className="flex items-center flex-wrap gap-4 mb-3">
-                <input
-                  type="hidden"
-                  value={vehicleMaster[0]?.paymentStatus}
-                  name="paymentStatus"
-                />
-                <div className="w-full lg:w-[48%]">
-                  <Input
-                    type="number"
-                    value={
-                      (vehicleMaster[0]?.paymentMethod === "cash"
-                        ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice > 0
-                          ? Number(
-                              vehicleMaster[0]?.bookingPrice?.discountTotalPrice
-                            )
-                          : Number(vehicleMaster[0]?.bookingPrice?.totalPrice)
-                        : Number(
-                            vehicleMaster[0]?.bookingPrice
-                              ?.AmountLeftAfterUserPaid?.amount
-                          ) ||
-                          Number(
-                            vehicleMaster[0]?.bookingPrice
-                              ?.AmountLeftAfterUserPaid
-                          )) || 0
-                    }
-                    item="remainingPayment"
-                    require={true}
-                    disabled={true}
+              vehicleMaster[0]?.paymentStatus === "partiallyPay") &&
+              !vehicleMaster[0]?.bookingPrice?.diffAmount && (
+                <div className="flex items-center flex-wrap gap-4 mb-3">
+                  <input
+                    type="hidden"
+                    value={vehicleMaster[0]?.paymentStatus}
+                    name="paymentStatus"
                   />
+                  <div className="w-full lg:w-[48%]">
+                    <Input
+                      type="number"
+                      value={
+                        (vehicleMaster[0]?.paymentMethod === "cash"
+                          ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice >
+                            0
+                            ? Number(
+                                vehicleMaster[0]?.bookingPrice
+                                  ?.discountTotalPrice
+                              )
+                            : Number(vehicleMaster[0]?.bookingPrice?.totalPrice)
+                          : Number(
+                              vehicleMaster[0]?.bookingPrice
+                                ?.AmountLeftAfterUserPaid?.amount
+                            ) ||
+                            Number(
+                              vehicleMaster[0]?.bookingPrice
+                                ?.AmountLeftAfterUserPaid
+                            )) || 0
+                      }
+                      item="remainingPayment"
+                      require={true}
+                      disabled={true}
+                    />
+                  </div>
+                  <div className="text-left w-full lg:w-[48%]">
+                    <SelectDropDown
+                      options={["cash", "online"]}
+                      item="PaymentMode"
+                      require={true}
+                      isSearchEnable={false}
+                    />
+                  </div>
                 </div>
-                <div className="text-left w-full lg:w-[48%]">
-                  <SelectDropDown
-                    options={["cash", "online"]}
-                    item="PaymentMode"
-                    require={true}
-                    isSearchEnable={false}
-                  />
-                </div>
-              </div>
-            )}
+              )}
             <div className="flex items-center flex-wrap gap-4 mb-3">
               <div className="w-full lg:w-[48%]">
                 <Input
@@ -348,7 +385,7 @@ const UploadPickupImageModal = ({
                   require={true}
                 />
               </div>
-              {isChange && isChange !== false && (
+              {isChange && (
                 <div className="w-full lg:w-[48%]">
                   <Input
                     type="number"

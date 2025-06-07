@@ -579,8 +579,8 @@ const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-const getFullYearMonthOptions = () => {
-  const year = new Date().getFullYear();
+const getFullYearMonthOptions = (count = 12) => {
+  const now = new Date();
   const monthNames = [
     "January",
     "February",
@@ -596,7 +596,16 @@ const getFullYearMonthOptions = () => {
     "December",
   ];
 
-  return monthNames.map((month) => `${month} ${year}`);
+  const options = [];
+
+  for (let i = 0; i < count; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    options.push(`${month} ${year}`);
+  }
+
+  return options;
 };
 
 const calculateTotalAddOnPrice = (addOns, days) => {

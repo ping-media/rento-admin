@@ -3,6 +3,7 @@ import VehicleInfo from "../VehicleDetails/VehicleInfo";
 import { lazy, useEffect, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
+  formatDateToISO,
   formatDateToISOWithoutSecond,
   formatFullDateAndTime,
 } from "../../utils/index";
@@ -237,9 +238,13 @@ const BookingDetail = ({ tabs }) => {
                 formatDateToISOWithoutSecond(new Date())
             ) && (
               <button
-                className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5"
+                className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5 disabled:bg-theme/75"
                 type="button"
                 onClick={() => dispatch(toggleChangeVehicleModal())}
+                disabled={
+                  formatDateToISO(new Date()).replace(".000Z", "Z") <
+                  vehicleMaster[0]?.BookingStartDateAndTime
+                }
               >
                 Change Vehicle
               </button>

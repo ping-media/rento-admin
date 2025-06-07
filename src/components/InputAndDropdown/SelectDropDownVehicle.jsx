@@ -25,6 +25,11 @@ const SelectDropDownVehicle = ({
   const dispatch = useDispatch();
 
   const handleOptionClick = (val) => {
+    if (inputSelect === val._id) {
+      setIsOpen(false);
+      return;
+    }
+
     setInputSelect(val._id);
     setIsOpen(false);
     setValueChanger && setValueChanger(val._id);

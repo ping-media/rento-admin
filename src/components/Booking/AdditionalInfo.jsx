@@ -6,12 +6,20 @@ import { formatPrice, getDurationInDays } from "../../utils/index";
 const AdditionalInfo = () => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { loggedInRole } = useSelector((state) => state.user);
+
+  const diffAmount = vehicleMaster[0]?.bookingPrice?.diffAmount
+    ? vehicleMaster[0]?.bookingPrice?.diffAmount[
+        vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
+      ]
+    : null;
+
   return (
     <>
       {/* ride otp's  */}
       {loggedInRole === "admin" && (
         <div className="mb-2">
-          {vehicleMaster[0]?.rideStatus !== "ongoing" && (
+          {((diffAmount !== null && diffAmount?.rideStatus === false) ||
+            vehicleMaster[0]?.rideStatus !== "ongoing") && (
             <p className="text-gray-400 flex items-center">
               <span className="font-semibold mr-1">Start OTP:</span>
               {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
@@ -39,6 +47,23 @@ const AdditionalInfo = () => {
           </span>
         </p>
       </div>
+      {diffAmount !== null && diffAmount?.refundAmount > 0 && (
+        <div className="mt-1 mb-2.5">
+          <p className="text-sm text-gray-400 uppercase">
+            <span className="font-semibold mr-1 capitalize">
+              Change Vehicle Refund Amount:
+            </span>
+            <span className="text-theme font-semibold">
+              ₹
+              {formatPrice(
+                vehicleMaster[0]?.bookingPrice?.diffAmount[
+                  vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
+                ]?.refundAmount
+              )}
+            </span>
+          </p>
+        </div>
+      )}
       <div className="mt-1 mb-2.5">
         <p className="text-sm text-gray-400 mb-1">
           <span className="font-semibold mr-1">Free Limit:</span>
