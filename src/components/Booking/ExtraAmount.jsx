@@ -9,7 +9,7 @@ const ExtraAmount = ({ item }) => {
           : camelCaseToSpaceSeparated(item?.title)}
         :
       </span>
-      {item?.amount > 0 && (
+      {item?.amount > 0 && !item?.title?.includes("changed") && (
         <>
           <span className="text-sm text-gray-400 hidden lg:inline">
             ₹

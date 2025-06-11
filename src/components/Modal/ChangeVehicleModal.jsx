@@ -211,11 +211,13 @@ const ChangeVehicleModal = ({ bookingData }) => {
             amount: finalDiffAmount,
             refundAmount: refundAmount,
             paymentMethod: "",
+            orderId: "",
+            transactionId: "",
             status: finalDiffAmount > 0 ? "unpaid" : "paid",
             rideStatus: false,
           },
         ],
-        extendAmount: bookingData?.bookingPrice?.extraAddonDetails,
+        extendAmount: bookingData?.bookingPrice?.extendAmount,
       },
       changeVehicle: {
         vehicleMasterId: bookingData?.vehicleMasterId,
@@ -329,6 +331,15 @@ const ChangeVehicleModal = ({ bookingData }) => {
     return dispatch(toggleChangeVehicleModal());
   };
 
+  const isDisabled =
+    bookingData?.bookingPrice?.diffAmount &&
+    bookingData?.bookingPrice?.diffAmount?.length > 0 &&
+    bookingData?.bookingPrice?.diffAmount[
+      bookingData?.bookingPrice?.diffAmount?.length - 1
+    ]?.status === "unpaid"
+      ? true
+      : false;
+
   return (
     <div
       className={`fixed ${
@@ -363,6 +374,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
 
         <div className="p-6 pt-2 text-center">
           {vehicleLoading && <PreLoader />}
+          {isDisabled && (
+            <p className="text-left text-xs lg:text-sm text-theme italic mb-2">
+              <span className="font-bold mr-1">Note:</span>
+              update the pending payment in order to change vehicle.
+            </p>
+          )}
           <form onSubmit={handleChangeVehicle}>
             <div className="w-full bg-gray-300 rounded-lg bg-opacity-75 py-2 px-2.5 mb-2">
               <div className="flex items-center justify-between">
@@ -483,8 +500,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
             </div> */}
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
-              disabled={formLoading || selectedVehicle === null}
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full flex items-center justify-center"
+              disabled={isDisabled || formLoading || selectedVehicle === null}
             >
               {!formLoading ? (
                 "Change vehicle"

@@ -184,40 +184,6 @@ const BookingFareDetails = ({ rides }) => {
                               </span>
                             )}
                         </div>
-                        {/* {key != "tax" &&
-                          key != "userPaid" &&
-                          value != 0 &&
-                          !rides?.bookingPrice.isPackageApplied && (
-                            <p className="text-xs text-gray-500 mb-1">
-                              (
-                              {key == "extraAddonPrice"
-                                ? `₹${50} x ${getDurationInDays(
-                                    rides?.BookingStartDateAndTime,
-                                    rides?.BookingEndDateAndTime
-                                  )} ${
-                                    getDurationInDays(
-                                      rides?.BookingStartDateAndTime,
-                                      rides?.BookingEndDateAndTime
-                                    ) == 1
-                                      ? "day"
-                                      : "days"
-                                  } (Extra Helmet)`
-                                : `₹${
-                                    rides?.bookingPrice?.rentAmount
-                                  } x ${getDurationInDays(
-                                    rides?.BookingStartDateAndTime,
-                                    rides?.BookingEndDateAndTime
-                                  )} ${
-                                    getDurationInDays(
-                                      rides?.BookingStartDateAndTime,
-                                      rides?.BookingEndDateAndTime
-                                    ) == 1
-                                      ? "day"
-                                      : "days"
-                                  }`}
-                              )
-                            </p>
-                          )} */}
                       </div>
                       <p>{`₹${formatPrice(value)}`}</p>
                     </li>

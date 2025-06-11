@@ -42,7 +42,6 @@ const BookingDetails = () => {
   const [tab, setTab] = useState("customer");
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [reminderLoading, setReminderLoading] = useState(false);
-  // const [isVehicleChanging, setIsVehicleChanging] = useState(false);
   const [Note, setNote] = useState("");
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
   const dispatch = useDispatch();
@@ -198,14 +197,6 @@ const BookingDetails = () => {
       {/* pickupImage modal */}
       <UploadPickupImageModal
         isBookingIdPresent={id.split("_")[0] ? true : false}
-        // isChange={
-        //   vehicleMaster[0]?.bookingPrice?.diffAmount &&
-        //   vehicleMaster[0]?.bookingPrice?.diffAmount[
-        //     vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
-        //   ]?.rideStatus === true
-        //     ? true
-        //     : false
-        // }
       />
 
       {/* update bookingpayment modal */}
@@ -222,12 +213,12 @@ const BookingDetails = () => {
         {/* actions for cancel & start ride  */}
         <div className="flex flex-wrap gap-2">
           {/* for starting & completing ride  */}
-          {((vehicleMaster[0]?.rideStatus !== "ongoing" &&
-            vehicleMaster[0]?.rideStatus !== "completed") ||
-            (vehicleMaster[0]?.bookingPrice?.diffAmount &&
-              !vehicleMaster[0]?.bookingPrice?.diffAmount[
-                vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
-              ]?.rideStatus)) && (
+          {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
+            !vehicleMaster[0]?.bookingPrice?.diffAmount[
+              vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
+            ]?.rideStatus) ||
+            (vehicleMaster[0]?.rideStatus !== "ongoing" &&
+              vehicleMaster[0]?.rideStatus !== "completed")) && (
             <Button
               title={
                 vehicleMaster[0]?.rideStatus === "completed"
@@ -278,7 +269,7 @@ const BookingDetails = () => {
           ) && (
             <Button
               customClass={
-                "border-2 border-theme text-theme hover:text-gray-100 hover:border-theme-dark p-1.5 text-sm lg:px-2.5 lg:py-1.5"
+                "border-2 border-theme text-theme hover:text-gray-100 hover:border-theme-dark p-1.5 text-sm lg:px-2.5 lg:py-1.5 disabled:border-theme/60 disabled:text-theme/60 disabled:hover:bg-transparent disabled:hover:border-theme/60 disabled:hover:text-theme/60"
               }
               title={"Extend Booking"}
               fn={() => dispatch(toggleBookingExtendModal())}

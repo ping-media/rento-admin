@@ -61,6 +61,7 @@ const UploadPickupImageModal = ({
     const isAnyImageMissing = Object.values(imagesUrl).some(
       (value) => value === ""
     );
+
     if (isAnyImageMissing) {
       return handleAsyncError(dispatch, "All Images Required!.");
     }
@@ -112,22 +113,19 @@ const UploadPickupImageModal = ({
       currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
 
     let updatedBooking;
-
-    if (currentBooking?.paymentMethod?.toLowerCase() === "cash") {
-      updatedBooking = {
-        ...currentBooking,
-        bookingPrice: {
-          ...currentBooking.bookingPrice,
-          payOnPickupMethod: updatePaymentMode || "cash",
-        },
-        paymentStatus: "paid",
-        rideStatus: "ongoing",
-      };
-    } else {
-      // if (isChange === true) {
-      //   setIsChange && setIsChange(false);
-      // } else {
-      if (!isChange) {
+    if (!isChange) {
+      if (currentBooking?.paymentMethod?.toLowerCase() === "cash") {
+        updatedBooking = {
+          ...currentBooking,
+          bookingPrice: {
+            ...currentBooking.bookingPrice,
+            isPickupImageAdded: true,
+            payOnPickupMethod: updatePaymentMode || "cash",
+          },
+          paymentStatus: "paid",
+          rideStatus: "ongoing",
+        };
+      } else {
         updatedBooking = {
           ...currentBooking,
           bookingPrice: {

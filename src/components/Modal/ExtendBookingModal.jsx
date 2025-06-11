@@ -32,6 +32,8 @@ const ExtendBookingModal = ({ bookingData }) => {
   const [addOnPrice, setAddOnPrice] = useState(0);
   const [freeVehicle, setFreeVehicle] = useState(null);
   const [extendPrice, setExtendPrice] = useState(0);
+  const [daysBreakdown, setDaysBreakdown] = useState([]);
+  const [selectedPlan, setSelectedPlan] = useState([]);
   const [newDate, setNewDate] = useState("");
   const [priceLoading, setPriceLoading] = useState(false);
 
@@ -88,13 +90,17 @@ const ExtendBookingModal = ({ bookingData }) => {
         BookingEndDateAndTime: bookingData?.BookingEndDateAndTime,
       },
       extendAmount: {
-        id: extendAmountList.length + 1,
+        id: extendAmountList.length + 1 || 1,
         title: "extended",
         extendDuration: extensionDays,
         amount: extendPrice,
         addOnAmount: addOnPrice,
         BookingStartDateAndTime: newStartDate,
         bookingEndDateAndTime: newDate,
+        daysBreakdown: daysBreakdown || [],
+        package: selectedPlan || [],
+        orderId: "",
+        transactionId: "",
         paymentMethod: "",
         status: "unpaid",
       },
@@ -116,7 +122,8 @@ const ExtendBookingModal = ({ bookingData }) => {
       if (response?.status === 200) {
         setExtensionDays(0);
         setNewDate("");
-        dispatch(handleUpdateExtendVehicle(data));
+        const { BookingStartDateAndTime, ...rest } = data;
+        dispatch(handleUpdateExtendVehicle(rest));
         // updating the timeline for booking
         const timeLineData = await updateTimeLineForPayment(
           data,
@@ -125,7 +132,6 @@ const ExtendBookingModal = ({ bookingData }) => {
         );
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
-        // dispatch(toggleBookingExtendModal());
         handleCloseModal();
         return handleAsyncError(dispatch, response?.message, "success");
       } else {
@@ -208,11 +214,27 @@ const ExtendBookingModal = ({ bookingData }) => {
       if (Number(price) > 0) {
         setExtendPrice(price);
         setAddOnPrice(extraAddonPrice);
+        setDaysBreakdown(freeVehicle?._daysBreakdown);
+        setSelectedPlan(hasPlan);
       }
     } else {
       setExtendPrice(0);
     }
   }, [extensionDays, freeVehicle]);
+
+  // through this we are disabling the extension util previous one is completed
+  const isDisabled =
+    (!["paid", "partiallyPay", "partially_paid"].includes(
+      bookingData?.paymentStatus
+    ) &&
+      true) ||
+    (bookingData?.bookingPrice?.extendAmount &&
+      bookingData?.bookingPrice?.extendAmount?.length > 0 &&
+      bookingData?.bookingPrice?.extendAmount[
+        bookingData?.bookingPrice?.extendAmount?.length - 1
+      ]?.status === "unpaid")
+      ? true
+      : false;
 
   if (plan?.loading) {
     return <PreLoader />;
@@ -251,6 +273,12 @@ const ExtendBookingModal = ({ bookingData }) => {
         </div>
 
         <div className="p-6 pt-2 text-center">
+          {isDisabled && (
+            <p className="text-left text-xs lg:text-sm text-theme italic mb-2">
+              <span className="font-bold mr-1">Note:</span>
+              update the pending payment in order to extend the ride.
+            </p>
+          )}
           <form onSubmit={handleExtendBooking}>
             <div className="mb-2">
               <p className="text-gray-400 text-left">
@@ -340,8 +368,10 @@ const ExtendBookingModal = ({ bookingData }) => {
 
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/80"
-              disabled={extensionDays == 0 ? true : false || formLoading}
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/80 w-full flex items-center justify-center"
+              disabled={
+                isDisabled || extensionDays == 0 ? true : false || formLoading
+              }
             >
               {!formLoading ? (
                 "Extend Booking"

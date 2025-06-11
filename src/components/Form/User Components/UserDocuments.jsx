@@ -59,27 +59,33 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
         id="user-documents-gallery"
         className="flex items-center gap-2 flex-wrap"
       >
-        {Object.entries(data || {})?.map(([key, value]) => (
-          <React.Fragment key={`file_${key}`}>
-            {dataId ? (
-              <PhotoView
-                item={value}
-                className="w-52 max-h-40"
-                uniqueId={`file_${key}`}
-                variant={"full"}
-                deleteFn={handleDeleteDocument}
-                dataId={dataId}
-              />
-            ) : (
-              <PhotoView
-                item={value}
-                className="w-20 h-10 flex items-center justify-center"
-                uniqueId={`file_${key}`}
-                variant={"thumbnail"}
-              />
-            )}
-          </React.Fragment>
-        ))}
+        {data ? (
+          Object.entries(data || {})?.map(([key, value]) => (
+            <React.Fragment key={`file_${key}`}>
+              {dataId ? (
+                <PhotoView
+                  item={value}
+                  className="w-52 max-h-40"
+                  uniqueId={`file_${key}`}
+                  variant={"full"}
+                  deleteFn={handleDeleteDocument}
+                  dataId={dataId}
+                />
+              ) : (
+                <PhotoView
+                  item={value}
+                  className="w-20 h-10 flex items-center justify-center"
+                  uniqueId={`file_${key}`}
+                  variant={"thumbnail"}
+                />
+              )}
+            </React.Fragment>
+          ))
+        ) : (
+          <p className="italic text-sm my-2 text-gray-400">
+            No documents found.
+          </p>
+        )}
       </div>
     </div>
   );
