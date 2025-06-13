@@ -313,7 +313,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         //   return;
         // }
       } else if (["online", "partiallyPay"].includes(paymentMethodStatus)) {
-        const { orderId, booking_id, payableAmount } = response.data;
+        const { orderId, booking_id, payableAmount } = bookingResponse.data;
         if (orderId && orderId !== "") {
           const paymentLinkResponse = await postData(
             "/create-payment-link",
