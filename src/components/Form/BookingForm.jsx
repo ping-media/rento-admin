@@ -246,99 +246,139 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         rideStatus: result?.rideStatus || "pending",
       };
 
-      if (result?.paymentMethod === "cash") {
-        data = {
-          ...data,
-          payInitFrom: "Cash",
-          bookingStatus: "done",
+      const bookingResponse = await postData(
+        "/initiate-booking",
+        {
+          bookingData: data,
           paymentMethod: result?.paymentMethod,
-        };
-      }
-      // console.log(data);
-      // return;
-      const bookingResponse = await postData("/createBooking", data, token);
-      if (bookingResponse?.status === 200) {
-        // updating the timeline for booking
-        const timeLineData = {
-          userId: bookingResponse?.data?.userId,
-          bookingId: bookingResponse?.data?.bookingId,
-          currentBooking_id: bookingResponse?.data?._id,
-          isStart: true,
-          timeLine: [
-            {
-              title: "Booking Created",
-              date: Date.now(),
-            },
-          ],
-        };
-        // for creating booking
-        await postData("/createTimeline", timeLineData, token);
-        if (bookingResponse?.data?.paymentMethod === "cash") {
-          const timeLineData = {
-            currentBooking_id: bookingResponse?.data?._id,
-            timeLine: [
-              {
-                title: "Pay Later",
-                date: Date.now(),
-                paymentAmount:
-                  bookingResponse?.data?.bookingPrice?.discountTotalPrice > 0
-                    ? bookingResponse?.data?.bookingPrice?.discountTotalPrice
-                    : bookingResponse?.data?.bookingPrice?.totalPrice,
-              },
-            ],
-          };
-          await postData("/createTimeline", timeLineData, token);
-          handleAsyncError(dispatch, "Ride Created Successfully", "success");
+        },
+        token
+      );
+
+      if (result?.paymentMethod === "cash") {
+        if (response?.status === 200) {
+          handleAsyncError(dispatch, "Ride booked successfully", "success");
           navigate(
             `/all-bookings/details/${bookingResponse?.data?._id}_${bookingResponse?.data?.bookingId}`
           );
           return;
+        } else {
+          handleAsyncError(dispatch, response?.message);
         }
-      } else {
-        return handleAsyncError(dispatch, bookingResponse?.message);
-      }
-
-      if (bookingResponse?.status !== 200)
-        return handleAsyncError(dispatch, "unable to make booking! try again.");
-      const generateOrder = await createOrderId(bookingResponse?.data);
-      // updating the data but order id
-      data = {
-        ...bookingResponse?.data,
-        paymentgatewayOrderId: generateOrder?.id,
-        paymentgatewayReceiptId: generateOrder?.receipt,
-        paymentInitiatedDate: generateOrder?.created_at,
-      };
-
-      const UpdatedBookingResponse = await postData(
-        `/createBooking?_id=${bookingResponse?.data?._id}`,
-        data,
-        token
-      );
-      if (UpdatedBookingResponse?.status === 200) {
-        // updating the timeline for booking
-        const timeLineData = {
-          currentBooking_id: UpdatedBookingResponse?.data?._id,
-          timeLine: [
-            {
-              title: "Payment Initiated",
-              date: Date.now(),
-            },
-          ],
-        };
+        //   data = {
+        //     ...data,
+        //     payInitFrom: "Cash",
+        //     bookingStatus: "done",
+        //     paymentMethod: result?.paymentMethod,
+        //   };
+        // }
+        // console.log(data);
+        // return;
+        // const bookingResponse = await postData("/createBooking", data, token);
+        // if (bookingResponse?.status === 200) {
+        //   // updating the timeline for booking
+        //   const timeLineData = {
+        //     userId: bookingResponse?.data?.userId,
+        //     bookingId: bookingResponse?.data?.bookingId,
+        //     currentBooking_id: bookingResponse?.data?._id,
+        //     isStart: true,
+        //     timeLine: [
+        //       {
+        //         title: "Booking Created",
+        //         date: Date.now(),
+        //       },
+        //     ],
+        //   };
         // for creating booking
-        await postData("/createTimeline", timeLineData, token);
-        // for updating sending link in it
-        const updateTimeLineDataToPush = await CreatePaymentLinkAndTimeline(
-          UpdatedBookingResponse?.data,
-          token,
-          "Payment Link Created"
-        );
-        dispatch(updateTimeLineData(updateTimeLineDataToPush));
-        handleAsyncError(dispatch, "Ride Created Successfully", "success");
-        navigate(`/all-bookings/details/${UpdatedBookingResponse?.data?._id}`);
-      } else {
-        return handleAsyncError(dispatch, UpdatedBookingResponse?.message);
+        // await postData("/createTimeline", timeLineData, token);
+        // if (bookingResponse?.data?.paymentMethod === "cash") {
+        //   // const timeLineData = {
+        //   //   currentBooking_id: bookingResponse?.data?._id,
+        //   //   timeLine: [
+        //   //     {
+        //   //       title: "Pay Later",
+        //   //       date: Date.now(),
+        //   //       paymentAmount:
+        //   //         bookingResponse?.data?.bookingPrice?.discountTotalPrice > 0
+        //   //           ? bookingResponse?.data?.bookingPrice?.discountTotalPrice
+        //   //           : bookingResponse?.data?.bookingPrice?.totalPrice,
+        //   //     },
+        //   //   ],
+        //   // };
+        //   // await postData("/createTimeline", timeLineData, token);
+        //   handleAsyncError(dispatch, "Ride Created Successfully", "success");
+        //   navigate(
+        //     `/all-bookings/details/${bookingResponse?.data?._id}_${bookingResponse?.data?.bookingId}`
+        //   );
+        //   return;
+        // }
+      } else if (["online", "partiallyPay"].includes(paymentMethodStatus)) {
+        const { orderId, booking_id, payableAmount } = response.data;
+        if (orderId && orderId !== "") {
+          const paymentLinkResponse = await postData(
+            "/create-payment-link",
+            {
+              bookingId: booking_id,
+              amount: payableAmount,
+              orderId,
+              type:
+                paymentMethodStatus === "partiallyPay" ? "partiallyPay" : "",
+            },
+            token
+          );
+          if (paymentLinkResponse?.linkCreated === true) {
+            handleAsyncError(dispatch, "Ride booked successfully", "success");
+            navigate(
+              `/all-bookings/details/${bookingResponse?.data?._id}_${bookingResponse?.data?.bookingId}`
+            );
+            return;
+          } else {
+            handleAsyncError(dispatch, paymentLinkResponse?.message);
+          }
+        }
       }
+
+      // if (bookingResponse?.status !== 200)
+      //   return handleAsyncError(dispatch, "unable to make booking! try again.");
+      // const generateOrder = await createOrderId(bookingResponse?.data);
+      // // updating the data but order id
+      // data = {
+      //   ...bookingResponse?.data,
+      //   paymentgatewayOrderId: generateOrder?.id,
+      //   paymentgatewayReceiptId: generateOrder?.receipt,
+      //   paymentInitiatedDate: generateOrder?.created_at,
+      // };
+
+      // const UpdatedBookingResponse = await postData(
+      //   `/createBooking?_id=${bookingResponse?.data?._id}`,
+      //   data,
+      //   token
+      // );
+      // if (UpdatedBookingResponse?.status === 200) {
+      //   // updating the timeline for booking
+      //   const timeLineData = {
+      //     currentBooking_id: UpdatedBookingResponse?.data?._id,
+      //     timeLine: [
+      //       {
+      //         title: "Payment Initiated",
+      //         date: Date.now(),
+      //       },
+      //     ],
+      //   };
+      //   // for creating booking
+      //   await postData("/createTimeline", timeLineData, token);
+      //   // for updating sending link in it
+      //   const updateTimeLineDataToPush = await CreatePaymentLinkAndTimeline(
+      //     UpdatedBookingResponse?.data,
+      //     token,
+      //     "Payment Link Created"
+      //   );
+      //   dispatch(updateTimeLineData(updateTimeLineDataToPush));
+      //   handleAsyncError(dispatch, "Ride Created Successfully", "success");
+      //   navigate(`/all-bookings/details/${UpdatedBookingResponse?.data?._id}`);
+      // } else {
+      //   return handleAsyncError(dispatch, UpdatedBookingResponse?.message);
+      // }
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
     } finally {
