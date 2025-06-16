@@ -17,7 +17,6 @@ import {
   handleUpdateExtendVehicle,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
-import { updateTimeLineForPayment } from "../../Data/Function";
 import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { debounce } from "lodash";
@@ -77,6 +76,7 @@ const ExtendBookingModal = ({ bookingData }) => {
     ).replace(".000Z", "Z");
 
     const extendAmountList = bookingData?.bookingPrice?.extendAmount || [];
+    const extensionId = extendAmountList.length + 1 || 1;
 
     const data = {
       _id: bookingData?._id,
@@ -90,7 +90,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         BookingEndDateAndTime: bookingData?.BookingEndDateAndTime,
       },
       extendAmount: {
-        id: extendAmountList.length + 1 || 1,
+        id: extensionId,
         title: "extended",
         extendDuration: extensionDays,
         amount: extendPrice,
@@ -109,33 +109,49 @@ const ExtendBookingModal = ({ bookingData }) => {
     if (!data) return;
     try {
       setFormLoading(true);
-      const response = await postData(
-        `/extendBooking?BookingStartDateAndTime=${newStartDate}&BookingEndDateAndTime=${newDate}&stationId=${bookingData?.stationId}`,
+      data = {
+        ...data,
+        contact: bookingData?.userId?.contact,
+        firstName: bookingData?.userId?.firstName,
+        managerContact: bookingData?.stationMasterUserId?.contact,
+      };
+      const orderId = await postData(
+        "/initiate-extend-booking ",
         {
-          ...data,
-          contact: bookingData?.userId?.contact,
-          firstName: bookingData?.userId?.firstName,
-          managerContact: bookingData?.stationMasterUserId?.contact,
+          _id: bookingData?._id,
+          bookingId: bookingData?.bookingId,
+          amount: Number(extendPrice) + Number(addOnPrice),
+          data,
         },
         token
       );
-      if (response?.status === 200) {
-        setExtensionDays(0);
-        setNewDate("");
-        const { BookingStartDateAndTime, ...rest } = data;
-        dispatch(handleUpdateExtendVehicle(rest));
-        // updating the timeline for booking
-        const timeLineData = await updateTimeLineForPayment(
-          data,
-          token,
-          "Extension Payment Link"
+      if (orderId?.status === "created" && orderId?.bookingUpdate === true) {
+        const paymentLinkResponse = await postData(
+          "/create-payment-link",
+          {
+            bookingId: bookingData?._id,
+            amount: Number(extendPrice) + Number(addOnPrice),
+            orderId: orderId?.id,
+            type: "extension",
+            typeId: extensionId,
+          },
+          token
         );
-        // for updating timeline redux data
-        dispatch(updateTimeLineData(timeLineData));
-        handleCloseModal();
-        return handleAsyncError(dispatch, response?.message, "success");
-      } else {
-        return handleAsyncError(dispatch, response?.message);
+        if (paymentLinkResponse?.linkCreated === true) {
+          setExtensionDays(0);
+          setNewDate("");
+          const { BookingStartDateAndTime, ...rest } = data;
+          dispatch(handleUpdateExtendVehicle(rest));
+          const timeLineData = paymentLinkResponse?.data || null;
+          if (timeLineData !== null) {
+            dispatch(updateTimeLineData(timeLineData));
+          }
+          handleAsyncError(dispatch, "Ride Extended successfully", "success");
+          handleCloseModal();
+          return;
+        } else {
+          return handleAsyncError(dispatch, response?.message);
+        }
       }
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);

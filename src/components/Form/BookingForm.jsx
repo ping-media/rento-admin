@@ -1,20 +1,17 @@
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   calculateTax,
   calculateTotalAddOnPrice,
   getDurationBetweenDates,
-  getDurationInDays,
 } from "../../utils";
 import BookingStepOne from "./BookingComponents/BookingStepOne";
 import BookingStepTwo from "./BookingComponents/BookingStepTwo";
 import BookingStepThree from "./BookingComponents/BookingStepThree";
-import { createOrderId, getData, postData } from "../../Data/index";
+import { postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { CreatePaymentLinkAndTimeline } from "../../Data/Function";
-import { updateTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
 import { tableIcons } from "../../Data/Icons";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
