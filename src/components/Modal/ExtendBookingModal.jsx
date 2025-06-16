@@ -78,7 +78,7 @@ const ExtendBookingModal = ({ bookingData }) => {
     const extendAmountList = bookingData?.bookingPrice?.extendAmount || [];
     const extensionId = extendAmountList.length + 1 || 1;
 
-    const data = {
+    let data = {
       _id: bookingData?._id,
       vehicleTableId: bookingData?.vehicleTableId?._id,
       BookingStartDateAndTime: newStartDate,
