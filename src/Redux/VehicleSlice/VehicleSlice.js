@@ -100,7 +100,7 @@ const vehicleSlice = createSlice({
     },
     handleUpdateExtendVehicle: (state, action) => {
       const {
-        BookingStartDateAndTime,
+        // BookingStartDateAndTime,
         BookingEndDateAndTime,
         oldBookings,
         extendAmount,
@@ -108,7 +108,7 @@ const vehicleSlice = createSlice({
       } = action.payload;
       state.vehicleMaster[0] = {
         ...state.vehicleMaster[0],
-        BookingStartDateAndTime,
+        // BookingStartDateAndTime,
         BookingEndDateAndTime,
         bookingPrice: {
           ...state.vehicleMaster[0]?.bookingPrice,

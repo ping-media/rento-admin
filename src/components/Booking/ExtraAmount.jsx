@@ -2,13 +2,13 @@ import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
 
 const ExtraAmount = ({ item }) => {
   return (
-    <>
+    <div className="flex items-center mb-2">
       <span className="text-sm text-gray-400 font-semibold capitalize">
         {item?.title?.includes("changed")
           ? "Vehicle Change"
           : camelCaseToSpaceSeparated(item?.title)}
-        :
       </span>
+      <span className="text-sm text-gray-400 font-semibold mx-1">:</span>
       {item?.amount > 0 && !item?.title?.includes("changed") && (
         <>
           <span className="text-sm text-gray-400 hidden lg:inline">
@@ -21,12 +21,12 @@ const ExtraAmount = ({ item }) => {
               : "--"}
           </span>
           <span className="text-sm text-gray-400 hidden lg:inline">
-            x {item?.extendDuration || "--"} day(s) + ₹
-            {item?.addOnAmount ? formatPrice(item?.addOnAmount) : "--"} =
+            x {item?.extendDuration || "--"} day(s)
+            {item?.addOnAmount > 0 && `+ ₹${formatPrice(item?.addOnAmount)}`} =
           </span>
         </>
       )}
-      <span className="text-sm text-gray-400">
+      <span className="text-sm text-gray-400 ml-1">
         ₹{formatPrice(item?.amount)}
       </span>
       <span
@@ -36,7 +36,7 @@ const ExtraAmount = ({ item }) => {
       >
         ({item?.status})
       </span>
-    </>
+    </div>
   );
 };
 
