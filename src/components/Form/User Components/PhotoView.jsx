@@ -77,7 +77,7 @@ const PhotoView = ({
                 <img
                   src={item.imageUrl || item.link}
                   alt={item.fileName || alt}
-                  className="w-full h-full object-contain brightness-95"
+                  className="w-full max-h-40 object-contain brightness-95"
                 />
               </a>
             ) : (
