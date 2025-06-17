@@ -1,31 +1,29 @@
+import Tooltip from "../../components/Tooltip/Tooltip";
 import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
+import { renderTooltipBreakdown } from "../../utils/Helper/Helper";
 
 const ExtraAmount = ({ item }) => {
   return (
-    <div className="flex items-center mb-2">
+    <div className="flex items-center mb-1">
       <span className="text-sm text-gray-400 font-semibold capitalize">
         {item?.title?.includes("changed")
           ? "Vehicle Change"
           : camelCaseToSpaceSeparated(item?.title)}
       </span>
-      <span className="text-sm text-gray-400 font-semibold mx-1">:</span>
       {item?.amount > 0 && !item?.title?.includes("changed") && (
-        <>
-          <span className="text-sm text-gray-400 hidden lg:inline">
-            ₹
-            {item?.extendDuration
-              ? formatPrice(
-                  (item?.amount - item?.addOnAmount) /
-                    Number(item?.extendDuration)
-                )
-              : "--"}
-          </span>
-          <span className="text-sm text-gray-400 hidden lg:inline">
-            x {item?.extendDuration || "--"} day(s)
-            {item?.addOnAmount > 0 && `+ ₹${formatPrice(item?.addOnAmount)}`} =
-          </span>
-        </>
+        <span className="inline-flex items-center ml-1">
+          <Tooltip
+            underLine={false}
+            buttonMessage="(?)"
+            tooltipData={renderTooltipBreakdown(
+              item?.appliedPlans,
+              item?.daysBreakdown
+            )}
+            className="text-gray-400"
+          />
+        </span>
       )}
+      <span className="text-sm text-gray-400 font-semibold mx-1">:</span>
       <span className="text-sm text-gray-400 ml-1">
         ₹{formatPrice(item?.amount)}
       </span>

@@ -102,3 +102,31 @@ table.dataTable tbody tr:hover {
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
   @apply bg-blue-500 text-white;
 }
+
+.rdp-chevron {
+  fill: black !important;
+}
+
+@media (max-width: 640px) {
+  .rdp-day,
+  .rdp-day_button {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .rdp-day,
+  .rdp-day_button {
+    width: 30px !important;
+    height: 30px !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  .rdp-day,
+  .rdp-day_button {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}

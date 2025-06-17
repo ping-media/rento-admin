@@ -5,21 +5,10 @@ import {
   getDurationInDays,
 } from "../../utils/index";
 import Tooltip from "../../components/Tooltip/Tooltip";
+import { renderTooltipBreakdown } from "../../utils/Helper/Helper";
 
 const BookingFareDetails = ({ rides }) => {
   const { general } = useSelector((state) => state.general);
-
-  const weekDays = rides?.bookingPrice?.daysBreakdown
-    ? rides?.bookingPrice?.daysBreakdown.filter(
-        (breakup) => breakup?.isWeekend === false
-      )
-    : [];
-
-  const weekend = rides?.bookingPrice?.daysBreakdown
-    ? rides?.bookingPrice?.daysBreakdown.filter(
-        (breakup) => breakup?.isWeekend === true
-      )
-    : [];
 
   return (
     <>
@@ -144,42 +133,10 @@ const BookingFareDetails = ({ rides }) => {
                                 <Tooltip
                                   underLine={false}
                                   buttonMessage="(?)"
-                                  tooltipData={
-                                    <ul className="max-h-80 overflow-y-scroll no-scrollbar">
-                                      {weekDays?.length > 0 && (
-                                        <li className="w-full">
-                                          <div className="flex items-center gap-1 w-full">
-                                            <p className="text-xs font-semibold">
-                                              Weak Day:
-                                            </p>
-                                            <p className="text-xs">
-                                              ₹
-                                              {formatPrice(
-                                                Number(weekDays[0]?.dailyRate)
-                                              )}{" "}
-                                              x {weekDays?.length} day(s)
-                                            </p>
-                                          </div>
-                                        </li>
-                                      )}
-                                      {weekend?.length > 0 && (
-                                        <li className="w-full">
-                                          <div className="flex items-center gap-1 w-full">
-                                            <p className="text-xs font-semibold">
-                                              Weekend:
-                                            </p>
-                                            <p className="text-xs">
-                                              ₹
-                                              {formatPrice(
-                                                Number(weekend[0]?.dailyRate)
-                                              )}{" "}
-                                              x {weekend?.length} day(s)
-                                            </p>
-                                          </div>
-                                        </li>
-                                      )}
-                                    </ul>
-                                  }
+                                  tooltipData={renderTooltipBreakdown(
+                                    rides?.bookingPrice?.appliedPlans,
+                                    rides?.bookingPrice?.daysBreakdown
+                                  )}
                                 />
                               </span>
                             )}

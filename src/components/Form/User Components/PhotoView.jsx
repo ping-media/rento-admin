@@ -57,7 +57,7 @@ const PhotoView = ({
             </div>
           )}
           <div
-            className={`relative ${className} border rounded-md p-1`}
+            className={`relative ${className} border rounded-md px-1`}
             key={item?._id}
           >
             {variant === "full" ? (
@@ -77,7 +77,9 @@ const PhotoView = ({
                 <img
                   src={item.imageUrl || item.link}
                   alt={item.fileName || alt}
-                  className="w-full max-h-40 object-contain brightness-95"
+                  className={`w-full ${
+                    deleteFn ? "min-h-40 max-h-40" : "min-h-20 max-h-20"
+                  } object-contain brightness-95`}
                 />
               </a>
             ) : (

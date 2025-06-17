@@ -658,6 +658,57 @@ const encryptedAdminTransform = createTransform(
   }
 );
 
+const formatTimeWithoutSeconds = (timeStr) => {
+  const [time, period] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+  const seconds = new Date().getSeconds();
+
+  // Convert to 24-hour format
+  if (period === "PM" && hours !== 12) {
+    hours += 12;
+  } else if (period === "AM" && hours === 12) {
+    hours = 0;
+  }
+  // Round up to next hour if minutes or seconds > 0
+  if (minutes > 0 && seconds > 0) {
+    hours = (hours + 1) % 24;
+  }
+
+  // Convert back to 12-hour format
+  let formattedHour = hours % 12;
+  formattedHour = formattedHour === 0 ? 12 : formattedHour;
+  const formattedPeriod = hours >= 12 ? "PM" : "AM";
+
+  return `${formattedHour}:00 ${formattedPeriod}`;
+};
+
+const nextDayFromCurrent = (date, noOfDay = 1) => {
+  const nextDay = new Date(date);
+  nextDay.setDate(nextDay.getDate() + noOfDay);
+  return nextDay;
+};
+
+const parseTime = (timeString) => {
+  // Get the current date to attach to the time
+  const today = new Date();
+
+  // Extract the hours and minutes, and AM/PM part from the timeString
+  const [time, modifier] = timeString.split(/(AM|PM)/i);
+  let [hours, minutes] = time.split(":").map(Number);
+
+  // Adjust hours based on AM/PM
+  if (modifier.toLowerCase() === "pm" && hours < 12) {
+    hours += 12; // Convert PM hours to 24-hour format
+  } else if (modifier.toLowerCase() === "am" && hours === 12) {
+    hours = 0; // Convert 12 AM to 00 hours (midnight)
+  }
+
+  // Create a new Date object with today's date and the parsed time
+  const parsedDate = new Date(today.setHours(hours, minutes, 0, 0));
+
+  return parsedDate;
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -701,4 +752,7 @@ export {
   calculateTotalAddOnPrice,
   formatMilliseconds,
   encryptedAdminTransform,
+  formatTimeWithoutSeconds,
+  nextDayFromCurrent,
+  parseTime,
 };

@@ -219,8 +219,7 @@ const RideEndModal = ({ id }) => {
           refundAmount: refundAmount,
         };
       }
-      // console.log(data);
-      // return;
+
       const response = await postData("/rideUpdate", data, token, "put");
       if (response.status === 200) {
         handleAsyncError(dispatch, "Ride completed successfully", "success");

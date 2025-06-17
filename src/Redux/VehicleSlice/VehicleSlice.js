@@ -42,6 +42,16 @@ const vehicleSlice = createSlice({
     addTimeLineData: (state, action) => {
       state.timeLineData = action.payload;
     },
+    updateBookingDates: (state, action) => {
+      const { BookingEndDateAndTime, BookingStartDateAndTime } = action.payload;
+      if (BookingStartDateAndTime) {
+        state.vehicleMaster[0]["BookingStartDateAndTime"] =
+          BookingStartDateAndTime;
+      }
+      if (BookingEndDateAndTime) {
+        state.vehicleMaster[0]["BookingEndDateAndTime"] = BookingEndDateAndTime;
+      }
+    },
     updateTimeLineData: (state, action) => {
       const { timeLine } = action.payload;
       state.timeLineData = {
@@ -334,6 +344,7 @@ export const {
   fetchVehicleMasterData,
   handleIsHeaderChecked,
   fetchMoreVehicleSuccess,
+  updateBookingDates,
   addVehicleIdToDelete,
   addTempVehicleData,
   removeLastTempId,

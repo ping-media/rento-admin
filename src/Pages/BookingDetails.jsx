@@ -5,6 +5,7 @@ import {
   toggleBookingExtendModal,
   toggleDeleteModal,
   togglePickupImageModal,
+  toggleRescheduleModal,
   toggleRideEndModal,
 } from "../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,6 +30,9 @@ const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
 );
 const RideEndModal = lazy(() => import("../components/Modal/RideEndModal"));
+const RescheduleModal = lazy(() =>
+  import("../components/Modal/RescheduleModal")
+);
 const UserKycApproveModal = lazy(() =>
   import("../components/Modal/UserKycApproveModal.jsx")
 );
@@ -38,7 +42,7 @@ const BookingDetails = () => {
   const { token, currentUser } = useSelector((state) => state.user);
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
   const [loadingStates, setLoadingStates] = useState({});
-  const [imagesLoading, setImagesLoading] = useState(false);
+  const [imagesLoading] = useState(false);
   const [tab, setTab] = useState("customer");
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [reminderLoading, setReminderLoading] = useState(false);
@@ -198,7 +202,7 @@ const BookingDetails = () => {
       <UploadPickupImageModal
         isBookingIdPresent={id.split("_")[0] ? true : false}
       />
-
+      <RescheduleModal />
       {/* update bookingpayment modal */}
       <UpdateBookingPayment id={id.split("_")[0]} />
       {/* Kyc modal */}
@@ -275,6 +279,13 @@ const BookingDetails = () => {
               fn={() => dispatch(toggleBookingExtendModal())}
             />
           )}
+
+          {/* {vehicleMaster[0]?.rideStatus === "pending" && (
+            <Button
+              title={"Reschedule"}
+              fn={() => dispatch(toggleRescheduleModal())}
+            />
+          )} */}
 
           <MenuToggle
             menuList={[

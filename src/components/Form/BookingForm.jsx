@@ -209,14 +209,21 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               ? true
               : false,
           daysBreakdown:
-            formData?.stepOneData?.selectedVehicle?._daysBreakdown || [],
+            formData?.stepOneData?.selectedVehicle?._daysBreakdown ||
+            formData?.stepOneData?.selectedVehicle?.daysBreakdown ||
+            [],
+          appliedPlan:
+            formData?.stepOneData?.selectedVehicle?.appliedPlans || [],
           extendAmount: [],
         },
         vehicleBasic: {
           refundableDeposit:
             formData?.stepOneData?.selectedVehicle?.refundableDeposit,
           speedLimit: formData?.stepOneData?.selectedVehicle?.speedLimit,
-          vehicleNumber: formData?.stepOneData?.selectedVehicle?.vehicleNumber,
+          vehicleNumber:
+            formData?.stepOneData?.selectedVehicle?.vehicleNumber ||
+            formData?.stepOneData?.selectedVehicle?.vehicleDetails[0]
+              ?.vehicleNumber,
           freeLimit: formData?.stepOneData?.selectedVehicle?.freeKms,
           lateFee: formData?.stepOneData?.selectedVehicle?.lateFee,
           extraKmCharge:

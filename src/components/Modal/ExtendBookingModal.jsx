@@ -33,6 +33,7 @@ const ExtendBookingModal = ({ bookingData }) => {
   const [extendPrice, setExtendPrice] = useState(0);
   const [daysBreakdown, setDaysBreakdown] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState([]);
+  const [appliedPlans, setAppliedPlans] = useState([]);
   const [newDate, setNewDate] = useState("");
   const [priceLoading, setPriceLoading] = useState(false);
 
@@ -99,6 +100,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         bookingEndDateAndTime: newDate,
         daysBreakdown: daysBreakdown || [],
         package: selectedPlan || [],
+        appliedPlans: appliedPlans || [],
         orderId: "",
         transactionId: "",
         paymentMethod: "",
@@ -231,6 +233,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         setExtendPrice(price);
         setAddOnPrice(extraAddonPrice);
         setDaysBreakdown(freeVehicle?._daysBreakdown);
+        setAppliedPlans(freeVehicle?.appliedPlans);
         setSelectedPlan(hasPlan);
       }
     } else {

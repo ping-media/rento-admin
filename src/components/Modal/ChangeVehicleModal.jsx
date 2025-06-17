@@ -202,7 +202,11 @@ const ChangeVehicleModal = ({ bookingData }) => {
         tax: tax,
         totalPrice: totalPrice,
         rentAmount: Number(changeToNewVehicle?.perDayCost),
-        daysBreakdown: changeToNewVehicle?._daysBreakdown || [],
+        daysBreakdown:
+          changeToNewVehicle?._daysBreakdown ||
+          changeToNewVehicle?.daysBreakdown ||
+          [],
+        appliedPlan: changeToNewVehicle?.appliedPlans || [],
         diffAmount: [
           ...(bookingData?.diffAmount || []),
           {
@@ -230,7 +234,9 @@ const ChangeVehicleModal = ({ bookingData }) => {
         isChanged: true,
         refundableDeposit: changeToNewVehicle?.refundableDeposit,
         speedLimit: changeToNewVehicle?.speedLimit,
-        vehicleNumber: changeToNewVehicle?.vehicleNumber,
+        vehicleNumber:
+          changeToNewVehicle?.vehicleNumber ||
+          changeToNewVehicle?.vehicleDetails[0]?.vehicleNumber,
         freeLimit: Number(changeToNewVehicle?.freeKms),
         lateFee: changeToNewVehicle?.lateFee,
         extraKmCharge: changeToNewVehicle?.extraKmsCharges,

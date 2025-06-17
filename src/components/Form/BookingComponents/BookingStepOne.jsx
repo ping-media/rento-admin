@@ -78,9 +78,6 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
               ? `stationId=${userStation?.stationId}`
               : `stationId=${stationId}`;
 
-          // const response = await getData(
-          //   `/getVehicleTblData?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&page=1&limit=100`
-          // );
           let endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&page=1&limit=50`;
 
           if (vehiclesFilter?.bookingVehicleName !== "") {
@@ -133,8 +130,6 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
       fetchCollectedData("locationId");
     }
   }, []);
-
-  // console.log(suggestedData);
 
   return (
     <>
