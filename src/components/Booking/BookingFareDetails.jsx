@@ -52,7 +52,8 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "refundAmount" &&
                   // !(key === "extraAddonPrice" && value === 0)
                   key !== "extraAddonPrice" &&
-                  key !== "daysBreakdown"
+                  key !== "daysBreakdown" &&
+                  key !== "appliedPlan"
               ) // Exclude totalPrice
               .map(([key, value]) => {
                 if (typeof value === "object") {
