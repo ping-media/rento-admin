@@ -3,6 +3,7 @@ import BookingDetail from "../components/Booking/BookingDetail";
 import { useParams } from "react-router-dom";
 import {
   toggleBookingExtendModal,
+  toggleChangeVehicleModal,
   toggleDeleteModal,
   togglePickupImageModal,
   toggleRescheduleModal,
@@ -25,6 +26,7 @@ import UpdateBookingPayment from "../components/Modal/UpdateBookingPayment";
 import NoData from "../components/Error/NoData";
 import TabButton from "../components/TabButton/TabButton";
 import MenuToggle from "../components/MenuList/MenuToggle";
+import { formatDateToISO } from "../utils/index";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
@@ -301,6 +303,17 @@ const BookingDetails = () => {
                 variant="link"
                 customClass="w-full p-1.5 text-sm lg:px-2.5 lg:py-1.5"
               />,
+              <button
+                className="text-sm px-1.5 py-0.5 md:hidden lg:hidden"
+                type="button"
+                onClick={() => dispatch(toggleChangeVehicleModal())}
+                disabled={
+                  formatDateToISO(new Date()).replace(".000Z", "Z") <
+                  vehicleMaster[0]?.BookingStartDateAndTime
+                }
+              >
+                Change Vehicle
+              </button>,
               <>
                 {vehicleMaster[0]?.bookingStatus !== "canceled" &&
                   vehicleMaster[0]?.paymentStatus !== "pending" && (

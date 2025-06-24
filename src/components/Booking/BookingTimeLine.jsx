@@ -133,6 +133,11 @@ const BookingTimeLine = () => {
               );
             })}
         </div>
+        {!loading && timeLineData?.length === 0 && (
+          <p className="italic text-md text-center my-2 text-gray-400">
+            No TimeLine Found.
+          </p>
+        )}
       </div>
     </>
   );

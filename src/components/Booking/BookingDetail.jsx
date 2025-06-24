@@ -142,7 +142,7 @@ const BookingDetail = ({ tabs }) => {
           )}
           <div className={`${tabs !== "customer" && "hidden lg:block"}`}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-md lg:text-lg font-semibold text-gray-500 flex items-center">
+              <h2 className="text-base lg:text-lg font-semibold text-gray-500 flex items-center">
                 Customer Information
               </h2>
               <BookingStatusFlag
@@ -160,7 +160,7 @@ const BookingDetail = ({ tabs }) => {
           </div>
           <div className={`${tabs !== "booking" && "hidden lg:block"}`}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-md lg:text-lg font-semibold text-gray-500">
+              <h2 className="text-base lg:text-lg font-semibold text-gray-500">
                 Booking Information
               </h2>
               <BookingStatusFlag
@@ -173,7 +173,7 @@ const BookingDetail = ({ tabs }) => {
               <BookingMoreInfo data={data} datatype={"moreInfo"} />
             </div>
             <div>
-              <h2 className="text-md lg:text-lg font-semibold text-gray-500 mt-5">
+              <h2 className="text-base lg:text-lg font-semibold text-gray-500 mt-5">
                 Vehicle Images
               </h2>
               {vehicleMaster[0]?.pickupImage !== null ? (
@@ -186,7 +186,7 @@ const BookingDetail = ({ tabs }) => {
             </div>
             <div className="mt-5 mb-5">
               <div className="flex items-center gap-1 justify-between mb-5">
-                <h2 className="text-md lg:text-lg font-semibold text-gray-500 w-2/4">
+                <h2 className="text-base lg:text-lg font-semibold text-gray-500 w-2/4">
                   {tab.charAt(0).toUpperCase() + tab.slice(1) || "Booking"}{" "}
                   Timeline
                 </h2>
@@ -238,7 +238,7 @@ const BookingDetail = ({ tabs }) => {
                 formatDateToISOWithoutSecond(new Date())
             ) && (
               <button
-                className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5 disabled:bg-theme/75"
+                className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5 disabled:bg-theme/75 hidden md:block"
                 type="button"
                 onClick={() => dispatch(toggleChangeVehicleModal())}
                 disabled={
@@ -273,7 +273,7 @@ const BookingDetail = ({ tabs }) => {
           </div>
           <BookingFareDetails rides={vehicleMaster && vehicleMaster[0]} />
           <div className="flex items-center justify-between border-b-2 pt-1.5 mt-2 pb-1.5 mb-3">
-            <h2 className="text-md lg:text-lg font-semibold text-gray-500">
+            <h2 className="text-base lg:text-lg font-semibold text-gray-500">
               Additional Information
             </h2>
             {loggedInRole === "admin" &&
