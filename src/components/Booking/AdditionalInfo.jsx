@@ -40,12 +40,23 @@ const AdditionalInfo = () => {
         </div>
       )}
       <div className="mt-1 mb-2.5">
-        <p className="text-sm text-gray-400 uppercase">
+        <p className="text-sm text-gray-400 uppercase mb-2">
           <span className="font-semibold mr-1 capitalize">Payment Mode:</span>
           <span className="border px-2 py-1 bg-green-400/20 border-teal-500 text-gray-500/90 rounded">
             {vehicleMaster[0]?.paymentMethod}
           </span>
         </p>
+        {/* {vehicleMaster[0]?.bookedFrom && (
+          <p className="text-sm text-gray-400 capitalize">
+            <span className="font-semibold mr-1 capitalize">Platform:</span>
+            <span className="text-gray-500/90 rounded">
+              From{" "}
+              {vehicleMaster[0]?.bookedFrom === "web"
+                ? "Website"
+                : vehicleMaster[0]?.bookedFrom}
+            </span>
+          </p>
+        )} */}
       </div>
       {diffAmount !== null && diffAmount?.refundAmount > 0 && (
         <div className="mt-1 mb-2.5">

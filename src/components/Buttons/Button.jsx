@@ -8,6 +8,7 @@ const Button = ({
   loading,
   customLoadingMessage = "updating",
   variant = "button",
+  isHidden = "",
 }) => {
   const isVariant =
     variant === "button"
@@ -20,7 +21,7 @@ const Button = ({
         customClass
           ? customClass
           : "bg-theme text-gray-100 p-1.5 text-sm lg:px-2.5 lg:py-1.5"
-      } ${isVariant}`}
+      } ${isVariant} ${isHidden}`}
       disabled={loading || disable}
       onClick={fn}
     >

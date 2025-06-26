@@ -6,7 +6,7 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import {
   calculateTax,
   calculateTotalAddOnPrice,
-  camelCaseToSpaceSeparated,
+  // camelCaseToSpaceSeparated,
   formatDateToISO,
   formatDateToISOWithoutSecond,
   formatPrice,
@@ -28,10 +28,10 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const { general } = useSelector((state) => state.general);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
-  const [isModalClose, setIsModalClose] = useState(false);
+  // const [isModalClose, setIsModalClose] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
-  const [selectedPlan, setSelectedPlan] = useState(null);
+  // const [selectedPlan, setSelectedPlan] = useState(null);
   const [freeVehicles, setFreeVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const { token } = useSelector((state) => state.user);
@@ -143,11 +143,11 @@ const ChangeVehicleModal = ({ bookingData }) => {
           )[0]
         : null;
 
-    if (Plan) {
-      setSelectedPlan(Plan);
-    } else {
-      setSelectedPlan(null);
-    }
+    // if (Plan) {
+    //   setSelectedPlan(Plan);
+    // } else {
+    //   setSelectedPlan(null);
+    // }
     // calculate the price
     const isPackageApplied = bookingData?.bookingPrice?.isPackageApplied;
     const bookingPrice =
@@ -191,14 +191,15 @@ const ChangeVehicleModal = ({ bookingData }) => {
       vehicleBrand: changeToNewVehicle?.vehicleBrand,
       vehicleName: changeToNewVehicle?.vehicleName,
       bookingPrice: {
+        ...bookingData.bookingPrice,
         bookingPrice: bookingPrice,
         vehiclePrice: bookingPrice,
-        extraAddonDetails: bookingData?.bookingPrice?.extraAddonDetails,
-        extraAddonPrice: bookingData?.bookingPrice?.extraAddonPrice,
-        discountPrice: bookingData?.bookingPrice?.discountPrice || 0,
-        discountTotalPrice: bookingData?.bookingPrice?.discountTotalPrice || 0,
-        isDiscountZero: bookingData?.bookingPrice?.isDiscountZero || false,
-        isPackageApplied: bookingData?.bookingPrice?.isPackageApplied || false,
+        // extraAddonDetails: bookingData?.bookingPrice?.extraAddonDetails,
+        // extraAddonPrice: bookingData?.bookingPrice?.extraAddonPrice,
+        // discountPrice: bookingData?.bookingPrice?.discountPrice || 0,
+        // discountTotalPrice: bookingData?.bookingPrice?.discountTotalPrice || 0,
+        // isDiscountZero: bookingData?.bookingPrice?.isDiscountZero || false,
+        // isPackageApplied: bookingData?.bookingPrice?.isPackageApplied || false,
         tax: tax,
         totalPrice: totalPrice,
         rentAmount: Number(changeToNewVehicle?.perDayCost),
@@ -333,7 +334,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const handleCloseModal = async () => {
     setFreeVehicles([]);
     setSelectedVehicle(null);
-    setIsModalClose(true);
+    // setIsModalClose(true);
     return dispatch(toggleChangeVehicleModal());
   };
 

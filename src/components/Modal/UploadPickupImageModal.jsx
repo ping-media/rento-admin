@@ -161,6 +161,12 @@ const UploadPickupImageModal = ({
         );
       }
 
+      // for (const [key, value] of finalFormData.entries()) {
+      //   console.log(`${key}:`, value);
+      // }
+
+      // return;
+
       const responseImage = await postMultipleData(
         "/pickupImage",
         finalFormData,

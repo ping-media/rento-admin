@@ -21,33 +21,60 @@ const ImageUploadAndPreview = ({
   const [isCompressing, setIsCompressing] = useState(false);
 
   const handleImageChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) {
-      handleAsyncError(dispatch, "No file selected.");
-      return;
-    }
     try {
+      const file = e.target.files?.[0];
+      if (!file || file.size === 0) {
+        handleAsyncError(dispatch, "No file or invalid file selected.");
+        return;
+      }
+
       setIsCompressing(true);
       let compressedFile = file;
 
       if (file.size > 1024 * 1024) {
-        compressedFile = await imageCompression(file, {
-          maxSizeMB: 0.7,
-          useWebWorker: true,
-          initialQuality: 0.7,
-          fileType: "image/jpeg",
-        });
+        // compressedFile = await imageCompression(file, {
+        //   maxSizeMB: 0.7,
+        //   useWebWorker: true,
+        //   initialQuality: 0.7,
+        //   fileType: "image/jpeg",
+        // });
+        compressedFile = await Promise.race([
+          imageCompression(file, {
+            maxSizeMB: 0.7,
+            useWebWorker: true,
+            initialQuality: 0.7,
+            fileType: "image/jpeg",
+          }),
+          new Promise((_, reject) =>
+            setTimeout(
+              () => reject(handleAsyncError(dispatch, "Compression timeout")),
+              8000
+            )
+          ),
+        ]);
+      }
+
+      if (!compressedFile || compressedFile.size === 0) {
+        handleAsyncError(
+          dispatch,
+          "Compression failed! try upload image again."
+        );
+        return;
       }
 
       setImageChanger?.(compressedFile);
       setImageMultiChanger?.((prev) => ({ ...prev, [title]: compressedFile }));
 
       const url = URL.createObjectURL(compressedFile);
+      if (imagesUrl) {
+        URL.revokeObjectURL(imagesUrl);
+      }
+
       setImageUrlChanger?.(url);
       setImageUrlMultiChanger?.((prev) => ({ ...prev, [title]: url }));
     } catch (error) {
       console.error("Image compression failed:", error);
-      handleAsyncError(dispatch, "Failed to compress image.");
+      handleAsyncError(dispatch, "Image upload failed.");
     } finally {
       setIsCompressing(false);
     }
@@ -69,6 +96,8 @@ const ImageUploadAndPreview = ({
     } else {
       input.removeAttribute("capture");
     }
+
+    input.value = "";
     input.click();
   };
 
@@ -81,7 +110,7 @@ const ImageUploadAndPreview = ({
         <input
           type="file"
           accept="image/*"
-          capture="environment"
+          // capture="environment"
           className="hidden"
           name={name}
           id={`ImageInput-Camera-${title}`}
@@ -91,11 +120,6 @@ const ImageUploadAndPreview = ({
         />
 
         {isCompressing ? (
-          // <div className="flex justify-center items-center h-28">
-          //   <span className="text-gray-600 text-sm animate-pulse">
-          //     Compressing image...
-          //   </span>
-          // </div>
           <div className="flex justify-center items-center h-28">
             <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-theme"></div>
           </div>

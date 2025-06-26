@@ -289,7 +289,37 @@ const BookingDetails = () => {
             />
           )} */}
 
-          <MenuToggle
+          <Button
+            title={"Send Reminder"}
+            fn={handleSendRemainder}
+            disable={
+              vehicleMaster[0]?.bookingStatus === "canceled" ||
+              vehicleMaster[0]?.rideStatus === "completed"
+            }
+            loading={reminderLoading}
+            customLoadingMessage="sending"
+          />
+
+          <Button
+            title={"Change Vehicle"}
+            fn={() => dispatch(toggleChangeVehicleModal())}
+            disabled={
+              formatDateToISO(new Date()).replace(".000Z", "Z") <
+              vehicleMaster[0]?.BookingStartDateAndTime
+            }
+            isHidden={"lg:hidden"}
+          />
+
+          {vehicleMaster[0]?.bookingStatus !== "canceled" &&
+            vehicleMaster[0]?.paymentStatus !== "pending" && (
+              <GenerateInvoiceButton
+                item={vehicleMaster && vehicleMaster[0]}
+                loadingStates={loadingStates}
+                setLoadingStates={setLoadingStates}
+              />
+            )}
+
+          {/* <MenuToggle
             menuList={[
               <Button
                 title={"Send Reminder"}
@@ -325,7 +355,7 @@ const BookingDetails = () => {
                   )}
               </>,
             ]}
-          />
+          /> */}
         </div>
       </div>
       <div className="mt-5">

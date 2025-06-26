@@ -6,6 +6,15 @@ const BookingMoreInfo = ({ data, datatype }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   return (
     <>
+      <div className="md:hidden lg:hidden flex items-center justify-between pb-1 border-b-2">
+        <h2 className="font-semibold uppercase text-md">
+          {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
+        </h2>
+        <p className="text-sm text-gray-500">
+          {vehicleMaster[0]?.vehicleBasic?.vehicleNumber}
+        </p>
+      </div>
+
       {data[datatype]?.map((item, index) => (
         <div
           className={`flex justify-between items-center py-1.5 ${

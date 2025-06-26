@@ -120,7 +120,7 @@ const BookingDetail = ({ tabs }) => {
       <ChangeVehicleModal bookingData={vehicleMaster && vehicleMaster[0]} />
       <ExtendBookingModal bookingData={vehicleMaster && vehicleMaster[0]} />
 
-      <div className="flex gap-4 flex-wrap">
+      <div className="flex gap-0 lg:gap-4 flex-wrap">
         <div
           className={`${
             ["customer", "booking"].includes(tabs)
@@ -225,7 +225,7 @@ const BookingDetail = ({ tabs }) => {
             tabs !== "payment" && "hidden"
           } lg:block flex-1 px-6 py-4 bg-white shadow-md rounded-lg`}
         >
-          <div className="flex lg:items-center justify-between">
+          <div className="hidden lg:flex lg:items-center justify-between">
             <div>
               <h2 className="font-bold uppercase text-md lg:text-lg flex flex-wrap items-center gap-2">
                 {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
@@ -251,7 +251,7 @@ const BookingDetail = ({ tabs }) => {
             )}
           </div>
 
-          <small className="text-sm text-gray-400 mb-2 lg:mb-5">
+          <small className="hidden lg:block text-sm text-gray-400 mb-2 lg:mb-5">
             Vehicle Number: ({vehicleMaster[0]?.vehicleBasic?.vehicleNumber})
           </small>
 
@@ -262,7 +262,7 @@ const BookingDetail = ({ tabs }) => {
             />
           </div>
           <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
-            <h2 className="text-md lg:text-lg font-semibold text-gray-500">
+            <h2 className="text-base lg:text-lg font-semibold text-gray-500">
               Fare Details
             </h2>
             <BookingStatusFlag
