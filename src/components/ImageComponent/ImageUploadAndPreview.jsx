@@ -46,10 +46,7 @@ const ImageUploadAndPreview = ({
             fileType: "image/jpeg",
           }),
           new Promise((_, reject) =>
-            setTimeout(
-              () => reject(handleAsyncError(dispatch, "Compression timeout")),
-              8000
-            )
+            setTimeout(() => reject(new Error("Compression timeout")), 8000)
           ),
         ]);
       }
