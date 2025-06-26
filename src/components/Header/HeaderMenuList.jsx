@@ -22,7 +22,10 @@ const HeaderMenuList = () => {
         {`${currentUser?.firstName} ${currentUser?.lastName}` || ""}
       </p>
       {menuListOptions?.map((item, indx) => (
-        <div className="flex items-center gap-1 py-1.5 px-1.5 w-full hover:bg-theme hover:text-white rounded-md transition duration-200 ease-in-out">
+        <div
+          className="flex items-center gap-1 py-1.5 px-1.5 w-full hover:bg-theme hover:text-white rounded-md transition duration-200 ease-in-out"
+          key={indx}
+        >
           {tableIcons[item?.icon]}
           <div
             className="text-left text-sm w-full"

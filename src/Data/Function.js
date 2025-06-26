@@ -379,7 +379,8 @@ const handleUpdateAdminProfile = async (
     result = Object.assign(result, { _id: id, userType: userType });
   }
 
-  const endpoint = `/signup?_id=${id}`;
+  const endpoint = `/updateProfile?_id=${id}`;
+
   try {
     const response = await postData(endpoint, result, token);
     if (response?.status != 200) {
@@ -387,6 +388,9 @@ const handleUpdateAdminProfile = async (
     } else {
       dispatch(updateCurrentUser(result));
       dispatch(handleSignIn(response?.data));
+      if (response?.token) {
+        dispatch(handleSetToken(response?.token));
+      }
       handleAsyncError(dispatch, response?.message, "success");
       navigate(removeAfterSecondSlash(location?.pathname));
     }

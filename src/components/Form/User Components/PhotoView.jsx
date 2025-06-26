@@ -14,6 +14,7 @@ const PhotoView = ({
   rowId,
   variant = "full",
   dataId,
+  showName = false,
 }) => {
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
@@ -102,6 +103,11 @@ const PhotoView = ({
               </a>
             )}
           </div>
+          {showName && (
+            <p className="text-center mt-2 capitalize">
+              {item.fileName.split("_")[3] || "--"}
+            </p>
+          )}
         </div>
       ) : (
         <p className="italic text-sm my-2 text-gray-400">No documents found.</p>

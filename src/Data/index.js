@@ -99,7 +99,12 @@ const postData = async (url, data, token, requestType = "post") => {
     }
 
     let response;
-    if ((data?._id && url?.includes("update")) || requestType === "put") {
+    if (
+      (data?._id &&
+        !url?.includes("updateProfile") &&
+        url?.includes("update")) ||
+      requestType === "put"
+    ) {
       response = await axios.put(
         `${import.meta.env.VITE_BASED_URL}${url}`,
         data,

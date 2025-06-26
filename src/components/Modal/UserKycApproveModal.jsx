@@ -126,7 +126,7 @@ const UserKycApproveModal = () => {
         !isKycModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white w-full lg:max-w-xl">
+      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white w-full lg:max-w-md">
         <div className="flex justify-between border-b p-2">
           <h2 className="text-theme text-lg uppercase font-semibold">
             Kyc Verify
@@ -154,23 +154,24 @@ const UserKycApproveModal = () => {
 
         <div className="p-6 pt-2 text-center">
           {/* user documents  */}
-          <div className="lg:flex items-center gap-2 mb-3">
+          <div className="lg:flex items-center flex-wrap gap-2 border-b mb-3">
             {!userDocumentLoading ? (
               (userDocument && userDocument[0]?.files?.length > 0) ||
               (userDocument && userDocument?.files) ? (
                 userDocument[0]?.files?.map((item, index) => {
-                  if (index % 2 !== 0) {
-                    return null;
-                  }
-                  if (item.fileName?.includes("Selfie")) {
-                    return null;
-                  }
+                  // if (index % 2 !== 0) {
+                  //   return null;
+                  // }
+                  // if (item.fileName?.includes("Selfie")) {
+                  //   return null;
+                  // }
                   return (
                     <div className="mb-3" key={item?._id}>
                       <PhotoView
                         item={item}
-                        className="w-full lg:flex-1 h-48"
+                        className="w-full lg:flex-1 h-20"
                         uniqueId={`kyc-modal-${index}`}
+                        showName={true}
                       />
                     </div>
                   );
@@ -214,7 +215,7 @@ const UserKycApproveModal = () => {
             </div>
             <button
               type="submit"
-              className="bg-theme text-gray-100 rounded-md px-4 py-2.5 mt-2.5 disabled:bg-gray-400"
+              className="bg-theme text-gray-100 rounded-md px-4 py-2.5 mt-3 disabled:bg-theme/60 flex items-center w-full justify-center"
               disabled={
                 loading ||
                 formError?.aadharNumber !== "" ||
