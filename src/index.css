@@ -130,3 +130,11 @@ table.dataTable tbody tr:hover {
     height: 32px !important;
   }
 }
+
+/* for showing swipable button in big screen view  */
+.pswp__button--arrow--prev,
+.pswp__button--arrow--next {
+  display: block !important;
+  opacity: 1;
+  visibility: visible;
+}

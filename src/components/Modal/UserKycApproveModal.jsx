@@ -154,11 +154,14 @@ const UserKycApproveModal = () => {
 
         <div className="p-6 pt-2 text-center">
           {/* user documents  */}
-          <div className="lg:flex items-center flex-wrap gap-2 border-b mb-3">
+          <div
+            className="flex items-center flex-wrap gap-2 border-b mb-3"
+            id="kyc-gallery"
+          >
             {!userDocumentLoading ? (
               (userDocument && userDocument[0]?.files?.length > 0) ||
               (userDocument && userDocument?.files) ? (
-                userDocument[0]?.files?.map((item, index) => {
+                userDocument[0]?.files?.map((item) => {
                   // if (index % 2 !== 0) {
                   //   return null;
                   // }
@@ -166,11 +169,11 @@ const UserKycApproveModal = () => {
                   //   return null;
                   // }
                   return (
-                    <div className="mb-3" key={item?._id}>
+                    <div className="mb-3 w-20" key={item?._id}>
                       <PhotoView
                         item={item}
-                        className="w-full lg:flex-1 h-20"
-                        uniqueId={`kyc-modal-${index}`}
+                        className="w-20 h-20"
+                        uniqueId="kyc-gallery"
                         showName={true}
                       />
                     </div>

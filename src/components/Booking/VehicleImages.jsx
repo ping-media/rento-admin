@@ -3,12 +3,12 @@ import React from "react";
 
 const VehicleImages = ({ pickupImage }) => {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      {Object.entries(pickupImage?.files || {})?.map(([key, value]) => (
+    <div className="flex items-center gap-2 flex-wrap" id="vehicle-gallery">
+      {Object.entries(pickupImage.files || {})?.map(([key, value]) => (
         <PhotoView
           item={value}
           className="w-20 h-20"
-          uniqueId={key}
+          uniqueId="vehicle-gallery"
           key={key}
         />
       ))}

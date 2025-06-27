@@ -56,27 +56,27 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
       {(loading || hookLoading) && <PreLoader />}
 
       <div
-        id="user-documents-gallery"
         className="flex items-center gap-2 flex-wrap"
+        id="user-documents-gallery"
       >
         {data ? (
-          Object.entries(data || {})?.map(([key, value]) => (
-            <React.Fragment key={`file_${key}`}>
+          data?.map((item) => (
+            <React.Fragment key={item?._id}>
               {dataId ? (
                 <PhotoView
-                  item={value}
+                  item={item}
                   className="w-52 max-h-40"
-                  uniqueId={`file_${key}`}
+                  uniqueId="user-documents-gallery"
                   variant={"full"}
                   deleteFn={handleDeleteDocument}
                   dataId={dataId}
                 />
               ) : (
                 <PhotoView
-                  item={value}
-                  className="w-20 h-10 flex items-center justify-center"
-                  uniqueId={`file_${key}`}
-                  variant={"thumbnail"}
+                  item={item}
+                  className="w-20 h-20 flex items-center justify-center"
+                  uniqueId="user-documents-gallery"
+                  variant={"full"}
                 />
               )}
             </React.Fragment>

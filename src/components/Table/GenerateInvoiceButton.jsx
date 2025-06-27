@@ -10,7 +10,7 @@ const GenerateInvoiceButton = ({ item, loadingStates, setLoadingStates }) => {
   return (
     <button
       type="button"
-      className="p-1.5 text-sm lg:px-2.5 lg:py-1.5 text-left disabled:bg-gray-400"
+      className="p-1.5 text-sm lg:px-2.5 lg:py-1.5 bg-theme rounded-md text-white text-left disabled:bg-gray-400"
       onClick={() =>
         handleGenerateInvoice(
           dispatch,

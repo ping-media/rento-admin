@@ -709,6 +709,53 @@ const parseTime = (timeString) => {
   return parsedDate;
 };
 
+const compressImageToBlob = (file, quality = 0.7) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+    };
+
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+
+        // Convert canvas to blob (JPEG compression)
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Canvas toBlob failed"));
+            }
+          },
+          "image/jpeg",
+          quality
+        );
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    img.onerror = (err) => {
+      reject(err);
+    };
+
+    reader.onerror = (err) => {
+      reject(err);
+    };
+
+    reader.readAsDataURL(file);
+  });
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -755,4 +802,5 @@ export {
   formatTimeWithoutSeconds,
   nextDayFromCurrent,
   parseTime,
+  compressImageToBlob,
 };

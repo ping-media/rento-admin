@@ -214,7 +214,7 @@ const BookingDetails = () => {
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">
         <h1 className="text-2xl uppercase font-bold text-theme">
-          Booking Id (#{id.split("_")[1] || "--"})
+          Booking Id: #{id.split("_")[1] || "--"}
         </h1>
         {/* actions for cancel & start ride  */}
         <div className="flex flex-wrap gap-2">
@@ -318,44 +318,6 @@ const BookingDetails = () => {
                 setLoadingStates={setLoadingStates}
               />
             )}
-
-          {/* <MenuToggle
-            menuList={[
-              <Button
-                title={"Send Reminder"}
-                fn={handleSendRemainder}
-                disable={
-                  vehicleMaster[0]?.bookingStatus === "canceled" ||
-                  vehicleMaster[0]?.rideStatus === "completed"
-                }
-                loading={reminderLoading}
-                customLoadingMessage="sending"
-                variant="link"
-                customClass="w-full p-1.5 text-sm lg:px-2.5 lg:py-1.5"
-              />,
-              <button
-                className="text-sm px-1.5 py-0.5 md:hidden lg:hidden"
-                type="button"
-                onClick={() => dispatch(toggleChangeVehicleModal())}
-                disabled={
-                  formatDateToISO(new Date()).replace(".000Z", "Z") <
-                  vehicleMaster[0]?.BookingStartDateAndTime
-                }
-              >
-                Change Vehicle
-              </button>,
-              <>
-                {vehicleMaster[0]?.bookingStatus !== "canceled" &&
-                  vehicleMaster[0]?.paymentStatus !== "pending" && (
-                    <GenerateInvoiceButton
-                      item={vehicleMaster && vehicleMaster[0]}
-                      loadingStates={loadingStates}
-                      setLoadingStates={setLoadingStates}
-                    />
-                  )}
-              </>,
-            ]}
-          /> */}
         </div>
       </div>
       <div className="mt-5">

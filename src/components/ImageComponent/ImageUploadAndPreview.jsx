@@ -1,8 +1,11 @@
 import { useRef, useState } from "react";
-import { camelCaseToSpaceSeparated } from "../../utils/index";
+import {
+  camelCaseToSpaceSeparated,
+  compressImageToBlob,
+} from "../../utils/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { useDispatch } from "react-redux";
-import imageCompression from "browser-image-compression";
+// import imageCompression from "browser-image-compression";
 
 const ImageUploadAndPreview = ({
   image,
@@ -29,46 +32,52 @@ const ImageUploadAndPreview = ({
       }
 
       setIsCompressing(true);
-      let compressedFile = file;
+      const compressedBlob = await compressImageToBlob(file, 0.7);
+      const finalFile = new File([compressedBlob], file.name, {
+        type: "image/jpeg",
+      });
+      setImageChanger?.(finalFile);
+      setImageMultiChanger?.((prev) => ({ ...prev, [title]: finalFile }));
 
-      if (file.size > 1024 * 1024) {
-        // compressedFile = await imageCompression(file, {
-        //   maxSizeMB: 0.7,
-        //   useWebWorker: true,
-        //   initialQuality: 0.7,
-        //   fileType: "image/jpeg",
-        // });
-        compressedFile = await Promise.race([
-          imageCompression(file, {
-            maxSizeMB: 0.7,
-            useWebWorker: true,
-            initialQuality: 0.7,
-            fileType: "image/jpeg",
-          }),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Compression timeout")), 8000)
-          ),
-        ]);
-      }
-
-      if (!compressedFile || compressedFile.size === 0) {
-        handleAsyncError(
-          dispatch,
-          "Compression failed! try upload image again."
-        );
-        return;
-      }
-
-      setImageChanger?.(compressedFile);
-      setImageMultiChanger?.((prev) => ({ ...prev, [title]: compressedFile }));
-
-      const url = URL.createObjectURL(compressedFile);
-      if (imagesUrl) {
-        URL.revokeObjectURL(imagesUrl);
-      }
+      const url = URL.createObjectURL(finalFile);
+      if (imagesUrl) URL.revokeObjectURL(imagesUrl);
 
       setImageUrlChanger?.(url);
       setImageUrlMultiChanger?.((prev) => ({ ...prev, [title]: url }));
+
+      // let compressedFile = file;
+      // if (file.size > 2 * 1024 * 1024) {
+      //   compressedFile = await Promise.race([
+      //     imageCompression(file, {
+      //       maxSizeMB: 0.5,
+      //       useWebWorker: true,
+      //       initialQuality: 0.5,
+      //       fileType: "image/jpeg",
+      //     }),
+      //     new Promise((_, reject) =>
+      //       setTimeout(() => reject(new Error("Compression timeout")), 8000)
+      //     ),
+      //   ]);
+      // }
+
+      // if (!compressedFile || compressedFile.size === 0) {
+      //   handleAsyncError(
+      //     dispatch,
+      //     "Compression failed! try upload image again."
+      //   );
+      //   return;
+      // }
+
+      // setImageChanger?.(compressedFile);
+      // setImageMultiChanger?.((prev) => ({ ...prev, [title]: compressedFile }));
+
+      // const url = URL.createObjectURL(compressedFile);
+      // if (imagesUrl) {
+      //   URL.revokeObjectURL(imagesUrl);
+      // }
+
+      // setImageUrlChanger?.(url);
+      // setImageUrlMultiChanger?.((prev) => ({ ...prev, [title]: url }));
     } catch (error) {
       console.error("Image compression failed:", error);
       handleAsyncError(dispatch, "Image upload failed.");
@@ -107,7 +116,6 @@ const ImageUploadAndPreview = ({
         <input
           type="file"
           accept="image/*"
-          // capture="environment"
           className="hidden"
           name={name}
           id={`ImageInput-Camera-${title}`}

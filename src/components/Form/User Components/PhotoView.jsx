@@ -24,11 +24,12 @@ const PhotoView = ({
         gallery: `#${uniqueId}`,
         children: "a",
         pswpModule: () => import("photoswipe"),
+        showHideAnimationType: "fade",
       });
       lightbox.init();
       return () => lightbox.destroy();
     }
-  }, [item]);
+  }, [uniqueId]);
 
   useEffect(() => {
     if (item?.imageUrl || item?.link) {
@@ -41,7 +42,7 @@ const PhotoView = ({
   }, [item]);
 
   return (
-    <div>
+    <>
       {!hookLoading && item ? (
         <div className="relative" id={uniqueId}>
           {deleteFn && (
@@ -112,7 +113,7 @@ const PhotoView = ({
       ) : (
         <p className="italic text-sm my-2 text-gray-400">No documents found.</p>
       )}
-    </div>
+    </>
   );
 };
 
