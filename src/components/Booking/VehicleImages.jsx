@@ -7,7 +7,7 @@ const VehicleImages = ({ pickupImage }) => {
       {Object.entries(pickupImage.files || {})?.map(([key, value]) => (
         <PhotoView
           item={value}
-          className="w-20 h-20"
+          className="w-14 lg:w-20 h-14 lg:h-20"
           uniqueId="vehicle-gallery"
           key={key}
         />

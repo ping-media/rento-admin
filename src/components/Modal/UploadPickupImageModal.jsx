@@ -222,6 +222,7 @@ const UploadPickupImageModal = ({
               date: Date.now(),
               vehicleName: vehicleMaster[0]?.vehicleName,
               vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
+              paymentMode: !isChange ? updatePaymentMode : "",
             },
           ],
         };
@@ -372,8 +373,9 @@ const UploadPickupImageModal = ({
                   </div>
                   <div className="text-left w-full lg:w-[48%]">
                     <SelectDropDown
-                      options={["cash", "online"]}
+                      options={["cash"]}
                       item="PaymentMode"
+                      value="cash"
                       require={true}
                       isSearchEnable={false}
                     />

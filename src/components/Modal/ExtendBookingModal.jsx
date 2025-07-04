@@ -14,7 +14,7 @@ import {
 import { getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import {
-  handleUpdateExtendVehicle,
+  // handleUpdateExtendVehicle,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
@@ -68,6 +68,100 @@ const ExtendBookingModal = ({ bookingData }) => {
   };
 
   // extend bookng function
+  // const handleExtendBooking = async (event) => {
+  //   event.preventDefault();
+  //   if (!newDate) return;
+
+  //   const newStartDate = addOneMinute(
+  //     bookingData?.BookingEndDateAndTime
+  //   ).replace(".000Z", "Z");
+
+  //   const extendAmountList = bookingData?.bookingPrice?.extendAmount || [];
+  //   const extensionId = extendAmountList.length + 1 || 1;
+
+  //   let data = {
+  //     _id: bookingData?._id,
+  //     vehicleTableId: bookingData?.vehicleTableId?._id,
+  //     BookingStartDateAndTime: newStartDate,
+  //     BookingEndDateAndTime: newDate,
+  //     bookingPrice: bookingData?.bookingPrice,
+  //     extendBooking: bookingData?.extendBooking,
+  //     oldBookings: {
+  //       BookingStartDateAndTime: bookingData?.BookingStartDateAndTime,
+  //       BookingEndDateAndTime: bookingData?.BookingEndDateAndTime,
+  //     },
+  //     extendAmount: {
+  //       id: extensionId,
+  //       title: "extended",
+  //       extendDuration: extensionDays,
+  //       amount: extendPrice,
+  //       addOnAmount: addOnPrice,
+  //       BookingStartDateAndTime: newStartDate,
+  //       bookingEndDateAndTime: newDate,
+  //       daysBreakdown: daysBreakdown || [],
+  //       package: selectedPlan || [],
+  //       appliedPlans: appliedPlans || [],
+  //       orderId: "",
+  //       transactionId: "",
+  //       paymentMethod: "",
+  //       status: "unpaid",
+  //     },
+  //     bookingStatus: "extended",
+  //   };
+  //   if (!data) return;
+  //   try {
+  //     setFormLoading(true);
+  //     data = {
+  //       ...data,
+  //       contact: bookingData?.userId?.contact,
+  //       firstName: bookingData?.userId?.firstName,
+  //       managerContact: bookingData?.stationMasterUserId?.contact,
+  //     };
+  //     const orderId = await postData(
+  //       "/initiate-extend-booking ",
+  //       {
+  //         _id: bookingData?._id,
+  //         bookingId: bookingData?.bookingId,
+  //         amount: Number(extendPrice) + Number(addOnPrice),
+  //         data,
+  //       },
+  //       token
+  //     );
+  //     if (orderId?.status === "created" && orderId?.bookingUpdate === true) {
+  //       const paymentLinkResponse = await postData(
+  //         "/create-payment-link",
+  //         {
+  //           bookingId: bookingData?._id,
+  //           amount: Number(extendPrice) + Number(addOnPrice),
+  //           orderId: orderId?.id,
+  //           type: "extension",
+  //           typeId: extensionId,
+  //         },
+  //         token
+  //       );
+  //       if (paymentLinkResponse?.linkCreated === true) {
+  //         setExtensionDays(0);
+  //         setNewDate("");
+  //         const { BookingStartDateAndTime, ...rest } = data;
+  //         dispatch(handleUpdateExtendVehicle(rest));
+  //         const timeLineData = paymentLinkResponse?.data || null;
+  //         if (timeLineData !== null) {
+  //           dispatch(updateTimeLineData(timeLineData));
+  //         }
+  //         handleAsyncError(dispatch, "Ride Extended successfully", "success");
+  //         handleCloseModal();
+  //         return;
+  //       } else {
+  //         return handleAsyncError(dispatch, response?.message);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     return handleAsyncError(dispatch, error?.message);
+  //   } finally {
+  //     setFormLoading(false);
+  //   }
+  // };
+  // new extend booking fn
   const handleExtendBooking = async (event) => {
     event.preventDefault();
     if (!newDate) return;
@@ -117,8 +211,8 @@ const ExtendBookingModal = ({ bookingData }) => {
         firstName: bookingData?.userId?.firstName,
         managerContact: bookingData?.stationMasterUserId?.contact,
       };
-      const orderId = await postData(
-        "/initiate-extend-booking ",
+      const order = await postData(
+        "/initiate-extend-admin-booking",
         {
           _id: bookingData?._id,
           bookingId: bookingData?.bookingId,
@@ -127,33 +221,22 @@ const ExtendBookingModal = ({ bookingData }) => {
         },
         token
       );
-      if (orderId?.status === "created" && orderId?.bookingUpdate === true) {
-        const paymentLinkResponse = await postData(
-          "/create-payment-link",
-          {
-            bookingId: bookingData?._id,
-            amount: Number(extendPrice) + Number(addOnPrice),
-            orderId: orderId?.id,
-            type: "extension",
-            typeId: extensionId,
-          },
-          token
-        );
-        if (paymentLinkResponse?.linkCreated === true) {
-          setExtensionDays(0);
-          setNewDate("");
-          const { BookingStartDateAndTime, ...rest } = data;
-          dispatch(handleUpdateExtendVehicle(rest));
-          const timeLineData = paymentLinkResponse?.data || null;
-          if (timeLineData !== null) {
-            dispatch(updateTimeLineData(timeLineData));
-          }
-          handleAsyncError(dispatch, "Ride Extended successfully", "success");
-          handleCloseModal();
-          return;
-        } else {
-          return handleAsyncError(dispatch, response?.message);
+      if (order?.success) {
+        setExtensionDays(0);
+        setNewDate("");
+        const timeLineData = order?.timeLine;
+        if (timeLineData !== null) {
+          dispatch(updateTimeLineData(timeLineData));
         }
+        handleAsyncError(
+          dispatch,
+          "Extend Request Placed successfully",
+          "success"
+        );
+        handleCloseModal();
+        return;
+      } else {
+        return handleAsyncError(dispatch, order?.message);
       }
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);

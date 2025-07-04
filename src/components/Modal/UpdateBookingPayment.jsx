@@ -141,6 +141,7 @@ const UpdateBookingPayment = ({ id }) => {
               title: "Payment Updated",
               date: Date.now(),
               paymentAmount: updateData?.amount,
+              paymentMode: result?.PaymentMode || "",
             },
           ],
         };
@@ -235,7 +236,7 @@ const UpdateBookingPayment = ({ id }) => {
             <div className="text-left mb-2">
               <SelectDropDown
                 item={"PaymentMode"}
-                options={["online", "cash"]}
+                options={["cash"]}
                 setIsLocationSelected={setPaymentMode}
                 isSearchEnable={false}
                 require={true}

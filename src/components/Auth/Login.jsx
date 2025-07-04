@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
 import { Navigate, useNavigate } from "react-router-dom";
 import { handleOtpLogin } from "../../Data/Function";
-import webLogo from "../../assets/logo/rento-logo.png";
+import webLogo from "../../assets/logo/rento-full-light.png";
 import { tableIcons } from "../../Data/Icons";
 import { toggleForgetPasswordModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import PreLoader from "../../components/Skeleton/PreLoader";
@@ -67,7 +67,7 @@ const Login = () => {
             <div className="flex flex-col items-center justify-center lg:hidden mb-5">
               <img
                 src={webLogo}
-                className="w-28 h-28 p-2 bg-gray-100 rounded-full mx-auto mb-3 drop-shadow-2xl object-contain"
+                className="w-3/4 h-28 mx-auto object-contain"
                 alt="LOGO"
               />
             </div>

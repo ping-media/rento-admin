@@ -1,7 +1,8 @@
-import CopyButton from "../Buttons/CopyButton";
 import { useSelector } from "react-redux";
 import ExtraAmount from "./ExtraAmount";
 import { formatPrice, getDurationInDays } from "../../utils/index";
+import CopyButton from "../Buttons/CopyButton";
+import { ExtendSummary, RideSummary } from "./RideSummary";
 
 const AdditionalInfo = () => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -20,98 +21,102 @@ const AdditionalInfo = () => {
         <div className="mb-2">
           {((diffAmount !== null && diffAmount?.rideStatus === false) ||
             vehicleMaster[0]?.rideStatus !== "ongoing") && (
-            <p className="text-gray-400 flex items-center">
-              <span className="font-semibold mr-1">Start OTP:</span>
-              {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
-              <CopyButton
-                textToCopy={vehicleMaster[0]?.vehicleBasic?.startRide}
-              />
-            </p>
+            <div className="w-full flex items-center justify-between text-gray-400 flex items-center">
+              <p className="font-semibold mr-1">Start OTP:</p>
+              <p className="flex items-center">
+                {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
+                <CopyButton
+                  textToCopy={vehicleMaster[0]?.vehicleBasic?.startRide}
+                />
+              </p>
+            </div>
           )}
           {vehicleMaster[0]?.vehicleBasic?.endRide > 0 && (
-            <p className="text-gray-400 flex items-center">
-              <span className="font-semibold mr-1">End OTP:</span>
-              {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
-              <CopyButton
-                textToCopy={vehicleMaster[0]?.vehicleBasic?.endRide}
-              />
-            </p>
+            <div className="w-full flex items-center justify-between text-gray-400 flex items-center">
+              <p className="font-semibold mr-1">End OTP:</p>
+              <p className="flex items-center">
+                {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
+                <CopyButton
+                  textToCopy={vehicleMaster[0]?.vehicleBasic?.endRide}
+                />
+              </p>
+            </div>
           )}
         </div>
       )}
-      <div className="mt-1 mb-2.5">
-        <p className="text-sm text-gray-400 uppercase mb-2">
-          <span className="font-semibold mr-1 capitalize">Payment Mode:</span>
-          <span className="border px-2 py-1 bg-green-400/20 border-teal-500 text-gray-500/90 rounded">
-            {vehicleMaster[0]?.paymentMethod}
-          </span>
-        </p>
-        {/* {vehicleMaster[0]?.bookedFrom && (
-          <p className="text-sm text-gray-400 capitalize">
-            <span className="font-semibold mr-1 capitalize">Platform:</span>
-            <span className="text-gray-500/90 rounded">
-              From{" "}
-              {vehicleMaster[0]?.bookedFrom === "web"
-                ? "Website"
-                : vehicleMaster[0]?.bookedFrom}
-            </span>
-          </p>
-        )} */}
-      </div>
+
       {diffAmount !== null && diffAmount?.refundAmount > 0 && (
         <div className="mt-1 mb-2.5">
-          <p className="text-sm text-gray-400 uppercase">
-            <span className="font-semibold mr-1 capitalize">
+          <div className="w-full flex items-center justify-between text-sm text-gray-400 uppercase">
+            <p className="font-semibold mr-1 capitalize">
               Change Vehicle Refund Amount:
-            </span>
-            <span className="text-theme font-semibold">
+            </p>
+            <p className="text-theme font-semibold">
               ₹
               {formatPrice(
                 vehicleMaster[0]?.bookingPrice?.diffAmount[
                   vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
                 ]?.refundAmount
               )}
-            </span>
-          </p>
+            </p>
+          </div>
         </div>
       )}
       <div className="mt-1 mb-2.5">
-        <p className="text-sm text-gray-400 mb-1">
-          <span className="font-semibold mr-1">Free Limit:</span>
-          {vehicleMaster[0]?.vehicleBasic?.freeLimit
-            ? vehicleMaster[0]?.vehicleBasic?.freeLimit *
-              getDurationInDays(
-                vehicleMaster[0]?.BookingStartDateAndTime,
-                vehicleMaster[0]?.extendBooking?.originalEndDate ||
-                  vehicleMaster[0]?.BookingEndDateAndTime
-              )
-            : "--"}
-          KM
-          <span className="mx-1">
+        <div className="w-full flex items-center justify-between text-sm text-gray-400 mb-1">
+          <p className="font-semibold mr-1">Free Limit:</p>
+          <p>
             {vehicleMaster[0]?.vehicleBasic?.freeLimit
-              ? `(${vehicleMaster[0]?.vehicleBasic?.freeLimit} x 
+              ? vehicleMaster[0]?.vehicleBasic?.freeLimit *
+                getDurationInDays(
+                  vehicleMaster[0]?.BookingStartDateAndTime,
+                  vehicleMaster[0]?.extendBooking?.originalEndDate ||
+                    vehicleMaster[0]?.BookingEndDateAndTime
+                )
+              : "--"}
+            KM
+            <span className="ml-1">
+              {vehicleMaster[0]?.vehicleBasic?.freeLimit
+                ? `(${vehicleMaster[0]?.vehicleBasic?.freeLimit} x 
             ${getDurationInDays(
               vehicleMaster[0]?.BookingStartDateAndTime,
               vehicleMaster[0]?.extendBooking?.originalEndDate ||
                 vehicleMaster[0]?.BookingEndDateAndTime
             )}
             day(s))`
-              : "--"}
-          </span>
-        </p>
-        <p className="text-sm text-gray-400">
-          <span className="font-semibold mr-1">Extra KM Charge:</span>
-          {vehicleMaster[0]?.vehicleBasic?.extraKmCharge
-            ? `₹${formatPrice(
-                Number(vehicleMaster[0]?.vehicleBasic?.extraKmCharge)
-              )}
-          /km (after free limit exceeds.)`
-            : "--"}
-        </p>
+                : "--"}
+            </span>
+          </p>
+        </div>
+        <div className="w-full flex items-center justify-between text-sm text-gray-400 mb-1">
+          <p className="font-semibold mr-1">Extra KM Charge:</p>
+          <p>
+            {vehicleMaster[0]?.vehicleBasic?.extraKmCharge ? (
+              <>
+                ₹
+                {formatPrice(
+                  Number(vehicleMaster[0]?.vehicleBasic?.extraKmCharge)
+                )}
+                /km{" "}
+                <span className="hidden lg:inline">
+                  (after free limit exceeds.)
+                </span>
+              </>
+            ) : (
+              "--"
+            )}
+          </p>
+        </div>
+        <div className="w-full flex items-center justify-between text-sm text-gray-400">
+          <p className="font-semibold mr-1">Booked From:</p>
+          <p>
+            {vehicleMaster[0]?.bookedFrom === "web" ? "WEBSITE" : "APP" || "--"}
+          </p>
+        </div>
       </div>
       <div className="w-full">
         <div className="flex items-center gap-1 mb-1">
-          <h2 className="text-md text-gray-600 font-bold">Late Fee Charges</h2>
+          <p className="text-md text-gray-600 font-bold">Late Fee Charges</p>
           {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod &&
             vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod !== "NA" && (
               <span className="text-xs italic text-gray-400">
@@ -158,27 +163,38 @@ const AdditionalInfo = () => {
           )}
         </div>
       </div>
-      <div className="w-full">
-        <h2 className="text-md text-gray-600 font-bold mb-2">
-          Ride Extend Summary
-        </h2>
+      <div className="hidden lg:block w-full">
+        <h2 className="text-md text-gray-600 font-bold mb-2">Ride Summary</h2>
         <div className="mb-2">
-          {vehicleMaster[0]?.bookingPrice?.extendAmount &&
-          vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0 ? (
-            <ul className="leading-6 lg:leading-7 list-disc">
-              {vehicleMaster[0]?.bookingPrice?.extendAmount?.map(
-                (item, index) => (
-                  <li className="flex gap-1" key={index}>
-                    <ExtraAmount item={item} />
-                  </li>
-                )
-              )}
-            </ul>
-          ) : (
-            <p className="text-sm text-gray-400 italic">
-              vehicle not extended yet.
-            </p>
+          {vehicleMaster[0]?.bookingPrice && (
+            <RideSummary
+              daysBreakdown={vehicleMaster[0]?.bookingPrice?.daysBreakdown}
+              appliedPlans={vehicleMaster[0]?.bookingPrice?.appliedPlan}
+              item={vehicleMaster[0]?.bookingPrice}
+            />
           )}
+
+          {vehicleMaster[0]?.bookingPrice?.extendAmount &&
+            vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0 && (
+              <ul className="leading-6 lg:leading-7 list-disc">
+                {vehicleMaster[0]?.bookingPrice?.extendAmount?.map(
+                  (item, index) => (
+                    <li className="flex flex-col" key={index}>
+                      <ExtendSummary
+                        daysBreakdown={item?.daysBreakdown || []}
+                        appliedPlans={item?.appliedPlans || []}
+                        item={item}
+                      />
+                    </li>
+                  )
+                )}
+              </ul>
+              // ) : (
+              //   <p className="text-sm text-gray-400 italic">
+              //     vehicle not extended yet.
+              //   </p>
+              // )
+            )}
         </div>
       </div>
       <div className="w-full">

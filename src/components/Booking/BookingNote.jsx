@@ -6,6 +6,7 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { handleUpdateNotes } from "../../Redux/VehicleSlice/VehicleSlice";
 import Spinner from "../../components/Spinner/Spinner";
 import { tableIcons } from "../../Data/Icons";
+import { formatMilliseconds } from "../../utils/index";
 
 const BookingNote = () => {
   const { currentUser, token } = useSelector((state) => state.user);
@@ -27,6 +28,7 @@ const BookingNote = () => {
           key: `${currentUser?.firstName} (${currentUser?.userType})`,
           value: note,
           noteType: "general",
+          createdAt: Date.now(),
         },
       ],
     };
@@ -41,6 +43,7 @@ const BookingNote = () => {
         key: `${currentUser?.firstName} (${currentUser?.userType})`,
         value: note,
         noteType: "general",
+        createdAt: Date.now(),
       };
       if (response.status !== 200) {
         return handleAsyncError(dispatch, "unable to add note");
@@ -59,14 +62,19 @@ const BookingNote = () => {
     <>
       <ul className="leading-8 mb-2 list-disc">
         {vehicleMaster && vehicleMaster[0]?.notes?.length > 0 ? (
-          vehicleMaster[0]?.notes?.map((item) => {
+          vehicleMaster[0]?.notes?.map((item, indx) => {
             // avoiding any null value to show
             if (item?.key?.length <= 0 || item?.noteType === "cancel") {
               return null;
             }
             return (
-              <li key={item?._id} className="ml-4 text-gray-400">
-                {item?.value} | {item?.key}
+              <li key={`${item?._id}_${indx}`} className="ml-4 text-gray-400">
+                <p className="text-sm">
+                  {item?.value} | {item?.key}
+                </p>
+                <p className="text-xs">
+                  {item?.createdAt && formatMilliseconds(item?.createdAt)}
+                </p>
               </li>
             );
           })
@@ -80,11 +88,12 @@ const BookingNote = () => {
         onSubmit={handleSubmitNotRelatedBooking}
       >
         <Input
-          bodyWidth="w-2/4"
+          bodyWidth="w-full lg:w-2/4"
           customClass="w-[98%] px-3 py-1.5"
           item={"notes"}
           value={Note}
           setValueChange={setNote}
+          isCapital={false}
           require={true}
         />
         <button

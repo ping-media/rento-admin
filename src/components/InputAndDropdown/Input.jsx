@@ -24,6 +24,11 @@ const Input = ({
   excludeLocation,
   isCapital = true,
   isPassword = false,
+  isbtn = false,
+  btnFn,
+  btnLabel,
+  btnLoading,
+  btnDisable,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   // for debouncing state
@@ -176,6 +181,17 @@ const Input = ({
             onClick={togglePasswordToText}
           >
             {passwordVisible ? tableIcons.eyeOpen : tableIcons?.eyeClose}
+          </button>
+        )}
+
+        {isbtn && btnFn && (
+          <button
+            className="absolute right-2 top-10 text-theme disabled:text-gray-400"
+            type="button"
+            onClick={btnFn}
+            disabled={btnDisable || btnLoading}
+          >
+            {btnLabel}
           </button>
         )}
       </div>

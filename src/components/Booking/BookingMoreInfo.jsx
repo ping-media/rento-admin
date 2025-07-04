@@ -15,28 +15,41 @@ const BookingMoreInfo = ({ data, datatype }) => {
         </p>
       </div>
 
-      {data[datatype]?.map((item, index) => (
-        <div
-          className={`flex justify-between items-center py-1.5 ${
-            index == data[datatype]?.length - 1 ? "" : "border-b-2"
-          } border-gray-300`}
-          key={index}
-        >
-          <span className="font-semibold text-sm uppercase">{item?.key}</span>{" "}
-          <span
-            className={`text-gray-500 flex items-center text-sm ${
-              item?.key === "Email" ? "" : "capitalize"
-            }`}
-          >
-            {/* copy button  */}
-            {(item?.key === "Mobile Number" ||
-              item?.key === "Email" ||
-              item?.key === "Alt Mobile Number") &&
-              item?.value !== "NA" && <CopyButton textToCopy={item?.value} />}
-            {item?.value}
-          </span>
-        </div>
-      ))}
+      {data[datatype]
+        ?.filter((item) => {
+          const isExtend =
+            vehicleMaster[0]?.bookingPrice?.extendAmount?.length === 0 &&
+            item?.key?.includes("Extended");
+          return !isExtend;
+        })
+        .map((item, index, filteredArr) => {
+          return (
+            <div
+              className={`flex justify-between items-center py-1.5 ${
+                index == filteredArr?.length - 1 ? "" : "border-b-2"
+              } border-gray-300`}
+              key={index}
+            >
+              <span className="font-semibold text-sm uppercase">
+                {item?.key}
+              </span>{" "}
+              <span
+                className={`text-gray-500 flex items-center text-sm ${
+                  item?.key === "Email" ? "" : "capitalize"
+                }`}
+              >
+                {/* copy button  */}
+                {(item?.key === "Mobile Number" ||
+                  item?.key === "Email" ||
+                  item?.key === "Alt Mobile Number") &&
+                  item?.value !== "NA" && (
+                    <CopyButton textToCopy={item?.value} />
+                  )}
+                {item?.value}
+              </span>
+            </div>
+          );
+        })}
       {/* if ride end before actual ending date show this  */}
       {vehicleMaster &&
         vehicleMaster[0]?.extendBooking?.originalEndDate &&

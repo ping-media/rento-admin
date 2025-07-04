@@ -756,6 +756,28 @@ const compressImageToBlob = (file, quality = 0.7) => {
   });
 };
 
+const getRoundedDateTime = (daysToAdd = 0) => {
+  const now = new Date();
+
+  // Round up to the next full hour
+  now.setMinutes(0, 0, 0); // clear minutes, seconds, ms
+  now.setHours(now.getHours() + 1); // go to next hour
+
+  // Add optional days
+  if (daysToAdd > 0) {
+    now.setDate(now.getDate() + daysToAdd);
+  }
+
+  // Format to YYYY-MM-DDTHH:MM
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const date = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${date}T${hours}:${minutes}`;
+};
+
 export {
   formatDate,
   useIsMobile,
@@ -803,4 +825,5 @@ export {
   nextDayFromCurrent,
   parseTime,
   compressImageToBlob,
+  getRoundedDateTime,
 };

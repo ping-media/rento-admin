@@ -135,7 +135,8 @@ const BookingFareDetails = ({ rides }) => {
                                   underLine={false}
                                   buttonMessage="(?)"
                                   tooltipData={renderTooltipBreakdown(
-                                    rides?.bookingPrice?.appliedPlans,
+                                    rides?.bookingPrice?.appliedPlan ||
+                                      rides?.bookingPrice?.appliedPlans,
                                     rides?.bookingPrice?.daysBreakdown
                                   )}
                                 />
@@ -335,18 +336,33 @@ const BookingFareDetails = ({ rides }) => {
               </li>
             )}
             {/* refunded amount  */}
-            <li className="flex items-center justify-between pt-1 mt-1 border-t-2">
-              <p className="text-sm font-semibold uppercase text-left">
-                Refundable Deposit Amount
-                <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
-                  (need to pay at pickup and will be refunded after drop)
-                </small>
+            <li className="pt-1 mt-1 border-t-2">
+              <div className="flex items-center">
+                <p className="text-sm font-semibold uppercase text-left mr-1">
+                  Security Deposit:
+                </p>
+                <p className="text-sm font-bold text-right">
+                  {`₹${formatPrice(
+                    Number(rides?.vehicleBasic?.refundableDeposit)
+                  )}`}
+                </p>
+              </div>
+              <p className="text-xs font-semibold text-xs mx-1 block text-gray-400 italic">
+                (need to pay at pickup and will be refunded after drop)
               </p>
-              <p className="text-sm font-bold text-right">
-                {`₹${formatPrice(
-                  Number(rides?.vehicleBasic?.refundableDeposit)
-                )}`}
-              </p>
+            </li>
+            {/* payment mode  */}
+            <li className="pt-1 mt-1 pt-2 border-t-2">
+              <div className="flex items-center">
+                <p className="text-sm font-semibold uppercase text-left mr-1">
+                  Payment Mode:
+                </p>
+                <p className="text-sm text-gray-400 uppercase">
+                  <span className="border px-2 py-1 bg-green-400/20 border-teal-500 text-gray-500/90 rounded">
+                    {rides?.paymentMethod}
+                  </span>
+                </p>
+              </div>
             </li>
           </ul>
         </>

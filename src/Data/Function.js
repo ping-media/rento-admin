@@ -82,51 +82,49 @@ const fetchDashboardData = async (
   token,
   roleBaseFilter,
   navigate,
-  currentMonthAndYear,
-  dasboardDataCount
+  currentMonthAndYear
+  // dasboardDataCount
 ) => {
   try {
     dispatch(handleLoadingDashboardData());
-    if (dasboardDataCount === null) {
-      const [dashboardResponse, paymentResponse] = await Promise.all([
-        getData(
-          `/getAllDataCount${roleBaseFilter}${
-            roleBaseFilter ? "&" : "?"
-          }month=${currentMonthAndYear?.split(" ")[0]}&year=${
-            currentMonthAndYear?.split(" ")[1]
-          }`,
-          token
-        ),
-        getData(
-          `/getGraphData${roleBaseFilter}${
-            roleBaseFilter ? "&" : "?"
-          }monthYear=${currentMonthAndYear}`,
-          token
-        ),
-      ]);
-
-      dispatch(
-        handleDashboardData({
-          dashboard: dashboardResponse?.data,
-          payments: paymentResponse?.data,
-        })
-      );
-    } else {
-      const graphData = await getData(
+    // if (dasboardDataCount === null) {
+    const [dashboardResponse, paymentResponse] = await Promise.all([
+      getData(
+        `/getAllDataCount${roleBaseFilter}${roleBaseFilter ? "&" : "?"}month=${
+          currentMonthAndYear?.split(" ")[0]
+        }&year=${currentMonthAndYear?.split(" ")[1]}`,
+        token
+      ),
+      getData(
         `/getGraphData${roleBaseFilter}${
           roleBaseFilter ? "&" : "?"
         }monthYear=${currentMonthAndYear}`,
         token
-      );
-      if (graphData?.status === 200) {
-        dispatch(
-          handleDashboardData({
-            dashboard: dasboardDataCount?.dashboard,
-            payments: graphData?.data,
-          })
-        );
-      }
-    }
+      ),
+    ]);
+
+    dispatch(
+      handleDashboardData({
+        dashboard: dashboardResponse?.data,
+        payments: paymentResponse?.data,
+      })
+    );
+    // } else {
+    //   const graphData = await getData(
+    //     `/getGraphData${roleBaseFilter}${
+    //       roleBaseFilter ? "&" : "?"
+    //     }monthYear=${currentMonthAndYear}`,
+    //     token
+    //   );
+    //   if (graphData?.status === 200) {
+    //     dispatch(
+    //       handleDashboardData({
+    //         dashboard: dasboardDataCount?.dashboard,
+    //         payments: graphData?.data,
+    //       })
+    //     );
+    //   }
+    // }
   } catch (error) {
     dispatch(resetDashboardData());
     handleAsyncError(dispatch, error?.message);

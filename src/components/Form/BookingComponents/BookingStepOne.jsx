@@ -131,6 +131,9 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
     }
   }, []);
 
+  // const pickupDateAndTime = getRoundedDateTime();
+  // const dropoffDateAndTime = getRoundedDateTime(1);
+
   return (
     <>
       {loading && <PreLoader />}
@@ -173,6 +176,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
         <InputDateAndTime
           item={"BookingStartDateAndTime"}
           name={"BookingStartDateAndTime"}
+          // value={pickupDateAndTime}
           require={true}
           setValueChanger={setBookingStartDate}
         />
@@ -181,14 +185,16 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
             error ? "text-theme" : "text-gray-400"
           } my-1`}
         >
-          {error ||
-            "Always select time in round hours (e.g., 2:00, 3:00, etc.)."}
+          {error}
+          {/* {error ||
+            "Always select time in round hours (e.g., 2:00, 3:00, etc.)."} */}
         </p>
       </div>
       <div className="w-full lg:w-[48%]">
         <InputDateAndTime
           item={"BookingEndDateAndTime"}
           namme={"BookingEndDateAndTime"}
+          // value={dropoffDateAndTime}
           require={true}
           setValueChanger={setBookingEndDate}
         />
@@ -197,8 +203,9 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
             error ? "text-theme" : "text-gray-400"
           } my-1`}
         >
-          {error ||
-            "Always select time in round hours (e.g., 2:00, 3:00, etc.)."}
+          {error}
+          {/* {error ||
+            "Always select time in round hours (e.g., 2:00, 3:00, etc.)."} */}
         </p>
       </div>
       <div className="w-full lg:w-[48%]">

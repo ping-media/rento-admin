@@ -13,6 +13,8 @@ const BookingTimeLine = () => {
   const { timeLineData } = useSelector((state) => state.vehicles);
   const [loading] = useState(false);
 
+  console.log(timeLineData);
+
   return (
     <>
       <div className="container mx-auto py-2">
@@ -74,14 +76,21 @@ const BookingTimeLine = () => {
                           >
                             {(item?.vehicleName && (
                               <span className="capitalize">
-                                Vehicle: {item?.vehicleName}(
-                                {item?.vehicleNumber})
+                                {item?.vehicleName}({item?.vehicleNumber})
                               </span>
                             )) ||
                               (item?.paymentAmount &&
                                 `₹${formatPrice(item?.paymentAmount)}`) ||
                               item?.extendedTill ||
                               item?.changedTo}
+                          </p>
+                        )}
+                        {item?.paymentMode && (
+                          <p className="text-sm">
+                            Paid through:{" "}
+                            <span className="font-semibold uppercase">
+                              {item?.paymentMode}
+                            </span>
                           </p>
                         )}
                         <p className="text-gray-700 leading-tight text-xs">
@@ -100,27 +109,36 @@ const BookingTimeLine = () => {
                           }`}
                         >
                           {item?.title}
-                          {item?.PaymentLink != "" && (
-                            <span className="ml-1">
-                              <CopyButton textToCopy={item?.PaymentLink} />
-                            </span>
-                          )}
+                          {item?.extended !== true &&
+                            item?.PaymentLink != "" && (
+                              <span className="ml-1">
+                                <CopyButton textToCopy={item?.PaymentLink} />
+                              </span>
+                            )}
                         </h3>
-                        <p
-                          className={`text-gray-700 leading-tight text-md font-semibold`}
-                        >
-                          ₹{formatPrice(item?.paymentAmount)}
-                        </p>
+                        {item?.extended !== true && (
+                          <p
+                            className={`text-gray-700 leading-tight text-md font-semibold`}
+                          >
+                            ₹{formatPrice(item?.paymentAmount)}
+                          </p>
+                        )}
                         {item?.changeToVehicle &&
                           item?.changeToVehicle != "" && (
                             <p className="text-gray-700 leading-tight text-xs">
                               {item?.changeToVehicle}
                             </p>
                           )}
-                        {item?.extendDate && (
+
+                        {(item?.endDate || item?.extendDate) && (
                           <p className="text-gray-800 leading-tight text-xs">
-                            Extension till{" "}
-                            {formatFullDateAndTime(item?.extendDate)}
+                            {item?.extended === true
+                              ? "Extended Till"
+                              : "For extension till"}{" "}
+                            {item?.endDate &&
+                              formatFullDateAndTime(item?.endDate)}
+                            {item?.extendDate &&
+                              formatFullDateAndTime(item?.extendDate)}
                           </p>
                         )}
                         <p className="text-gray-700 leading-tight text-xs">

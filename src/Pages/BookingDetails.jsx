@@ -6,7 +6,7 @@ import {
   toggleChangeVehicleModal,
   toggleDeleteModal,
   togglePickupImageModal,
-  toggleRescheduleModal,
+  // toggleRescheduleModal,
   toggleRideEndModal,
 } from "../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,7 +25,7 @@ import { postData } from "../Data/index";
 import UpdateBookingPayment from "../components/Modal/UpdateBookingPayment";
 import NoData from "../components/Error/NoData";
 import TabButton from "../components/TabButton/TabButton";
-import MenuToggle from "../components/MenuList/MenuToggle";
+// import MenuToggle from "../components/MenuList/MenuToggle";
 import { formatDateToISO } from "../utils/index";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
@@ -204,7 +204,7 @@ const BookingDetails = () => {
       <UploadPickupImageModal
         isBookingIdPresent={id.split("_")[0] ? true : false}
       />
-      <RescheduleModal />
+      {/* <RescheduleModal /> */}
       {/* update bookingpayment modal */}
       <UpdateBookingPayment id={id.split("_")[0]} />
       {/* Kyc modal */}

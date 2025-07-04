@@ -5,7 +5,7 @@ import { useIsMobile } from "../../utils";
 import { useEffect } from "react";
 import { menuList } from "./menuList";
 import SideBarDropDown from "./SideBarDropDown";
-import rentoLogo from "../../assets/logo/rento-logo.png";
+import rentoLogo from "../../assets/logo/rento-full-red.png";
 
 const SideBar = () => {
   const location = useLocation();
@@ -48,10 +48,10 @@ const SideBar = () => {
         </button>
       </div>
       <div className="py-[0.5rem]">
-        <div className="w-24 lg:w-28 h-14 lg:h-16 mx-auto">
+        <div className="h-14 lg:h-16">
           <img
             src={rentoLogo}
-            className="w-full h-full object-contain"
+            className="w-[48%] lg:w-3/4 h-full object-contain mx-auto"
             loading="lazy"
             alt="RENTO_BIKES"
           />

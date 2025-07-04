@@ -21,6 +21,7 @@ import AdditionalInfo from "./AdditionalInfo";
 import Button from "../Buttons/Button";
 import VehicleImages from "./VehicleImages";
 import UserRideTimeLine from "./UserRideTimeLine";
+import { ExtendSummary, RideSummary } from "./RideSummary";
 const ChangeVehicleModal = lazy(() =>
   import("../../components/Modal/ChangeVehicleModal")
 );
@@ -72,15 +73,6 @@ const BookingDetail = ({ tabs }) => {
           },
         ],
         moreInfo: [
-          // {
-          //   key: "Booked On",
-          //   value: `${
-          //     vehicleMaster &&
-          //     formatFullDateAndTime(
-          //       vehicleMaster && vehicleMaster[0]?.createdAt
-          //     )
-          //   }`,
-          // },
           {
             key: "Pick Up Location",
             value: `${vehicleMaster && vehicleMaster[0]?.stationName}`,
@@ -104,9 +96,18 @@ const BookingDetail = ({ tabs }) => {
               vehicleMaster &&
               formatFullDateAndTime(
                 (vehicleMaster &&
-                  vehicleMaster[0]?.extendBooking?.originalEndDate) ||
+                  vehicleMaster[0]?.extendBooking?.oldBooking?.length > 0 &&
+                  vehicleMaster[0]?.extendBooking?.oldBooking[0]
+                    ?.BookingEndDateAndTime) ||
                   (vehicleMaster && vehicleMaster[0]?.BookingEndDateAndTime)
               )
+            }`,
+          },
+          {
+            key: "Extended End Date",
+            value: `${
+              vehicleMaster &&
+              formatFullDateAndTime(vehicleMaster[0]?.BookingEndDateAndTime)
             }`,
           },
         ],
@@ -184,6 +185,42 @@ const BookingDetail = ({ tabs }) => {
                 </p>
               )}
             </div>
+            {/* ride summary start */}
+            <div className="border px-2 rounded-md my-4 py-2 lg:hidden w-full mt-8">
+              <h2 className="text-md text-gray-600 font-bold mb-2">
+                Ride Summary
+              </h2>
+              <div>
+                {vehicleMaster[0]?.bookingPrice && (
+                  <RideSummary
+                    daysBreakdown={
+                      vehicleMaster[0]?.bookingPrice?.daysBreakdown
+                    }
+                    appliedPlans={vehicleMaster[0]?.bookingPrice?.appliedPlan}
+                    item={vehicleMaster[0]?.bookingPrice}
+                  />
+                )}
+
+                {vehicleMaster[0]?.bookingPrice?.extendAmount &&
+                  vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0 && (
+                    <ul className="leading-6 lg:leading-7 list-disc">
+                      {vehicleMaster[0]?.bookingPrice?.extendAmount?.map(
+                        (item, index) => (
+                          <li className="flex flex-col" key={index}>
+                            <ExtendSummary
+                              daysBreakdown={item?.daysBreakdown || []}
+                              appliedPlans={item?.appliedPlans || []}
+                              item={item}
+                            />
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  )}
+              </div>
+            </div>
+            {/* ride summary end */}
+
             <div className="mt-5 mb-5">
               <div className="flex items-center gap-1 justify-between mb-5">
                 <h2 className="text-base lg:text-lg font-semibold text-gray-500 w-2/4">

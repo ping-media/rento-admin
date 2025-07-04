@@ -338,7 +338,7 @@ const App = () => {
                 exact
                 element={
                   <PrivateRouteBasedOnUser
-                    allowedRoles={["admin"]}
+                    allowedRoles={["admin", "manager"]}
                     userRole={loggedInRole}
                     isLoading={verifyLoading}
                   >
@@ -389,7 +389,7 @@ const App = () => {
                 exact
                 element={
                   <PrivateRouteBasedOnUser
-                    allowedRoles={["admin"]}
+                    allowedRoles={["admin", "manager"]}
                     userRole={loggedInRole}
                     isLoading={verifyLoading}
                   >
@@ -402,7 +402,7 @@ const App = () => {
                 exact
                 element={
                   <PrivateRouteBasedOnUser
-                    allowedRoles={["admin"]}
+                    allowedRoles={["admin", "manager"]}
                     userRole={loggedInRole}
                     isLoading={verifyLoading}
                   >
