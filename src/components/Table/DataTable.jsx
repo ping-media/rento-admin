@@ -142,7 +142,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             "paymentgatewayReceiptId",
             "paymentInitiatedDate",
             "discountCuopon",
-            "stationName",
+            // "stationName",
             "paymentMethod",
             "payInitFrom",
             "notes",

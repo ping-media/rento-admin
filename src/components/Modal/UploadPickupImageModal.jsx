@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { togglePickupImageModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { postData, postMultipleData } from "../../Data";
+import { postData } from "../../Data";
 import Spinner from "../Spinner/Spinner";
 import {
   handleInvoiceCreated,
@@ -13,11 +13,7 @@ import { useNavigate } from "react-router-dom";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
 import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 
-const UploadPickupImageModal = ({
-  isBookingIdPresent = false,
-  // isChange,
-  // setIsChange,
-}) => {
+const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const { token } = useSelector((state) => state.user);
   const { tempVehicleData, vehicleMaster } = useSelector(
@@ -53,6 +49,10 @@ const UploadPickupImageModal = ({
     (diffData !== null && diffData?.rideStatus === false ? true : false) ||
     false;
 
+  const userId = (vehicleMaster && vehicleMaster[0]?.userId?._id) || "";
+  const bookingId = (vehicleMaster && vehicleMaster[0]?.bookingId) || "";
+  const docId = (vehicleMaster && vehicleMaster[0]?._id) || "";
+
   // new image compress per image
   const handleUploadPickupImages = async (event) => {
     event.preventDefault();
@@ -63,11 +63,18 @@ const UploadPickupImageModal = ({
     );
 
     if (isAnyImageMissing) {
+      setLoading(false);
       return handleAsyncError(dispatch, "All Images Required!.");
     }
 
     if (!tempVehicleData) {
+      setLoading(false);
       return handleAsyncError(dispatch, "All fields required.");
+    }
+
+    if (userId === "" || bookingId === "" || docId === "") {
+      setLoading(false);
+      return handleAsyncError(dispatch, "Required fields missing! try again");
     }
 
     const rawFormData = new FormData(event.target);
@@ -79,32 +86,19 @@ const UploadPickupImageModal = ({
         finalFormData.append(key, value);
       }
     }
+    // filter data
+    const imagesToSend = Object.values(image).filter(Boolean);
 
-    let hasFiles = false;
-
-    for (const file of Object.values(image)) {
-      if (file instanceof File || file instanceof Blob) {
-        hasFiles = true;
-        finalFormData.append("images", file);
-      }
-    }
-
-    if (!hasFiles) {
-      return handleAsyncError(
-        dispatch,
-        "Unable to upload! No images provided."
-      );
-    }
-
-    finalFormData.append("userId", tempVehicleData?.userId?._id);
-    finalFormData.append("bookingId", tempVehicleData?.bookingId);
-    finalFormData.append("_id", tempVehicleData?._id);
+    finalFormData.append("imageLinks", JSON.stringify(imagesToSend));
+    finalFormData.append("userId", userId);
+    finalFormData.append("bookingId", bookingId);
+    finalFormData.append("_id", docId);
 
     // changing the data based on id is present or not
     let currentData = !isBookingIdPresent ? vehicleMaster?.data : vehicleMaster;
 
     let currentBooking = currentData?.find(
-      (item) => item?._id == tempVehicleData?._id
+      (item) => item?._id === tempVehicleData?._id
     );
 
     // for paymentmethod update in booking price
@@ -161,17 +155,7 @@ const UploadPickupImageModal = ({
         );
       }
 
-      // for (const [key, value] of finalFormData.entries()) {
-      //   console.log(`${key}:`, value);
-      // }
-
-      // return;
-
-      const responseImage = await postMultipleData(
-        "/pickupImage",
-        finalFormData,
-        token
-      );
+      const responseImage = await postData("/start-ride", finalFormData, token);
 
       if (responseImage?.status === 200) {
         setImage({
@@ -186,17 +170,17 @@ const UploadPickupImageModal = ({
         dispatch(togglePickupImageModal());
 
         if (isChange) {
+          const targetId =
+            currentBooking?.bookingPrice?.diffAmount?.[
+              currentBooking?.bookingPrice?.diffAmount?.length - 1
+            ]?.id;
+
           updatedBooking = {
             ...updatedBooking,
             bookingPrice: {
-              ...updatedBooking?.bookingPrice,
+              ...updatedBooking.bookingPrice,
               diffAmount: updatedBooking.bookingPrice.diffAmount.map((item) =>
-                item.id ===
-                currentBooking?.bookingPrice?.diffAmount[
-                  currentBooking?.bookingPrice?.diffAmount?.length - 1
-                ]?.id
-                  ? { ...item, rideStatus: true }
-                  : item
+                item.id === targetId ? { ...item, rideStatus: true } : item
               ),
             },
           };
@@ -239,21 +223,17 @@ const UploadPickupImageModal = ({
     } catch (error) {
       handleAsyncError(dispatch, error?.message);
     } finally {
-      // setIsChange && setIsChange(false);
       setLoading(false);
     }
   };
 
   //   close modal and clear value
   const handleClearAndClose = () => {
-    // dispatch(removeTempVehicleData());
-    // setIsChange && setIsChange(false);
     return dispatch(togglePickupImageModal());
   };
 
   // close modal and send to kyc page
   const handleCloseModalAndVerifyUser = (id) => {
-    // setIsChange(false);
     dispatch(togglePickupImageModal());
     return navigate(`/all-users/${id}`);
   };
@@ -330,7 +310,10 @@ const UploadPickupImageModal = ({
                     setImageMultiChanger={setImage}
                     imagesUrl={imagesUrl[item?.title]}
                     setImageUrlMultiChanger={setImageUrl}
-                    name="images"
+                    isUpload={true}
+                    userId={userId}
+                    isDisableRemove={loading}
+                    name="image"
                   />
                 </div>
               ))}
@@ -338,7 +321,7 @@ const UploadPickupImageModal = ({
             {(vehicleMaster[0]?.paymentMethod === "cash" ||
               vehicleMaster[0]?.paymentStatus === "partially_paid" ||
               vehicleMaster[0]?.paymentStatus === "partiallyPay") &&
-              !vehicleMaster[0]?.bookingPrice?.diffAmount && (
+              !vehicleMaster[0]?.bookingPrice?.payOnPickupMethod && (
                 <div className="flex items-center flex-wrap gap-4 mb-3">
                   <input
                     type="hidden"

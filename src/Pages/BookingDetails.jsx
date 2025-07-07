@@ -25,8 +25,8 @@ import { postData } from "../Data/index";
 import UpdateBookingPayment from "../components/Modal/UpdateBookingPayment";
 import NoData from "../components/Error/NoData";
 import TabButton from "../components/TabButton/TabButton";
-// import MenuToggle from "../components/MenuList/MenuToggle";
 import { formatDateToISO } from "../utils/index";
+import BackButton from "../components/Buttons/BackButton";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(() =>
   import("../components/Modal/UploadPickupImageModal")
@@ -86,6 +86,7 @@ const BookingDetails = () => {
     if (!isDeleteModalActive) return dispatch(toggleDeleteModal());
     // this to cancel booking
     if (Note?.length > 10 && Note?.length <= 35) {
+      const bookingId = id.split("_")[0];
       setVehicleLoading(true);
       try {
         let paymentStatusToSend = "failed";
@@ -102,7 +103,7 @@ const BookingDetails = () => {
           paymentStatus: paymentStatusToSend,
           bookingStatus: "canceled",
           rideStatus: "canceled",
-          _id: id,
+          _id: bookingId,
           notes: [
             { key: currentUser?.userType, value: Note, noteType: "cancel" },
           ],
@@ -112,7 +113,7 @@ const BookingDetails = () => {
           managerEmail: vehicleMaster[0]?.stationMasterUserId?.email,
         };
         const isCanceled = await cancelBookingById(
-          id,
+          bookingId,
           data,
           token,
           "/cancelledBooking"
@@ -120,7 +121,7 @@ const BookingDetails = () => {
         if (isCanceled === true) {
           // updating the timeline for booking
           const timeLineData = {
-            currentBooking_id: id,
+            currentBooking_id: bookingId,
             timeLine: [
               {
                 title: "Booking Cancelled",
@@ -213,9 +214,12 @@ const BookingDetails = () => {
       <RideEndModal id={id.split("_")[0]} />
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">
-        <h1 className="text-2xl uppercase font-bold text-theme">
-          Booking Id: #{id.split("_")[1] || "--"}
-        </h1>
+        <div className="flex items-center gap-2">
+          <BackButton />
+          <h1 className="text-2xl uppercase font-bold text-theme">
+            Booking Id: #{id.split("_")[1] || "--"}
+          </h1>
+        </div>
         {/* actions for cancel & start ride  */}
         <div className="flex flex-wrap gap-2">
           {/* for starting & completing ride  */}
@@ -258,7 +262,7 @@ const BookingDetails = () => {
             vehicleMaster[0]?.rideStatus == "completed"
           ) && (
             <Button
-              title={"Cancel Booking"}
+              title={"Cancel Ride"}
               fn={handleCancelBooking}
               disable={
                 vehicleMaster[0]?.bookingStatus === "canceled" ||
@@ -274,9 +278,9 @@ const BookingDetails = () => {
             vehicleMaster[0]?.rideStatus == "completed"
           ) && (
             <Button
-              customClass={
-                "border-2 border-theme text-theme hover:text-gray-100 hover:border-theme-dark p-1.5 text-sm lg:px-2.5 lg:py-1.5 disabled:border-theme/60 disabled:text-theme/60 disabled:hover:bg-transparent disabled:hover:border-theme/60 disabled:hover:text-theme/60"
-              }
+              // customClass={
+              //   "border-2 border-theme text-theme hover:text-gray-100 hover:border-theme-dark p-1.5 text-sm lg:px-2.5 lg:py-1.5 disabled:border-theme/60 disabled:text-theme/60 disabled:hover:bg-transparent disabled:hover:border-theme/60 disabled:hover:text-theme/60"
+              // }
               title={"Extend Booking"}
               fn={() => dispatch(toggleBookingExtendModal())}
             />

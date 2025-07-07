@@ -394,6 +394,7 @@ const RideEndModal = ({ id }) => {
               <Input
                 item={"additionalPrice"}
                 setValueChange={setAdditionalPrice}
+                value={0}
                 type="number"
               />
             </div>

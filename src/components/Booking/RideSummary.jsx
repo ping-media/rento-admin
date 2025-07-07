@@ -109,7 +109,11 @@ const RideSummary = ({ appliedPlans, daysBreakdown, item }) => {
               {appliedPlans[0]?.planPrice}{" "}
               {appliedPlans[0]?.count > 1 && `x ${appliedPlans[0]?.count}`}
             </span>
-            <span className="mx-2">|</span>
+            <span
+              className={`mx-2 ${weekend?.length > 0 ? "inline" : "hidden"}`}
+            >
+              |
+            </span>
           </>
         )}
         {weekend?.length > 0 && (
@@ -117,7 +121,11 @@ const RideSummary = ({ appliedPlans, daysBreakdown, item }) => {
             <span>
               Weekend ₹{weekend[0]?.dailyRate} x {weekend?.length}
             </span>
-            <span className="mx-2">|</span>
+            <span
+              className={`mx-2 ${weekDays?.length > 0 ? "inline" : "hidden"}`}
+            >
+              |
+            </span>
           </>
         )}
         {weekDays?.length > 0 && (

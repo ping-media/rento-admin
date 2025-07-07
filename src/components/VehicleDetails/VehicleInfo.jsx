@@ -7,7 +7,7 @@ const VehicleInfo = ({ vehicleImage, vehicleName }) => {
       {/* image here  */}
       {vehicleImage ? (
         <div
-          className={`rounded-xl h-48 border flex items-center justify-center mb-5 ${
+          className={`rounded-xl h-32 border flex items-center justify-center mb-5 ${
             isImageLoading ? "animate-pulse bg-gray-200" : ""
           }`}
         >

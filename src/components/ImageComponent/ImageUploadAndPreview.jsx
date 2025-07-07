@@ -4,8 +4,8 @@ import {
   compressImageToBlob,
 } from "../../utils/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { useDispatch } from "react-redux";
-// import imageCompression from "browser-image-compression";
+import { useDispatch, useSelector } from "react-redux";
+import { postData, postMultipleData } from "../../Data/index";
 
 const ImageUploadAndPreview = ({
   image,
@@ -18,10 +18,14 @@ const ImageUploadAndPreview = ({
   setImageUrlMultiChanger,
   name = "image",
   isRequired = true,
+  isUpload = false,
+  isDisableRemove = false,
+  userId,
 }) => {
   const fileInputRef = useRef(null);
   const dispatch = useDispatch();
   const [isCompressing, setIsCompressing] = useState(false);
+  const { token } = useSelector((state) => state.user);
 
   const handleImageChange = async (e) => {
     try {
@@ -36,48 +40,43 @@ const ImageUploadAndPreview = ({
       const finalFile = new File([compressedBlob], file.name, {
         type: "image/jpeg",
       });
-      setImageChanger?.(finalFile);
-      setImageMultiChanger?.((prev) => ({ ...prev, [title]: finalFile }));
 
-      const url = URL.createObjectURL(finalFile);
-      if (imagesUrl) URL.revokeObjectURL(imagesUrl);
+      if (isUpload && userId && userId !== "") {
+        const formData = new FormData();
+        formData.append("image", finalFile);
+        formData.append("userId", userId);
 
-      setImageUrlChanger?.(url);
-      setImageUrlMultiChanger?.((prev) => ({ ...prev, [title]: url }));
+        const responseImage = await postMultipleData(
+          "/upload-pickup-image",
+          formData,
+          token
+        );
+        if (responseImage?.success) {
+          const { data } = responseImage;
+          setImageMultiChanger?.((prev) => ({
+            ...prev,
+            [title]: { fileName: data?.fileName, imageUrl: data?.imageUrl },
+          }));
 
-      // let compressedFile = file;
-      // if (file.size > 2 * 1024 * 1024) {
-      //   compressedFile = await Promise.race([
-      //     imageCompression(file, {
-      //       maxSizeMB: 0.5,
-      //       useWebWorker: true,
-      //       initialQuality: 0.5,
-      //       fileType: "image/jpeg",
-      //     }),
-      //     new Promise((_, reject) =>
-      //       setTimeout(() => reject(new Error("Compression timeout")), 8000)
-      //     ),
-      //   ]);
-      // }
+          setImageUrlChanger?.(data?.imageUrl);
+          setImageUrlMultiChanger?.((prev) => ({
+            ...prev,
+            [title]: data?.imageUrl,
+          }));
+        } else {
+          handleAsyncError(dispatch, "unable to upload image! try again");
+          return;
+        }
+      } else {
+        setImageChanger?.(finalFile);
+        setImageMultiChanger?.((prev) => ({ ...prev, [title]: finalFile }));
 
-      // if (!compressedFile || compressedFile.size === 0) {
-      //   handleAsyncError(
-      //     dispatch,
-      //     "Compression failed! try upload image again."
-      //   );
-      //   return;
-      // }
+        const url = URL.createObjectURL(finalFile);
+        if (imagesUrl) URL.revokeObjectURL(imagesUrl);
 
-      // setImageChanger?.(compressedFile);
-      // setImageMultiChanger?.((prev) => ({ ...prev, [title]: compressedFile }));
-
-      // const url = URL.createObjectURL(compressedFile);
-      // if (imagesUrl) {
-      //   URL.revokeObjectURL(imagesUrl);
-      // }
-
-      // setImageUrlChanger?.(url);
-      // setImageUrlMultiChanger?.((prev) => ({ ...prev, [title]: url }));
+        setImageUrlChanger?.(url);
+        setImageUrlMultiChanger?.((prev) => ({ ...prev, [title]: url }));
+      }
     } catch (error) {
       console.error("Image compression failed:", error);
       handleAsyncError(dispatch, "Image upload failed.");
@@ -87,9 +86,20 @@ const ImageUploadAndPreview = ({
   };
 
   // for deleting image
-  const handleRemoveImage = () => {
+  const handleRemoveImage = async () => {
     // for single file delete
     setImageUrlChanger && setImageUrlChanger("");
+    // delete from bucket
+    if (isUpload === true) {
+      const response = await postData(
+        "/delete-image",
+        { fileName: image?.fileName },
+        token
+      );
+      if (!response.success) {
+        return handleAsyncError(dispatch, "Unable to delete Image!");
+      }
+    }
     //  for multiple file and want to delete only one
     setImageUrlMultiChanger &&
       setImageUrlMultiChanger((prev) => ({ ...prev, [title]: "" }));
@@ -136,6 +146,7 @@ const ImageUploadAndPreview = ({
                 className="inline-flex items-center gap-1 text-red-500 border border-red-500 p-1 rounded-md hover:bg-red-500 hover:text-gray-100 transition duration-300 ease-in-out group"
                 type="button"
                 onClick={handleRemoveImage}
+                disabled={isDisableRemove}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

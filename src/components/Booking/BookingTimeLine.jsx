@@ -13,8 +13,6 @@ const BookingTimeLine = () => {
   const { timeLineData } = useSelector((state) => state.vehicles);
   const [loading] = useState(false);
 
-  console.log(timeLineData);
-
   return (
     <>
       <div className="container mx-auto py-2">
@@ -88,7 +86,7 @@ const BookingTimeLine = () => {
                         {item?.paymentMode && (
                           <p className="text-sm">
                             Paid through:{" "}
-                            <span className="font-semibold uppercase">
+                            <span className="font-bold uppercase text-theme">
                               {item?.paymentMode}
                             </span>
                           </p>

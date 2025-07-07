@@ -82,7 +82,7 @@ const BookingDetail = ({ tabs }) => {
             value: `${vehicleMaster && vehicleMaster[0]?.stationName}`,
           },
           {
-            key: "Start Date",
+            key: "Booking Date",
             value: `${
               vehicleMaster &&
               formatFullDateAndTime(
@@ -275,7 +275,7 @@ const BookingDetail = ({ tabs }) => {
                 formatDateToISOWithoutSecond(new Date())
             ) && (
               <button
-                className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-0.5 disabled:bg-theme/75 hidden md:block"
+                className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-1 disabled:bg-theme/75 hidden md:block"
                 type="button"
                 onClick={() => dispatch(toggleChangeVehicleModal())}
                 disabled={

@@ -198,7 +198,6 @@ const postMultipleData = async (url, data, token) => {
       }
     );
 
-    // console.log(response);
     return response?.data;
   } catch (error) {
     return `Error :${error?.message}`;

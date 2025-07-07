@@ -130,7 +130,7 @@ const AdditionalInfo = () => {
           vehicleMaster[0]?.bookingPrice?.additionalPrice ||
           vehicleMaster[0]?.rideStatus === "completed" ? (
             <div>
-              <p className="text-sm text-theme">
+              <p className="w-full flex items-center justify-between text-sm text-theme">
                 <span className="mr-1 font-semibold text-gray-500">
                   Hour Late Fee:
                 </span>
@@ -139,7 +139,7 @@ const AdditionalInfo = () => {
                   Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour)
                 )}
               </p>
-              <p className="text-sm text-theme">
+              <p className="w-full flex items-center justify-between text-sm text-theme">
                 <span className="mr-1 font-semibold text-gray-500">
                   KM Late Fee:
                 </span>
@@ -148,7 +148,7 @@ const AdditionalInfo = () => {
                   Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM)
                 )}
               </p>
-              <p className="text-sm text-theme">
+              <p className="w-full flex items-center justify-between text-sm text-theme">
                 <span className="mr-1 font-semibold text-gray-500">
                   Additional Price:
                 </span>
