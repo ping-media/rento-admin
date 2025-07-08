@@ -6,7 +6,6 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import {
   calculateTax,
   calculateTotalAddOnPrice,
-  // camelCaseToSpaceSeparated,
   formatDateToISO,
   formatDateToISOWithoutSecond,
   formatPrice,
@@ -28,10 +27,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const { general } = useSelector((state) => state.general);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
-  // const [isModalClose, setIsModalClose] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
-  // const [selectedPlan, setSelectedPlan] = useState(null);
   const [freeVehicles, setFreeVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const { token } = useSelector((state) => state.user);
@@ -109,7 +106,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
       null;
 
     const currentDateAndTime = formatDateToISOWithoutSecond(new Date());
-    // const extendStartDate = bookingData?.extendBooking?.originalEndDate || "";
     const extendStartDate =
       bookingData?.bookingPrice?.extendAmount[
         bookingData?.bookingPrice?.extendAmount?.length - 1
@@ -143,11 +139,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
           )[0]
         : null;
 
-    // if (Plan) {
-    //   setSelectedPlan(Plan);
-    // } else {
-    //   setSelectedPlan(null);
-    // }
     // calculate the price
     const isPackageApplied = bookingData?.bookingPrice?.isPackageApplied;
     const bookingPrice =
@@ -161,7 +152,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
     ) {
       extraCharges = calculateTotalAddOnPrice(
         bookingData?.bookingPrice?.extraAddonDetails,
-        Number(daysLeft)
+        Number(daysLeft > 0 ? daysLeft : 1)
       );
     }
     const finalBookingPrice = Number(extraCharges) + Number(bookingPrice);
@@ -183,6 +174,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const finalDiffAmount = diffAmount <= 0 ? 0 : Math.round(diffAmount);
     const refundAmount = diffAmount < 0 ? Math.abs(diffAmount) : 0;
 
+    console.log(
+      bookingData?.bookingPrice?.extraAddonDetails,
+      extraCharges,
+      daysLeft
+    );
+
     const data = {
       _id: bookingData?._id,
       vehicleMasterId: changeToNewVehicle?.vehicleMasterId,
@@ -194,12 +191,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
         ...bookingData.bookingPrice,
         bookingPrice: bookingPrice,
         vehiclePrice: bookingPrice,
-        // extraAddonDetails: bookingData?.bookingPrice?.extraAddonDetails,
-        // extraAddonPrice: bookingData?.bookingPrice?.extraAddonPrice,
-        // discountPrice: bookingData?.bookingPrice?.discountPrice || 0,
-        // discountTotalPrice: bookingData?.bookingPrice?.discountTotalPrice || 0,
-        // isDiscountZero: bookingData?.bookingPrice?.isDiscountZero || false,
-        // isPackageApplied: bookingData?.bookingPrice?.isPackageApplied || false,
         tax: tax,
         totalPrice: totalPrice,
         rentAmount: Number(changeToNewVehicle?.perDayCost),
@@ -334,7 +325,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const handleCloseModal = async () => {
     setFreeVehicles([]);
     setSelectedVehicle(null);
-    // setIsModalClose(true);
     return dispatch(toggleChangeVehicleModal());
   };
 
