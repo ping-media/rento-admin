@@ -352,7 +352,7 @@ const BookingFareDetails = ({ rides }) => {
               </p>
             </li>
             {/* payment mode  */}
-            <li className="pt-1 mt-1 pt-2 border-t-2">
+            {/* <li className="pt-1 mt-1 pt-2 border-t-2">
               <div className="flex items-center">
                 <p className="text-sm font-semibold uppercase text-left mr-1">
                   Payment Mode:
@@ -363,7 +363,7 @@ const BookingFareDetails = ({ rides }) => {
                   </span>
                 </p>
               </div>
-            </li>
+            </li> */}
           </ul>
         </>
       )}

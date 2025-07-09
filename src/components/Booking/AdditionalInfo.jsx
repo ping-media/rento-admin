@@ -110,7 +110,11 @@ const AdditionalInfo = () => {
         <div className="w-full flex items-center justify-between text-sm text-gray-400">
           <p className="font-semibold mr-1">Booked From:</p>
           <p>
-            {vehicleMaster[0]?.bookedFrom === "web" ? "WEBSITE" : "APP" || "--"}
+            {vehicleMaster[0]?.bookedFrom === "web"
+              ? "WEBSITE"
+              : vehicleMaster[0]?.bookedFrom === "admin"
+              ? "ADMIN"
+              : "APP" || "--"}
           </p>
         </div>
       </div>
@@ -189,11 +193,6 @@ const AdditionalInfo = () => {
                   )
                 )}
               </ul>
-              // ) : (
-              //   <p className="text-sm text-gray-400 italic">
-              //     vehicle not extended yet.
-              //   </p>
-              // )
             )}
         </div>
       </div>

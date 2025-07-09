@@ -10,7 +10,7 @@ const BookingMoreInfo = ({ data, datatype }) => {
         <h2 className="font-semibold uppercase text-md">
           {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
         </h2>
-        <p className="text-sm text-gray-500">
+        <p className="text-md text-gray-500">
           {vehicleMaster[0]?.vehicleBasic?.vehicleNumber}
         </p>
       </div>
@@ -30,11 +30,11 @@ const BookingMoreInfo = ({ data, datatype }) => {
               } border-gray-300`}
               key={index}
             >
-              <span className="font-semibold text-sm uppercase">
+              <span className="font-semibold text-md uppercase">
                 {item?.key}
               </span>{" "}
               <span
-                className={`text-gray-500 flex items-center text-sm ${
+                className={`text-gray-500 flex items-center text-md ${
                   item?.key === "Email" ? "" : "capitalize"
                 }`}
               >
@@ -55,8 +55,8 @@ const BookingMoreInfo = ({ data, datatype }) => {
         vehicleMaster[0]?.extendBooking?.originalEndDate &&
         datatype === "moreInfo" && (
           <div className="flex justify-between items-center py-1.5 border-t-2 border-gray-300">
-            <span className="font-semibold text-sm uppercase">Finish On</span>
-            <span className="text-gray-500 flex items-center text-xs lg:text-sm capitalize">
+            <span className="font-semibold text-md uppercase">Finish On</span>
+            <span className="text-gray-500 flex items-center text-sm lg:text-md capitalize">
               {formatFullDateAndTime(vehicleMaster[0]?.BookingEndDateAndTime)}
             </span>
           </div>

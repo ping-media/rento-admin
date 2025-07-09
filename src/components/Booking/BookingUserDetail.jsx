@@ -58,9 +58,9 @@ const BookingUserDetails = ({ data, userId }) => {
           } border-gray-300`}
           key={index}
         >
-          <span className="font-semibold uppercase text-sm">{item?.key}</span>{" "}
+          <span className="font-semibold uppercase text-md">{item?.key}</span>{" "}
           <span
-            className={`text-gray-500 flex items-center text-sm ${
+            className={`text-gray-500 flex items-center text-md ${
               item?.key === "Email" ? "" : "capitalize"
             }`}
           >

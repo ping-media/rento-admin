@@ -18,7 +18,7 @@ const StatusChange = ({ item, column }) => {
           : item[column] === "failed"
           ? "bg-red-100 border-red-200"
           : "bg-red-50 border-red-100"
-      } rounded-md flex justify-center w-24 items-center uppercase gap-1`}
+      } rounded-md flex justify-center min-w-24 items-center uppercase gap-1`}
     >
       <svg
         width="5"
@@ -76,6 +76,10 @@ const StatusChange = ({ item, column }) => {
           ? item[column].replace("_", " ")
           : location.pathname === "/all-bookings" && item[column] === "done"
           ? "Booked"
+          : location.pathname === "/all-bookings" && column === "rideStatus"
+          ? item[column] === "pending"
+            ? "Not Started"
+            : item[column]
           : item[column]}
       </span>
     </div>

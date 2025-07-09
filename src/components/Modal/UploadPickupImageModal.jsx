@@ -106,36 +106,61 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
       finalFormData.get("PaymentMode") ||
       currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
 
-    let updatedBooking;
+    // let updatedBooking;
+    // if (!isChange) {
+    //   if (currentBooking?.paymentMethod?.toLowerCase() === "cash") {
+    //     updatedBooking = {
+    //       ...currentBooking,
+    //       bookingPrice: {
+    //         ...currentBooking.bookingPrice,
+    //         isPickupImageAdded: true,
+    //         payOnPickupMethod: updatePaymentMode || "cash",
+    //       },
+    //       paymentStatus: "paid",
+    //       rideStatus: "ongoing",
+    //     };
+    //   } else {
+    //     updatedBooking = {
+    //       ...currentBooking,
+    //       bookingPrice: {
+    //         ...currentBooking.bookingPrice,
+    //         isPickupImageAdded: true,
+    //         AmountLeftAfterUserPaid: {
+    //           ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
+    //           status: "paid",
+    //           paymentMethod:
+    //             updatePaymentMode ||
+    //             currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
+    //               ?.paymentMethod,
+    //         },
+    //       },
+    //       paymentStatus: "paid",
+    //       rideStatus: "ongoing",
+    //     };
+    //   }
+    // }
+    let updatedBooking = {
+      ...currentBooking,
+      bookingPrice: {
+        ...currentBooking?.bookingPrice,
+        isPickupImageAdded: true,
+      },
+      paymentStatus: "paid",
+      rideStatus: "ongoing",
+    };
+
     if (!isChange) {
       if (currentBooking?.paymentMethod?.toLowerCase() === "cash") {
-        updatedBooking = {
-          ...currentBooking,
-          bookingPrice: {
-            ...currentBooking.bookingPrice,
-            isPickupImageAdded: true,
-            payOnPickupMethod: updatePaymentMode || "cash",
-          },
-          paymentStatus: "paid",
-          rideStatus: "ongoing",
-        };
+        updatedBooking.bookingPrice.payOnPickupMethod =
+          updatePaymentMode || "cash";
       } else {
-        updatedBooking = {
-          ...currentBooking,
-          bookingPrice: {
-            ...currentBooking.bookingPrice,
-            isPickupImageAdded: true,
-            AmountLeftAfterUserPaid: {
-              ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
-              status: "paid",
-              paymentMethod:
-                updatePaymentMode ||
-                currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
-                  ?.paymentMethod,
-            },
-          },
-          paymentStatus: "paid",
-          rideStatus: "ongoing",
+        updatedBooking.bookingPrice.AmountLeftAfterUserPaid = {
+          ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
+          status: "paid",
+          paymentMethod:
+            updatePaymentMode ||
+            currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
+              ?.paymentMethod,
         };
       }
     }

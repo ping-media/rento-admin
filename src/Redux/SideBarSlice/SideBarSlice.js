@@ -23,6 +23,7 @@ const initialState = {
   isTestimonialModalActive: false,
   isSlidesModalActive: false,
   isRescheduleModalActive: false,
+  isAddonModalActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -113,6 +114,10 @@ const SideBarSlice = createSlice({
       state.isRescheduleModalActive =
         state.isRescheduleModalActive === false ? true : false;
     },
+    toggleAddonModal: (state) => {
+      state.isAddonModalActive =
+        state.isAddonModalActive === false ? true : false;
+    },
     toggleClearModals: () => initialState,
   },
 });
@@ -141,6 +146,7 @@ export const {
   toggleLicenseModal,
   toggleSelfieModal,
   toggleRescheduleModal,
+  toggleAddonModal,
 } = SideBarSlice.actions;
 
 export default SideBarSlice.reducer;

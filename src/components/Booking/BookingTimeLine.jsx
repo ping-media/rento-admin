@@ -22,6 +22,11 @@ const BookingTimeLine = () => {
           {!loading &&
             timeLineData != null &&
             timeLineData?.timeLine?.map((item, index) => {
+              const isBothDatesChange = item?.title?.includes("Rescheduled")
+                ? item?.newStartDate !== "" && item?.newEndDate !== ""
+                  ? true
+                  : false
+                : false;
               return (
                 <div
                   className={`${
@@ -91,6 +96,28 @@ const BookingTimeLine = () => {
                             </span>
                           </p>
                         )}
+                        {(item?.newStartDate || item?.newEndDate) && (
+                          <>
+                            <p className="text-gray-800 leading-tight text-xs">
+                              {isBothDatesChange &&
+                                "Booking Date(s) changes to"}
+                            </p>
+                            <p className="text-gray-800 leading-tight text-xs">
+                              {item?.newStartDate &&
+                                !isBothDatesChange &&
+                                "Booking Start Date Change to "}
+                              {item?.newStartDate &&
+                                formatFullDateAndTime(item?.newStartDate)}
+                            </p>
+                            <p className="text-gray-800 leading-tight text-xs">
+                              {item?.newEndDate &&
+                                !isBothDatesChange &&
+                                "Booking End Date Change to "}
+                              {item?.newEndDate &&
+                                formatFullDateAndTime(item?.newEndDate)}
+                            </p>
+                          </>
+                        )}
                         <p className="text-gray-700 leading-tight text-xs">
                           {typeof item?.date === "number" &&
                             formatMilliseconds(item?.date)}
@@ -114,13 +141,13 @@ const BookingTimeLine = () => {
                               </span>
                             )}
                         </h3>
-                        {item?.extended !== true && (
-                          <p
-                            className={`text-gray-700 leading-tight text-md font-semibold`}
-                          >
-                            ₹{formatPrice(item?.paymentAmount)}
-                          </p>
-                        )}
+                        {/* {item?.extended !== true && ( */}
+                        <p
+                          className={`text-gray-700 leading-tight text-md font-semibold`}
+                        >
+                          ₹{formatPrice(item?.paymentAmount || 0)}
+                        </p>
+                        {/* )} */}
                         {item?.changeToVehicle &&
                           item?.changeToVehicle != "" && (
                             <p className="text-gray-700 leading-tight text-xs">

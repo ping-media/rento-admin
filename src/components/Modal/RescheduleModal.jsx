@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleRescheduleModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Spinner from "../Spinner/Spinner";
 import DatePicker from "../DateTimePicker/DateTimePicker";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { parse, parseISO, format as Fromat } from "date-fns";
 import { format, formatInTimeZone } from "date-fns-tz";
@@ -50,29 +50,27 @@ const RescheduleModal = () => {
   );
 
   //   adding booking date and time in input field
-  useEffect(() => {
-    if (vehicleMaster?.length > 0) {
-      const pickupDate =
-        vehicleMaster[0]?.BookingStartDateAndTime.split("T")[0];
-      const pickupTime =
-        vehicleMaster[0]?.BookingStartDateAndTime.split("T")[1];
-      const dropoffDate = vehicleMaster[0]?.BookingEndDateAndTime.split("T")[0];
-      const dropoffTime = vehicleMaster[0]?.BookingEndDateAndTime.split("T")[1];
+  const bookingDetails = useMemo(() => {
+    if (!vehicleMaster?.[0]) return null;
+    const startDate = vehicleMaster[0].BookingStartDateAndTime;
+    const endDate = vehicleMaster[0].BookingEndDateAndTime;
 
-      if (pickupDate) {
-        setPickupDate(formatDateReadable(pickupDate));
-      }
-      if (dropoffDate) {
-        setDropoffDate(formatDateReadable(dropoffDate));
-      }
-      if (pickupTime) {
-        setPickupTime(formatTimeUTC(pickupTime));
-      }
-      if (dropoffTime) {
-        setDropoffTime(formatTimeUTC(dropoffTime));
-      }
-    }
+    return {
+      pickupDate: formatDateReadable(startDate?.split("T")[0]),
+      pickupTime: formatTimeUTC(startDate?.split("T")[1]),
+      dropoffDate: formatDateReadable(endDate?.split("T")[0]),
+      dropoffTime: formatTimeUTC(endDate?.split("T")[1]),
+    };
   }, [vehicleMaster]);
+
+  useEffect(() => {
+    if (bookingDetails) {
+      setPickupDate(bookingDetails.pickupDate);
+      setPickupTime(bookingDetails.pickupTime);
+      setDropoffDate(bookingDetails.dropoffDate);
+      setDropoffTime(bookingDetails.dropoffTime);
+    }
+  }, [bookingDetails]);
 
   //   updating the booking or Reschedule the booking
   const handleUpdateBooking = async (e) => {
@@ -105,7 +103,6 @@ const RescheduleModal = () => {
         token
       );
       if (response?.success) {
-        handleAsyncError(dispatch, "Reschedule Successfully", "success");
         let data = null;
         if (response?.isStartUpdate) {
           data = {
@@ -116,8 +113,9 @@ const RescheduleModal = () => {
         if (response?.isEndUpdate) {
           data = { ...data, BookingEndDateAndTime: dbBookingEndDateAndTime };
         }
+        handleAsyncError(dispatch, "Reschedule Successfully", "success");
         dispatch(updateBookingDates(data));
-        toggleRescheduleModal();
+        dispatch(toggleRescheduleModal());
       }
     } catch (error) {
       console.warn("Error while updating booking", error?.message);

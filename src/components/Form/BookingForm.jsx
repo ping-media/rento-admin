@@ -235,6 +235,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           oldBooking: [],
           transactionIds: [],
         },
+        bookedFrom: "admin",
         payInitFrom: result?.paymentMethod === "cash" ? "Cash" : "Razorpay",
         paySuccessId: "NA",
         paymentgatewayOrderId: "",

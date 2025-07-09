@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const TabButton = ({ options, tab, setTab }) => {
+const TabButton = ({ options, tab, setTab, padding = "p-1" }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -26,9 +26,9 @@ const TabButton = ({ options, tab, setTab }) => {
         <button
           key={item?.id}
           type="button"
-          className={`flex-1 z-10 p-1 font-semibold transition-colors duration-300 ${
+          className={`flex-1 z-10 font-semibold transition-colors duration-300 ${
             tab === item?.id ? "text-white" : "text-gray-800"
-          }`}
+          } ${padding}`}
           onClick={() => setTab(item?.id)}
         >
           {item.title}

@@ -150,9 +150,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
       bookingData?.bookingPrice?.extraAddonDetails &&
       bookingData?.bookingPrice?.extraAddonDetails?.length > 0
     ) {
+      const currentDate = new Date().toDateString();
+      const endDateOnly = endDate && endDate?.split("T")[0];
+      const isEndDatePass = currentDate && currentDate > endDateOnly;
       extraCharges = calculateTotalAddOnPrice(
         bookingData?.bookingPrice?.extraAddonDetails,
-        Number(daysLeft > 0 ? daysLeft : 1)
+        Number(daysLeft > 0 ? daysLeft : isEndDatePass ? daysLeft : 1)
       );
     }
     const finalBookingPrice = Number(extraCharges) + Number(bookingPrice);

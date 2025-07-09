@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import VehicleInfo from "../VehicleDetails/VehicleInfo";
-import { lazy, useEffect, useState } from "react";
+import { lazy, useMemo, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
   formatDateToISO,
@@ -32,88 +32,66 @@ const ExtendBookingModal = lazy(() =>
 const BookingDetail = ({ tabs }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { loggedInRole } = useSelector((state) => state.user);
-  const [data, setData] = useState(null);
   const [tab, setTab] = useState("booking");
   const dispatch = useDispatch();
 
   // combining data for use
-  useEffect(() => {
-    if (vehicleMaster?.length === 1) {
-      const data = {
-        user: [
-          {
-            key: "Full Name",
-            value:
-              (vehicleMaster[0] &&
-                `${vehicleMaster[0]?.userId?.firstName} ${vehicleMaster[0]?.userId?.lastName}`) ||
-              "",
-          },
-          {
-            key: "Mobile Number",
-            value:
-              (vehicleMaster[0] && vehicleMaster[0]?.userId?.contact) || "NA",
-          },
-          {
-            key: "Alt Mobile Number",
-            value:
-              (vehicleMaster[0] && vehicleMaster[0]?.userId?.altContact) ||
-              "NA",
-          },
-          {
-            key: "Email",
-            value:
-              (vehicleMaster[0] && vehicleMaster[0]?.userId?.email) ||
-              "example@gmail.com",
-          },
-          {
-            key: "Document Status",
-            value:
-              (vehicleMaster[0] && vehicleMaster[0]?.userId?.kycApproved) ||
-              "no",
-          },
-        ],
-        moreInfo: [
-          {
-            key: "Pick Up Location",
-            value: `${vehicleMaster && vehicleMaster[0]?.stationName}`,
-          },
-          {
-            key: "Drop Off Location",
-            value: `${vehicleMaster && vehicleMaster[0]?.stationName}`,
-          },
-          {
-            key: "Booking Date",
-            value: `${
-              vehicleMaster &&
-              formatFullDateAndTime(
-                vehicleMaster && vehicleMaster[0]?.BookingStartDateAndTime
-              )
-            }`,
-          },
-          {
-            key: "End Date",
-            value: `${
-              vehicleMaster &&
-              formatFullDateAndTime(
-                (vehicleMaster &&
-                  vehicleMaster[0]?.extendBooking?.oldBooking?.length > 0 &&
-                  vehicleMaster[0]?.extendBooking?.oldBooking[0]
-                    ?.BookingEndDateAndTime) ||
-                  (vehicleMaster && vehicleMaster[0]?.BookingEndDateAndTime)
-              )
-            }`,
-          },
-          {
-            key: "Extended End Date",
-            value: `${
-              vehicleMaster &&
-              formatFullDateAndTime(vehicleMaster[0]?.BookingEndDateAndTime)
-            }`,
-          },
-        ],
-      };
-      return setData(data);
-    }
+  const data = useMemo(() => {
+    if (!vehicleMaster?.[0]) return null;
+    const vm = vehicleMaster[0];
+    return {
+      user: [
+        {
+          key: "Full Name",
+          value: `${vm?.userId?.firstName} ${vm?.userId?.lastName}` || "",
+        },
+        {
+          key: "Mobile Number",
+          value: vm?.userId?.contact || "NA",
+        },
+        {
+          key: "Alt Mobile Number",
+          value: vm?.userId?.altContact || "NA",
+        },
+        {
+          key: "Email",
+          value: vm?.userId?.email || "example@gmail.com",
+        },
+        {
+          key: "Document Status",
+          value: vm?.userId?.kycApproved || "no",
+        },
+      ],
+      moreInfo: [
+        {
+          key: "Pick Up Location",
+          value: `${vehicleMaster && vm?.stationName}`,
+        },
+        {
+          key: "Drop Off Location",
+          value: `${vehicleMaster && vm?.stationName}`,
+        },
+        {
+          key: "Booking Date",
+          value: `${formatFullDateAndTime(vm?.BookingStartDateAndTime)}`,
+        },
+        {
+          key: "End Date",
+          value: `${
+            vehicleMaster &&
+            formatFullDateAndTime(
+              (vm?.extendBooking?.oldBooking?.length > 0 &&
+                vm?.extendBooking?.oldBooking[0]?.BookingEndDateAndTime) ||
+                vm?.BookingEndDateAndTime
+            )
+          }`,
+        },
+        {
+          key: "Extended End Date",
+          value: `${formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
+        },
+      ],
+    };
   }, [vehicleMaster]);
 
   return data != null ? (

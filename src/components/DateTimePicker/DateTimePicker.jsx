@@ -134,7 +134,7 @@ const DatePicker = ({
             <DayPicker
               selected={new Date(value)}
               onSelect={handleDateSelect}
-              disabled={{ before: new Date(value) }}
+              // disabled={{ before: new Date(value) }}
               mode="single"
               modifiersClassNames={{
                 selected: "bg-theme text-white rounded-full",

@@ -208,6 +208,9 @@ const RideEndModal = ({ id }) => {
         additionalPrice: Number(additionalPrice),
         paymentMode: result?.PaymentMode || "NA",
       };
+      const LateFeeAmount = data
+        ? data.lateFeeBasedOnHour + data.lateFeeBasedOnKM
+        : 0;
       // this is for preclosing the ride
       if (
         formatDateToISO(new Date()).replace(".000Z", "Z") <
@@ -232,6 +235,8 @@ const RideEndModal = ({ id }) => {
                 refundAmount > 0
                   ? "Booking Ended & Refunded"
                   : "Booking Completed",
+              paymentAmount: LateFeeAmount > 0 ? Number(LateFeeAmount) : 0,
+              paymentMode: result?.PaymentMode || "",
               date: Date.now(),
             },
           ],
@@ -402,7 +407,7 @@ const RideEndModal = ({ id }) => {
               lateFees?.lateFeeBasedOnHour > 0) && (
               <div className="text-left mb-2">
                 <SelectDropDown
-                  options={["cash", "online"]}
+                  options={["cash"]}
                   item="PaymentMode"
                   require={true}
                   isSearchEnable={false}
