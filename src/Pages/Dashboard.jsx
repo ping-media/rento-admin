@@ -77,7 +77,9 @@ const Dashboard = () => {
     [dasboardDataCount]
   );
 
-  if (loading) return <PreLoader />;
+  if (!token || loading || !dasboardDataCount?.dashboard) {
+    return <PreLoader />;
+  }
 
   if (!dataCountResult?.length) return <NotFound />;
 
