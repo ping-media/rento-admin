@@ -131,7 +131,7 @@ const Layout = () => {
         <DeleteModal />
 
         {/* Overlay backdrop when mobile drawer is open */}
-        {is_open && (
+        {!is_open && (
           <div
             className="fixed inset-0 z-40 bg-black/50 lg:hidden"
             onClick={() => dispatch(closeSideBar())}
@@ -141,7 +141,7 @@ const Layout = () => {
         {/* Mobile Sidebar */}
         <div
           className={`fixed top-0 left-0 z-50 w-[250px] h-full bg-white dark:bg-slate-900 shadow-lg transition-transform duration-300 ease-in-out lg:hidden ${
-            is_open ? "translate-x-0" : "-translate-x-full"
+            !is_open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <SideBar />

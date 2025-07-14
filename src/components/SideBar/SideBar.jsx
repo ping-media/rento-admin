@@ -20,7 +20,7 @@ const SideBar = () => {
         dispatch(toggleSideBar());
       }
     }
-  }, [window.location.href]);
+  }, [location.pathname]);
 
   return (
     <div className="shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200">
@@ -79,7 +79,15 @@ const SideBar = () => {
                 return <SideBarDropDown item={item} key={index} />;
               } else {
                 return (
-                  <Link to={`${item?.menuLink}`} key={index}>
+                  <Link
+                    to={`${item?.menuLink}`}
+                    key={index}
+                    onClick={() => {
+                      if (isMobile) {
+                        dispatch(toggleSideBar());
+                      }
+                    }}
+                  >
                     <li
                       className={`px-4 py-1.5 group capitalize text-sm ${
                         location.pathname.includes(
@@ -121,4 +129,4 @@ const SideBar = () => {
   );
 };
 
-export default React.memo(SideBar);
+export default SideBar;
