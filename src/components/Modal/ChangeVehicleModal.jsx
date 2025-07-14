@@ -17,7 +17,7 @@ import {
   handleChangesInBooking,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
-import { updateTimeLineForPayment } from "../../Data/Function";
+// import { updateTimeLineForPayment } from "../../Data/Function";
 import SelectDropDownVehicle from "../../components/InputAndDropdown/SelectDropDownVehicle";
 import PriceList from "../../components/Form/VehicleComponents/PriceList";
 
@@ -99,7 +99,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const changeToNewVehicle = freeVehicles?.find(
       (item) => item?._id == vehicleId
     );
-    console.log(changeToNewVehicle);
+
     const NewVehicleHavePlan =
       (changeToNewVehicle?.vehiclePlan?.length > 0 &&
         changeToNewVehicle?.vehiclePlan) ||
@@ -177,12 +177,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const finalDiffAmount = diffAmount <= 0 ? 0 : Math.round(diffAmount);
     const refundAmount = diffAmount < 0 ? Math.abs(diffAmount) : 0;
 
-    console.log(
-      bookingData?.bookingPrice?.extraAddonDetails,
-      extraCharges,
-      daysLeft
-    );
-
     const data = {
       _id: bookingData?._id,
       vehicleMasterId: changeToNewVehicle?.vehicleMasterId,
@@ -191,7 +185,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
       vehicleBrand: changeToNewVehicle?.vehicleBrand,
       vehicleName: changeToNewVehicle?.vehicleName,
       bookingPrice: {
-        ...bookingData.bookingPrice,
         bookingPrice: bookingPrice,
         vehiclePrice: bookingPrice,
         tax: tax,
@@ -216,6 +209,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
             rideStatus: false,
           },
         ],
+        extraAddonDetails: bookingData?.bookingPrice?.extraAddonDetails,
+        extraAddonPrice: bookingData?.bookingPrice?.extraAddonPrice,
         extendAmount: bookingData?.bookingPrice?.extendAmount,
       },
       changeVehicle: {
@@ -257,11 +252,16 @@ const ChangeVehicleModal = ({ bookingData }) => {
     // const formData = new FormData(event.target);
     // const otp = formData.get("OTP");
     // if (!otp) return handleAsyncError(dispatch, "Please provide otp first!");
+    const vehiclePriceArray = selectedVehicle?.bookingPrice?.diffAmount || [];
+    const vehicleData = vehiclePriceArray[vehiclePriceArray.length - 1] || null;
 
     const data = {
       ...selectedVehicle,
       // otp,
       contact: bookingData?.userId?.contact,
+      finalAmount: vehicleData?.amount || 0,
+      ChangeId: vehicleData?.id || 0,
+      refundAmount: vehicleData?.refundAmount || 0,
     };
 
     // console.log(data);
@@ -272,20 +272,15 @@ const ChangeVehicleModal = ({ bookingData }) => {
     try {
       setFormLoading(true);
       const response = await postData("/vehicleChange", data, token);
-      if (response?.status === 200) {
+      if (response?.success) {
         // updating the redux state
         const { firstName, managerContact, ...updatedSelectedVehicle } =
           selectedVehicle;
         dispatch(handleChangesInBooking(updatedSelectedVehicle));
-        // pushing the data for upating the timeline
-        const timeLineData = await updateTimeLineForPayment(
-          data,
-          token,
-          "Vehicle Changed",
-          `From (${vehicleMaster[0]?.vehicleBasic?.vehicleNumber}) to (${selectedVehicle?.vehicleBasic?.vehicleNumber})`
-        );
         // for updating timeline redux data
-        dispatch(updateTimeLineData(timeLineData));
+        if (response?.timeLine) {
+          dispatch(updateTimeLineData(response.timeLine));
+        }
         handleAsyncError(dispatch, "vehicle Change Successfully", "success");
         return dispatch(toggleChangeVehicleModal());
       } else {
@@ -430,6 +425,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
                       bookingData={bookingData}
                       isGSTActive={isGSTActive}
                       selectedVehicle={selectedVehicle}
+                      forNew={true}
                     />
                   </ul>
                   {selectedVehicle &&

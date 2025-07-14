@@ -3,7 +3,16 @@ import { toggleAddonModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Spinner from "../Spinner/Spinner";
 import { useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { formatPrice } from "../../utils/index";
+import {
+  calculateTotalAddOnPrice,
+  formatPrice,
+  getDurationBetweenDates,
+} from "../../utils/index";
+import { postData } from "../../Data/index";
+import {
+  updateBookingPrice,
+  updateTimeLineData,
+} from "../../Redux/VehicleSlice/VehicleSlice";
 
 const AddonModal = () => {
   const dispatch = useDispatch();
@@ -12,48 +21,70 @@ const AddonModal = () => {
   const { extraAddOn } = useSelector((state) => state.general);
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
-  const [selectedAddOns, setSelectedAddOns] = useState([]);
+  const [selectedAddOns, setSelectedAddOns] = useState(
+    vehicleMaster[0]?.bookingPrice?.extraAddonDetails || []
+  );
 
   //   updating the booking or Reschedule the booking
   const handleUpdateBooking = async (e) => {
     e.preventDefault();
     setFormLoading(true);
-    const formData = new FormData(e.target);
-    const result = Object.fromEntries(formData.entries());
     const bookingId = vehicleMaster[0]?._id;
+    const booking = vehicleMaster?.[0];
 
     try {
       if (!bookingId) {
         handleAsyncError(dispatch, "Unable to update booking! try again.");
+        setFormLoading(false);
         return;
       }
 
-      //   console.log(selectedAddOns);
+      if (selectedAddOns?.length === 0) {
+        handleAsyncError(dispatch, "Atleast select one option.");
+        setFormLoading(false);
+        return;
+      }
 
-      //   const response = await postData(
-      //     "/reschedule-booking",
-      //     {
-      //       _id: bookingId,
-      //       BookingStartDateAndTime: dbBookingStartDateAndTime,
-      //       BookingEndDateAndTime: dbBookingEndDateAndTime,
-      //     },
-      //     token
-      //   );
-      //   if (response?.success) {
-      //     let data = null;
-      //     if (response?.isStartUpdate) {
-      //       data = {
-      //         ...data,
-      //         BookingStartDateAndTime: dbBookingStartDateAndTime,
-      //       };
-      //     }
-      //     if (response?.isEndUpdate) {
-      //       data = { ...data, BookingEndDateAndTime: dbBookingEndDateAndTime };
-      //     }
-      //     handleAsyncError(dispatch, "Reschedule Successfully", "success");
-      //     dispatch(updateBookingDates(data));
-      //     dispatch(toggleRescheduleModal());
-      //   }
+      const bookingDuration = getDurationBetweenDates(
+        booking?.BookingStartDateAndTime,
+        booking?.BookingEndDateAndTime
+      );
+
+      const uniqueAddOns = [];
+
+      selectedAddOns.filter((item) => {
+        const exists = booking?.bookingPrice?.extraAddonDetails?.some(
+          (existing) => existing._id === item._id
+        );
+        if (!exists) {
+          uniqueAddOns.push(item);
+        }
+      });
+
+      if (uniqueAddOns.length === 0) {
+        handleAsyncError(dispatch, "Selected add-ons already exist.");
+        setFormLoading(false);
+        return;
+      }
+
+      const newExtraAddonPrice = Math.round(
+        Number(calculateTotalAddOnPrice(uniqueAddOns, bookingDuration?.days))
+      );
+
+      const data = {
+        _id: bookingId,
+        addOn: uniqueAddOns,
+        totalAddOnPrice: newExtraAddonPrice,
+      };
+
+      const response = await postData("/edit-booking", data, token);
+      if (response?.success) {
+        const { data, timeLineData } = response;
+        handleAsyncError(dispatch, "Booking Edit Successfully", "success");
+        dispatch(updateBookingPrice(data));
+        dispatch(updateTimeLineData(timeLineData));
+        dispatch(toggleAddonModal());
+      }
     } catch (error) {
       console.warn("Error while updating booking", error?.message);
       handleAsyncError(dispatch, "Unable to reschedule booking! try again");

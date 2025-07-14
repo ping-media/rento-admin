@@ -65,7 +65,12 @@ const ExtendSummary = ({ appliedPlans, daysBreakdown, item }) => {
   );
 };
 
-const RideSummary = ({ appliedPlans, daysBreakdown, item }) => {
+const RideSummary = ({
+  appliedPlans,
+  daysBreakdown,
+  item,
+  mainBookingDuration,
+}) => {
   const weekend =
     daysBreakdown?.length > 0
       ? daysBreakdown?.filter((day) => day.isWeekend === true)
@@ -84,6 +89,9 @@ const RideSummary = ({ appliedPlans, daysBreakdown, item }) => {
               Main Booking
             </span>
             <span className="text-sm font-semibold mx-1">:</span>
+            <span className="text-sm font-semibold">
+              {mainBookingDuration} Day(s)
+            </span>
           </div>
         </div>
         <div>

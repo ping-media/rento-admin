@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Button from "../../Buttons/Button";
 import React, { useMemo, useState } from "react";
 import {
-  // toggleAddonModal,
+  toggleAddonModal,
   toggleBookingExtendModal,
   toggleChangeVehicleModal,
   togglePickupImageModal,
@@ -133,9 +133,9 @@ const BookingDetailsButton = ({
         />
       )}
 
-      {/* {booking?.rideStatus === "pending" && (
+      {booking?.rideStatus === "pending" && (
         <Button title={"Add-On"} fn={() => dispatch(toggleAddonModal())} />
-      )} */}
+      )}
 
       <Button
         title={"Send Reminder"}

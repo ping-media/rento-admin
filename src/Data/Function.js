@@ -644,7 +644,7 @@ const updateTimeLineForPayment = async (
   title,
   isvehicleNumbers = ""
 ) => {
-  const { _id, extendAmount, bookingPrice, bookingId } = data;
+  const { _id, extendAmount, bookingPrice } = data;
 
   const finalAmount =
     (extendAmount && extendAmount?.amount) ||
@@ -652,47 +652,17 @@ const updateTimeLineForPayment = async (
       Number(
         bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.amount
       ));
-  // creating order id for the payment when finalAmount is greater than 0
-  let orderId = "";
-  if (finalAmount > 0) {
-    let generateOrderId = await postDataWithRetry(
-      "/createOrderId",
-      { amount: finalAmount, booking_id: bookingId },
-      token
-    );
-    if (generateOrderId?.status === "created") {
-      orderId = generateOrderId?.id;
-    } else {
-      return "unable to update timeline for booking";
-    }
-  }
-  const baseUrl = import.meta.env.VITE_FRONTEND_URL;
-  const isChange = isvehicleNumbers !== "" ? "change" : "extend";
+  const refundAmount =
+    bookingPrice?.diffAmount?.length > 0
+      ? bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]
+          ?.refundAmount
+      : 0;
+
   const paymentId =
     (isvehicleNumbers === "" && extendAmount?.id) ||
     (isvehicleNumbers !== "" &&
       bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.id) ||
     0;
-
-  // encoding the data before creating a link
-  const payload = {
-    id: _id,
-    order: orderId,
-    for: isChange,
-    paymentId: paymentId,
-    finalAmount: finalAmount,
-  };
-
-  // requesting jwt token here from backend
-  const encodePayload = await postDataWithRetry(
-    "/GeneratePaymentToken",
-    { payload: payload },
-    token
-  );
-
-  // creating payment link only when amount is greater than 0
-  const paymentLink =
-    finalAmount > 0 ? `${baseUrl}/payment/${encodePayload?.token}` : "";
 
   // updating the timeline for booking
   const timeLineData = {
@@ -701,12 +671,10 @@ const updateTimeLineForPayment = async (
       {
         title: title,
         date: Date.now(),
-        PaymentLink: paymentLink,
         paymentAmount: finalAmount,
         changeToVehicle: isvehicleNumbers || "",
+        refundAmount: refundAmount > 0 ? refundAmount : 0,
         id: paymentId,
-        extendDate:
-          isChange === "extend" ? extendAmount?.bookingEndDateAndTime : "",
       },
     ],
   };

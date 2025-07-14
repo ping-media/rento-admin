@@ -120,6 +120,7 @@ const UpdateBookingPayment = ({ id }) => {
             key: `${currentUser?.firstName} (${currentUser?.userType})`,
             value: result?.note,
             noteType: "general",
+            createdAt: Date.now(),
           },
         };
       }
@@ -149,7 +150,7 @@ const UpdateBookingPayment = ({ id }) => {
         handleCloseModal();
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
-        const { _id, ...dataForRedux } = data;
+        const { _id, Note, ...dataForRedux } = data;
         return dispatch(handleUpdateDateForPayment(dataForRedux));
       }
       if (isUpdate !== true)

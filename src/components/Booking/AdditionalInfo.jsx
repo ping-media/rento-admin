@@ -14,6 +14,15 @@ const AdditionalInfo = () => {
       ]
     : null;
 
+  const booking = vehicleMaster?.[0];
+  const startDate = booking?.BookingStartDateAndTime;
+  const isExtend = booking?.bookingPrice?.extendAmount?.length > 0;
+  const endDate = isExtend
+    ? booking?.bookingPrice?.extendAmount[0]?.BookingStartDateAndTime
+    : vehicleMaster[0]?.BookingEndDateAndTime;
+
+  const mainBookingDuration = getDurationInDays(startDate, endDate);
+
   return (
     <>
       {/* ride otp's  */}
@@ -175,6 +184,7 @@ const AdditionalInfo = () => {
               daysBreakdown={vehicleMaster[0]?.bookingPrice?.daysBreakdown}
               appliedPlans={vehicleMaster[0]?.bookingPrice?.appliedPlan}
               item={vehicleMaster[0]?.bookingPrice}
+              mainBookingDuration={mainBookingDuration}
             />
           )}
 

@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useIsMobile } from "../../utils";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { menuList } from "./menuList";
 import SideBarDropDown from "./SideBarDropDown";
 import rentoLogo from "../../assets/logo/rento-full-red.png";
@@ -121,4 +121,4 @@ const SideBar = () => {
   );
 };
 
-export default SideBar;
+export default React.memo(SideBar);

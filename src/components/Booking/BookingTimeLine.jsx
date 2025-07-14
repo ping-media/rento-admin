@@ -135,19 +135,39 @@ const BookingTimeLine = () => {
                         >
                           {item?.title}
                           {item?.extended !== true &&
-                            item?.PaymentLink != "" && (
+                            item?.PaymentLink &&
+                            item?.PaymentLink !== "" && (
                               <span className="ml-1">
                                 <CopyButton textToCopy={item?.PaymentLink} />
                               </span>
                             )}
                         </h3>
-                        {/* {item?.extended !== true && ( */}
-                        <p
-                          className={`text-gray-700 leading-tight text-md font-semibold`}
-                        >
-                          ₹{formatPrice(item?.paymentAmount || 0)}
-                        </p>
-                        {/* )} */}
+                        {(!item?.refundAmount ||
+                          (item?.refundAmount && item?.refundAmount === 0)) && (
+                          <>
+                            <p
+                              className={`text-gray-700 leading-tight text-md font-semibold`}
+                            >
+                              ₹{formatPrice(item?.paymentAmount || 0)}
+                            </p>
+                            {item?.paymentAmount > 0 && (
+                              <p className="text-sm lg:text-xs text-theme">
+                                Amount need to pay by customer
+                              </p>
+                            )}
+                          </>
+                        )}
+                        {item?.refundAmount > 0 && (
+                          <>
+                            <p className="text-gray-700 leading-tight text-md font-semibold">
+                              ₹{formatPrice(item.refundAmount)}
+                            </p>
+                            <p className="text-sm lg:text-xs text-theme">
+                              Amount Refunded
+                            </p>
+                          </>
+                        )}
+
                         {item?.changeToVehicle &&
                           item?.changeToVehicle != "" && (
                             <p className="text-gray-700 leading-tight text-xs">

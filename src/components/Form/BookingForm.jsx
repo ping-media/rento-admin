@@ -261,14 +261,14 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       );
 
       if (result?.paymentMethod === "cash") {
-        if (response?.status === 200) {
+        if (bookingResponse?.status === 200) {
           handleAsyncError(dispatch, "Ride booked successfully", "success");
           navigate(
             `/all-bookings/details/${bookingResponse?.data?._id}_${bookingResponse?.data?.bookingId}`
           );
           return;
         } else {
-          handleAsyncError(dispatch, response?.message);
+          handleAsyncError(dispatch, bookingResponse?.message);
         }
       } else if (["online", "partiallyPay"].includes(paymentMethodStatus)) {
         const { orderId, booking_id, payableAmount } = bookingResponse.data;

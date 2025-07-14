@@ -65,6 +65,15 @@ const vehicleSlice = createSlice({
         ...(state.maintenanceData.data || []),
       ];
     },
+    updateBookingPrice: (state, action) => {
+      state.vehicleMaster[0] = {
+        ...state.vehicleMaster[0],
+        bookingPrice: {
+          ...state.vehicleMaster[0].bookingPrice,
+          ...action.payload,
+        },
+      };
+    },
     handleIsHeaderChecked: (state, action) => {
       state.isHeaderChecked = action.payload;
     },
@@ -395,6 +404,7 @@ export const {
   startMaintenanceLoading,
   addMaintenanceData,
   updateMaintenanceData,
+  updateBookingPrice,
   resetMaintenanceData,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

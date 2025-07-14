@@ -7,12 +7,26 @@ const PriceList = ({
   isGSTActive,
   selectedVehicle,
   extendBooking,
+  forNew = false,
 }) => {
   return (
     <>
       {options.map((key, index) => {
         if (!isGSTActive && key === "tax") {
           return null;
+        }
+
+        if (!bookingData?.bookingPrice[key]) {
+          return null;
+        }
+
+        if (!forNew) {
+          if (
+            bookingData?.bookingPrice?.discountTotalPrice > 0 &&
+            key !== "discountTotalPrice"
+          ) {
+            return null;
+          }
         }
 
         const value = selectedVehicle
