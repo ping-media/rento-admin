@@ -1,5 +1,6 @@
 import CountUp from "react-countup";
 import { Link } from "react-router-dom";
+import { camelCaseToSpaceSeparated } from "../../utils/index";
 
 const InfoCard = ({ item }) => {
   return (
@@ -10,7 +11,9 @@ const InfoCard = ({ item }) => {
             <span>{item?.icon}</span>
           </div>
           <div>
-            <p className="text-semibold text-gray-400 text-sm">{item?.title}</p>
+            <p className="text-semibold text-gray-400 text-sm uppercase">
+              {camelCaseToSpaceSeparated(item?.title)}
+            </p>
             <h1 className="lg:text-xl font-bold text-center lg:text-start">
               {item?.title?.includes("REVENUE") ? "₹" : ""}
               <CountUp className="ml-1" end={item?.count} />

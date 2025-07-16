@@ -52,7 +52,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
               {maxFiles.map((_, fileIndex) => (
                 <th
                   scope="col"
-                  className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                  className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
                   key={`Images-${fileIndex}`}
                 >
                   {`Images ${fileIndex + 1}`}
@@ -71,7 +71,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             return (
               <th
                 scope="col"
-                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
                 key={item}
               >
                 {label}
@@ -84,7 +84,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           return (
             <th
               scope="col"
-              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               key={"userId"}
             >
               {location.pathname == "/station-master" ? "Manager" : "User"}
@@ -96,7 +96,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             <React.Fragment key={"userPaymentRecived"}>
               <th
                 scope="col"
-                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               >
                 Payment Recived
               </th>
@@ -114,7 +114,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           return (
             <th
               scope="col"
-              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               key={"openingHour"}
             >
               Opening Hours
@@ -130,7 +130,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             return (
               <th
                 scope="col"
-                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
                 key={"userId"}
               >
                 User Name & Phone
@@ -146,7 +146,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           return (
             <th
               scope="col"
-              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               key={
                 item === "BookingStartDateAndTime"
                   ? "startAndEndDate"
@@ -163,7 +163,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           return (
             <th
               scope="col"
-              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               key="UserVerification"
             >
               Verified
@@ -183,7 +183,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
         return (
           <th
             scope="col"
-            className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+            className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
             key={index}
             onClick={() => sortData(item)}
           >
@@ -202,7 +202,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
       ).map((item, index) => (
         <th
           scope="col"
-          className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+          className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
           key={`Status-${index}`}
           onClick={() => sortData(item)}
         >
@@ -223,7 +223,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
         loggedInRole !== "manager" && (
           <th
             scope="col"
-            className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+            className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
             key="Actions"
           >
             Actions

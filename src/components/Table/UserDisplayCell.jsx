@@ -22,11 +22,15 @@ const UserDisplayCell = ({ item, firstName, lastName, Contact }) => {
 
   return (
     <td
-      className="px-2 py-1 whitespace-nowrap text-sm leading-5 font-medium text-gray-900 capitalize text-left"
+      className="px-2 py-1 whitespace-nowrap text-sm leading-5 font-medium text-gray-900 capitalize text-left max-w-32"
       key={item?._id}
       onClick={(e) => e.stopPropagation()}
     >
-      <p className={shouldLink ? "hover:text-theme hover:underline" : ""}>
+      <p
+        className={
+          shouldLink ? "hover:text-theme truncate hover:underline" : ""
+        }
+      >
         <Link to={shouldLink ? `/all-users/${userId}` : "#"}>
           {`${displayFirstName} ${displayLastName}`}
         </Link>

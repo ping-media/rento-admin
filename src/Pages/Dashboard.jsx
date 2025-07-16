@@ -57,7 +57,7 @@ const Dashboard = () => {
         key !== "Amount"
           ? key === "bookingsCount"
             ? "TOTAL BOOKINGS"
-            : key.replace(/Count$/, "").toUpperCase()
+            : key.replace(/Count$/, "")
           : "TOTAL REVENUE",
       icon:
         key === "bookingsCount" ? (

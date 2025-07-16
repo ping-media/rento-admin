@@ -524,6 +524,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       "address",
                                       "vehicleName",
                                       "email",
+                                      "stationName",
                                     ].includes(column)
                                       ? "max-w-32 truncate"
                                       : "whitespace-nowrap"
