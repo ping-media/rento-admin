@@ -7,6 +7,7 @@ import {
 import { toggleClearVehicle } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { handleAsyncError } from "./Helper/handleAsyncError";
 import { createTransform } from "redux-persist";
+import { format } from "date-fns";
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -778,9 +779,17 @@ const getRoundedDateTime = (daysToAdd = 0) => {
   return `${year}-${month}-${date}T${hours}:${minutes}`;
 };
 
+const millisecToReadableFormat = (timestamp) => {
+  if (!timestamp) return;
+
+  const formatted = format(new Date(timestamp), "MMM dd, yyyy, hh:mm a");
+  return formatted;
+};
+
 export {
   formatDate,
   useIsMobile,
+  millisecToReadableFormat,
   timeStampUserFormated,
   handleKeyDown,
   handleSignOutUser,

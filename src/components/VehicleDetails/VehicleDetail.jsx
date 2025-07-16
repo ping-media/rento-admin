@@ -12,12 +12,7 @@ import { tableIcons } from "../../Data/Icons";
 import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import MaintenanceTable from "../../components/Table/MaintenanceTable";
 import Tooltip from "../../components/Tooltip/Tooltip";
-// import {
-//   addSchedule,
-//   startLoading,
-//   stopLoading,
-// } from "../../Redux/MaintenanceSlice/MaintenanceSlice";
-// import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import BackButton from "../../components/Buttons/BackButton";
 const AddVehicleForServiceModal = lazy(() =>
   import("../../components/Modal/AddVehicleForServiceModal")
 );
@@ -66,9 +61,12 @@ const VehicleDetail = () => {
         <>
           <AddVehicleForServiceModal />
           <div className="flex items-center flex-wrap gap-2 lg:gap-0 justify-between mb-3">
-            <h1 className="text-2xl uppercase font-bold text-theme">
-              Vehicle Details
-            </h1>
+            <div className="flex items-center gap-2">
+              <BackButton />
+              <h1 className="text-2xl uppercase font-bold text-theme">
+                Vehicle Details
+              </h1>
+            </div>
             <div className="flex items-center gap-2">
               <button
                 className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
@@ -91,9 +89,6 @@ const VehicleDetail = () => {
           <div className="mt-5">
             <div className="flex gap-4 flex-wrap">
               <div className="bg-white shadow-md rounded-xl w-full lg:w-2/5 px-6 py-4">
-                {/* <h2 className="mb-3 text-xl font-semibold text-gray-500">
-                  Vehicle Infomation
-                </h2> */}
                 <div className="mb-5">
                   <VehicleInfo {...vehicleMaster[0]} />
                 </div>

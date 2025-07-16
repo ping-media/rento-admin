@@ -4,9 +4,8 @@ import { useSelector } from "react-redux";
 import CopyButton from "../../components/Buttons/CopyButton";
 import {
   formatFullDateAndTime,
-  formatMilliseconds,
   formatPrice,
-  removeSecondsFromDateAndTime,
+  millisecToReadableFormat,
 } from "../../utils/index";
 
 const BookingTimeLine = () => {
@@ -15,7 +14,7 @@ const BookingTimeLine = () => {
 
   return (
     <>
-      <div className="container mx-auto py-2">
+      <div className="container mx-auto py-4">
         {loading && <PreLoader />}
         <div className="relative wrap overflow-hidden">
           <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-1/2"></div>
@@ -35,31 +34,18 @@ const BookingTimeLine = () => {
                     )
                       ? ""
                       : "mb-2"
-                  } flex justify-between ${
-                    index === 0
-                      ? "items-start"
-                      : index === timeLineData?.timeLine?.length - 1
-                      ? "items-end"
-                      : "items-center"
-                  } w-full ${
-                    (index + 1) % 2 === 0
-                      ? "right-timeline"
-                      : "flex-row-reverse left-timeline"
-                  }`}
+                  } flex justify-between items-center w-full`}
                   key={index}
                 >
-                  <div className="order-1 w-5/12"></div>
-                  <div className="z-10 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative">
-                    {/* {index + 1 === timeLineData?.timeLine?.length &&
-                      !item?.title?.includes("Completed") && (
-                        <div className="absolute top-0 bottom-0 w-full h-full rounded-full bg-theme animate-ping"></div>
-                      )} */}
+                  <div className="order-1 w-5/12 text-right">
+                    <p className="text-gray-700 leading-tight">
+                      {typeof item?.date === "number" &&
+                        millisecToReadableFormat(item?.date)}
+                    </p>
                   </div>
-                  <div
-                    className={`order-1 w-5/12 ${
-                      (index + 1) % 2 === 0 ? "text-left" : "text-right"
-                    }`}
-                  >
+
+                  <div className="z-10 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative"></div>
+                  <div className="order-1 w-5/12 text-left">
                     {!(
                       item?.title?.includes("Link") ||
                       item?.title?.includes("Extended") ||
@@ -118,20 +104,11 @@ const BookingTimeLine = () => {
                             </p>
                           </>
                         )}
-                        <p className="text-gray-700 leading-tight text-xs">
-                          {typeof item?.date === "number" &&
-                            formatMilliseconds(item?.date)}
-                          {/* {removeSecondsFromDateAndTime(item?.date)} */}
-                        </p>
                       </>
                     ) : (
                       <div>
                         <h3
-                          className={`mb-1 font-bold text-gray-800 text-sm flex ${
-                            (index + 1) % 2 === 0
-                              ? "justify-start"
-                              : "justify-end"
-                          }`}
+                          className={`mb-1 font-bold text-gray-800 text-sm flex justify-start`}
                         >
                           {item?.title}
                           {item?.extended !== true &&
@@ -186,9 +163,6 @@ const BookingTimeLine = () => {
                               formatFullDateAndTime(item?.extendDate)}
                           </p>
                         )}
-                        <p className="text-gray-700 leading-tight text-xs">
-                          {removeSecondsFromDateAndTime(item?.date)}
-                        </p>
                       </div>
                     )}
                   </div>

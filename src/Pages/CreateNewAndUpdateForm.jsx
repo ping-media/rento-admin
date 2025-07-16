@@ -77,7 +77,7 @@ const CreateNewAndUpdateForm = () => {
         <div className="flex items-center gap-2">
           {/* back button visiable on mobile screen  */}
           <button
-            className="flex lg:hidden items-center gap-1 p-1 rounded-lg hover:bg-theme hover:text-gray-100"
+            className="flex items-center gap-1 p-1 rounded-lg hover:bg-theme hover:text-gray-100"
             type="button"
             onClick={() => handlePreviousPage(navigate)}
           >

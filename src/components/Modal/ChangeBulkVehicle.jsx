@@ -160,10 +160,10 @@ const ChangeBulkVehicle = () => {
     <div
       className={`fixed ${
         !isVehicleUpdateModalActive ? "hidden" : ""
-      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4`}
+      } z-40 inset-0 bg-gray-900 bg-opacity-60 h-full w-full px-4`}
     >
-      <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-xl max-h-[30rem] overflow-y-scroll no-scrollbar">
-        <div className="flex justify-between p-2">
+      <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-xl min-h-[30rem]">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Update Vehicles
           </h2>
@@ -190,7 +190,7 @@ const ChangeBulkVehicle = () => {
           </button>
         </div>
 
-        <p className="px-4 mb-2 text-xs text-gray-400 italic">
+        <p className="px-4 mb-2 pt-2 text-xs text-gray-400 italic">
           <span className="font-semibold">Note:</span> (Only put value for those
           you want to change price leave other fields empty.)
         </p>
@@ -237,7 +237,7 @@ const ChangeBulkVehicle = () => {
             </div>
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
+              className="bg-theme px-4 py-2 text-gray-100 gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 flex items-center justify-center w-full mt-3"
               disabled={
                 formLoading || planMasterLoading || tempLoading?.loading
               }

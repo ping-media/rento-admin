@@ -234,7 +234,7 @@ const BookingFareDetails = ({ rides }) => {
                     <p className="text-sm font-semibold uppercase text-left">
                       Amount Paid
                     </p>
-                    <p className="text-sm font-bold text-right text-theme">
+                    <p className="text-sm font-bold text-right">
                       {`- ₹${formatPrice(rides?.bookingPrice?.userPaid)}`}
                     </p>
                   </li>
@@ -250,7 +250,7 @@ const BookingFareDetails = ({ rides }) => {
                         )
                       </small>
                     </p>
-                    <p className="text-sm font-bold text-right">
+                    <p className="text-sm font-bold text-theme text-right">
                       {`₹${formatPrice(
                         rides?.bookingPrice.AmountLeftAfterUserPaid?.amount ||
                           rides?.bookingPrice.AmountLeftAfterUserPaid
@@ -351,19 +351,6 @@ const BookingFareDetails = ({ rides }) => {
                 (need to pay at pickup and will be refunded after drop)
               </p>
             </li>
-            {/* payment mode  */}
-            {/* <li className="pt-1 mt-1 pt-2 border-t-2">
-              <div className="flex items-center">
-                <p className="text-sm font-semibold uppercase text-left mr-1">
-                  Payment Mode:
-                </p>
-                <p className="text-sm text-gray-400 uppercase">
-                  <span className="border px-2 py-1 bg-green-400/20 border-teal-500 text-gray-500/90 rounded">
-                    {rides?.paymentMethod}
-                  </span>
-                </p>
-              </div>
-            </li> */}
           </ul>
         </>
       )}

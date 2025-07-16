@@ -130,6 +130,9 @@ const forms = {
 const bookingSearchList = [
   { label: "All", value: "all" },
   { label: "Booking Id", value: "bookingId" },
+  // { label: "Name", value: "fullName" },
+  // { label: "Phone Number", value: "contact" },
+  { label: "Vehicle Number", value: "vehicleNumber" },
 ];
 
 const blockReasonList = [

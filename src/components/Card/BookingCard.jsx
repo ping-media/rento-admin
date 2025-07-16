@@ -13,7 +13,7 @@ const BookingCard = ({ item }) => {
       <div className="bg-white rounded-md shadow-md px-2 py-2 mb-5">
         {/* top header for booking */}
         <div className="flex items-center justify-between pb-1 mb-1 border-b-2">
-          <p className="text-sm">#{item?.bookingId}</p>
+          <p className="text-md">#{item?.bookingId}</p>
           <div className="flex items-center gap-1">
             <StatusChange item={item} column={"rideStatus"} />
             <StatusChange item={item} column={"bookingStatus"} />

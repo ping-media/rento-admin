@@ -72,11 +72,11 @@ const BookingDetail = ({ tabs }) => {
           value: `${vehicleMaster && vm?.stationName}`,
         },
         {
-          key: "Booking Date",
+          key: "Booking Start",
           value: `${formatFullDateAndTime(vm?.BookingStartDateAndTime)}`,
         },
         {
-          key: "End Date",
+          key: "Booking End",
           value: `${
             vehicleMaster &&
             formatFullDateAndTime(
@@ -87,7 +87,7 @@ const BookingDetail = ({ tabs }) => {
           }`,
         },
         {
-          key: "Extended End Date",
+          key: "Extended Booking End",
           value: `${formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
         },
       ],

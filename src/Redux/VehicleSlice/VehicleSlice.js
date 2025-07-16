@@ -173,6 +173,24 @@ const vehicleSlice = createSlice({
         data,
       };
     },
+    handleChangesAfterVehicleChange: (state, action) => {
+      const updatedData = action.payload;
+      state.vehicleMaster[0] = {
+        ...state.vehicleMaster[0],
+        ...updatedData,
+        bookingPrice: {
+          ...updatedData?.bookingPrice,
+        },
+        vehicleBasic: {
+          ...state.vehicleMaster[0]?.vehicleBasic,
+          ...updatedData?.vehicleBasic,
+        },
+        changeVehicle: {
+          ...(state.vehicleMaster[0]?.changeVehicle || {}),
+          ...updatedData?.changeVehicle,
+        },
+      };
+    },
     handleUpdateNotes: (state, action) => {
       state.vehicleMaster[0] = {
         ...state.vehicleMaster[0],
@@ -406,5 +424,6 @@ export const {
   updateMaintenanceData,
   updateBookingPrice,
   resetMaintenanceData,
+  handleChangesAfterVehicleChange,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

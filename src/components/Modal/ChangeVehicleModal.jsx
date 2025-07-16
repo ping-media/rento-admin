@@ -14,7 +14,7 @@ import {
 import PreLoader from "../../components/Skeleton/PreLoader";
 import Spinner from "../../components/Spinner/Spinner";
 import {
-  handleChangesInBooking,
+  handleChangesAfterVehicleChange,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 // import { updateTimeLineForPayment } from "../../Data/Function";
@@ -264,9 +264,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
       refundAmount: vehicleData?.refundAmount || 0,
     };
 
-    // console.log(data);
-    // return;
-
     if (!data)
       return handleAsyncError(dispatch, "unable to change vehicle! try again.");
     try {
@@ -274,9 +271,16 @@ const ChangeVehicleModal = ({ bookingData }) => {
       const response = await postData("/vehicleChange", data, token);
       if (response?.success) {
         // updating the redux state
-        const { firstName, managerContact, ...updatedSelectedVehicle } =
-          selectedVehicle;
-        dispatch(handleChangesInBooking(updatedSelectedVehicle));
+        const {
+          firstName,
+          managerContact,
+          contact,
+          finalAmount,
+          ChangeId,
+          refundAmount,
+          ...updatedSelectedVehicle
+        } = data;
+        dispatch(handleChangesAfterVehicleChange(updatedSelectedVehicle));
         // for updating timeline redux data
         if (response?.timeLine) {
           dispatch(updateTimeLineData(response.timeLine));

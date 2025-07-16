@@ -11,7 +11,7 @@ const ExtendSummary = ({ appliedPlans, daysBreakdown, item }) => {
       : [];
 
   return (
-    <div className="bg-theme/10 p-1 mb-1 rounded-md">
+    <div className="p-1 mb-1 rounded-md">
       <div className="w-full flex items-center justify-between">
         <div>
           <div>
@@ -81,7 +81,7 @@ const RideSummary = ({
       : [];
 
   return (
-    <div className="bg-theme/10 p-1 mb-1 rounded-md">
+    <div className="p-1 mb-1 rounded-md">
       <div className="w-full flex items-center justify-between">
         <div>
           <div>
@@ -113,12 +113,15 @@ const RideSummary = ({
         {appliedPlans?.length > 0 && (
           <>
             <span>
-              {appliedPlans[0]?.days} Days Package: ₹
-              {appliedPlans[0]?.planPrice}{" "}
-              {appliedPlans[0]?.count > 1 && `x ${appliedPlans[0]?.count}`}
+              {appliedPlans[0]?.days} Days Package ₹{appliedPlans[0]?.planPrice}{" "}
+              {`x ${appliedPlans[0]?.count}`}
             </span>
             <span
-              className={`mx-2 ${weekend?.length > 0 ? "inline" : "hidden"}`}
+              className={`mx-2 ${
+                weekend?.length > 0 || weekDays?.length > 0
+                  ? "inline"
+                  : "hidden"
+              }`}
             >
               |
             </span>
@@ -138,7 +141,7 @@ const RideSummary = ({
         )}
         {weekDays?.length > 0 && (
           <span>
-            Week ₹{weekDays[0]?.dailyRate} x {weekDays?.length}
+            Weekday ₹{weekDays[0]?.dailyRate} x {weekDays?.length}
           </span>
         )}
       </div>

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { togglePickupImageModal } from "../../Redux/SideBarSlice/SideBarSlice";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postData } from "../../Data";
 import Spinner from "../Spinner/Spinner";
@@ -40,11 +40,11 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const [loading, setLoading] = useState(false);
   const [isKycApproved, setIsKycApproved] = useState(false);
 
-  const diffData = vehicleMaster?.[0]?.bookingPrice?.diffAmount
-    ? vehicleMaster[0]?.bookingPrice?.diffAmount[
-        vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
-      ]
-    : null;
+  const diffData = useMemo(() => {
+    const list = vehicleMaster?.[0]?.bookingPrice?.diffAmount || [];
+    return list.length > 0 ? list[list.length - 1] : null;
+  }, [vehicleMaster]);
+
   const isChange =
     (diffData !== null && diffData?.rideStatus === false ? true : false) ||
     false;
@@ -273,6 +273,10 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     { title: "others" },
   ];
 
+  const isAllImagesUploaded = useMemo(() => {
+    return Object.values(imagesUrl).every((val) => val !== "");
+  }, [imagesUrl]);
+
   return (
     <div
       className={`fixed ${
@@ -280,7 +284,10 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white max-w-xl">
-        <div className="flex justify-end p-2">
+        <div className="flex justify-between p-2">
+          <h2 className="text-theme font-semibold text-lg uppercase">
+            Add Add-On
+          </h2>
           <button
             onClick={handleClearAndClose}
             type="button"
@@ -321,11 +328,6 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                 </button>
               </div>
             )}
-            <div className="mb-2">
-              <p className="text-gray-400 text-xs text-left italic">
-                Note: (All six images are required.)
-              </p>
-            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-2">
               {rideVehicleImages.map((item, index) => (
                 <div key={index}>
@@ -420,9 +422,9 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
               </div>
             </div>
             <button
-              className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+              className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-theme/60"
               type="submit"
-              disabled={loading}
+              disabled={loading || !isAllImagesUploaded}
             >
               {!loading ? "Start Ride" : <Spinner message={"updating..."} />}
             </button>

@@ -94,7 +94,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-lg">
-        <div className="flex justify-between p-2">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Shedule Maintenance
           </h2>
@@ -119,7 +119,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
+        <div className="p-6 pt-2 text-center">
           <form onSubmit={handleSendVehicleToService}>
             <div className="mb-2">
               <Input
@@ -153,7 +153,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
             </div> */}
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
+              className="bg-theme px-4 py-2 text-gray-100 gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full flex items-center justify-center"
               disabled={maintenanceLoading}
             >
               {!maintenanceLoading ? (

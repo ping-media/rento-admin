@@ -121,7 +121,7 @@ const BookingDetailsButton = ({
         booking?.rideStatus == "completed"
       ) && (
         <Button
-          title={"Extend Booking"}
+          title={"Extend Ride"}
           fn={() => dispatch(toggleBookingExtendModal())}
         />
       )}
