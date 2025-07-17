@@ -24,6 +24,7 @@ const initialState = {
   isSlidesModalActive: false,
   isRescheduleModalActive: false,
   isAddonModalActive: false,
+  isStationAndVehicleModalActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -39,6 +40,10 @@ const SideBarSlice = createSlice({
     toggleTestimonialModal: (state) => {
       state.isTestimonialModalActive =
         state.isTestimonialModalActive === true ? false : true;
+    },
+    toggleStationAndVehicleModal: (state) => {
+      state.isStationAndVehicleModalActive =
+        state.isStationAndVehicleModalActive === true ? false : true;
     },
     toggleSlidesModal: (state) => {
       state.isSlidesModalActive =
@@ -146,6 +151,7 @@ export const {
   toggleLicenseModal,
   toggleSelfieModal,
   toggleRescheduleModal,
+  toggleStationAndVehicleModal,
   toggleAddonModal,
 } = SideBarSlice.actions;
 

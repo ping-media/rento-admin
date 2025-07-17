@@ -51,6 +51,13 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
                 value={id && vehicleMaster?.[0]?.vehicleBrand}
                 require={true}
               />
+              <SelectDropDown
+                item={"status"}
+                options={["active", "inactive"]}
+                value={id && vehicleMaster?.[0]?.status}
+                require={true}
+                isSearchEnable={false}
+              />
             </div>
           </div>
           <div className="w-full lg:flex-1">

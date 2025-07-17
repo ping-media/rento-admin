@@ -315,7 +315,7 @@ const handleCreateAndUpdateVehicle = async (
     dispatch(removeTempIds());
   }
 
-  // if someone bymistake pass brand in vehicleName too in that case replace the remove the brand from vehicleName
+  // if someone bymistake pass brand in vehicleName too in that case remove the brand from vehicleName
   if (
     location?.pathname.includes("/vehicle-master/") &&
     result.vehicleName &&

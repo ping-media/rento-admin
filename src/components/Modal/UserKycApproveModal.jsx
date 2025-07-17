@@ -162,12 +162,6 @@ const UserKycApproveModal = () => {
               (userDocument && userDocument[0]?.files?.length > 0) ||
               (userDocument && userDocument?.files) ? (
                 userDocument[0]?.files?.map((item) => {
-                  // if (index % 2 !== 0) {
-                  //   return null;
-                  // }
-                  // if (item.fileName?.includes("Selfie")) {
-                  //   return null;
-                  // }
                   return (
                     <div className="mb-3 w-20" key={item?._id}>
                       <PhotoView

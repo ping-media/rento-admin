@@ -19,13 +19,14 @@ function useFetch(url, dispatchFn) {
       setError(null);
 
       try {
-        const response = await getData(url, token);
-        if (!response.ok) {
+        let endpoint = url;
+        const response = await getData(endpoint, token);
+        if (response.status !== 200) {
           return handleAsyncError(dispatch, response?.message);
         }
-        const result = response?.data;
+        const result = response?.data || [];
         if (isMounted) {
-          dispatchFn && dispatch(dispatchFn(result));
+          if (dispatchFn) dispatch(dispatchFn(result));
           setData(result);
         }
       } catch (err) {
@@ -42,11 +43,11 @@ function useFetch(url, dispatchFn) {
     fetchData();
 
     return () => {
-      isMounted = false; // Cleanup
+      isMounted = false;
     };
   }, [url, token, dispatch, dispatchFn]);
 
-  return { data, error, hookLoading };
+  return { data, error, hookLoading, token };
 }
 
 export default useFetch;

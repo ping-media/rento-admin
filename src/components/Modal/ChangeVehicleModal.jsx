@@ -17,7 +17,6 @@ import {
   handleChangesAfterVehicleChange,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
-// import { updateTimeLineForPayment } from "../../Data/Function";
 import SelectDropDownVehicle from "../../components/InputAndDropdown/SelectDropDownVehicle";
 import PriceList from "../../components/Form/VehicleComponents/PriceList";
 

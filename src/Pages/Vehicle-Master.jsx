@@ -12,6 +12,9 @@ const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
 const AddVehicleForServiceModal = lazy(() =>
   import("../components/Modal/AddVehicleForServiceModal")
 );
+const VehicleStationModal = lazy(() =>
+  import("../components/Modal/StationModal")
+);
 
 const VehicleMaster = () => {
   const dispatch = useDispatch();
@@ -77,6 +80,7 @@ const VehicleMaster = () => {
       {/* filters and sorting  */}
       <FilterSideBar />
       {location.pathname === "/all-vehicles" && <AddVehicleForServiceModal />}
+      {location.pathname === "/vehicle-master" && <VehicleStationModal />}
       {/* table data  */}
       <CustomTableComponent
         Data={vehicleMaster?.data}

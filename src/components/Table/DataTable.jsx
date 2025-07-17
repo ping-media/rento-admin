@@ -550,6 +550,8 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 (location?.pathname === "/all-vehicles" &&
                                   column.includes("vehicleStatus")) ||
                                 (location?.pathname === "/station-master" &&
+                                  column.includes("status")) ||
+                                (location?.pathname === "/vehicle-master" &&
                                   column.includes("status"));
 
                               const statusKey = `status-${item._id}-${column}-${columnIndex}-${index}`;

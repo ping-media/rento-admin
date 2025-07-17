@@ -15,6 +15,7 @@ const vehicleSlice = createSlice({
     blockVehicleId: "",
     blockLoading: false,
     tempIds: [],
+    tempData: null,
     maintenanceIds: [],
     maintenanceLoading: false,
     tempLoading: { loading: false, operation: "" },
@@ -34,6 +35,9 @@ const vehicleSlice = createSlice({
     fetchVehicleSuccess: (state, action) => {
       state.loading = false;
       state.Vehicle = action.payload;
+    },
+    addOrRemoveTempData: (state, action) => {
+      state.tempData = action.payload;
     },
     fetchVehicleMasterData: (state, action) => {
       state.vehicleMaster = action.payload;
@@ -425,5 +429,6 @@ export const {
   updateBookingPrice,
   resetMaintenanceData,
   handleChangesAfterVehicleChange,
+  addOrRemoveTempData,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;
