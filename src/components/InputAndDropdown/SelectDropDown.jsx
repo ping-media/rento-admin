@@ -121,7 +121,7 @@ const SelectDropDown = ({
       ? isDisabled
         ? `No ${title[item] || item} Found`
         : `Select ${
-            camelCaseToSpaceSeparated(title[item]) ||
+            camelCaseToSpaceSeparated(placeholder || title[item]) ||
             camelCaseToSpaceSeparated(placeholder || item)
           }`
       : getLabel(matchedOption);
@@ -193,7 +193,7 @@ const SelectDropDown = ({
               {isDisabled
                 ? `No ${title[item] || item} Found`
                 : `Select ${
-                    camelCaseToSpaceSeparated(title[item]) ||
+                    camelCaseToSpaceSeparated(placeholder || title[item]) ||
                     camelCaseToSpaceSeparated(placeholder || item)
                   }`}
             </div>

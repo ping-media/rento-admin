@@ -76,6 +76,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               value={id && vehicleMaster[0]?.locationId}
               setCity={setCityValue}
               require={true}
+              placeholder={"City"}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -106,7 +107,6 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            {/* sending lat & long in backend  */}
             <input
               type="hidden"
               name="latitude"
@@ -122,6 +122,11 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               name="mapLink"
               value={id ? vehicleMaster[0]?.mapLink || mapUrl : mapUrl}
             />
+            <input
+              type="hidden"
+              name="city"
+              value={id ? vehicleMaster[0]?.mapLink || cityValue : cityValue}
+            />
             {/* seaching address & lat & long  */}
             <GoogleSearchLocation
               item={"address"}
@@ -129,13 +134,6 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               setLongitude={setLongitude}
               setUrl={setMapUrl}
               value={id && vehicleMaster[0]?.address}
-            />
-          </div>
-          <div className="w-full lg:w-[48%]">
-            <Input
-              item={"city"}
-              value={id ? vehicleMaster[0]?.city : cityValue}
-              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
