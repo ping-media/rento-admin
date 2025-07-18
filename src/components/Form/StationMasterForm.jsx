@@ -18,12 +18,12 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [mapUrl, setMapUrl] = useState("");
+  const [cityValue, setCityValue] = useState("");
   const { token } = useSelector((state) => state.user);
   const { id } = useParams();
 
   const fetchCollectedData = async (locationUrl, stationUrl) => {
     const locationResponse = await getData(
-      // endPointBasedOnKey[locationUrl],
       `${endPointBasedOnKey[locationUrl]}?fetchAll=true`,
       token
     );
@@ -60,9 +60,11 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <InputSearch
               item={"User"}
+              placeholder={"Select Manager"}
               name={"userId"}
               token={token}
               value={id ? vehicleMaster[0]?.userId?.[0]?._id : ""}
+              require={true}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -72,6 +74,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
                 (location) => location?.locationStatus !== "inactive"
               )}
               value={id && vehicleMaster[0]?.locationId}
+              setCity={setCityValue}
               require={true}
             />
           </div>
@@ -81,6 +84,8 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               type="time"
               value={id && formatHourToTime(vehicleMaster[0]?.openStartTime)}
               require={true}
+              placeholder={"Select Station Open Time"}
+              isFull={false}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -89,6 +94,8 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               type="time"
               value={id && formatHourToTime(vehicleMaster[0]?.openEndTime)}
               require={true}
+              placeholder={"Select Station Close Time"}
+              isFull={false}
             />
           </div>
           <div className="w-full lg:w-[48%]">
@@ -127,7 +134,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <Input
               item={"city"}
-              value={id && vehicleMaster[0]?.city}
+              value={id ? vehicleMaster[0]?.city : cityValue}
               require={true}
             />
           </div>

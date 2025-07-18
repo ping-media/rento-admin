@@ -24,7 +24,8 @@ const AddonModal = () => {
 
   const url = debouncedValue
     ? `/getStationData?search=${debouncedValue}&page=1&limit=10`
-    : `/getStationData?page=1&limit=10`;
+    : null;
+
   const { data, hookLoading, token } = useFetch(url);
 
   const [selectedStation, setSelectedStation] = useState([]);
@@ -37,9 +38,6 @@ const AddonModal = () => {
       let stationId = [];
       selectedStation.map((station) => stationId.push(station.stationId));
       const newData = { ...tempData, stationId, all: isAll };
-
-      //   console.log(newData);
-      //   return;
 
       const response = await postData(
         `/updateVehicleMasterwithVehicles?_id=${tempData._id}`,
@@ -81,7 +79,7 @@ const AddonModal = () => {
         !isStationAndVehicleModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-md">
+      <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-md">
         <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Select Station

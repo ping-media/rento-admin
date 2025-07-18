@@ -10,6 +10,7 @@ import PreLoader from "../Skeleton/PreLoader";
 
 const InputSearch = ({
   item,
+  placeholder,
   value = "",
   type = "text",
   disabled = false,
@@ -82,7 +83,8 @@ const InputSearch = ({
         htmlFor={name}
         className="block text-gray-800 font-semibold text-sm capitalize"
       >
-        Enter {item} {require && <span className="text-red-500">*</span>}
+        {placeholder || `Enter ${item}`}{" "}
+        {require && <span className="text-red-500">*</span>}
       </label>
       <div className="mt-2">
         <input type="hidden" name={name} value={userId} />
@@ -100,7 +102,7 @@ const InputSearch = ({
             item == "vehicleNumber" ? inputValue.toUpperCase() : inputValue
           }
           onChange={(e) => handleSelectUser(e)}
-          placeholder={`${item}`}
+          placeholder={`${placeholder || item}`}
           disabled={disabled}
           required={require}
           autoComplete="off"
@@ -129,7 +131,7 @@ const InputSearch = ({
                     .map((item) => (
                       <li
                         key={item._id}
-                        className="my-2 cursor-pointer text-gray-500"
+                        className="my-2 cursor-pointer text-gray-500 w-full"
                         onClick={() => handleSelectUserById(item)}
                       >
                         {item.firstName} {item.lastName} | {item.contact} |{" "}

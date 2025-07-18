@@ -25,9 +25,11 @@ const Input = ({
   isCapital = true,
   isPassword = false,
   isbtn = false,
+  isLabel = true,
   btnFn,
   btnLabel,
   btnLoading,
+  isFull = true,
   btnDisable,
 }) => {
   const [inputValue, setInputValue] = useState(value);
@@ -125,19 +127,24 @@ const Input = ({
         </button>
       )}
       {/* main input  */}
-      <label
-        htmlFor={item}
-        className="block text-gray-800 font-semibold text-sm capitalize text-left"
-      >
-        Enter{" "}
-        {placeholder ||
-          (item?.includes("Proof")
-            ? camelCaseToSpaceSeparated(item).replace("Proof", "")
-            : item?.includes("_For")
-            ? camelCaseToSpaceSeparated(item).replace("_For", "")
-            : camelCaseToSpaceSeparated(item))}{" "}
-        {require && <span className="text-red-500">*</span>}
-      </label>
+      {isLabel && (
+        <label
+          htmlFor={item}
+          className="block text-gray-800 font-semibold text-sm capitalize text-left"
+        >
+          {!isFull
+            ? placeholder
+            : `Enter ${
+                placeholder ||
+                (item?.includes("Proof")
+                  ? camelCaseToSpaceSeparated(item).replace("Proof", "")
+                  : item?.includes("_For")
+                  ? camelCaseToSpaceSeparated(item).replace("_For", "")
+                  : camelCaseToSpaceSeparated(item))
+              }`}{" "}
+          {require && <span className="text-red-500">*</span>}
+        </label>
+      )}
       <div className="mt-2">
         <input
           type={type}
@@ -173,6 +180,7 @@ const Input = ({
           }`}
           disabled={disabled}
           required={require}
+          step="3600"
         />
         {isPassword && (
           <button

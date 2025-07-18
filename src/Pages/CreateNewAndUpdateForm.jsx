@@ -77,7 +77,7 @@ const CreateNewAndUpdateForm = () => {
         <div className="flex items-center gap-2">
           {/* back button visiable on mobile screen  */}
           <button
-            className="flex items-center gap-1 p-1 rounded-lg hover:bg-theme hover:text-gray-100"
+            className="flex items-center gap-1 p-1 rounded-lg"
             type="button"
             onClick={() => handlePreviousPage(navigate)}
           >
@@ -101,6 +101,8 @@ const CreateNewAndUpdateForm = () => {
               ? `${id ? "Edit" : "Add"} Coupon`
               : location.pathname.includes("/location-master/")
               ? `${id ? "Edit" : "Add"} City`
+              : location.pathname.includes("/station-master/")
+              ? `${id ? "Edit" : "Add"} Station`
               : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
                   location.pathname
                 )}`}

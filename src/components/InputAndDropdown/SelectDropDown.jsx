@@ -14,6 +14,7 @@ const SelectDropDown = ({
   placeholder,
   isSearchEnable = true,
   zIndex = "z-10",
+  setCity,
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
   const [openDirection, setOpenDirection] = useState("bottom");
@@ -31,11 +32,12 @@ const SelectDropDown = ({
 
   const isDisabled = !options || options.length === 0;
 
-  const handleChangeValue = (selectedValue) => {
-    setInputSelect(selectedValue);
+  const handleChangeValue = (selectedValueId, selectedValue) => {
+    setInputSelect(selectedValueId);
+    setCity && setCity(selectedValue);
     setIsOpen(false);
-    if (setIsLocationSelected) setIsLocationSelected(selectedValue);
-    if (onChangeFn) onChangeFn(selectedValue);
+    if (setIsLocationSelected) setIsLocationSelected(selectedValueId);
+    if (onChangeFn) onChangeFn(selectedValueId);
   };
 
   useEffect(() => {
@@ -113,15 +115,6 @@ const SelectDropDown = ({
     return String(label).toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  // const displayLabel =
-  //   inputSelect === "default" || !inputSelect
-  //     ? isDisabled
-  //       ? `No ${title[item] || item} Found`
-  //       : `Select ${
-  //           camelCaseToSpaceSeparated(title[item]) ||
-  //           camelCaseToSpaceSeparated(placeholder || item)
-  //         }`
-  //     : getLabel(options.find((o) => getValue(o) === inputSelect));
   const matchedOption = options?.find((o) => getValue(o) === inputSelect);
   const displayLabel =
     !matchedOption || inputSelect === "default"
@@ -170,9 +163,6 @@ const SelectDropDown = ({
               ? "bg-gray-300 bg-opacity-30 cursor-not-allowed"
               : "bg-white cursor-pointer"
           } text-gray-800 capitalize focus:outline-none focus:ring-0`}
-          // onClick={() => {
-          //   if (!isDisabled) setIsOpen((prev) => !prev);
-          // }}
           onClick={toggleDropDown}
         >
           {displayLabel}
@@ -210,7 +200,7 @@ const SelectDropDown = ({
             {filteredOptions?.map((opt, i) => (
               <div
                 key={getValue(opt) + i}
-                onClick={() => handleChangeValue(getValue(opt))}
+                onClick={() => handleChangeValue(getValue(opt), getLabel(opt))}
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer capitalize"
               >
                 {getLabel(opt)}

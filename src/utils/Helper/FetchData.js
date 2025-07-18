@@ -15,6 +15,11 @@ function useFetch(url, dispatchFn) {
 
     let isMounted = true;
     const fetchData = async () => {
+      if (url === null) {
+        setData([]);
+        return;
+      }
+
       setHookLoading(true);
       setError(null);
 

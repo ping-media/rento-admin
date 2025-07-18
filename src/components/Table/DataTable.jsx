@@ -127,6 +127,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "drivingLicence",
           "paymentUpdates",
           "lastMeterReading",
+          "mapLink",
           // "userId",
         ].includes(key)
     );
