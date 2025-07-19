@@ -10,7 +10,10 @@ import {
   toggleRideEndModal,
 } from "../../../Redux/SideBarSlice/SideBarSlice";
 import GenerateInvoiceButton from "../../Table/GenerateInvoiceButton";
-import { formatDateToISO } from "../../../utils/index";
+import {
+  formatDateToISO,
+  formatDateToISOWithoutSecond,
+} from "../../../utils/index";
 import { postData } from "../../../Data/index";
 import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
 import { addTempVehicleData } from "../../../Redux/VehicleSlice/VehicleSlice";
@@ -160,14 +163,21 @@ const BookingDetailsButton = ({
         <Button title={"Add-On"} fn={() => dispatch(toggleAddonModal())} />
       )}
 
-      <Button
-        title={"Change Vehicle"}
-        fn={() => dispatch(toggleChangeVehicleModal())}
-        disabled={
-          formatDateToISO(new Date()).replace(".000Z", "Z") <
-          booking?.BookingStartDateAndTime
-        }
-      />
+      {!(
+        booking?.rideStatus === "completed" ||
+        booking?.bookingStatus === "canceled" ||
+        booking?.BookingEndDateAndTime <
+          formatDateToISOWithoutSecond(new Date())
+      ) && (
+        <Button
+          title={"Change Vehicle"}
+          fn={() => dispatch(toggleChangeVehicleModal())}
+          disabled={
+            formatDateToISO(new Date()).replace(".000Z", "Z") <
+            booking?.BookingStartDateAndTime
+          }
+        />
+      )}
 
       <Button
         title={"Send Reminder"}
