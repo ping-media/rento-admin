@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import Button from "../../Buttons/Button";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   toggleAddonModal,
   toggleBookingExtendModal,
@@ -20,6 +20,7 @@ const BookingDetailsButton = ({
   handleCancelBooking,
   vehicleLoading,
 }) => {
+  const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const [reminderLoading, setReminderLoading] = useState(false);
   const [loadingStates, setLoadingStates] = useState({});
   const { token } = useSelector((state) => state.user);
@@ -45,6 +46,28 @@ const BookingDetailsButton = ({
     dispatch(addTempVehicleData(booking));
     dispatch(togglePickupImageModal());
   };
+
+  // this will triggr the start ride modal after vehicle change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (vehicleLoading || !booking || !diffData) return;
+
+      if (isChange) {
+        handleStartRideAndAddImages();
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [booking, diffData, vehicleLoading, isChange]);
+
+  // make modal state goes to default state
+  useEffect(() => {
+    return () => {
+      if (isUploadPickupImageActive === true) {
+        dispatch(togglePickupImageModal());
+      }
+    };
+  }, []);
 
   // for sending remainder
   const handleSendRemainder = async () => {
@@ -138,6 +161,15 @@ const BookingDetailsButton = ({
       )}
 
       <Button
+        title={"Change Vehicle"}
+        fn={() => dispatch(toggleChangeVehicleModal())}
+        disabled={
+          formatDateToISO(new Date()).replace(".000Z", "Z") <
+          booking?.BookingStartDateAndTime
+        }
+      />
+
+      <Button
         title={"Send Reminder"}
         fn={handleSendRemainder}
         disable={
@@ -146,16 +178,6 @@ const BookingDetailsButton = ({
         }
         loading={reminderLoading}
         customLoadingMessage="sending"
-      />
-
-      <Button
-        title={"Change Vehicle"}
-        fn={() => dispatch(toggleChangeVehicleModal())}
-        disabled={
-          formatDateToISO(new Date()).replace(".000Z", "Z") <
-          booking?.BookingStartDateAndTime
-        }
-        isHidden={"lg:hidden"}
       />
 
       {booking?.bookingStatus !== "canceled" &&

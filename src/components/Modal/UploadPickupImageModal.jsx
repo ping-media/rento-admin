@@ -11,11 +11,10 @@ import {
 import Input from "../InputAndDropdown/Input";
 import { useNavigate } from "react-router-dom";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
-import SelectDropDown from "../InputAndDropdown/SelectDropDown";
 
 const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
   const { tempVehicleData, vehicleMaster } = useSelector(
     (state) => state.vehicles
   );
@@ -286,13 +285,13 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
       <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white max-w-xl">
         <div className="flex justify-between p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
-            Add Add-On
+            Start Ride
           </h2>
           <button
             onClick={handleClearAndClose}
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
-            disabled={loading}
+            disabled={loading || (loggedInRole === "manager" && isChange)}
           >
             <svg
               className="w-5 h-5"
@@ -340,6 +339,8 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                     isUpload={true}
                     userId={userId}
                     isDisableRemove={loading}
+                    customImageText={item?.title}
+                    isLabel={false}
                     name="image"
                   />
                 </div>
@@ -355,41 +356,27 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                     value={vehicleMaster[0]?.paymentStatus}
                     name="paymentStatus"
                   />
-                  <div className="w-full lg:w-[48%]">
-                    <Input
-                      type="number"
-                      value={
-                        (vehicleMaster[0]?.paymentMethod === "cash"
-                          ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice >
-                            0
-                            ? Number(
-                                vehicleMaster[0]?.bookingPrice
-                                  ?.discountTotalPrice
-                              )
-                            : Number(vehicleMaster[0]?.bookingPrice?.totalPrice)
-                          : Number(
-                              vehicleMaster[0]?.bookingPrice
-                                ?.AmountLeftAfterUserPaid?.amount
-                            ) ||
-                            Number(
-                              vehicleMaster[0]?.bookingPrice
-                                ?.AmountLeftAfterUserPaid
-                            )) || 0
-                      }
-                      item="remainingPayment"
-                      require={true}
-                      disabled={true}
-                    />
-                  </div>
-                  <div className="text-left w-full lg:w-[48%]">
-                    <SelectDropDown
-                      options={["cash"]}
-                      item="PaymentMode"
-                      value="cash"
-                      require={true}
-                      isSearchEnable={false}
-                    />
-                  </div>
+                  <input
+                    type="hidden"
+                    name="remainingPayment"
+                    value={
+                      (vehicleMaster[0]?.paymentMethod === "cash"
+                        ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice > 0
+                          ? Number(
+                              vehicleMaster[0]?.bookingPrice?.discountTotalPrice
+                            )
+                          : Number(vehicleMaster[0]?.bookingPrice?.totalPrice)
+                        : Number(
+                            vehicleMaster[0]?.bookingPrice
+                              ?.AmountLeftAfterUserPaid?.amount
+                          ) ||
+                          Number(
+                            vehicleMaster[0]?.bookingPrice
+                              ?.AmountLeftAfterUserPaid
+                          )) || 0
+                    }
+                  />
+                  <input type="hidden" name="PaymentMode" value="cash" />
                 </div>
               )}
             <div className="flex items-center flex-wrap gap-4 mb-3">
@@ -397,8 +384,9 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                 <Input
                   type="number"
                   item="startMeterReading"
-                  placeholder={"start Reading"}
+                  placeholder={"Enter start Reading"}
                   require={true}
+                  isLabel={false}
                 />
               </div>
               {isChange && (
@@ -407,8 +395,9 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                     type="number"
                     item="EndMeterReading"
                     name="oldVehicleEndMeterReading"
-                    placeholder={"End Reading"}
+                    placeholder={"Enter End Reading"}
                     require={true}
+                    isLabel={false}
                   />
                 </div>
               )}
@@ -416,8 +405,9 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                 <Input
                   type="number"
                   item="rideOtp"
-                  placeholder={"Otp"}
+                  placeholder={"Enter Otp"}
                   require={true}
+                  isLabel={false}
                 />
               </div>
             </div>

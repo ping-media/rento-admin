@@ -5,6 +5,7 @@ import {
   resetBookingVehicleName,
   setBookingVehicleName,
 } from "../../Redux/PaginationSlice/PaginationSlice";
+import { useAutoFocus } from "../../utils/Helper/useAutoFocus";
 
 const SelectDropDownVehicle = ({
   item,
@@ -23,6 +24,7 @@ const SelectDropDownVehicle = ({
   const searchInputRef = useRef(null);
   const debounceTimerRef = useRef(null);
   const dispatch = useDispatch();
+  useAutoFocus(searchInputRef, isOpen);
 
   const handleOptionClick = (val) => {
     if (inputSelect === val._id) {

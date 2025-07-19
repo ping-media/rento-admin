@@ -128,6 +128,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "paymentUpdates",
           "lastMeterReading",
           "mapLink",
+          "mobileToken",
           // "userId",
         ].includes(key)
     );
@@ -301,7 +302,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
         } mt-5`}
       >
         <div className="flex flex-col">
-          <div className=" overflow-x-auto pb-4 no-scrollbar">
+          <div className=" overflow-x-auto pb-4">
             <div className="min-w-full inline-block align-middle">
               <div className="overflow-hidden border shadow-lg rounded-lg border-gray-200 w-full">
                 <table className="table-auto min-w-full rounded-xl">

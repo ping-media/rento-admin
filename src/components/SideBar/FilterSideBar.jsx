@@ -5,15 +5,15 @@ import FilterRadioInput from "./FilterRadioInput";
 import { getData } from "../../Data/index";
 import { fetchVehicleMasterData } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { formatDateToISO } from "../../utils/index";
 import {
   resetVehiclesFilter,
-  // setMaintenanceType,
   setSearch,
   setVehicleName,
 } from "../../Redux/PaginationSlice/PaginationSlice";
+import { useClickOutside } from "../../utils/Helper/useClickOutside";
 
 const FilterSideBar = () => {
   const dispatch = useDispatch();
@@ -26,6 +26,7 @@ const FilterSideBar = () => {
   const [loading, setLoading] = useState(false);
   const [filterState, setFilterState] = useState("All");
   const [formLoading, setFormLoading] = useState(false);
+  const sideBarRef = useRef(null);
 
   const todaysDate = formatDateToISO(new Date())
     .replace(".000Z", "Z")
@@ -79,6 +80,16 @@ const FilterSideBar = () => {
       searchTag: "rideStatus=canceled",
       divider: false,
     },
+    {
+      title: "Today's Cash Bookings",
+      searchTag: `search=${todaysDate}&isCash=true`,
+      divider: false,
+    },
+    {
+      title: "All Cash Bookings",
+      searchTag: "isCash=true",
+      divider: false,
+    },
     { title: "Extended", searchTag: "bookingStatus=extended", divider: true },
     {
       title: "Tomorrow's Pickups",
@@ -126,6 +137,16 @@ const FilterSideBar = () => {
     { title: "Status (In-Active)", searchTag: "status=inactive" },
   ];
 
+  useClickOutside(
+    sideBarRef,
+    () => {
+      if (isFilterOpen) {
+        dispatch(toggleFilterSideBar());
+      }
+    },
+    isFilterOpen
+  );
+
   // change the data based on page
   useEffect(() => {
     if (location.pathname === "/all-bookings") {
@@ -135,20 +156,10 @@ const FilterSideBar = () => {
     }
   }, [location?.href]);
 
-  // const getTodaysDate = () => {
-  //   const now = new Date();
-  //   const year = now.getFullYear();
-  //   const month = String(now.getMonth() + 1).padStart(2, "0");
-  //   const day = String(now.getDate()).padStart(2, "0");
-
-  //   return `${year}-${month}-${day}`;
-  // };
-
   //   search data based on flags
   const searchDataBasedOnFilters = async (searchTerm) => {
     try {
       setLoading(true);
-      // const todaysDate = getTodaysDate();
       const userType =
         location?.pathname === "/all-users"
           ? "userType=customer"
@@ -157,10 +168,8 @@ const FilterSideBar = () => {
       if (location?.pathname === "/all-bookings") {
         endpoint = searchTerm
           ? `/getBooking?${
-              searchTerm?.includes("Status=")
-                ? // searchTerm?.includes("rideStatus")
-                  //   ? "search=" + todaysDate?.toString() + "&"
-                  ""
+              searchTerm?.includes("Status=") || searchTerm.includes("isCash=")
+                ? ""
                 : "search="
             }${searchTerm}&page=${page}&limit=${limit}`
           : `/getBooking?page=${page}&limit=${limit}`;
@@ -226,16 +235,6 @@ const FilterSideBar = () => {
     }
   };
 
-  // for fetching maintenance vehicles
-  // const handleMaintenanceFilter = () => {
-  //   if (vehiclesFilter?.maintenanceType === "") {
-  //     dispatch(setMaintenanceType("upcoming"));
-  //   } else {
-  //     dispatch(setMaintenanceType(""));
-  //   }
-  //   dispatch(toggleFilterSideBar());
-  // };
-
   return (
     <div
       className={`fixed w-full z-40 top-0 right-0 ${
@@ -244,6 +243,7 @@ const FilterSideBar = () => {
     >
       {loading && <PreLoader />}
       <div
+        ref={sideBarRef}
         className={`shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200 w-full lg:w-[22%] lg:float-right ${
           isFilterOpen ? "translate-x-[0]" : "translate-x-[100%]"
         } transition-all duration-300 ease-in-out`}

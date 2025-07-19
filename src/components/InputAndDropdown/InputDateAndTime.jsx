@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { convertDateFormat } from "../../utils";
+import { camelCaseToSpaceSeparated, convertDateFormat } from "../../utils";
 
 const InputDateAndTime = ({
   item,
@@ -33,7 +33,8 @@ const InputDateAndTime = ({
         htmlFor={name}
         className="block text-gray-800 font-semibold text-sm capitalize"
       >
-        Enter {item} {require && <span className="text-red-500">*</span>}
+        Enter {camelCaseToSpaceSeparated(item)}{" "}
+        {require && <span className="text-red-500">*</span>}
       </label>
       <div className="mt-2">
         <input type="hidden" name={name} value={dateAndTime} />

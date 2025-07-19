@@ -20,6 +20,7 @@ const ImageUploadAndPreview = ({
   isRequired = true,
   isUpload = false,
   isDisableRemove = false,
+  isLabel = true,
   userId,
 }) => {
   const fileInputRef = useRef(null);
@@ -119,10 +120,12 @@ const ImageUploadAndPreview = ({
 
   return (
     <>
-      <p className="block text-gray-800 font-semibold text-sm mb-2 text-left capitalize">
-        {camelCaseToSpaceSeparated(title)}
-      </p>
-      <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md px-6 py-6 md:py-5 lg:py-4 text-center mb-5 h-auto lg:max-h-[135px]">
+      {isLabel && (
+        <p className="block text-gray-800 font-semibold text-sm mb-2 text-left capitalize">
+          {camelCaseToSpaceSeparated(title)}
+        </p>
+      )}
+      <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md px-6 py-6 md:py-5 lg:py-4 text-center mb-5 h-auto lg:max-h-[140px]">
         <input
           type="file"
           accept="image/*"
@@ -211,7 +214,7 @@ const ImageUploadAndPreview = ({
               >
                 Browse
               </button>{" "}
-              to upload {customImageText}.
+              to upload {camelCaseToSpaceSeparated(customImageText)}.
             </p>
           </>
         )}

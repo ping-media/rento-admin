@@ -6,7 +6,6 @@ import { ExtendSummary, RideSummary } from "./RideSummary";
 
 const AdditionalInfo = () => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
-  // const { loggedInRole } = useSelector((state) => state.user);
 
   const diffAmount = vehicleMaster[0]?.bookingPrice?.diffAmount
     ? vehicleMaster[0]?.bookingPrice?.diffAmount[
@@ -26,11 +25,10 @@ const AdditionalInfo = () => {
   return (
     <>
       {/* ride otp's  */}
-      {/* {loggedInRole === "admin" && ( */}
       <div className="mb-2">
         {((diffAmount !== null && diffAmount?.rideStatus === false) ||
           vehicleMaster[0]?.rideStatus !== "ongoing") && (
-          <div className="w-full flex items-center justify-between text-gray-400 flex items-center">
+          <div className="w-full flex items-center justify-between  flex items-center">
             <p className="font-semibold mr-1">Start OTP:</p>
             <p className="flex items-center">
               {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
@@ -41,7 +39,7 @@ const AdditionalInfo = () => {
           </div>
         )}
         {vehicleMaster[0]?.vehicleBasic?.endRide > 0 && (
-          <div className="w-full flex items-center justify-between text-gray-400 flex items-center">
+          <div className="w-full flex items-center justify-between  flex items-center">
             <p className="font-semibold mr-1">End OTP:</p>
             <p className="flex items-center">
               {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
@@ -52,11 +50,10 @@ const AdditionalInfo = () => {
           </div>
         )}
       </div>
-      {/* )} */}
 
       {diffAmount !== null && diffAmount?.refundAmount > 0 && (
         <div className="mt-1 mb-2.5">
-          <div className="w-full flex items-center justify-between text-sm text-gray-400 uppercase">
+          <div className="w-full flex items-center justify-between text-sm  uppercase">
             <p className="font-semibold mr-1 capitalize">
               Change Vehicle Refund Amount:
             </p>
@@ -72,7 +69,7 @@ const AdditionalInfo = () => {
         </div>
       )}
       <div className="mt-1 mb-2.5">
-        <div className="w-full flex items-center justify-between text-sm text-gray-400 mb-1">
+        <div className="w-full flex items-center justify-between text-sm  mb-1">
           <p className="font-semibold mr-1">Free Limit:</p>
           <p>
             {vehicleMaster[0]?.vehicleBasic?.freeLimit
@@ -97,7 +94,7 @@ const AdditionalInfo = () => {
             </span>
           </p>
         </div>
-        <div className="w-full flex items-center justify-between text-sm text-gray-400 mb-1">
+        <div className="w-full flex items-center justify-between text-sm  mb-1">
           <p className="font-semibold mr-1">Extra KM Charge:</p>
           <p>
             {vehicleMaster[0]?.vehicleBasic?.extraKmCharge ? (
@@ -116,7 +113,7 @@ const AdditionalInfo = () => {
             )}
           </p>
         </div>
-        <div className="w-full flex items-center justify-between text-sm text-gray-400">
+        <div className="w-full flex items-center justify-between text-sm ">
           <p className="font-semibold mr-1">Booked From:</p>
           <p>
             {vehicleMaster[0]?.bookedFrom === "web"
@@ -132,7 +129,7 @@ const AdditionalInfo = () => {
           <p className="text-md text-gray-600 font-bold">Late Fee Charges</p>
           {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod &&
             vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod !== "NA" && (
-              <span className="text-xs italic text-gray-400">
+              <span className="text-xs italic ">
                 (Paid by {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod})
               </span>
             )}
@@ -144,40 +141,35 @@ const AdditionalInfo = () => {
           vehicleMaster[0]?.rideStatus === "completed" ? (
             <div>
               <p className="w-full flex items-center justify-between text-sm text-theme">
-                <span className="mr-1 font-semibold text-gray-500">
-                  Hour Late Fee:
-                </span>
-                ₹
+                <span className="mr-1 font-semibold">Hour Late Fee:</span>₹
                 {formatPrice(
                   Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour)
                 )}
               </p>
               <p className="w-full flex items-center justify-between text-sm text-theme">
-                <span className="mr-1 font-semibold text-gray-500">
-                  KM Late Fee:
-                </span>
-                ₹
+                <span className="mr-1 font-semibold">KM Late Fee:</span>₹
                 {formatPrice(
                   Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM)
                 )}
               </p>
               <p className="w-full flex items-center justify-between text-sm text-theme">
-                <span className="mr-1 font-semibold text-gray-500">
-                  Additional Price:
-                </span>
-                ₹
+                <span className="mr-1 font-semibold">Additional Price:</span>₹
                 {formatPrice(
                   Number(vehicleMaster[0]?.bookingPrice?.additionalPrice)
                 )}
               </p>
             </div>
           ) : (
-            <p className="text-sm text-gray-400 italic">Ride not finish yet.</p>
+            <p className="text-sm  italic text-gray-400">
+              Ride not finish yet.
+            </p>
           )}
         </div>
       </div>
       <div className="hidden lg:block w-full">
-        <h2 className="text-md text-gray-600 font-bold mb-2">Ride Summary</h2>
+        <h2 className="text-md text-gray-600 font-bold border-b pb-1 mb-1">
+          Ride Summary
+        </h2>
         <div className="mb-2">
           {vehicleMaster[0]?.bookingPrice && (
             <RideSummary
@@ -207,7 +199,7 @@ const AdditionalInfo = () => {
         </div>
       </div>
       <div className="w-full">
-        <h2 className="text-md text-gray-600 font-bold mb-2">
+        <h2 className="text-md text-gray-600 border-b pb-1 font-bold mb-1">
           Change Vehicle Summary
         </h2>
         <div className="mb-2 w-full">
@@ -223,7 +215,7 @@ const AdditionalInfo = () => {
               )}
             </ul>
           ) : (
-            <p className="text-sm text-gray-400 italic">
+            <p className="text-sm  italic text-gray-400">
               vehicle not changed yet.
             </p>
           )}

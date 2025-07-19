@@ -6,7 +6,7 @@ const ExtraAmount = ({ item }) => {
   return (
     <div className="w-full flex items-center justify-between mb-1">
       <div>
-        <span className="text-sm text-gray-400 font-semibold capitalize">
+        <span className="text-sm  font-semibold capitalize">
           {item?.title?.includes("changed")
             ? "Vehicle Change"
             : camelCaseToSpaceSeparated(item?.title)}
@@ -20,16 +20,14 @@ const ExtraAmount = ({ item }) => {
                 item?.appliedPlans,
                 item?.daysBreakdown
               )}
-              className="text-gray-400"
+              className=""
             />
           </span>
         )}
-        <span className="text-sm text-gray-400 font-semibold mx-1">:</span>
+        <span className="text-sm  font-semibold mx-1">:</span>
       </div>
       <div>
-        <span className="text-sm text-gray-400 ml-1">
-          ₹{formatPrice(item?.amount)}
-        </span>
+        <span className="text-sm  ml-1">₹{formatPrice(item?.amount)}</span>
         {item?.status === "unpaid" && (
           <span
             className={`text-sm font-bold ${

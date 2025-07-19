@@ -3,8 +3,8 @@ import VehicleInfo from "../VehicleDetails/VehicleInfo";
 import { lazy, useMemo, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
-  formatDateToISO,
-  formatDateToISOWithoutSecond,
+  // formatDateToISO,
+  // formatDateToISOWithoutSecond,
   formatFullDateAndTime,
 } from "../../utils/index";
 import BookingFareDetails from "./BookingFareDetails";
@@ -13,7 +13,7 @@ import BookingStatusFlag from "./BookingStatusFlag";
 import BookingMoreInfo from "./BookingMoreInfo";
 import BookingNote from "./BookingNote";
 import {
-  toggleChangeVehicleModal,
+  // toggleChangeVehicleModal,
   togglePaymentUpdateModal,
 } from "../../Redux/SideBarSlice/SideBarSlice";
 import BookingTimeLine from "./BookingTimeLine";
@@ -243,10 +243,10 @@ const BookingDetail = ({ tabs }) => {
           <div className="hidden lg:flex lg:items-center justify-between">
             <div>
               <h2 className="font-bold uppercase text-md lg:text-lg flex flex-wrap items-center gap-2">
-                {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
+                {vehicleMaster[0]?.vehicleBasic?.vehicleNumber}
               </h2>
             </div>
-            {!(
+            {/* {!(
               vehicleMaster[0]?.rideStatus === "completed" ||
               vehicleMaster[0]?.bookingStatus === "canceled" ||
               vehicleMaster[0]?.BookingEndDateAndTime <
@@ -263,11 +263,11 @@ const BookingDetail = ({ tabs }) => {
               >
                 Change Vehicle
               </button>
-            )}
+            )} */}
           </div>
 
-          <small className="hidden lg:block text-sm text-gray-400 mb-2 lg:mb-5">
-            Vehicle Number: ({vehicleMaster[0]?.vehicleBasic?.vehicleNumber})
+          <small className="capitalize lg:block text-sm text-gray-400 mb-2 lg:mb-5">
+            {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
           </small>
 
           <div className="hidden lg:block">
@@ -277,7 +277,7 @@ const BookingDetail = ({ tabs }) => {
             />
           </div>
           <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
-            <h2 className="text-base lg:text-lg font-semibold text-gray-500">
+            <h2 className="text-base lg:text-lg font-semibold text-gray-600">
               Fare Details
             </h2>
             <BookingStatusFlag
@@ -288,7 +288,7 @@ const BookingDetail = ({ tabs }) => {
           </div>
           <BookingFareDetails rides={vehicleMaster && vehicleMaster[0]} />
           <div className="flex items-center justify-between border-b-2 pt-1.5 mt-2 pb-1.5 mb-3">
-            <h2 className="text-base lg:text-lg font-semibold text-gray-500">
+            <h2 className="text-base lg:text-lg font-semibold text-gray-600">
               Additional Information
             </h2>
             {loggedInRole === "admin" &&
