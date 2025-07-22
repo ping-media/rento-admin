@@ -93,10 +93,10 @@ const UserKycApproveModal = () => {
         }));
       }
     } else if (name === "licenseNumber") {
-      if (value.length > 15 || value.length < 15) {
+      if (value.length > 16 || value.length < 15) {
         setFormError((prev) => ({
           ...prev,
-          licenseNumber: "Enter valid 15 character license number",
+          licenseNumber: "Enter valid license number",
         }));
       } else {
         setFormError((prev) => ({
