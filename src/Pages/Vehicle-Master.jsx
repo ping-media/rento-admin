@@ -7,7 +7,11 @@ import {
   removeTempIds,
   restvehicleMaster,
 } from "../Redux/VehicleSlice/VehicleSlice";
-import { handleRestPagination } from "../Redux/PaginationSlice/PaginationSlice";
+import {
+  handleChangeLimit,
+  handleRestPagination,
+} from "../Redux/PaginationSlice/PaginationSlice";
+import { useLocation } from "react-router-dom";
 const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
 const AddVehicleForServiceModal = lazy(() =>
   import("../components/Modal/AddVehicleForServiceModal")
@@ -24,6 +28,7 @@ const VehicleMaster = () => {
   const { page, limit, searchTerm, searchType, vehiclesFilter } = useSelector(
     (state) => state.pagination
   );
+  const location = useLocation();
   const { loggedInRole, userStation } = useSelector((state) => state.user);
 
   const searchBasedOnPage = useMemo(() => {
@@ -35,6 +40,17 @@ const VehicleMaster = () => {
       return `stationId=${userStation?.stationId}`;
     }
     return "";
+  }, [location.pathname]);
+
+  // changing limit to custom limit for specific page
+  useEffect(() => {
+    if (limit === 100 && location.pathname !== "/all-vehicles") return;
+
+    if (location.pathname === "/all-vehicles") {
+      dispatch(handleChangeLimit(200));
+    } else {
+      dispatch(handleChangeLimit(100));
+    }
   }, [location.pathname]);
 
   useEffect(() => {

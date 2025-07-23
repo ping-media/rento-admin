@@ -124,6 +124,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "dateofbirth",
           "gender",
           "addressProof",
+          "address",
           "drivingLicence",
           "paymentUpdates",
           "lastMeterReading",
@@ -261,7 +262,21 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
       );
     }
 
-    if (column.includes("DateAndTime")) {
+    if (
+      location.pathname === "/all-bookings" &&
+      column.includes("DateAndTime")
+    ) {
+      const full = formatFullDateAndTime(value);
+      const parts = full.split(",");
+      const date = `${parts[0]},${parts[1]}`.trim();
+      const time = parts[2]?.trim() || "";
+      return (
+        <>
+          <div>{date}</div>
+          <div>{time}</div>
+        </>
+      );
+    } else if (column.includes("DateAndTime")) {
       return formatFullDateAndTime(value);
     }
 
@@ -524,11 +539,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   } ${
                                     [
                                       "address",
-                                      "vehicleName",
                                       "email",
                                       "stationName",
                                     ].includes(column)
                                       ? "max-w-32 truncate"
+                                      : column.includes("vehicleName")
+                                      ? "max-w-20 truncate"
                                       : "whitespace-nowrap"
                                   }`}
                                   key={cellKey}
