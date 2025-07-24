@@ -60,23 +60,23 @@ const FilterSideBar = () => {
       searchTag: `search=${todaysDate}&rideStatus=ongoing`,
       divider: false,
     },
+    // {
+    //   title: "Completed (Booking)",
+    //   searchTag: "bookingStatus=done",
+    //   divider: false,
+    // },
     {
-      title: "Completed (Booking)",
-      searchTag: "bookingStatus=done",
-      divider: false,
-    },
-    {
-      title: "Completed (Ride)",
+      title: "Completed Ride",
       searchTag: "rideStatus=completed",
       divider: false,
     },
+    // {
+    //   title: "cancelled (Booking)",
+    //   searchTag: "bookingStatus=canceled",
+    //   divider: false,
+    // },
     {
-      title: "cancelled (Booking)",
-      searchTag: "bookingStatus=canceled",
-      divider: false,
-    },
-    {
-      title: "cancelled (Ride)",
+      title: "cancelled Ride",
       searchTag: "rideStatus=canceled",
       divider: false,
     },
