@@ -7,7 +7,10 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { parse, parseISO, format as Fromat } from "date-fns";
 import { format, formatInTimeZone } from "date-fns-tz";
 import { postData } from "../../Data/index";
-import { updateBookingDates } from "../../Redux/VehicleSlice/VehicleSlice";
+import {
+  updateBookingDates,
+  updateTimeLineData,
+} from "../../Redux/VehicleSlice/VehicleSlice";
 
 // getting current date and time in input format
 const formattedDate = () => {
@@ -112,6 +115,9 @@ const RescheduleModal = () => {
         }
         if (response?.isEndUpdate) {
           data = { ...data, BookingEndDateAndTime: dbBookingEndDateAndTime };
+        }
+        if (data?.timeline) {
+          dispatch(updateTimeLineData(data.timeline));
         }
         handleAsyncError(dispatch, "Reschedule Successfully", "success");
         dispatch(updateBookingDates(data));

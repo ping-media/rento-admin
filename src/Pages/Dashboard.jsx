@@ -8,6 +8,8 @@ import {
   BookOnlineRounded,
   AccountBalanceRounded,
   AccountTreeRounded,
+  CancelOutlinedIcon,
+  CurrencyRupeeOutlined,
 } from "@mui/icons-material";
 import { useMediaQuery } from "@mui/material";
 import NotFound from "./NotFound";
@@ -66,6 +68,10 @@ const Dashboard = () => {
           <AccountBalanceRounded fontSize={isMobile ? "medium" : "large"} />
         ) : key === "extendBookingCount" ? (
           <AccountTreeRounded fontSize={isMobile ? "medium" : "large"} />
+        ) : key === "cancelBookingsCount" ? (
+          <CancelOutlinedIcon fontSize={isMobile ? "medium" : "large"} />
+        ) : key === "CashPaymentReceivedCount" ? (
+          <CurrencyRupeeOutlined fontSize={isMobile ? "medium" : "large"} />
         ) : (
           <BookOnlineRounded fontSize={isMobile ? "medium" : "large"} />
         ),
