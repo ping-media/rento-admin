@@ -169,14 +169,17 @@ const BookingDetailsButton = ({
         booking?.BookingEndDateAndTime <
           formatDateToISOWithoutSecond(new Date())
       ) && (
-        <Button
-          title={"Change Vehicle"}
-          fn={() => dispatch(toggleChangeVehicleModal())}
+        <button
+          className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-1 disabled:bg-theme/75"
+          type="button"
+          onClick={() => dispatch(toggleChangeVehicleModal())}
           disabled={
             formatDateToISO(new Date()).replace(".000Z", "Z") <
             booking?.BookingStartDateAndTime
           }
-        />
+        >
+          Change Vehicle
+        </button>
       )}
 
       <Button

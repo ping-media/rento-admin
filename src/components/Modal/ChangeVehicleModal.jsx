@@ -141,9 +141,9 @@ const ChangeVehicleModal = ({ bookingData }) => {
     // calculate the price
     const isPackageApplied = bookingData?.bookingPrice?.isPackageApplied;
     const bookingPrice =
-      Plan !== null && isPackageApplied
+      (Plan !== null && isPackageApplied
         ? Plan?.planPrice
-        : changeToNewVehicle?.totalRentalCost;
+        : changeToNewVehicle?.totalRentalCost) || 0;
     let extraCharges = 0;
     if (
       bookingData?.bookingPrice?.extraAddonDetails &&
@@ -165,7 +165,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const totalPrice = Number(finalBookingPrice) + Number(tax);
     const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
     const oldTotalPrice =
-      bookingData?.bookingPrice?.totalPrice + Number(extendBookingTotal);
+      (Number(bookingData?.bookingPrice?.totalPrice) || 0) +
+      Number(extendBookingTotal);
 
     // calculating the diffAmount
     const diffAmount =

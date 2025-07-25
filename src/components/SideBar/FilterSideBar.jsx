@@ -52,12 +52,12 @@ const FilterSideBar = () => {
     },
     {
       title: "Today's Pickups",
-      searchTag: `search=${todaysDate}&rideStatus=pending`,
+      searchTag: `search=${todaysDate}&rideStatus=pending&dateCheck=pickup`,
       divider: false,
     },
     {
       title: "Today's Drops",
-      searchTag: `search=${todaysDate}&rideStatus=ongoing`,
+      searchTag: `search=${todaysDate}&rideStatus=ongoingdateCheck=dropoff`,
       divider: false,
     },
     // {
@@ -82,7 +82,7 @@ const FilterSideBar = () => {
     },
     {
       title: "Today's Cash Bookings",
-      searchTag: `search=${todaysDate}&isCash=true`,
+      searchTag: `search=${todaysDate}&isCash=true&dateCheck=pickup`,
       divider: false,
     },
     {
