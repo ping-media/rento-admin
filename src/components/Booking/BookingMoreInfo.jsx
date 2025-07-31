@@ -51,7 +51,7 @@ const BookingMoreInfo = ({ data, datatype }) => {
           );
         })}
       {/* if ride end before actual ending date show this  */}
-      {vehicleMaster &&
+      {/* {vehicleMaster &&
         vehicleMaster[0]?.extendBooking?.originalEndDate &&
         datatype === "moreInfo" && (
           <div className="flex justify-between items-center py-1.5 border-t-2 border-gray-300">
@@ -60,7 +60,7 @@ const BookingMoreInfo = ({ data, datatype }) => {
               {formatFullDateAndTime(vehicleMaster[0]?.BookingEndDateAndTime)}
             </span>
           </div>
-        )}
+        )} */}
     </>
   );
 };

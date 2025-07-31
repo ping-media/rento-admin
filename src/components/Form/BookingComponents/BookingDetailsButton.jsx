@@ -26,7 +26,7 @@ const BookingDetailsButton = ({
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const [reminderLoading, setReminderLoading] = useState(false);
   const [loadingStates, setLoadingStates] = useState({});
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   const diffData = useMemo(
@@ -125,18 +125,20 @@ const BookingDetailsButton = ({
       )}
 
       {/* for cancel ride */}
-      {!(
-        booking?.bookingStatus == "canceled" ||
-        booking?.rideStatus == "ongoing" ||
-        booking?.rideStatus == "completed"
-      ) && (
+      {(loggedInRole === "admin" ||
+        !(
+          booking?.bookingStatus == "canceled" ||
+          booking?.rideStatus == "ongoing" ||
+          booking?.rideStatus == "completed"
+        )) && (
         <Button
           title={"Cancel Ride"}
           fn={() => handleCancelBooking()}
           disable={
-            booking?.bookingStatus === "canceled" ||
-            booking?.rideStatus === "ongoing" ||
-            booking?.rideStatus === "completed"
+            loggedInRole !== "admin" &&
+            (booking?.bookingStatus === "canceled" ||
+              booking?.rideStatus === "ongoing" ||
+              booking?.rideStatus === "completed")
           }
         />
       )}
