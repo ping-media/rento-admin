@@ -102,7 +102,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
     const NewVehicleHavePlan =
       (changeToNewVehicle?.vehiclePlan?.length > 0 &&
         changeToNewVehicle?.vehiclePlan) ||
-      null;
+      [];
 
     const currentDateAndTime = formatDateToISOWithoutSecond(new Date());
     const extendStartDate =
@@ -140,10 +140,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
 
     // calculate the price
     const isPackageApplied = bookingData?.bookingPrice?.isPackageApplied;
+
     const bookingPrice =
       (Plan !== null && isPackageApplied
         ? Plan?.planPrice
         : changeToNewVehicle?.totalRentalCost) || 0;
+
     let extraCharges = 0;
     if (
       bookingData?.bookingPrice?.extraAddonDetails &&
@@ -157,7 +159,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
         Number(daysLeft > 0 ? daysLeft : isEndDatePass ? daysLeft : 1)
       );
     }
-    const finalBookingPrice = Number(extraCharges) + Number(bookingPrice);
+    const finalBookingPrice =
+      Number(extraCharges || 0) + Number(bookingPrice || 0);
     let tax = 0;
     if (isGSTActive) {
       tax = calculateTax(finalBookingPrice, GSTPercentage);
@@ -176,6 +179,32 @@ const ChangeVehicleModal = ({ bookingData }) => {
 
     const finalDiffAmount = diffAmount <= 0 ? 0 : Math.round(diffAmount);
     const refundAmount = diffAmount < 0 ? Math.abs(diffAmount) : 0;
+
+    // calculating the free km limit
+    const isPackage =
+      changeToNewVehicle?.appliedPlans?.length > 0
+        ? changeToNewVehicle?.appliedPlans
+        : null;
+
+    const daysBreakdowns =
+      changeToNewVehicle?._daysBreakdown ||
+      changeToNewVehicle?.daysBreakdown ||
+      null;
+
+    const freeKmLimitForPlan =
+      isPackage !== null
+        ? isPackage.reduce((sum, plan) => {
+            return sum + plan.kmLimit * plan.count;
+          }, 0)
+        : 0;
+
+    const freeKmLimitForDays =
+      daysBreakdowns !== null
+        ? daysBreakdowns?.length *
+          formData?.stepOneData?.selectedVehicle?.freeKms
+        : 0;
+
+    const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;
 
     const data = {
       _id: bookingData?._id,
@@ -227,7 +256,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
         vehicleNumber:
           changeToNewVehicle?.vehicleNumber ||
           changeToNewVehicle?.vehicleDetails[0]?.vehicleNumber,
-        freeLimit: Number(changeToNewVehicle?.freeKms),
+        freeLimit: Number(freeLimit),
         lateFee: changeToNewVehicle?.lateFee,
         extraKmCharge: changeToNewVehicle?.extraKmsCharges,
         startRide: bookingData?.vehicleBasic?.startRide,

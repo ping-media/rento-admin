@@ -239,11 +239,19 @@ const vehicleSlice = createSlice({
       state.tempLoading.operation = "";
     },
     updateTempId: (state, action) => {
-      const { id, planPrice } = action.payload;
+      const { id, planPrice, kmLimit } = action.payload;
+
       state.tempIds = state.tempIds.map((item) =>
-        item._id === id ? { ...item, planPrice } : item
+        item._id === id
+          ? {
+              ...item,
+              ...(planPrice !== undefined && { planPrice }),
+              ...(kmLimit !== undefined && { kmLimit }),
+            }
+          : item
       );
     },
+
     removeTempVehicleData: (state) => {
       state.loading = false;
       state.tempVehicleData = null;

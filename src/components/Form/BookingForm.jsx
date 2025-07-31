@@ -53,7 +53,6 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
     bookingEndDate,
     selectedVehicle,
     addOnArr
-    // extraAddonPrice = 0
   ) => {
     const durationBetweenStartAndEnd = getDurationBetweenDates(
       bookingStartDate,
@@ -159,6 +158,32 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       }
       // ride starting otp
       const startRideOtp = Math.floor(1000 + Math.random() * 9000);
+
+      // calculating the free km limit
+      const isPackage =
+        formData?.stepOneData?.selectedVehicle?.appliedPlans?.length > 0
+          ? formData?.stepOneData?.selectedVehicle?.appliedPlans
+          : null;
+
+      const daysBreakdowns =
+        formData?.stepOneData?.selectedVehicle?._daysBreakdown ||
+        formData?.stepOneData?.selectedVehicle?.daysBreakdown ||
+        null;
+
+      const freeKmLimitForPlan =
+        isPackage !== null
+          ? isPackage.reduce((sum, plan) => {
+              return sum + plan.kmLimit * plan.count;
+            }, 0)
+          : 0;
+      const freeKmLimitForDays =
+        daysBreakdowns !== null
+          ? daysBreakdowns?.length *
+            formData?.stepOneData?.selectedVehicle?.freeKms
+          : 0;
+
+      const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;
+
       // creating booking data
       let data = {
         vehicleMasterId:
@@ -224,7 +249,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             formData?.stepOneData?.selectedVehicle?.vehicleNumber ||
             formData?.stepOneData?.selectedVehicle?.vehicleDetails[0]
               ?.vehicleNumber,
-          freeLimit: formData?.stepOneData?.selectedVehicle?.freeKms,
+          freeLimit: freeLimit || 0,
           lateFee: formData?.stepOneData?.selectedVehicle?.lateFee,
           extraKmCharge:
             formData?.stepOneData?.selectedVehicle?.extraKmsCharges,

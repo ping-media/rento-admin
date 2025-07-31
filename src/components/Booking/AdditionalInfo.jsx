@@ -22,6 +22,15 @@ const AdditionalInfo = () => {
 
   const mainBookingDuration = getDurationInDays(startDate, endDate);
 
+  const extendBookingLimit = isExtend
+    ? booking?.bookingPrice?.extendAmount.reduce((sum, extend) => {
+        return sum + (extend.freeLimit || 0);
+      }, 0)
+    : 0;
+
+  const freeLimit =
+    Number(booking?.vehicleBasic?.freeLimit) + Number(extendBookingLimit);
+
   return (
     <>
       {/* ride otp's  */}
@@ -72,26 +81,15 @@ const AdditionalInfo = () => {
         <div className="w-full flex items-center justify-between text-sm  mb-1">
           <p className="font-semibold mr-1">Free Limit:</p>
           <p>
-            {vehicleMaster[0]?.vehicleBasic?.freeLimit
+            {/* {vehicleMaster[0]?.vehicleBasic?.freeLimit
               ? vehicleMaster[0]?.vehicleBasic?.freeLimit *
                 getDurationInDays(
                   vehicleMaster[0]?.BookingStartDateAndTime,
                   vehicleMaster[0]?.extendBooking?.originalEndDate ||
                     vehicleMaster[0]?.BookingEndDateAndTime
                 )
-              : "--"}
-            KM
-            <span className="ml-1">
-              {vehicleMaster[0]?.vehicleBasic?.freeLimit
-                ? `(${vehicleMaster[0]?.vehicleBasic?.freeLimit} x 
-            ${getDurationInDays(
-              vehicleMaster[0]?.BookingStartDateAndTime,
-              vehicleMaster[0]?.extendBooking?.originalEndDate ||
-                vehicleMaster[0]?.BookingEndDateAndTime
-            )}
-            day(s))`
-                : "--"}
-            </span>
+              : "--"} */}
+            {vehicleMaster[0]?.vehicleBasic?.freeLimit ? freeLimit : "--"} KM
           </p>
         </div>
         <div className="w-full flex items-center justify-between text-sm  mb-1">

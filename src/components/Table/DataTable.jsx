@@ -1,13 +1,11 @@
 import DropDownComponent from "../DropDown/DropDownComponent.jsx";
 import {
   changeNumberIntoTime,
-  formatFullDateAndTime,
   formatPathNameToTitle,
   formatPrice,
-  formatTimeStampToDate,
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice.js";
 import { addVehicleIdToDelete } from "../../Redux/VehicleSlice/VehicleSlice.js";
@@ -31,6 +29,7 @@ import { useNavigate } from "react-router-dom";
 import CardNotFound from "../../components/Skeleton/CardNotFound.jsx";
 import CardDataLoading from "../../components/Skeleton/CardDataLoading.jsx";
 import MaintenanceStatusBadge from "./MaintenanceBadge.jsx";
+import RenderCellContent from "./RenderCellContent.jsx";
 
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
@@ -49,16 +48,23 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const loadFiltersAndData = () => {
+  const loadFiltersAndData = useCallback(() => {
     if (newUpdatedData && pagination) {
-      const pageCount = Number(pagination?.totalPages);
-      setTotalPages(pageCount);
-      const start = (Number(pagination?.currentPage) - 1) * limit;
-      const end = start + limit;
-      // if there is data in sortedData
-      if (sortedData) return setNewUpdatedData(sortedData?.slice(start, end));
+      let dataToDisplay = [...sortedData];
+
+      if (inputSearchQuery.trim() !== "") {
+        setTotalPages(1);
+      } else {
+        const pageCount = Number(pagination?.totalPages);
+        setTotalPages(pageCount);
+        const start = (Number(pagination?.currentPage) - 1) * limit;
+        const end = start + limit;
+        dataToDisplay = sortedData?.slice(start, end);
+      }
+
+      setNewUpdatedData(dataToDisplay);
     }
-  };
+  }, [newUpdatedData, pagination]);
 
   // resting the table data after every page change
   useEffect(() => {
@@ -130,7 +136,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "lastMeterReading",
           "mapLink",
           "mobileToken",
-          // "userId",
         ].includes(key)
     );
 
@@ -145,7 +150,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             "paymentgatewayReceiptId",
             "paymentInitiatedDate",
             "discountCuopon",
-            // "stationName",
             "paymentMethod",
             "payInitFrom",
             "notes",
@@ -153,6 +157,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             "changeVehicle",
             "paymentStatus",
           ].includes(item)
+      );
+    }
+
+    if (location.pathname == "/all-vehicles") {
+      filteredKeys = filteredKeys.filter(
+        (item) => !["vehicleImage"].includes(item)
       );
     }
 
@@ -222,78 +232,24 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   };
 
   // let user enter in view page or edit page when click on table row
-  const handleViewData = (item) => {
-    const { _id: id, bookingId } = item;
+  const handleViewData = useCallback(
+    (item) => {
+      const { _id: id, bookingId } = item;
 
-    const url =
-      location.pathname === "/all-bookings"
-        ? `details/${id}_${bookingId.toString()}`
-        : location.pathname === "/all-vehicles" ||
-          location.pathname === "/all-invoices"
-        ? `details/${id}`
-        : location?.pathname === "/payments"
-        ? "#"
-        : `${id}`;
+      const url =
+        location.pathname === "/all-bookings"
+          ? `details/${id}_${bookingId.toString()}`
+          : location.pathname === "/all-vehicles" ||
+            location.pathname === "/all-invoices"
+          ? `details/${id}`
+          : location?.pathname === "/payments"
+          ? "#"
+          : `${id}`;
 
-    navigate(url);
-  };
-
-  const renderCellContent = (column, value) => {
-    if (!value && value !== 0) return "";
-
-    if (
-      column.includes("Charges") ||
-      column.includes("Deposit") ||
-      column.includes("Cost") ||
-      column.includes("Price")
-    ) {
-      return `₹ ${formatPrice(value)}`;
-    }
-
-    if (column.includes("Duration")) {
-      return `${value} Days`;
-    }
-
-    if (column.includes("email")) {
-      return (
-        <div title={value} className="truncate">
-          {value}
-        </div>
-      );
-    }
-
-    if (
-      location.pathname === "/all-bookings" &&
-      column.includes("DateAndTime")
-    ) {
-      const full = formatFullDateAndTime(value);
-      const parts = full.split(",");
-      const date = `${parts[0]},${parts[1]}`.trim();
-      const time = parts[2]?.trim() || "";
-      return (
-        <>
-          <div>{date}</div>
-          <div>{time}</div>
-        </>
-      );
-    } else if (column.includes("DateAndTime")) {
-      return formatFullDateAndTime(value);
-    }
-
-    if (column?.includes("InitiatedDate")) {
-      return value !== "NA" ? formatTimeStampToDate(value) : "--";
-    }
-
-    if (column?.includes("bookingId")) {
-      return `#${value}`;
-    }
-
-    if (column?.includes("paymentMethod")) {
-      return value === "partiallyPay" ? "online" : value;
-    }
-
-    return value;
-  };
+      navigate(url);
+    },
+    [navigate, location.pathname]
+  );
 
   return (
     <>
@@ -549,7 +505,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   }`}
                                   key={cellKey}
                                 >
-                                  {renderCellContent(column, item[column])}
+                                  {RenderCellContent(column, item[column])}
                                 </td>
                               );
                             })}
@@ -623,11 +579,21 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                           </tr>
                         ))
                       ) : (
-                        <TableNotFound ColumnsCount={Columns?.length || 7} />
+                        <TableNotFound
+                          ColumnsCount={
+                            (location.pathname == "/all-vehicles"
+                              ? Columns?.length + 2
+                              : Columns?.length + 1) || 7
+                          }
+                        />
                       )
                     ) : (
                       <TableDataLoading
-                        tableHeaderCount={Columns?.length || 7}
+                        tableHeaderCount={
+                          (location.pathname == "/all-vehicles"
+                            ? Columns?.length + 2
+                            : Columns?.length + 1) || 7
+                        }
                       />
                     )}
                   </tbody>

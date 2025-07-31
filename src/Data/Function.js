@@ -333,9 +333,6 @@ const handleCreateAndUpdateVehicle = async (
     }
   }
 
-  // console.log(result);
-  // return;
-
   const endpoint = id
     ? `${
         endPointBasedOnURL[

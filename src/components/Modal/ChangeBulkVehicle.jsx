@@ -31,39 +31,35 @@ const ChangeBulkVehicle = () => {
     const formData = new FormData(e.target);
     const results = Object.fromEntries(formData.entries());
 
-    if (
-      !results.perDayCost &&
-      results.vehicleStatus === "don'tChange" &&
-      results?.length === 0
-    ) {
+    if (results.vehicleStatus === "don'tChange" && results?.length === 0) {
       handleAsyncError(dispatch, "At least update any one value");
       return;
     }
 
-    const excludedKeys = ["perDayCost", "vehicleStatus"];
+    const excludedKeys = ["perDayCost", "freeKms", "vehicleStatus"];
 
     let vehiclePlan = Object.entries(results)
       .filter(([key]) => !excludedKeys.includes(key))
-      .filter(([id, price]) => {
-        const num = Number(price);
-        return price && !isNaN(num) && num >= 0;
+      .filter(([key, value]) => {
+        if (key.endsWith("_limit")) return false;
+        const num = Number(value);
+        return value && !isNaN(num) && num >= 0;
       })
       .map(([id, price]) => {
+        const kmLimitKey = `${id}_limit`;
+        const kmLimit = Number(results[kmLimitKey]) || 0;
         const matchedPlan = planMaster.find((plan) => plan._id === id);
         return {
           _id: id,
           planPrice: Number(price),
           planName: matchedPlan?.planName || "",
           planDuration: Number(matchedPlan?.planDuration) || 0,
+          kmLimit,
         };
       });
 
-    if (
-      !results.perDayCost &&
-      results.vehicleStatus === "don'tChange" &&
-      vehiclePlan.length === 0
-    ) {
-      handleAsyncError(dispatch, "Please add balance for at least one plan.");
+    if (results.vehicleStatus === "don'tChange" && vehiclePlan.length === 0) {
+      handleAsyncError(dispatch, "Please add price for at least one plan.");
       return;
     }
 
@@ -88,6 +84,16 @@ const ChangeBulkVehicle = () => {
         };
       }
 
+      if (results.freeKms > 0) {
+        data = {
+          ...data,
+          updateData: {
+            ...(data.updateData || {}),
+            freeKms: Number(results.freeKms),
+          },
+        };
+      }
+
       if (results.vehicleStatus !== "don'tChange") {
         data = {
           ...data,
@@ -104,6 +110,9 @@ const ChangeBulkVehicle = () => {
           vehiclePlan: vehiclePlan,
         };
       }
+
+      // console.log(data);
+      // return;
 
       return handleDeleteAndEditAllData(
         data,
@@ -162,7 +171,7 @@ const ChangeBulkVehicle = () => {
         !isVehicleUpdateModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 h-full w-full px-4`}
     >
-      <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-xl min-h-[30rem]">
+      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white max-w-xl min-h-[30rem]">
         <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Update Vehicles
@@ -190,33 +199,44 @@ const ChangeBulkVehicle = () => {
           </button>
         </div>
 
-        <p className="px-4 mb-2 pt-2 text-xs text-gray-400 italic">
+        {/* <p className="px-4 mb-2 pt-2 text-xs text-gray-400 italic">
           <span className="font-semibold">Note:</span> (Only put value for those
           you want to change price leave other fields empty.)
-        </p>
+        </p> */}
         <div className="p-6 pt-0 text-center">
           <form onSubmit={handleChangeVehicle}>
-            <div className="mb-2">
+            <div className="mb-2 flex items-center gap-2">
               <Input
                 placeholder="Per Day Cost"
                 item={"perDayCost"}
                 type="number"
               />
+              <Input placeholder="Km Limit" item={"freeKms"} type="number" />
             </div>
             <div className="mb-2">
-              <h2 className="text-md text-left font-semibold mb-1.5">
-                Change Plan Price
+              <h2 className="text-md text-left font-bold border-b pb-1 mb-1.5">
+                Plan Price & Km Limit
               </h2>
               <div className="flex justify-center flex-wrap gap-2 items-center">
                 {planMasterLoading ? (
                   <Spinner />
                 ) : planMaster?.length > 0 ? (
                   planMaster.map((plan) => (
-                    <div className="w-full lg:w-[48%]" key={plan._id}>
+                    <div
+                      className="w-full flex items-center gap-2"
+                      key={plan._id}
+                    >
                       <Input
                         placeholder={plan.planName}
                         item={plan._id}
                         type="number"
+                        require={true}
+                      />
+                      <Input
+                        placeholder={"km Limit"}
+                        item={`${plan._id}_limit`}
+                        type="number"
+                        require={true}
                       />
                     </div>
                   ))

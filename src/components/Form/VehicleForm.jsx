@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner.jsx";
@@ -25,7 +25,6 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   // for setting locationid if it is present
   useEffect(() => {
     if (id && vehicleMaster?.length == 1) {
-      // console.log(vehicleMaster[0]?.locationId);
       setIsLocationSelected(vehicleMaster[0]?.locationId);
     }
   }, [vehicleMaster, id]);
@@ -45,35 +44,38 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
     }
   }, [isLocationSelected, vehicleMaster]);
 
-  const fetchCollectedData = async (vehicleMasterUrl, locationUrl, planUrl) => {
-    setFormLoading(true);
+  const fetchCollectedData = useCallback(
+    async (vehicleMasterUrl, locationUrl, planUrl) => {
+      setFormLoading(true);
 
-    try {
-      // Fetch all data in parallel
-      const [planResponse, vehicleMasterResponse, locationResponse] =
-        await Promise.all([
-          getData(endPointBasedOnKey[planUrl], token),
-          getData(
-            `${endPointBasedOnKey[vehicleMasterUrl]}?fetchAll=true`,
-            token
-          ),
-          getData(`${endPointBasedOnKey[locationUrl]}?fetchAll=true`, token),
-        ]);
+      try {
+        // Fetch all data in parallel
+        const [planResponse, vehicleMasterResponse, locationResponse] =
+          await Promise.all([
+            getData(endPointBasedOnKey[planUrl], token),
+            getData(
+              `${endPointBasedOnKey[vehicleMasterUrl]}?fetchAll=true`,
+              token
+            ),
+            getData(`${endPointBasedOnKey[locationUrl]}?fetchAll=true`, token),
+          ]);
 
-      // Set the collected data if all responses are successful
-      if (planResponse && vehicleMasterResponse && locationResponse) {
-        setCollectedData({
-          vehicleMasterId: vehicleMasterResponse?.data,
-          locationId: locationResponse?.data,
-          AllPlanDataId: planResponse?.data,
-        });
+        // Set the collected data if all responses are successful
+        if (planResponse && vehicleMasterResponse && locationResponse) {
+          setCollectedData({
+            vehicleMasterId: vehicleMasterResponse?.data,
+            locationId: locationResponse?.data,
+            AllPlanDataId: planResponse?.data,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setFormLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setFormLoading(false);
-    }
-  };
+    },
+    [token]
+  );
 
   useEffect(() => {
     fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");

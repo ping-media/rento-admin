@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import Input from "../../InputAndDropdown/Input";
 import PreLoader from "../../Skeleton/PreLoader";
-import {
-  formatPrice,
-  getDurationBetweenDates,
-  // getDurationInDays,
-} from "../../../utils/index";
+import { formatPrice, getDurationBetweenDates } from "../../../utils/index";
 import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
 import { getData, postData } from "../../../Data/index";
 import { useSelector } from "react-redux";
@@ -92,7 +88,6 @@ const BookingStepTwo = ({
         bookingEndDate,
         selectedVehicle,
         selectedAddOns
-        // Number(extraAddonPrice)
       );
       setStepTwoData(newData);
     } finally {
@@ -104,7 +99,6 @@ const BookingStepTwo = ({
     data?.selectedVehicle,
     selectedAddOns,
     CouponLoading,
-    // extraAddonPrice,
   ]);
 
   // for fetching coupon
@@ -141,9 +135,6 @@ const BookingStepTwo = ({
               coupon?.totalPrice > 0
                 ? Number(coupon?.totalPrice)
                 : Number(stepTwoData?.bookingPrice),
-            // : Number(
-            //     stepTwoData?.bookingPrice + stepTwoData?.extraAddonPrice
-            //   ),
             isExtra: applyLoading,
           },
           token
@@ -161,7 +152,6 @@ const BookingStepTwo = ({
               ...coupon,
               discountAmount: discountAmount,
               totalPrice: Number(stepTwoData?.bookingPrice),
-              // totalPrice: Number(stepTwoData?.totalPrice),
               discountPrice: finalAmount,
             });
           }
@@ -274,24 +264,6 @@ const BookingStepTwo = ({
                 </div>
               );
             })}
-        {/* <div className="flex items-center gap-1">
-          <input type="hidden" name="extraAddonPrice" value={extraAddonPrice} />
-          <input
-            type="checkbox"
-            id="extraHelmet"
-            className="w-4 h-4 accent-red-600"
-            checked={extraAddonPrice > 0}
-            onChange={(e) =>
-              setExtraAddonPrice(e.target.checked ? extraHelmetCharge : 0)
-            }
-          />
-          <label htmlFor="extraHelmet" className="text-sm cursor-pointer">
-            Extra Helmet{" "}
-            <span className="text-gray-500 italic">
-              (₹{formatPrice(extraHelmetCharge)}/day)
-            </span>
-          </label>
-        </div> */}
       </div>
       <div className="w-full lg:w-[48%]">
         <SelectDropDownCoupon
@@ -310,7 +282,7 @@ const BookingStepTwo = ({
           placeholder="Payment Mode"
           item={"paymentMethod"}
           options={["online", "partiallyPay", "cash"]}
-          value={"online"}
+          value={"cash"}
           require={true}
           isSearchEnable={false}
         />

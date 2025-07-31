@@ -141,7 +141,6 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             return null;
           }
         }
-        // if (item === "BookingStartDateAndTime" || item === "city") {
         if (item === "city") {
           return (
             <th
@@ -171,7 +170,6 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           );
         }
         if (
-          // item === "BookingEndDateAndTime" ||
           item === "state" ||
           item === "isContactVerified" ||
           item === "isDocumentVerified" ||

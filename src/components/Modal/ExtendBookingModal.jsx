@@ -13,10 +13,7 @@ import {
 } from "../../utils/index";
 import { getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import {
-  // handleUpdateExtendVehicle,
-  updateTimeLineData,
-} from "../../Redux/VehicleSlice/VehicleSlice";
+import { updateTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
 import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { debounce } from "lodash";
@@ -173,6 +170,26 @@ const ExtendBookingModal = ({ bookingData }) => {
     const extendAmountList = bookingData?.bookingPrice?.extendAmount || [];
     const extensionId = extendAmountList.length + 1 || 1;
 
+    // calculating the free km limit
+    const isPackage = appliedPlans?.length > 0 ? appliedPlans : null;
+
+    const daysBreakdowns = daysBreakdown ?? null;
+
+    const freeKmLimitForPlan =
+      isPackage !== null
+        ? isPackage.reduce((sum, plan) => {
+            return sum + plan.kmLimit * plan.count;
+          }, 0)
+        : 0;
+
+    const freeKmLimitForDays =
+      daysBreakdowns !== null
+        ? daysBreakdowns?.length *
+          formData?.stepOneData?.selectedVehicle?.freeKms
+        : 0;
+
+    const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;
+
     let data = {
       _id: bookingData?._id,
       vehicleTableId: bookingData?.vehicleTableId?._id,
@@ -195,6 +212,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         daysBreakdown: daysBreakdown || [],
         package: selectedPlan || [],
         appliedPlans: appliedPlans || [],
+        freeLimit,
         orderId: "",
         transactionId: "",
         paymentMethod: "",

@@ -7,10 +7,7 @@ import {
   removeTempIds,
   restvehicleMaster,
 } from "../Redux/VehicleSlice/VehicleSlice";
-import {
-  handleChangeLimit,
-  handleRestPagination,
-} from "../Redux/PaginationSlice/PaginationSlice";
+import { handleRestPagination } from "../Redux/PaginationSlice/PaginationSlice";
 import { useLocation } from "react-router-dom";
 const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
 const AddVehicleForServiceModal = lazy(() =>
@@ -40,17 +37,6 @@ const VehicleMaster = () => {
       return `stationId=${userStation?.stationId}`;
     }
     return "";
-  }, [location.pathname]);
-
-  // changing limit to custom limit for specific page
-  useEffect(() => {
-    if (limit === 100 && location.pathname !== "/all-vehicles") return;
-
-    if (location.pathname === "/all-vehicles") {
-      dispatch(handleChangeLimit(200));
-    } else {
-      dispatch(handleChangeLimit(100));
-    }
   }, [location.pathname]);
 
   useEffect(() => {
