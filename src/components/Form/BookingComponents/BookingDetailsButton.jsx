@@ -135,10 +135,11 @@ const BookingDetailsButton = ({
           title={"Cancel Ride"}
           fn={() => handleCancelBooking()}
           disable={
-            loggedInRole !== "admin" &&
-            (booking?.bookingStatus === "canceled" ||
-              booking?.rideStatus === "ongoing" ||
-              booking?.rideStatus === "completed")
+            booking?.bookingStatus === "canceled" ||
+            (loggedInRole !== "admin" &&
+              (booking?.bookingStatus === "canceled" ||
+                booking?.rideStatus === "ongoing" ||
+                booking?.rideStatus === "completed"))
           }
         />
       )}

@@ -3,14 +3,8 @@ import { tableIcons } from "../../Data/Icons";
 import { useDispatch } from "react-redux";
 import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import { addBlockVehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
-// import MoreActionCell from "./MoreActionCell";
 
-const TableActions = ({
-  item,
-  // loadingStates,
-  // setLoadingStates,
-  handleDeleteVehicle,
-}) => {
+const TableActions = ({ item, handleDeleteVehicle }) => {
   const dispatch = useDispatch();
   // for deleting the vehicle
   const handleDelete = (e, id) => {
@@ -52,15 +46,6 @@ const TableActions = ({
             {tableIcons.edit}
           </Link>
         )}
-        {/* {location.pathname == "/all-bookings" && (
-        <>
-          <MoreActionCell
-            item={item}
-            loadingStates={loadingStates}
-            setLoadingStates={setLoadingStates}
-          />
-        </>
-      )} */}
         {!(
           location.pathname == "/users-documents" ||
           location.pathname == "/all-bookings" ||

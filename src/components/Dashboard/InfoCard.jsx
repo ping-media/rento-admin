@@ -11,7 +11,7 @@ const InfoCard = ({ item }) => {
             <span>{item?.icon}</span>
           </div>
           <div>
-            <p className="text-semibold text-gray-400 text-sm uppercase">
+            <p className="text-semibold text-gray-400 text-sm text-center uppercase truncate w-[140px] lg:w-full">
               {camelCaseToSpaceSeparated(item?.title)}
             </p>
             <h1 className="lg:text-xl font-bold text-center lg:text-start">
