@@ -33,6 +33,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const { token } = useSelector((state) => state.user);
   const [vehicleId, setVehicleId] = useState("");
 
+  console.log(selectedVehicle);
+
   const isGSTActive = general?.GST?.status === "active" ? true : false || false;
   const GSTPercentage = general?.GST?.percentage || 18;
 
@@ -99,10 +101,10 @@ const ChangeVehicleModal = ({ bookingData }) => {
       (item) => item?._id == vehicleId
     );
 
-    const NewVehicleHavePlan =
-      (changeToNewVehicle?.vehiclePlan?.length > 0 &&
-        changeToNewVehicle?.vehiclePlan) ||
-      [];
+    // const NewVehicleHavePlan =
+    //   (changeToNewVehicle?.vehiclePlan?.length > 0 &&
+    //     changeToNewVehicle?.vehiclePlan) ||
+    //   [];
 
     const currentDateAndTime = formatDateToISOWithoutSecond(new Date());
     const extendStartDate =
@@ -131,20 +133,22 @@ const ChangeVehicleModal = ({ bookingData }) => {
       endDate?.slice(0, 10)
     );
 
-    const Plan =
-      NewVehicleHavePlan?.length > 0
-        ? NewVehicleHavePlan?.filter(
-            (plan) => Number(plan.planDuration) === Number(daysLeft)
-          )[0]
-        : null;
+    // const Plan =
+    //   NewVehicleHavePlan?.length > 0
+    //     ? NewVehicleHavePlan?.filter(
+    //         (plan) => Number(plan.planDuration) === Number(daysLeft)
+    //       )[0]
+    //     : null;
 
     // calculate the price
     const isPackageApplied = bookingData?.bookingPrice?.isPackageApplied;
 
-    const bookingPrice =
-      (Plan !== null && isPackageApplied
-        ? Plan?.planPrice
-        : changeToNewVehicle?.totalRentalCost) || 0;
+    // const bookingPrice =
+    //   (Plan !== null && isPackageApplied
+    //     ? Plan?.planPrice
+    //     : changeToNewVehicle?.totalRentalCost) || 0;
+
+    const bookingPrice = changeToNewVehicle?.totalRentalCost || 0;
 
     let extraCharges = 0;
     if (
@@ -200,8 +204,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
 
     const freeKmLimitForDays =
       daysBreakdowns !== null
-        ? daysBreakdowns?.length *
-          formData?.stepOneData?.selectedVehicle?.freeKms
+        ? daysBreakdowns?.length * changeToNewVehicle?.freeKms
         : 0;
 
     const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;

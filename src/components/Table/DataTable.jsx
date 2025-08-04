@@ -288,308 +288,301 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-300">
-                    {!dataLoading && Data ? (
-                      newUpdatedData && newUpdatedData.length > 0 ? (
-                        newUpdatedData.map((item, index) => (
-                          <tr
-                            className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"
-                            key={`row-${item._id}-${index}`}
-                            onClick={() => handleViewData(item)}
-                          >
-                            {/* Checkbox column for all-vehicles page */}
-                            {location.pathname === "/all-vehicles" && (
-                              <td
-                                className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
-                                key={`checkbox-${item._id}-${index}`}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <CheckBoxInput isId={item?._id} />
-                              </td>
-                            )}
+                    {dataLoading ? (
+                      <TableDataLoading
+                        tableHeaderCount={
+                          (location.pathname == "/all-vehicles"
+                            ? Columns?.length + 2
+                            : Columns?.length + 1) || 7
+                        }
+                      />
+                    ) : Data && newUpdatedData?.length > 0 ? (
+                      newUpdatedData.map((item, index) => (
+                        <tr
+                          className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"
+                          key={`row-${item._id}-${index}`}
+                          onClick={() => handleViewData(item)}
+                        >
+                          {/* Checkbox column for all-vehicles page */}
+                          {location.pathname === "/all-vehicles" && (
                             <td
                               className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
-                              key={`slNo-${index}`}
+                              key={`checkbox-${item._id}-${index}`}
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              {index + 1 < 10 ? `0${index + 1}` : index + 1}
+                              <CheckBoxInput isId={item?._id} />
                             </td>
-                            {/* Main columns render - filtering out status and special columns */}
-                            {Columns.filter(
-                              (column) =>
-                                !column.includes("Status") &&
-                                !column.includes("status") &&
-                                !column.includes("Active") &&
-                                !column.includes("Invoice")
-                            ).map((column, columnIndex) => {
-                              // Skip certain columns that should not be rendered
-                              if (
-                                column === "state" ||
-                                column === "isContactVerified" ||
-                                column === "isDocumentVerified" ||
-                                column === "kycApproved" ||
-                                column === "openEndTime" ||
-                                (["lastName", "contact"].includes(column) &&
-                                  [
-                                    "/all-invoices",
-                                    "/all-users",
-                                    "/all-managers",
-                                  ].includes(location.pathname))
-                              ) {
-                                return null;
-                              }
-                              const cellKey = `cell-${item._id}-${column}-${columnIndex}-${index}`;
-
-                              if (column === "userId") {
-                                return (
-                                  <UserDisplayCell
-                                    key={cellKey}
-                                    item={item}
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                );
-                              }
-
-                              if (column === "city") {
-                                return (
-                                  <BookingDateAndCityCell
-                                    key={cellKey}
-                                    item={item}
-                                    column={column}
-                                  />
-                                );
-                              }
-
-                              if (column === "isEmailVerified") {
-                                return (
-                                  <UserStatusCell
-                                    key={cellKey}
-                                    item={item}
-                                    index={columnIndex}
-                                  />
-                                );
-                              }
-
-                              if (column === "couponName") {
-                                return (
-                                  <td
-                                    className="px-2 py-1 max-w-36 lg:max-w-24 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900 flex items-center"
-                                    key={cellKey}
-                                  >
-                                    {item[column]}{" "}
-                                    <CopyButton textToCopy={item[column]} />
-                                  </td>
-                                );
-                              }
-
-                              if (column === "openStartTime") {
-                                return (
-                                  <td
-                                    className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
-                                    key={cellKey}
-                                  >
-                                    <p>{`${changeNumberIntoTime(
-                                      item?.openStartTime
-                                    )} - ${changeNumberIntoTime(
-                                      item?.openEndTime
-                                    )}`}</p>
-                                  </td>
-                                );
-                              }
-
-                              if (
-                                column === "firstName" &&
+                          )}
+                          <td
+                            className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                            key={`slNo-${index}`}
+                          >
+                            {index + 1 < 10 ? `0${index + 1}` : index + 1}
+                          </td>
+                          {/* Main columns render - filtering out status and special columns */}
+                          {Columns.filter(
+                            (column) =>
+                              !column.includes("Status") &&
+                              !column.includes("status") &&
+                              !column.includes("Active") &&
+                              !column.includes("Invoice")
+                          ).map((column, columnIndex) => {
+                            // Skip certain columns that should not be rendered
+                            if (
+                              column === "state" ||
+                              column === "isContactVerified" ||
+                              column === "isDocumentVerified" ||
+                              column === "kycApproved" ||
+                              column === "openEndTime" ||
+                              (["lastName", "contact"].includes(column) &&
                                 [
                                   "/all-invoices",
                                   "/all-users",
                                   "/all-managers",
-                                ].includes(location.pathname)
-                              ) {
-                                return (
-                                  <UserDisplayCell
-                                    key={cellKey}
-                                    firstName={item?.firstName}
-                                    lastName={item?.lastName}
-                                    Contact={item?.contact}
-                                  />
-                                );
-                              }
+                                ].includes(location.pathname))
+                            ) {
+                              return null;
+                            }
+                            const cellKey = `cell-${item._id}-${column}-${columnIndex}-${index}`;
 
-                              if (column.includes("Image")) {
-                                return (
-                                  <TableImage
-                                    key={cellKey}
-                                    item={item}
-                                    column={column}
-                                  />
-                                );
-                              }
+                            if (column === "userId") {
+                              return (
+                                <UserDisplayCell
+                                  key={cellKey}
+                                  item={item}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              );
+                            }
 
-                              if (typeof item[column] === "object") {
-                                const paymentKey = `payment-${item._id}-${column}-${columnIndex}-${index}`;
-                                const priceKey = `price-${item._id}-${column}-${columnIndex}-${index}`;
+                            if (column === "city") {
+                              return (
+                                <BookingDateAndCityCell
+                                  key={cellKey}
+                                  item={item}
+                                  column={column}
+                                />
+                              );
+                            }
 
-                                return (
-                                  <React.Fragment key={cellKey}>
-                                    {location?.pathname === "/payments" && (
-                                      <td
-                                        className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
-                                        key={paymentKey}
-                                      >
-                                        ₹{" "}
-                                        {item?.paymentStatus ===
-                                          "partially_paid" ||
-                                        item?.paymentStatus === "partiallyPay"
-                                          ? formatPrice(
-                                              item?.bookingPrice?.userPaid
-                                            )
-                                          : item?.bookingPrice
-                                              ?.discountTotalPrice > 0
-                                          ? formatPrice(
-                                              item?.bookingPrice
-                                                ?.discountTotalPrice
-                                            )
-                                          : formatPrice(
-                                              item?.bookingPrice?.totalPrice
-                                            )}
-                                      </td>
-                                    )}
-                                    <td
-                                      className={`px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900 ${
-                                        column.includes("maintenance")
-                                          ? "capitalize"
-                                          : ""
-                                      }`}
-                                      key={priceKey}
-                                    >
-                                      {column.includes("maintenance") &&
-                                        console.log()}
-                                      {column.includes(
-                                        "files"
-                                      ) ? null : column.includes(
-                                          "maintenance"
-                                        ) ? (
-                                        <MaintenanceStatusBadge
-                                          maintenanceList={item[column]}
-                                        />
-                                      ) : (
-                                        `₹${formatPrice(
-                                          item[column]?.isDiscountZero ===
-                                            true ||
-                                            (item[column]?.discountTotalPrice &&
-                                              item[column]
-                                                ?.discountTotalPrice != 0)
-                                            ? item[column]?.discountTotalPrice
-                                            : item[column]?.totalPrice
-                                        )}`
-                                      )}
-                                    </td>
-                                  </React.Fragment>
-                                );
-                              }
+                            if (column === "isEmailVerified") {
+                              return (
+                                <UserStatusCell
+                                  key={cellKey}
+                                  item={item}
+                                  index={columnIndex}
+                                />
+                              );
+                            }
 
+                            if (column === "couponName") {
                               return (
                                 <td
-                                  className={`px-2 py-1 text-md lg:text-sm font-medium text-gray-900 ${
-                                    column?.includes("email")
-                                      ? ""
-                                      : "capitalize"
-                                  } ${
-                                    [
-                                      "address",
-                                      "email",
-                                      "stationName",
-                                    ].includes(column)
-                                      ? "max-w-32 truncate"
-                                      : column.includes("vehicleName")
-                                      ? "max-w-20 truncate"
-                                      : "whitespace-nowrap"
-                                  }`}
+                                  className="px-2 py-1 max-w-36 lg:max-w-24 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900 flex items-center"
                                   key={cellKey}
                                 >
-                                  {RenderCellContent(column, item[column])}
+                                  {item[column]}{" "}
+                                  <CopyButton textToCopy={item[column]} />
                                 </td>
                               );
-                            })}
+                            }
 
-                            {/* Status columns render */}
-                            {Columns.filter(
-                              (column) =>
-                                column.includes("Status") ||
-                                column.includes("status") ||
-                                column.includes("Active") ||
-                                column.includes("Invoice")
-                            ).map((column, columnIndex) => {
-                              const isVehicleOrLocationStatus =
-                                (location?.pathname === "/location-master" &&
-                                  column.includes("Status")) ||
-                                (location?.pathname === "/all-vehicles" &&
-                                  column.includes("vehicleStatus")) ||
-                                (location?.pathname === "/station-master" &&
-                                  column.includes("status")) ||
-                                (location?.pathname === "/vehicle-master" &&
-                                  column.includes("status"));
-
-                              const statusKey = `status-${item._id}-${column}-${columnIndex}-${index}`;
-
-                              return isVehicleOrLocationStatus ? (
+                            if (column === "openStartTime") {
+                              return (
                                 <td
                                   className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
-                                  key={statusKey}
-                                  onClick={(e) => e.stopPropagation()}
+                                  key={cellKey}
                                 >
-                                  <InputSwitch
-                                    value={item[column]}
-                                    id={item?._id}
-                                  />
-                                </td>
-                              ) : column.includes("rideStatus") ? (
-                                <td
-                                  className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
-                                  key={statusKey}
-                                >
-                                  <p className="bg-gray-300/20 border border-gray-300/60 tracking-wider p-1 text-center rounded-md uppercase text-xs">
-                                    {["pending", "canceled"].includes(
-                                      item[column]
-                                    )
-                                      ? "Not Started"
-                                      : item[column] === "completed"
-                                      ? item[column]
-                                      : "Started"}
-                                  </p>
-                                </td>
-                              ) : (
-                                <td
-                                  className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
-                                  key={statusKey}
-                                >
-                                  <StatusChange item={item} column={column} />
+                                  <p>{`${changeNumberIntoTime(
+                                    item?.openStartTime
+                                  )} - ${changeNumberIntoTime(
+                                    item?.openEndTime
+                                  )}`}</p>
                                 </td>
                               );
-                            })}
+                            }
 
-                            {/* Action buttons */}
-                            {loggedInRole !== "manager" && (
-                              <TableActions
-                                item={item}
-                                loadingStates={loadingStates}
-                                setLoadingStates={setLoadingStates}
-                                handleDeleteVehicle={handleDeleteVehicle}
-                                key={`actions-${item._id}-${index}`}
-                              />
-                            )}
-                          </tr>
-                        ))
-                      ) : (
-                        <TableNotFound
-                          ColumnsCount={
-                            (location.pathname == "/all-vehicles"
-                              ? Columns?.length + 2
-                              : Columns?.length + 1) || 7
-                          }
-                        />
-                      )
+                            if (
+                              column === "firstName" &&
+                              [
+                                "/all-invoices",
+                                "/all-users",
+                                "/all-managers",
+                              ].includes(location.pathname)
+                            ) {
+                              return (
+                                <UserDisplayCell
+                                  key={cellKey}
+                                  firstName={item?.firstName}
+                                  lastName={item?.lastName}
+                                  Contact={item?.contact}
+                                />
+                              );
+                            }
+
+                            if (column.includes("Image")) {
+                              return (
+                                <TableImage
+                                  key={cellKey}
+                                  item={item}
+                                  column={column}
+                                />
+                              );
+                            }
+
+                            if (typeof item[column] === "object") {
+                              const paymentKey = `payment-${item._id}-${column}-${columnIndex}-${index}`;
+                              const priceKey = `price-${item._id}-${column}-${columnIndex}-${index}`;
+
+                              return (
+                                <React.Fragment key={cellKey}>
+                                  {location?.pathname === "/payments" && (
+                                    <td
+                                      className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                      key={paymentKey}
+                                    >
+                                      ₹{" "}
+                                      {item?.paymentStatus ===
+                                        "partially_paid" ||
+                                      item?.paymentStatus === "partiallyPay"
+                                        ? formatPrice(
+                                            item?.bookingPrice?.userPaid
+                                          )
+                                        : item?.bookingPrice
+                                            ?.discountTotalPrice > 0
+                                        ? formatPrice(
+                                            item?.bookingPrice
+                                              ?.discountTotalPrice
+                                          )
+                                        : formatPrice(
+                                            item?.bookingPrice?.totalPrice
+                                          )}
+                                    </td>
+                                  )}
+                                  <td
+                                    className={`px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900 ${
+                                      column.includes("maintenance")
+                                        ? "capitalize"
+                                        : ""
+                                    }`}
+                                    key={priceKey}
+                                  >
+                                    {column.includes("maintenance") &&
+                                      console.log()}
+                                    {column.includes(
+                                      "files"
+                                    ) ? null : column.includes(
+                                        "maintenance"
+                                      ) ? (
+                                      <MaintenanceStatusBadge
+                                        maintenanceList={item[column]}
+                                      />
+                                    ) : (
+                                      `₹${formatPrice(
+                                        item[column]?.isDiscountZero === true ||
+                                          (item[column]?.discountTotalPrice &&
+                                            item[column]?.discountTotalPrice !=
+                                              0)
+                                          ? item[column]?.discountTotalPrice
+                                          : item[column]?.totalPrice
+                                      )}`
+                                    )}
+                                  </td>
+                                </React.Fragment>
+                              );
+                            }
+
+                            return (
+                              <td
+                                className={`px-2 py-1 text-md lg:text-sm font-medium text-gray-900 ${
+                                  column?.includes("email") ? "" : "capitalize"
+                                } ${
+                                  ["address", "email", "stationName"].includes(
+                                    column
+                                  )
+                                    ? "max-w-32 truncate"
+                                    : column.includes("vehicleName")
+                                    ? "max-w-20 truncate"
+                                    : "whitespace-nowrap"
+                                }`}
+                                key={cellKey}
+                              >
+                                {RenderCellContent(column, item[column])}
+                              </td>
+                            );
+                          })}
+
+                          {/* Status columns render */}
+                          {Columns.filter(
+                            (column) =>
+                              column.includes("Status") ||
+                              column.includes("status") ||
+                              column.includes("Active") ||
+                              column.includes("Invoice")
+                          ).map((column, columnIndex) => {
+                            const isVehicleOrLocationStatus =
+                              (location?.pathname === "/location-master" &&
+                                column.includes("Status")) ||
+                              (location?.pathname === "/all-vehicles" &&
+                                column.includes("vehicleStatus")) ||
+                              (location?.pathname === "/station-master" &&
+                                column.includes("status")) ||
+                              (location?.pathname === "/vehicle-master" &&
+                                column.includes("status"));
+
+                            const statusKey = `status-${item._id}-${column}-${columnIndex}-${index}`;
+
+                            return isVehicleOrLocationStatus ? (
+                              <td
+                                className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                key={statusKey}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <InputSwitch
+                                  value={item[column]}
+                                  id={item?._id}
+                                />
+                              </td>
+                            ) : column.includes("rideStatus") ? (
+                              <td
+                                className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                key={statusKey}
+                              >
+                                <p className="bg-gray-300/20 border border-gray-300/60 tracking-wider p-1 text-center rounded-md uppercase text-xs">
+                                  {["pending", "canceled"].includes(
+                                    item[column]
+                                  )
+                                    ? "Not Started"
+                                    : item[column] === "completed"
+                                    ? item[column]
+                                    : "Started"}
+                                </p>
+                              </td>
+                            ) : (
+                              <td
+                                className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                key={statusKey}
+                              >
+                                <StatusChange item={item} column={column} />
+                              </td>
+                            );
+                          })}
+
+                          {/* Action buttons */}
+                          {loggedInRole !== "manager" && (
+                            <TableActions
+                              item={item}
+                              loadingStates={loadingStates}
+                              setLoadingStates={setLoadingStates}
+                              handleDeleteVehicle={handleDeleteVehicle}
+                              key={`actions-${item._id}-${index}`}
+                            />
+                          )}
+                        </tr>
+                      ))
                     ) : (
-                      <TableDataLoading
-                        tableHeaderCount={
+                      <TableNotFound
+                        ColumnsCount={
                           (location.pathname == "/all-vehicles"
                             ? Columns?.length + 2
                             : Columns?.length + 1) || 7

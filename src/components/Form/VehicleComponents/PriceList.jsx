@@ -68,10 +68,12 @@ const PriceList = ({
               {key === "rentAmount" || key === "extraAddonPrice"
                 ? key === "rentAmount" &&
                   bookingData?.bookingPrice?.isPackageApplied
-                  ? `${formatPrice(bookingData?.bookingPrice?.bookingPrice)}`
+                  ? `${formatPrice(
+                      bookingData?.bookingPrice?.bookingPrice || 0
+                    )}`
                   : formatPrice(value)
                 : extendBooking && key === "totalPrice"
-                ? formatPrice(value + extendBooking?.amount)
+                ? formatPrice(value + extendBooking?.amount || 0)
                 : formatPrice(value)}
             </li>
           );
