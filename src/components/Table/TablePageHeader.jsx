@@ -31,7 +31,12 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
 
   // for clearing the input state
   useEffect(() => {
-    setInputSearchQuery("");
+    const nextPath = window.location.pathname;
+    const isGoingToDetails = nextPath.includes("/details");
+
+    if (!isGoingToDetails) {
+      setInputSearchQuery("");
+    }
   }, [location.pathname]);
 
   return (

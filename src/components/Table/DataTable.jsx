@@ -25,7 +25,7 @@ import UserStatusCell from "./UserStatusCell.jsx";
 import CopyButton from "../../components/Buttons/CopyButton.jsx";
 import TableImage from "./TableImageWithPopupShow.jsx";
 import BookingCard from "../../components/Card/BookingCard.jsx";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CardNotFound from "../../components/Skeleton/CardNotFound.jsx";
 import CardDataLoading from "../../components/Skeleton/CardDataLoading.jsx";
 import MaintenanceStatusBadge from "./MaintenanceBadge.jsx";
@@ -45,6 +45,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [newUpdatedData, setNewUpdatedData] = useState([]);
   const [inputSearchQuery, setInputSearchQuery] = useState("");
   const searchTerm = useDebounce(inputSearchQuery, 500);
+  const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -52,7 +53,10 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     if (newUpdatedData && pagination) {
       let dataToDisplay = [...sortedData];
 
-      if (inputSearchQuery.trim() !== "") {
+      if (
+        inputSearchQuery.trim() !== "" &&
+        location.pathname === "/all-vehicles"
+      ) {
         setTotalPages(1);
       } else {
         const pageCount = Number(pagination?.totalPages);

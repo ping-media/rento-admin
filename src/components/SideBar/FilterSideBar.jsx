@@ -5,7 +5,7 @@ import FilterRadioInput from "./FilterRadioInput";
 import { getData } from "../../Data/index";
 import { fetchVehicleMasterData } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { formatDateToISO } from "../../utils/index";
 import {
@@ -21,7 +21,9 @@ const FilterSideBar = () => {
   const { page, limit, vehiclesFilter } = useSelector(
     (state) => state.pagination
   );
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole, userStation } = useSelector(
+    (state) => state.user
+  );
   const [menuList, setMenuList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filterState, setFilterState] = useState("All");
@@ -160,19 +162,38 @@ const FilterSideBar = () => {
   const searchDataBasedOnFilters = async (searchTerm) => {
     try {
       setLoading(true);
+
       const userType =
         location?.pathname === "/all-users"
           ? "userType=customer"
           : "userType=manager";
+
       let endpoint;
+      let StationId = "";
+
+      if (loggedInRole === "manager") {
+        StationId = `stationId=${userStation?.stationId}`;
+      }
+
       if (location?.pathname === "/all-bookings") {
-        endpoint = searchTerm
-          ? `/getBooking?${
-              searchTerm?.includes("Status=") || searchTerm.includes("isCash=")
-                ? ""
-                : "search="
-            }${searchTerm}&page=${page}&limit=${limit}`
-          : `/getBooking?page=${page}&limit=${limit}`;
+        endpoint =
+          StationId !== ""
+            ? searchTerm
+              ? `/getBooking?${StationId}&${
+                  searchTerm?.includes("Status=") ||
+                  searchTerm.includes("isCash=")
+                    ? ""
+                    : "search="
+                }${searchTerm}&page=${page}&limit=${limit}`
+              : `/getBooking?${StationId}&page=${page}&limit=${limit}`
+            : searchTerm
+            ? `/getBooking?${
+                searchTerm?.includes("Status=") ||
+                searchTerm.includes("isCash=")
+                  ? ""
+                  : "search="
+              }${searchTerm}&page=${page}&limit=${limit}`
+            : `/getBooking?page=${page}&limit=${limit}`;
       } else {
         endpoint = searchTerm
           ? `/getAllUsers?${

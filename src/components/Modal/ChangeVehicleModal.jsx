@@ -33,8 +33,6 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const { token } = useSelector((state) => state.user);
   const [vehicleId, setVehicleId] = useState("");
 
-  console.log(selectedVehicle);
-
   const isGSTActive = general?.GST?.status === "active" ? true : false || false;
   const GSTPercentage = general?.GST?.percentage || 18;
 

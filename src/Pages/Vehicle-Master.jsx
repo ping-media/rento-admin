@@ -18,15 +18,16 @@ const VehicleStationModal = lazy(() =>
 );
 
 const VehicleMaster = () => {
-  const dispatch = useDispatch();
-  const { token } = useSelector((state) => state.user);
   const { vehicleMaster, deletevehicleId, tempLoading, loading, refresh } =
     useSelector((state) => state.vehicles);
   const { page, limit, searchTerm, searchType, vehiclesFilter } = useSelector(
     (state) => state.pagination
   );
+  const { loggedInRole, userStation, token } = useSelector(
+    (state) => state.user
+  );
   const location = useLocation();
-  const { loggedInRole, userStation } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   const searchBasedOnPage = useMemo(() => {
     //this is  for usertype
@@ -71,8 +72,14 @@ const VehicleMaster = () => {
   // clear data after page change
   useEffect(() => {
     return () => {
+      const nextPath = window.location.pathname;
+      const isGoingToDetails = nextPath.includes("/details");
+
+      if (!isGoingToDetails) {
+        dispatch(handleRestPagination());
+      }
+
       dispatch(restvehicleMaster());
-      dispatch(handleRestPagination());
       dispatch(removeTempIds());
     };
   }, []);

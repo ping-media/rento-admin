@@ -24,7 +24,18 @@ const userPersistConfig = {
   transforms: [encryptedAdminTransform],
 };
 
+const paginationPersistConfig = {
+  key: "pagination",
+  version: "1",
+  storage,
+  whitelist: ["searchTerm"],
+};
+
 const persistedUserReducer = persistReducer(userPersistConfig, userReducer);
+const persistedPaginationReducer = persistReducer(
+  paginationPersistConfig,
+  PaginationReducer
+);
 
 const store = configureStore({
   reducer: {
@@ -35,7 +46,7 @@ const store = configureStore({
     user: persistedUserReducer,
     dashboard: DasboardReducer,
     locationAndStation: LocationAndStationReducer,
-    pagination: PaginationReducer,
+    pagination: persistedPaginationReducer,
     general: GeneralReducer,
     maintenance: MaintenanceReducer,
   },

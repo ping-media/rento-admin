@@ -92,19 +92,20 @@ const UserKycApproveModal = () => {
           aadharNumber: "",
         }));
       }
-    } else if (name === "licenseNumber") {
-      if (value.length > 16 || value.length < 15) {
-        setFormError((prev) => ({
-          ...prev,
-          licenseNumber: "Enter valid license number",
-        }));
-      } else {
-        setFormError((prev) => ({
-          ...prev,
-          licenseNumber: "",
-        }));
-      }
     }
+    // else if (name === "licenseNumber") {
+    //   if (value.length > 16 || value.length < 15) {
+    //     setFormError((prev) => ({
+    //       ...prev,
+    //       licenseNumber: "Enter valid license number",
+    //     }));
+    //   } else {
+    //     setFormError((prev) => ({
+    //       ...prev,
+    //       licenseNumber: "",
+    //     }));
+    //   }
+    // }
   };
 
   // fetching user documents
