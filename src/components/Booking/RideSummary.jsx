@@ -1,6 +1,11 @@
 import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
 
-const ExtendSummary = ({ appliedPlans, daysBreakdown, item }) => {
+const ExtendSummary = ({
+  appliedPlans,
+  daysBreakdown,
+  item,
+  bookingDuration,
+}) => {
   const weekend =
     daysBreakdown?.length > 0
       ? daysBreakdown?.filter((day) => day.isWeekend === true)
@@ -19,6 +24,11 @@ const ExtendSummary = ({ appliedPlans, daysBreakdown, item }) => {
               {camelCaseToSpaceSeparated(item?.title)}
             </span>
             <span className="text-sm font-semibold mx-1">:</span>
+            {bookingDuration && (
+              <span className="text-sm font-semibold">
+                {bookingDuration} Day(s)
+              </span>
+            )}
           </div>
         </div>
         <div>
