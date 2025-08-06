@@ -158,11 +158,16 @@ const fetchVehicleMasterWithPagination = debounce(
     limit,
     searchBasedOnFilter = "",
     searchType,
-    vehiclesFilter
+    vehiclesFilter,
+    filters
   ) => {
     try {
       dispatch(fetchVehicleStart());
       let dynamicEndpoint = `${endpoint}?page=${page}&limit=${limit}`;
+
+      if (filters !== null && filters !== " ") {
+        dynamicEndpoint = `${endpoint}?${filters}&page=${page}&limit=${limit}`;
+      }
 
       if (
         vehiclesFilter.vehicleName !== "" &&

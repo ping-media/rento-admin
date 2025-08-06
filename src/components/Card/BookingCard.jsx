@@ -29,14 +29,18 @@ const BookingCard = ({ item }) => {
                 alt={item?.vehicleName}
               />
             </div>
-            <div>
-              <h2 className="uppercase text-sm font-bold">
-                {item?.vehicleName}
-              </h2>
-              <p className="text-xs">({item?.vehicleBasic?.vehicleNumber})</p>
-            </div>
           </div>
           <div className="flex-1">
+            <div className="text-right">
+              <h2 className="uppercase text-base font-semibold">
+                {item?.vehicleBasic?.vehicleNumber}
+              </h2>
+              <div className="w-full flex justify-end text-right">
+                <p className="text-sm max-w-[120px] truncate capitalize">
+                  {item?.vehicleName}
+                </p>
+              </div>
+            </div>
             <p className="text-right text-theme font-bold">
               ₹
               {item?.bookingPrice?.discountTotalPrice &&

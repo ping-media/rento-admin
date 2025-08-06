@@ -20,9 +20,8 @@ const VehicleStationModal = lazy(() =>
 const VehicleMaster = () => {
   const { vehicleMaster, deletevehicleId, tempLoading, loading, refresh } =
     useSelector((state) => state.vehicles);
-  const { page, limit, searchTerm, searchType, vehiclesFilter } = useSelector(
-    (state) => state.pagination
-  );
+  const { page, limit, searchTerm, searchType, vehiclesFilter, filters } =
+    useSelector((state) => state.pagination);
   const { loggedInRole, userStation, token } = useSelector(
     (state) => state.user
   );
@@ -51,7 +50,8 @@ const VehicleMaster = () => {
         limit,
         searchBasedOnPage,
         searchType,
-        vehiclesFilter
+        vehiclesFilter,
+        filters
       );
     }
   }, [
@@ -67,6 +67,7 @@ const VehicleMaster = () => {
     searchBasedOnPage,
     refresh,
     vehiclesFilter,
+    filters,
   ]);
 
   // clear data after page change

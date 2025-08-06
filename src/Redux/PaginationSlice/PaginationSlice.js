@@ -4,6 +4,7 @@ const initialState = {
   page: 1,
   limit: 100,
   searchTerm: null,
+  filters: null,
   searchType: "all",
   vehiclesFilter: {
     vehicleName: "",
@@ -32,6 +33,9 @@ const PaginationSlice = createSlice({
     },
     handleRestSearchTerm: (state) => {
       state.searchTerm = null;
+    },
+    setFilters: (state, action) => {
+      state.filters = action.payload;
     },
     setVehicleName: (state, action) => {
       state.vehiclesFilter.vehicleName = action.payload;
@@ -81,6 +85,7 @@ export const {
   setCouponName,
   resetCouponName,
   resetBookingVehicleName,
+  setFilters,
 } = PaginationSlice.actions;
 
 export default PaginationSlice.reducer;

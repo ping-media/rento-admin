@@ -5,11 +5,12 @@ import FilterRadioInput from "./FilterRadioInput";
 import { getData } from "../../Data/index";
 import { fetchVehicleMasterData } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { formatDateToISO } from "../../utils/index";
 import {
   resetVehiclesFilter,
+  setFilters,
   setSearch,
   setVehicleName,
 } from "../../Redux/PaginationSlice/PaginationSlice";
@@ -213,6 +214,7 @@ const FilterSideBar = () => {
       return handleAsyncError(dispatch, error?.message);
     } finally {
       setLoading(false);
+      dispatch(setFilters(searchTerm));
     }
   };
 
