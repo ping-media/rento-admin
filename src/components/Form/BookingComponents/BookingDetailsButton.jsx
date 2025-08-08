@@ -114,7 +114,7 @@ const BookingDetailsButton = ({
       {/* for completing ride  */}
       {booking?.rideStatus === "ongoing" && !isChange && (
         <Button
-          title={"Finish Ride"}
+          title={"End Ride"}
           fn={() => dispatch(toggleRideEndModal())}
           disable={
             booking?.rideStatus === "pending" ||
@@ -155,16 +155,18 @@ const BookingDetailsButton = ({
         />
       )}
 
-      {booking?.rideStatus === "pending" && (
-        <Button
-          title={"Reschedule"}
-          fn={() => dispatch(toggleRescheduleModal())}
-        />
-      )}
+      {booking?.bookingStatus !== "canceled" &&
+        booking?.rideStatus === "pending" && (
+          <Button
+            title={"Reschedule"}
+            fn={() => dispatch(toggleRescheduleModal())}
+          />
+        )}
 
-      {booking?.rideStatus === "pending" && (
-        <Button title={"Add-On"} fn={() => dispatch(toggleAddonModal())} />
-      )}
+      {booking?.bookingStatus !== "canceled" &&
+        booking?.rideStatus === "pending" && (
+          <Button title={"Add-On"} fn={() => dispatch(toggleAddonModal())} />
+        )}
 
       {!(
         booking?.rideStatus === "completed" ||
