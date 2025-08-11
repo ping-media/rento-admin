@@ -125,7 +125,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
             <input
               type="hidden"
               name="city"
-              value={id ? vehicleMaster[0]?.mapLink || cityValue : cityValue}
+              value={id ? vehicleMaster[0]?.city || cityValue : cityValue}
             />
             {/* seaching address & lat & long  */}
             <GoogleSearchLocation
@@ -141,6 +141,15 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"state"}
               options={States}
               value={id && vehicleMaster[0]?.state}
+              require={true}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"weekendPriceIncrease"}
+              options={["active", "inactive"]}
+              value={id && vehicleMaster[0]?.weekendPriceIncrease}
+              isSearchEnable={false}
               require={true}
             />
           </div>

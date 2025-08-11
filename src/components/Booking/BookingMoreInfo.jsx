@@ -1,4 +1,3 @@
-import { formatFullDateAndTime } from "../../utils/index";
 import CopyButton from "../../components/Buttons/CopyButton";
 import { useSelector } from "react-redux";
 
@@ -20,7 +19,8 @@ const BookingMoreInfo = ({ data, datatype }) => {
           const isExtend =
             vehicleMaster[0]?.bookingPrice?.extendAmount?.length === 0 &&
             item?.key?.includes("Extended");
-          return !isExtend;
+          const isEmptyValue = item?.value === "";
+          return !isExtend && !isEmptyValue;
         })
         .map((item, index, filteredArr) => {
           return (

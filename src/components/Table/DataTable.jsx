@@ -140,6 +140,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "lastMeterReading",
           "mapLink",
           "mobileToken",
+          "weekendPriceIncrease",
         ].includes(key)
     );
 

@@ -205,6 +205,7 @@ const RideEndModal = ({ id }) => {
         lateFeeBasedOnKM: Number(lateFees?.lateFeeBasedOnKM) || 0,
         additionalPrice: Number(additionalPrice),
         paymentMode: result?.PaymentMode || "NA",
+        endDateTime: Date.now(),
       };
       const LateFeeAmount = data
         ? data.lateFeeBasedOnHour + data.lateFeeBasedOnKM

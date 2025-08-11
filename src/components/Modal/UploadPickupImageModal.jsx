@@ -92,6 +92,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     finalFormData.append("userId", userId);
     finalFormData.append("bookingId", bookingId);
     finalFormData.append("_id", docId);
+    finalFormData.append("startDateAndTime", Date.now());
 
     // changing the data based on id is present or not
     let currentData = !isBookingIdPresent ? vehicleMaster?.data : vehicleMaster;

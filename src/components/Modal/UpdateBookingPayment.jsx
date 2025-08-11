@@ -237,6 +237,7 @@ const UpdateBookingPayment = ({ id }) => {
             <div className="text-left mb-2">
               <SelectDropDown
                 item={"PaymentMode"}
+                value="cash"
                 options={["cash"]}
                 setIsLocationSelected={setPaymentMode}
                 isSearchEnable={false}

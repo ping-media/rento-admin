@@ -6,6 +6,7 @@ import {
   // formatDateToISO,
   // formatDateToISOWithoutSecond,
   formatFullDateAndTime,
+  millisecToReadableFormat,
 } from "../../utils/index";
 import BookingFareDetails from "./BookingFareDetails";
 import BookingUserDetails from "./BookingUserDetail";
@@ -89,6 +90,22 @@ const BookingDetail = ({ tabs }) => {
         {
           key: "Extended Booking End",
           value: `${formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
+        },
+        {
+          key: "Start Ride",
+          value: `${
+            vm?.vehicleBasic?.RideStart
+              ? millisecToReadableFormat(vm?.vehicleBasic?.RideStart)
+              : ""
+          }`,
+        },
+        {
+          key: "End Ride",
+          value: `${
+            vm?.vehicleBasic?.RideEnd
+              ? millisecToReadableFormat(vm?.vehicleBasic?.RideEnd)
+              : ""
+          }`,
         },
       ],
     };
