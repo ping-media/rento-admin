@@ -10,7 +10,9 @@ import { handleChangeSearchType } from "../../Redux/PaginationSlice/PaginationSl
 import { toggleRefresh } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
-  const { vehiclesFilter } = useSelector((state) => state.pagination);
+  const { vehiclesFilter, activeFilterName } = useSelector(
+    (state) => state.pagination
+  );
   const dispatch = useDispatch();
   const [count, setCount] = useState(0);
 
@@ -51,6 +53,9 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
             ? "Plan Master"
             : location.pathname === "/location-master"
             ? "Cities"
+            : location.pathname.includes("/all-bookings") &&
+              activeFilterName !== null
+            ? activeFilterName
             : formatPathNameToTitle(location.pathname)}
         </h1>
         {!(

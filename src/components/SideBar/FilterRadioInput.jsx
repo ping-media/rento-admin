@@ -9,7 +9,7 @@ const FilterRadioInput = ({
   const handleChangeValue = () => {
     setFilterState && setFilterState(title);
     if (onChangeFn) {
-      onChangeFn(searchTag);
+      onChangeFn(searchTag, title);
     }
   };
 

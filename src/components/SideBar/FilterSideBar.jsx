@@ -10,6 +10,7 @@ import PreLoader from "../../components/Skeleton/PreLoader";
 import { formatDateToISO } from "../../utils/index";
 import {
   resetVehiclesFilter,
+  setActiveFilterName,
   setFilters,
   setSearch,
   setVehicleName,
@@ -41,10 +42,11 @@ const FilterSideBar = () => {
 
   //booking status  list
   const filterMenuList = [
-    { title: "All", searchTag: "", divider: false },
+    { title: "All Bookings", searchTag: "", divider: false },
     {
       title: "Pending Pickups",
-      searchTag: "rideStatus=pending&sortBy=BookingStartDateAndTime",
+      searchTag:
+        "rideStatus=pending&sortBy=BookingStartDateAndTime&sortOrder=asc",
       divider: false,
     },
     {
@@ -160,7 +162,7 @@ const FilterSideBar = () => {
   }, [location?.href]);
 
   //   search data based on flags
-  const searchDataBasedOnFilters = async (searchTerm) => {
+  const searchDataBasedOnFilters = async (searchTerm, title) => {
     try {
       setLoading(true);
 
@@ -171,6 +173,12 @@ const FilterSideBar = () => {
 
       let endpoint;
       let StationId = "";
+
+      if (title) {
+        dispatch(setActiveFilterName(title));
+      } else {
+        dispatch(setActiveFilterName(null));
+      }
 
       if (loggedInRole === "manager") {
         StationId = `stationId=${userStation?.stationId}`;
@@ -301,18 +309,6 @@ const FilterSideBar = () => {
           className="px-3.5 py-3 overflow-y-scroll no-scrollbar"
           style={{ height: "calc(100vh - 88px)" }}
         >
-          {/* {location.pathname === "/all-bookings" && (
-            <div className="mb-3">
-              <Input
-                item={"startDateAndTime"}
-                type="date"
-                onChangeFilterFun={
-                  searchDataBasedOnFilters && searchDataBasedOnFilters
-                }
-              />
-            </div>
-          )} */}
-
           {location.pathname !== "/all-vehicles" && (
             <>
               <ul className="leading-8">
