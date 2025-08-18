@@ -69,7 +69,7 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
       handleAsyncError(dispatch, "Invalid Email & Password");
     }
   } catch (error) {
-    handleAsyncError(dispatch, error?.message);
+    handleAsyncError(dispatch, "Unable to login! try after sometime");
   } finally {
     setLoading(false);
     dispatch(handleNavigateLoad(false));
