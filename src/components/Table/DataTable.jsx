@@ -141,6 +141,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "mapLink",
           "mobileToken",
           "weekendPriceIncrease",
+          "weekendPercentage",
         ].includes(key)
     );
 

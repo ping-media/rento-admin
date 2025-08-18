@@ -16,6 +16,7 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
 
   //options for vehicleType
   const vehicleTypeOptions = ["gear", "non-gear"];
+  const vehicleCategoryOptions = ["two-wheeler", "four-wheeler"];
 
   useEffect(() => {
     if (id && vehicleMaster?.length === 1)
@@ -37,6 +38,13 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
                 item={"vehicleName"}
                 value={id && vehicleMaster?.[0]?.vehicleName}
                 require={true}
+              />
+              <SelectDropDown
+                item={"vehicleCategory"}
+                options={vehicleCategoryOptions}
+                value={id && vehicleMaster?.[0]?.vehicleCategory}
+                require={true}
+                isSearchEnable={false}
               />
               <SelectDropDown
                 item={"vehicleType"}

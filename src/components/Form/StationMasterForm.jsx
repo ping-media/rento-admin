@@ -154,6 +154,14 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
+            <Input
+              item={"weekendPercentage"}
+              value={id && vehicleMaster[0]?.weekendPercentage}
+              type="number"
+              require={true}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
             <input
               type="hidden"
               name="stationId"

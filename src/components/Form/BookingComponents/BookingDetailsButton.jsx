@@ -125,7 +125,7 @@ const BookingDetailsButton = ({
       )}
 
       {/* for cancel ride */}
-      {(loggedInRole === "admin" ||
+      {((loggedInRole === "admin" && booking?.rideStatus !== "completed") ||
         !(
           booking?.bookingStatus == "canceled" ||
           booking?.rideStatus == "ongoing" ||

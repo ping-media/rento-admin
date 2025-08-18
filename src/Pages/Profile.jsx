@@ -8,9 +8,12 @@ import {
 } from "../Data/Function";
 import PreLoader from "../components/Skeleton/PreLoader";
 import { useNavigate } from "react-router-dom";
+import ManagerStationForm from "../components/Form/ManagerStationForm";
 
 const Profile = () => {
-  const { currentUser, token } = useSelector((state) => state.user);
+  const { currentUser, token, loggedInRole } = useSelector(
+    (state) => state.user
+  );
   const { loading } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
@@ -61,6 +64,16 @@ const Profile = () => {
                 }
                 loading={formLoading}
               />
+
+              {loggedInRole === "manager" && (
+                <>
+                  <h2 className="text-2xl mt-2 mb-5 border-t-2">
+                    Station Info
+                  </h2>
+
+                  <ManagerStationForm />
+                </>
+              )}
             </div>
           </div>
         </>
