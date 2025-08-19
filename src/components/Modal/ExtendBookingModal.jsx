@@ -28,6 +28,7 @@ const ExtendBookingModal = ({ bookingData }) => {
   const [addOnPrice, setAddOnPrice] = useState(0);
   const [freeVehicle, setFreeVehicle] = useState(null);
   const [extendPrice, setExtendPrice] = useState(0);
+  const [newFreeLimit, setNewFreeLimit] = useState(0);
   const [daysBreakdown, setDaysBreakdown] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState([]);
   const [appliedPlans, setAppliedPlans] = useState([]);
@@ -90,7 +91,7 @@ const ExtendBookingModal = ({ bookingData }) => {
 
     const freeKmLimitForDays =
       daysBreakdowns !== null
-        ? daysBreakdowns?.length * bookingData?.vehicleTableId?.freeKms
+        ? daysBreakdowns?.length * Number(newFreeLimit !== 0 ? newFreeLimit : 1)
         : 0;
 
     const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;
@@ -240,6 +241,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         setAddOnPrice(extraAddonPrice);
         setDaysBreakdown(freeVehicle?._daysBreakdown);
         setAppliedPlans(freeVehicle?.appliedPlans);
+        setNewFreeLimit(freeVehicle?.freeKms);
         setSelectedPlan(hasPlan);
       }
     } else {
