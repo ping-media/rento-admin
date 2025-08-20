@@ -13,15 +13,22 @@ import {
 } from "../../utils/index";
 import { getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { updateTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
+import {
+  handleUpdateExtendVehicle,
+  updateTimeLineData,
+} from "../../Redux/VehicleSlice/VehicleSlice";
 import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { debounce } from "lodash";
+import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
+import TextArea from "../../components/InputAndDropdown/TextArea";
 
 const ExtendBookingModal = ({ bookingData }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
   const { general } = useSelector((state) => state.general);
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole, currentUser } = useSelector(
+    (state) => state.user
+  );
   const [plan, setPlan] = useState({ data: null, loading: false });
   const [isPlanApplied, setIsPlanApplied] = useState(false);
   const [extensionDays, setExtensionDays] = useState(0);
@@ -70,6 +77,20 @@ const ExtendBookingModal = ({ bookingData }) => {
     event.preventDefault();
     if (!newDate) return;
 
+    const formdata = new FormData(event.target);
+    const extensionMode = formdata?.get("extensionMode") || "online";
+
+    const extensionData = {
+      key: `${currentUser?.firstName} (${currentUser?.userType})`,
+      value: formdata?.get("extensionNote") || "",
+      noteType: "general",
+      createdAt: Date.now(),
+    };
+
+    if (loggedInRole === "admin" && extensionMode === "") {
+      return handleAsyncError(dispatch, "please select valid extension mode!");
+    }
+
     const newStartDate = addOneMinute(
       bookingData?.BookingEndDateAndTime
     ).replace(".000Z", "Z");
@@ -110,9 +131,9 @@ const ExtendBookingModal = ({ bookingData }) => {
       extendAmount: {
         id: extensionId,
         title: "extended",
-        extendDuration: extensionDays,
+        extendDuration: Number(extensionDays),
         amount: extendPrice,
-        addOnAmount: addOnPrice,
+        addOnAmount: Number(addOnPrice),
         BookingStartDateAndTime: newStartDate,
         bookingEndDateAndTime: newDate,
         daysBreakdown: daysBreakdown || [],
@@ -126,7 +147,7 @@ const ExtendBookingModal = ({ bookingData }) => {
       },
       bookingStatus: "extended",
     };
-    if (!data) return;
+
     try {
       setFormLoading(true);
       data = {
@@ -135,12 +156,16 @@ const ExtendBookingModal = ({ bookingData }) => {
         firstName: bookingData?.userId?.firstName,
         managerContact: bookingData?.stationMasterUserId?.contact,
       };
+      const extensionNote = extensionData?.value !== "" ? extensionData : null;
+
       const order = await postData(
         "/initiate-extend-admin-booking",
         {
           _id: bookingData?._id,
           bookingId: bookingData?.bookingId,
           amount: Number(extendPrice) + Number(addOnPrice),
+          extensionMode,
+          extensionNote,
           data,
         },
         token
@@ -152,9 +177,21 @@ const ExtendBookingModal = ({ bookingData }) => {
         if (timeLineData !== null) {
           dispatch(updateTimeLineData(timeLineData));
         }
+        if (extensionMode === "cash") {
+          const { contact, firstName, managerContact, ...reduxData } = data;
+          if (extensionNote !== null) {
+            dispatch(
+              handleUpdateExtendVehicle({ ...reduxData, notes: extensionNote })
+            );
+          } else {
+            dispatch(handleUpdateExtendVehicle(reduxData));
+          }
+        }
         handleAsyncError(
           dispatch,
-          "Extend Request Placed successfully",
+          extensionMode === "cash"
+            ? "Ride extended successfully"
+            : "Extend Request Placed successfully",
           "success"
         );
         handleCloseModal();
@@ -246,6 +283,7 @@ const ExtendBookingModal = ({ bookingData }) => {
       }
     } else {
       setExtendPrice(0);
+      setAddOnPrice(0);
     }
   }, [extensionDays, freeVehicle]);
 
@@ -273,7 +311,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         !isBookingExtendModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-lg">
+      <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-lg">
         <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Extend Booking
@@ -306,6 +344,7 @@ const ExtendBookingModal = ({ bookingData }) => {
               update the pending payment in order to extend the ride.
             </p>
           )}
+
           <form onSubmit={handleExtendBooking}>
             <div className="mb-2">
               <p className="text-gray-400 text-left">
@@ -334,7 +373,7 @@ const ExtendBookingModal = ({ bookingData }) => {
                   <p
                     className={`text-gray-400 text-left text-sm font-semibold italic`}
                   >
-                    (Plan Applied)
+                    ({extensionDays} day's package applied)
                   </p>
                 </div>
               )}
@@ -342,26 +381,60 @@ const ExtendBookingModal = ({ bookingData }) => {
                 <div className="w-full flex items-center justify-between mb-1">
                   <p>Vehicle Rental Cost:</p>
                   <p>
-                    ₹{" "}
-                    {priceLoading
-                      ? "--"
-                      : extendPrice > 0 && extensionDays > 0
-                      ? formatPrice(extendPrice - addOnPrice)
-                      : "--"}
+                    {" "}
+                    {priceLoading ? (
+                      "--"
+                    ) : extendPrice > 0 && extensionDays > 0 ? (
+                      //  ? formatPrice(extendPrice - addOnPrice)
+                      <ChangeTextToInput
+                        value={Number(extendPrice)}
+                        setValue={(e) => setExtendPrice(Number(e.target.value))}
+                        type={"number"}
+                      />
+                    ) : (
+                      "--"
+                    )}
                   </p>
                 </div>
                 <div className="w-full flex items-center justify-between mb-1">
                   <p>Add On Cost:</p>
                   <p>
-                    ₹{" "}
-                    {priceLoading
-                      ? "--"
-                      : addOnPrice >= 0 && extensionDays > 0
-                      ? formatPrice(addOnPrice)
-                      : "--"}
+                    {" "}
+                    {priceLoading ? (
+                      "--"
+                    ) : addOnPrice >= 0 && extensionDays > 0 ? (
+                      // ? formatPrice(addOnPrice)
+                      <ChangeTextToInput
+                        value={Number(addOnPrice)}
+                        setValue={(e) => setAddOnPrice(Number(e.target.value))}
+                        type={"number"}
+                      />
+                    ) : (
+                      "--"
+                    )}
                   </p>
                 </div>
               </div>
+
+              {loggedInRole === "admin" && (
+                <>
+                  <div className="text-left w-full mb-2">
+                    <TextArea
+                      placeholder={"Extension Note"}
+                      item={"extensionNote"}
+                    />
+                  </div>
+                  <div className="text-left w-full mb-2">
+                    <SelectDropDown
+                      item={"extensionMode"}
+                      options={["cash", "online"]}
+                      value="online"
+                      require={true}
+                      isSearchEnable={false}
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="mb-2">
                 <p
@@ -379,15 +452,13 @@ const ExtendBookingModal = ({ bookingData }) => {
               </div>
               <div className={`mb-2`}>
                 <div className="flex items-center text-theme text-left">
-                  <p className="font-semibold text-black mr-1">New Amount:</p>
+                  <p className="font-semibold text-black mr-1">
+                    New Payable Amount:
+                  </p>
                   {priceLoading ? (
                     <p className="w-20 h-5 bg-gray-300/80 rounded-md animate-pulse"></p>
                   ) : (
-                    <ChangeTextToInput
-                      value={extendPrice}
-                      setValue={(e) => setExtendPrice(e.target.value)}
-                      type={"number"}
-                    />
+                    formatPrice(Number(extendPrice) + Number(addOnPrice))
                   )}
                 </div>
               </div>

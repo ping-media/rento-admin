@@ -127,6 +127,7 @@ const vehicleSlice = createSlice({
         BookingEndDateAndTime,
         oldBookings,
         extendAmount,
+        notes,
         bookingStatus,
       } = action.payload;
       state.vehicleMaster[0] = {
@@ -160,6 +161,9 @@ const vehicleSlice = createSlice({
               : []),
           ],
         },
+        ...(notes && {
+          notes: [...(state.vehicleMaster[0]?.notes || []), notes],
+        }),
         bookingStatus,
       };
     },

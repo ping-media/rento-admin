@@ -20,7 +20,7 @@ const ChangeTextToInput = ({ value, setValue, type }) => {
       ) : (
         <input
           type={type}
-          value={Number(value)}
+          value={value === 0 ? "" : value}
           onChange={setValue}
           onBlur={() => setIsEdit(false)}
           onKeyDown={(e) => {
