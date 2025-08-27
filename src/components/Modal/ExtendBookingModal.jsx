@@ -7,6 +7,7 @@ import {
   addDaysToDate,
   addOneMinute,
   calculatePriceForExtendBooking,
+  calculateTax,
   calculateTotalAddOnPrice,
   formatFullDateAndTime,
   formatPrice,
@@ -25,7 +26,6 @@ import TextArea from "../../components/InputAndDropdown/TextArea";
 
 const ExtendBookingModal = ({ bookingData }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
-  const { general } = useSelector((state) => state.general);
   const { token, loggedInRole, currentUser } = useSelector(
     (state) => state.user
   );
@@ -35,15 +35,25 @@ const ExtendBookingModal = ({ bookingData }) => {
   const [addOnPrice, setAddOnPrice] = useState(0);
   const [freeVehicle, setFreeVehicle] = useState(null);
   const [extendPrice, setExtendPrice] = useState(0);
+  const [totalExtendPrice, setTotalExtendPrice] = useState(0);
   const [newFreeLimit, setNewFreeLimit] = useState(0);
   const [daysBreakdown, setDaysBreakdown] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState([]);
   const [appliedPlans, setAppliedPlans] = useState([]);
   const [newDate, setNewDate] = useState("");
   const [priceLoading, setPriceLoading] = useState(false);
+  const [displayTax, setDisplayTax] = useState({
+    tax: 0,
+    addonTax: 0,
+  });
 
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
+
+  const taxStatus =
+    (bookingData && bookingData?.stationData?.isGstActive === "inactive"
+      ? false
+      : true) || false;
 
   const checkFreeVehicle = async () => {
     try {
@@ -117,6 +127,10 @@ const ExtendBookingModal = ({ bookingData }) => {
 
     const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;
 
+    const addonGstPercentage =
+      freeVehicle?.stationData?.extraAddOn[0]?.gstPercentage;
+    const addonTax = calculateTax(addOnPrice, addonGstPercentage) || 0;
+
     let data = {
       _id: bookingData?._id,
       vehicleTableId: bookingData?.vehicleTableId?._id,
@@ -134,6 +148,10 @@ const ExtendBookingModal = ({ bookingData }) => {
         extendDuration: Number(extensionDays),
         amount: extendPrice,
         addOnAmount: Number(addOnPrice),
+        tax: freeVehicle?.tax || 0,
+        addonTax,
+        originalBookingEndDateAndTime:
+          bookingData?.BookingEndDateAndTime.replace(".000Z", "Z"),
         BookingStartDateAndTime: newStartDate,
         bookingEndDateAndTime: newDate,
         daysBreakdown: daysBreakdown || [],
@@ -238,7 +256,7 @@ const ExtendBookingModal = ({ bookingData }) => {
     dispatch(toggleBookingExtendModal());
   };
 
-  // for showing extend vehicle price on based on days
+  // main pricing calculation (without tax)
   useEffect(() => {
     if (Number(extensionDays) !== 0) {
       const hasPlan =
@@ -247,7 +265,9 @@ const ExtendBookingModal = ({ bookingData }) => {
               (plan) => Number(plan?.planDuration) === Number(extensionDays)
             )
           : [];
+
       const planPrice = hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
+
       const extraAddonPrice =
         bookingData?.bookingPrice?.extraAddonDetails &&
         bookingData?.bookingPrice?.extraAddonDetails?.length > 0
@@ -264,28 +284,50 @@ const ExtendBookingModal = ({ bookingData }) => {
       }
 
       const price =
-        planPrice > 0
-          ? planPrice + extraAddonPrice
-          : calculatePriceForExtendBooking(
-              freeVehicle?.totalRentalCost,
-              extraAddonPrice,
-              general?.GST?.status === "inactive" ? false : true || false,
-              general?.GST?.percentage || 18
-            );
+        planPrice > 0 ? planPrice : Number(freeVehicle?.totalRentalCost);
 
-      if (Number(price) > 0) {
-        setExtendPrice(price);
-        setAddOnPrice(extraAddonPrice);
-        setDaysBreakdown(freeVehicle?._daysBreakdown);
-        setAppliedPlans(freeVehicle?.appliedPlans);
-        setNewFreeLimit(freeVehicle?.freeKms);
-        setSelectedPlan(hasPlan);
-      }
+      setExtendPrice(price);
+      setAddOnPrice(extraAddonPrice);
+
+      setDaysBreakdown(freeVehicle?._daysBreakdown);
+      setAppliedPlans(freeVehicle?.appliedPlans);
+      setNewFreeLimit(freeVehicle?.freeKms);
+      setSelectedPlan(hasPlan);
     } else {
       setExtendPrice(0);
       setAddOnPrice(0);
+      setTotalExtendPrice(0);
+      setDisplayTax({ tax: 0, addonTax: 0 });
     }
   }, [extensionDays, freeVehicle]);
+
+  // tax update
+  useEffect(() => {
+    if (!taxStatus) {
+      setDisplayTax({ tax: 0, addonTax: 0 });
+      setTotalExtendPrice(extendPrice + addOnPrice);
+      return;
+    }
+
+    let tax = 0;
+    let addonTax = 0;
+
+    if (extendPrice > 0) {
+      const taxPercentage = freeVehicle?.vehicleMasterData?.gstPercentage || 0;
+      tax = calculateTax(extendPrice, taxPercentage);
+    }
+
+    if (addOnPrice > 0) {
+      const addonGstPercentage =
+        freeVehicle?.stationData?.extraAddOn[0]?.gstPercentage || 0;
+      addonTax = calculateTax(addOnPrice, addonGstPercentage);
+    }
+
+    setDisplayTax({ tax, addonTax });
+
+    const total = extendPrice + addOnPrice + tax + addonTax;
+    setTotalExtendPrice(total);
+  }, [extendPrice, addOnPrice, taxStatus, freeVehicle]);
 
   // through this we are disabling the extension util previous one is completed
   const isDisabled =
@@ -384,8 +426,7 @@ const ExtendBookingModal = ({ bookingData }) => {
                     {" "}
                     {priceLoading ? (
                       "--"
-                    ) : extendPrice > 0 && extensionDays > 0 ? (
-                      //  ? formatPrice(extendPrice - addOnPrice)
+                    ) : extendPrice >= 0 && extensionDays > 0 ? (
                       <ChangeTextToInput
                         value={Number(extendPrice)}
                         setValue={(e) => setExtendPrice(Number(e.target.value))}
@@ -396,6 +437,30 @@ const ExtendBookingModal = ({ bookingData }) => {
                     )}
                   </p>
                 </div>
+                {taxStatus && (
+                  <div className="w-full flex items-center justify-between mb-1">
+                    <p>GST:</p>
+                    <p>
+                      {" "}
+                      {priceLoading ? (
+                        "--"
+                      ) : displayTax.tax >= 0 && extensionDays > 0 ? (
+                        <ChangeTextToInput
+                          value={Number(displayTax.tax)}
+                          setValue={(e) =>
+                            setDisplayTax((prev) => ({
+                              ...prev,
+                              tax: Number(e.target.value),
+                            }))
+                          }
+                          type={"number"}
+                        />
+                      ) : (
+                        "--"
+                      )}
+                    </p>
+                  </div>
+                )}
                 <div className="w-full flex items-center justify-between mb-1">
                   <p>Add On Cost:</p>
                   <p>
@@ -403,7 +468,6 @@ const ExtendBookingModal = ({ bookingData }) => {
                     {priceLoading ? (
                       "--"
                     ) : addOnPrice >= 0 && extensionDays > 0 ? (
-                      // ? formatPrice(addOnPrice)
                       <ChangeTextToInput
                         value={Number(addOnPrice)}
                         setValue={(e) => setAddOnPrice(Number(e.target.value))}
@@ -414,6 +478,30 @@ const ExtendBookingModal = ({ bookingData }) => {
                     )}
                   </p>
                 </div>
+                {taxStatus && (
+                  <div className="w-full flex items-center justify-between mb-1">
+                    <p>GST:</p>
+                    <p>
+                      {" "}
+                      {priceLoading ? (
+                        "--"
+                      ) : displayTax.addonTax >= 0 && extensionDays > 0 ? (
+                        <ChangeTextToInput
+                          value={Number(displayTax.addonTax)}
+                          setValue={(e) =>
+                            setDisplayTax((prev) => ({
+                              ...prev,
+                              addonTax: Number(e.target.value),
+                            }))
+                          }
+                          type={"number"}
+                        />
+                      ) : (
+                        "--"
+                      )}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {loggedInRole === "admin" && (
@@ -458,7 +546,7 @@ const ExtendBookingModal = ({ bookingData }) => {
                   {priceLoading ? (
                     <p className="w-20 h-5 bg-gray-300/80 rounded-md animate-pulse"></p>
                   ) : (
-                    formatPrice(Number(extendPrice) + Number(addOnPrice))
+                    formatPrice(Number(totalExtendPrice))
                   )}
                 </div>
               </div>
@@ -468,7 +556,9 @@ const ExtendBookingModal = ({ bookingData }) => {
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/80 w-full flex items-center justify-center"
               disabled={
-                isDisabled || extensionDays == 0 ? true : false || formLoading
+                isDisabled || extensionDays == 0
+                  ? true
+                  : false || Number(extendPrice) === 0 || formLoading
               }
             >
               {!formLoading ? (

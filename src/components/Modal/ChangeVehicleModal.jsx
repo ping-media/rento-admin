@@ -20,7 +20,6 @@ import PriceList from "../../components/Form/VehicleComponents/PriceList";
 const ChangeVehicleModal = ({ bookingData }) => {
   const dispatch = useDispatch();
   const { isChangeVehicleModalActive } = useSelector((state) => state.sideBar);
-  const { general } = useSelector((state) => state.general);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
@@ -28,10 +27,11 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const [freeVehicles, setFreeVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const { token } = useSelector((state) => state.user);
+  const [payableAmount, setPayableAmount] = useState(0);
   const [vehicleId, setVehicleId] = useState("");
 
-  const isGSTActive = general?.GST?.status === "active" ? true : false || false;
-  // const GSTPercentage = general?.GST?.percentage || 18;
+  const isGSTActive =
+    bookingData?.stationData?.isGstActive === "active" ? true : false || false;
 
   const extendBookings =
     bookingData?.bookingPrice?.extendAmount?.length > 0
@@ -105,6 +105,18 @@ const ChangeVehicleModal = ({ bookingData }) => {
       totalBookingDuration,
     };
 
+    // setting new payable amount for user
+    const oldBookingPrice = bookingData?.bookingPrice;
+    let total =
+      changeToNewVehicle?.totalRentalCost +
+      (oldBookingPrice?.extraAddonPrice || 0);
+
+    if (isGSTActive) {
+      total +=
+        (changeToNewVehicle?.tax || 0) + (oldBookingPrice?.addonTax || 0);
+    }
+
+    setPayableAmount(oldBookingPrice?.totalPrice - total);
     return setSelectedVehicle(data);
   };
 
@@ -283,7 +295,10 @@ const ChangeVehicleModal = ({ bookingData }) => {
                     <li className={`capitalize font-semibold`}>
                       Total Price: ₹{" "}
                       {formatPrice(
-                        selectedVehicle?.newVehicleData?.totalRentalCost
+                        selectedVehicle?.newVehicleData?.totalRentalCost +
+                          (bookingData?.bookingPrice?.extraAddonPrice || 0) +
+                          (selectedVehicle?.newVehicleData?.tax || 0) +
+                          (bookingData?.bookingPrice?.addonTax || 0)
                       )}
                     </li>
                   </ul>
@@ -323,6 +338,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
                 </div>
               )}
             </div> */}
+            {/* <p className="text-left text-base mb-3">
+              <span className="font-semibold">
+                {payableAmount > 0 ? "Payable" : "Refund"} Amount:
+              </span>{" "}
+              ₹{formatPrice(Math.abs(payableAmount))}
+            </p> */}
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full flex items-center justify-center"

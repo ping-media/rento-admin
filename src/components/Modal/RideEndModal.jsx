@@ -120,34 +120,10 @@ const RideEndModal = ({ id }) => {
         Number(meterDebounceValue) - Number(oldMeterReading)) ||
       0;
 
-    // const daysBtwDates = getDurationInDaysAndHours(
-    //   BookingStartDateAndTime,
-    //   BookingEndDateAndTime
-    // );
-
-    // let fullBookingDuration = Number(daysBtwDates?.days) || 0;
-
     // checking unpaid extend booking and removing there duration out of it
     const isBookingExtend = extendBookings?.filter(
       (booking) => booking.status === "unpaid"
     );
-
-    // const extendDuration =
-    //   isBookingExtend?.length > 0
-    //     ? isBookingExtend.reduce(
-    //         (sum, extend) => sum + Number(extend?.extendDuration || 0),
-    //         0
-    //       )
-    //     : 0;
-
-    // if (extendDuration > 0) {
-    //   fullBookingDuration =
-    //     Number(fullBookingDuration) - Number(extendDuration);
-    // }
-
-    // let allowKm =
-    //   (Number(fullBookingDuration) === 0 ? 1 : Number(fullBookingDuration)) *
-    //   Number(vehicleBasic?.freeLimit);
 
     const extendKmLimit =
       isBookingExtend?.length > 0
@@ -210,17 +186,18 @@ const RideEndModal = ({ id }) => {
       const LateFeeAmount = data
         ? data.lateFeeBasedOnHour + data.lateFeeBasedOnKM
         : 0;
+
       // this is for preclosing the ride
-      if (
-        formatDateToISO(new Date()).replace(".000Z", "Z") <
-        vehicleMaster[0]?.BookingEndDateAndTime
-      ) {
-        data = {
-          ...data,
-          closingDate: formatDateToISO(new Date()).replace(".000Z", "Z"),
-          refundAmount: refundAmount,
-        };
-      }
+      // if (
+      //   formatDateToISO(new Date()).replace(".000Z", "Z") <
+      //   vehicleMaster[0]?.BookingEndDateAndTime
+      // ) {
+      //   data = {
+      //     ...data,
+      //     closingDate: formatDateToISO(new Date()).replace(".000Z", "Z"),
+      //     refundAmount: refundAmount,
+      //   };
+      // }
 
       const response = await postData("/rideUpdate", data, token, "put");
       if (response.status === 200) {

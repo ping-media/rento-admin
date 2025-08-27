@@ -176,6 +176,13 @@ const formatPrice = (price) => {
   }).format(price);
 };
 
+const formatNumber = (price) => {
+  return new Intl.NumberFormat("en-In", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(price);
+};
+
 const camelCaseToSpaceSeparated = (str) => {
   if (typeof str === "string") return str.replace(/([a-z])([A-Z])/g, "$1 $2");
 };
@@ -226,7 +233,7 @@ const calculateTax = (amount, taxPercentage) => {
   const taxAmount = (taxPercentage / 100) * amount;
 
   // Round the result to 2 decimal places and return it
-  return parseInt(taxAmount);
+  return Math.round(taxAmount);
 };
 
 const formatDateForInvoice = (dateString) => {
@@ -835,4 +842,5 @@ export {
   parseTime,
   compressImageToBlob,
   getRoundedDateTime,
+  formatNumber,
 };

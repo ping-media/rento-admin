@@ -8,6 +8,7 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { updateGeneralInfo } from "../../Redux/GeneralSlice/GeneralSlice";
 import Spinner from "../Spinner/Spinner";
 import SocialMedia from "./SocialMedia.jsx";
+import GeneralForm from "./GeneralForm";
 
 const Button = ({ label = "update", disabled = false }) => (
   <button
@@ -52,46 +53,50 @@ const WebsiteForm = () => {
     return <PreLoader />;
   }
   return (
-    <form onSubmit={handleSubmitBasic}>
-      <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
-        Basic Info
-      </h2>
-      <div className="mb-3">
-        <WebSettings data={general?.info} loading={loading} />
-      </div>
-
-      <div className="mb-3 pb-1 flex items-center justify-between border-b">
-        <h2 className="text-md lg:text-lg font-semibold uppercase">
-          Social Media
+    <>
+      <form onSubmit={handleSubmitBasic}>
+        <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
+          Basic Info
         </h2>
-      </div>
-      <div className="mb-3">
-        <SocialMedia
-          data={general?.info?.socialmedia && general?.info?.socialmedia}
-        />
-      </div>
+        <div className="mb-3">
+          <WebSettings data={general?.info} loading={loading} />
+        </div>
 
-      <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
-        App Links
-      </h2>
-      <div className="mb-3">
-        <AppLink data={general?.info?.appLink} loading={loading} />
-      </div>
-      <div className="text-left">
-        <Button
-          label={
-            formLoading ? (
-              <div className="flex items-center gap-2">
-                <Spinner /> updating
-              </div>
-            ) : (
-              "update"
-            )
-          }
-          disabled={formLoading}
-        />
-      </div>
-    </form>
+        <div className="mb-3 pb-1 flex items-center justify-between border-b">
+          <h2 className="text-md lg:text-lg font-semibold uppercase">
+            Social Media
+          </h2>
+        </div>
+        <div className="mb-3">
+          <SocialMedia
+            data={general?.info?.socialmedia && general?.info?.socialmedia}
+          />
+        </div>
+
+        <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
+          App Links
+        </h2>
+        <div className="mb-3">
+          <AppLink data={general?.info?.appLink} loading={loading} />
+        </div>
+        <div className="text-left">
+          <Button
+            label={
+              formLoading ? (
+                <div className="flex items-center gap-2">
+                  <Spinner /> updating
+                </div>
+              ) : (
+                "update"
+              )
+            }
+            disabled={formLoading}
+          />
+        </div>
+      </form>
+
+      <GeneralForm />
+    </>
   );
 };
 

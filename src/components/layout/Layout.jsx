@@ -22,9 +22,7 @@ import {
 import { handleLogoutUser, validateUser } from "../../Data/Function";
 import { getData } from "../../Data/index";
 import {
-  addAddOn,
   addGeneral,
-  startAddOnLoading,
   startLoading,
   stopLoading,
 } from "../../Redux/GeneralSlice/GeneralSlice";
@@ -45,7 +43,6 @@ const Layout = () => {
   const { currentUser, token, user, loading } = useSelector(
     (state) => state.user
   );
-  const { extraAddOn } = useSelector((state) => state.general);
   const location = useLocation();
 
   const getGeneralSettings = useCallback(async () => {
@@ -95,19 +92,6 @@ const Layout = () => {
     })();
   }, [token, currentUser?.userType, dispatch]);
 
-  // addOn Data
-  useEffect(() => {
-    if (!extraAddOn?.data?.length) {
-      (async () => {
-        dispatch(startAddOnLoading());
-        const response = await getData("/addOn?page=1&limit=50", token);
-        if (response?.status === 200) {
-          dispatch(addAddOn(response));
-        }
-      })();
-    }
-  }, [extraAddOn?.data?.length, dispatch, token]);
-
   //need to reset some value when ever user change page
   useEffect(() => {
     dispatch(handleRestPagination());
@@ -138,7 +122,6 @@ const Layout = () => {
           />
         )}
 
-        {/* Mobile Sidebar */}
         <div
           className={`fixed top-0 left-0 z-50 w-[250px] h-full bg-white dark:bg-slate-900 shadow-lg transition-transform duration-300 ease-in-out lg:hidden ${
             !is_open ? "translate-x-0" : "-translate-x-full"
@@ -153,21 +136,16 @@ const Layout = () => {
             theme === "dark" ? "dark" : ""
           }`}
         >
-          {/* Main Layout (Desktop) */}
           <div className="flex flex-1 overflow-hidden">
-            {/* Sidebar for desktop only */}
             <aside className="hidden lg:block w-[210px] h-full overflow-y-auto bg-white dark:bg-slate-900 border-r">
               <SideBar />
             </aside>
 
-            {/* Content Area */}
             <div className="flex-1 flex flex-col bg-gray-50 dark:bg-slate-900 overflow-hidden">
-              {/* Header (desktop only) */}
               <div className="bg-white dark:bg-slate-900 h-[60.4px] z-10">
                 <Header />
               </div>
 
-              {/* Main Content */}
               <main className="flex-1 overflow-y-auto p-3 lg:p-4">
                 <Outlet />
               </main>

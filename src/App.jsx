@@ -49,6 +49,11 @@ const AddDocuments = lazy(() =>
     default: module.AddDocuments,
   }))
 );
+const AddonManager = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.AddonManager,
+  }))
+);
 // for default exports
 const Layout = lazy(() => import("./components/layout/Layout"));
 const Login = lazy(() => import("./components/Auth/Login"));
@@ -89,6 +94,19 @@ const App = () => {
                     isLoading={verifyLoading}
                   >
                     <General />
+                  </PrivateRouteBasedOnUser>
+                }
+              />
+              <Route
+                path="extra-addon"
+                exact
+                element={
+                  <PrivateRouteBasedOnUser
+                    allowedRoles={["manager"]}
+                    userRole={loggedInRole}
+                    isLoading={verifyLoading}
+                  >
+                    <AddonManager />
                   </PrivateRouteBasedOnUser>
                 }
               />

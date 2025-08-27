@@ -9,7 +9,7 @@ import { addGeneral } from "../../Redux/GeneralSlice/GeneralSlice";
 import GeneralTable from "../Table/GeneralTable";
 import GerneralAddAndUpdateForm from "./GerneralAddAndUpdateForm";
 import { tableIcons } from "../../Data/Icons";
-import GSTTable from "../Table/GSTTable";
+// import GSTTable from "../Table/GSTTable";
 
 const GeneralForm = () => {
   const { general, loading } = useSelector((state) => state.general);
@@ -117,10 +117,10 @@ const GeneralForm = () => {
 
   return (
     <>
-      <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
+      {/* <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
         Enable/Disable GST
       </h2>
-      <GSTTable />
+      <GSTTable /> */}
 
       {/* <h2 className="text-md lg:text-lg font-semibold mt-2 mb-3 border-b uppercase">
         Weekend Price

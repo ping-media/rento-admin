@@ -71,6 +71,15 @@ const ManagerStationForm = () => {
         </div>
         <div className="w-full lg:w-[48%]">
           <SelectDropDown
+            item={"isGstActive"}
+            options={["active", "inactive"]}
+            value={stationInfo?.isGstActive}
+            isSearchEnable={false}
+            require={true}
+          />
+        </div>
+        <div className="w-full lg:w-[48%]">
+          <SelectDropDown
             item={"weekendPriceIncrease"}
             options={["active", "inactive"]}
             value={stationInfo?.weekendPriceIncrease}

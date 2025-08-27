@@ -179,13 +179,12 @@ const BookingStepTwo = ({
     });
   };
 
-  // const handleNext = () => {
-  //   onNext();
-  // };
+  if (applyLoading) {
+    return <PreLoader />;
+  }
 
   return !loading && stepTwoData !== null ? (
     <>
-      {applyLoading && <PreLoader />}
       {bookingDuration > 0 && (
         <div className="w-full">
           <p className="text-right text-sm font-semibold">
@@ -214,15 +213,26 @@ const BookingStepTwo = ({
         )}
       </div>
       {gst?.status === "active" && (
-        <div className="w-full lg:w-[48%]">
-          <Input
-            item={"tax"}
-            type="number"
-            value={Number(stepTwoData?.tax) ?? ""}
-            require={true}
-            disabled={true}
-          />
-        </div>
+        <>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"tax"}
+              type="number"
+              value={Number(stepTwoData?.tax) ?? ""}
+              require={true}
+              disabled={true}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"addonTax"}
+              type="number"
+              value={Number(stepTwoData?.addonTax) ?? ""}
+              require={true}
+              disabled={true}
+            />
+          </div>
+        </>
       )}
       <div className="w-full lg:w-[48%]">
         <Input

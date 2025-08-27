@@ -142,6 +142,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "mobileToken",
           "weekendPriceIncrease",
           "weekendPercentage",
+          "isGstActive",
+          "gstPercentage",
+          "extraAddOn",
         ].includes(key)
     );
 

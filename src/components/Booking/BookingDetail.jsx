@@ -95,7 +95,7 @@ const BookingDetail = ({ tabs }) => {
           key: "Start Ride",
           value: `${
             vm?.vehicleBasic?.RideStart
-              ? millisecToReadableFormat(vm?.vehicleBasic?.RideStart)
+              ? millisecToReadableFormat(Number(vm?.vehicleBasic?.RideStart))
               : ""
           }`,
         },
@@ -103,7 +103,7 @@ const BookingDetail = ({ tabs }) => {
           key: "End Ride",
           value: `${
             vm?.vehicleBasic?.RideEnd
-              ? millisecToReadableFormat(vm?.vehicleBasic?.RideEnd)
+              ? millisecToReadableFormat(Number(vm?.vehicleBasic?.RideEnd))
               : ""
           }`,
         },
@@ -263,24 +263,6 @@ const BookingDetail = ({ tabs }) => {
                 {vehicleMaster[0]?.vehicleBasic?.vehicleNumber}
               </h2>
             </div>
-            {/* {!(
-              vehicleMaster[0]?.rideStatus === "completed" ||
-              vehicleMaster[0]?.bookingStatus === "canceled" ||
-              vehicleMaster[0]?.BookingEndDateAndTime <
-                formatDateToISOWithoutSecond(new Date())
-            ) && (
-              <button
-                className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-1 disabled:bg-theme/75 hidden md:block"
-                type="button"
-                onClick={() => dispatch(toggleChangeVehicleModal())}
-                disabled={
-                  formatDateToISO(new Date()).replace(".000Z", "Z") <
-                  vehicleMaster[0]?.BookingStartDateAndTime
-                }
-              >
-                Change Vehicle
-              </button>
-            )} */}
           </div>
 
           <small className="capitalize lg:block text-sm text-gray-400 mb-2 lg:mb-5">

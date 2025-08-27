@@ -88,7 +88,7 @@ const RescheduleModal = () => {
         handleAsyncError(dispatch, "Unable to update booking! try again.");
         return;
       }
-      //   formData.append("_id", bookingId);
+
       const dbBookingStartDateAndTime = formatIntoISO(
         result?.BookingStartDateAndTime
       );

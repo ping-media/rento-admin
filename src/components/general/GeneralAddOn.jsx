@@ -3,52 +3,65 @@ import React, { useState } from "react";
 import Spinner from "../../components/Spinner/Spinner";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postData } from "../../Data/index";
-import {
-  addNewAddOnData,
-  removeAddOnData,
-} from "../../Redux/GeneralSlice/GeneralSlice";
 import GeneralAddOnForm from "./GeneralAddOnForm";
 import AddOnTable from "../../components/Table/AddOnTable";
 import { tableIcons } from "../../Data/Icons";
+import {
+  removeStationAddOn,
+  updateStationAddon,
+} from "../../Redux/VehicleSlice/VehicleSlice";
 
 const GeneralAddOn = () => {
-  const { extraAddOn, loading } = useSelector((state) => state.general);
+  const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
   const [addOnModal, setAddOnModal] = useState(false);
   const [addOnId, setAddOnId] = useState("");
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
 
+  const extraAddOn = vehicleMaster && vehicleMaster?.[0]?.extraAddOn;
+
+  // for creating and updating
   const handleMangeAddOn = async (e) => {
     e.preventDefault();
 
+    const stationData = vehicleMaster && vehicleMaster?.[0];
+
+    if (!stationData?._id) {
+      return handleAsyncError(dispatch, "unable to get station id! try again");
+    }
+
     const formData = new FormData(e.target);
     const result = Object.fromEntries(formData.entries());
+
     result.amount = parseFloat(result.amount) || 0;
     result.maxAmount = parseFloat(result.maxAmount) || 0;
 
-    if (addOnId === "") {
-      if (
-        result.name === "" &&
-        result.amount === 0 &&
-        result.amount === "" &&
-        !["active", "inactive"].includes(result.status)
-      ) {
-        handleAsyncError(dispatch, "All fields required!");
-        return;
-      }
+    if (
+      addOnId === "" &&
+      (result.name === "" ||
+        result.amount === "" ||
+        !["active", "inactive"].includes(result.status))
+    ) {
+      return handleAsyncError(dispatch, "All fields are required!");
     }
 
+    formData.set("stationId", stationData._id);
+    formData.set("amount", result.amount);
+    formData.set("maxAmount", result.maxAmount);
+
     if (addOnId !== "") {
-      formData.append("id", addOnId);
+      formData.set("_id", addOnId);
+      formData.set("action", "update");
+    } else {
+      formData.set("action", "create");
     }
 
     try {
       setFormLoading(true);
-      const response = await postData("/manageAddOn", result, token);
-      if (response.status === 200) {
-        const newData = [...(extraAddOn?.data || []), response?.data];
-        dispatch(addNewAddOnData(newData));
+      const response = await postData("/create-station-addon", formData, token);
+      if (response.success) {
+        dispatch(updateStationAddon(response?.data));
         setAddOnModal(!addOnModal);
         setAddOnId("");
         handleAsyncError(dispatch, response?.message, "success");
@@ -63,6 +76,7 @@ const GeneralAddOn = () => {
     }
   };
 
+  // for deleting
   const handleDeleteAddOn = async (id) => {
     if (!id) {
       handleAsyncError(dispatch, "Unable to delete! try again");
@@ -71,12 +85,12 @@ const GeneralAddOn = () => {
     try {
       setFormLoading(true);
       const response = await postData(
-        "/manageAddOn",
-        { id: id, delete: true },
+        "/create-station-addon",
+        { _id: id, action: "delete" },
         token
       );
       if (response.status === 200) {
-        dispatch(removeAddOnData(id));
+        dispatch(removeStationAddOn(id));
         handleAsyncError(dispatch, response?.message, "success");
         return;
       } else {

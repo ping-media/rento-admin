@@ -10,6 +10,7 @@ import VehicleMaster from "./Vehicle-Master";
 import InvoiceDetails from "./InvoiceDetails";
 import General from "./General";
 import AddDocuments from "./AddDocuments";
+import AddonManager from "./AddonManager";
 
 export {
   Profile,
@@ -24,4 +25,5 @@ export {
   InvoiceDetails,
   General,
   AddDocuments,
+  AddonManager,
 };

@@ -1,4 +1,3 @@
-import { useSelector } from "react-redux";
 import {
   camelCaseToSpaceSeparated,
   formatPrice,
@@ -8,8 +7,6 @@ import Tooltip from "../../components/Tooltip/Tooltip";
 import { renderTooltipBreakdown } from "../../utils/Helper/Helper";
 
 const BookingFareDetails = ({ rides }) => {
-  const { general } = useSelector((state) => state.general);
-
   return (
     <>
       {rides && (
@@ -113,9 +110,18 @@ const BookingFareDetails = ({ rides }) => {
                     ))
                   );
                 } else {
-                  if (key === "tax" && general?.GST?.status === "inactive") {
+                  if (
+                    (rides?.stationData?.isGstActive === "inactive" &&
+                      key === "tax") ||
+                    (key === "addonTax" && value === 0)
+                  ) {
                     return null;
                   }
+
+                  if (typeof value === "number" && value === 0) {
+                    return null;
+                  }
+
                   return (
                     <li
                       key={key}
@@ -124,9 +130,9 @@ const BookingFareDetails = ({ rides }) => {
                       <div className="my-1">
                         <div className="text-sm font-semibold uppercase">
                           {key === "tax"
-                            ? `${camelCaseToSpaceSeparated(key)} (${
-                                general?.GST?.percentage
-                              }% GST)`
+                            ? `GST(${
+                                rides?.vehicleMasterId?.gstPercentage || "--"
+                              }%)`
                             : camelCaseToSpaceSeparated(key)}
                           {key === "bookingPrice" &&
                             rides?.bookingPrice?.daysBreakdown && (
@@ -329,7 +335,13 @@ const BookingFareDetails = ({ rides }) => {
                     Number(
                       rides?.bookingPrice?.extendAmount[
                         rides?.bookingPrice?.extendAmount?.length - 1
-                      ]?.amount
+                      ]?.amount +
+                        (rides?.bookingPrice?.extendAmount[
+                          rides?.bookingPrice?.extendAmount?.length - 1
+                        ]?.tax || 0) +
+                        (rides?.bookingPrice?.extendAmount[
+                          rides?.bookingPrice?.extendAmount?.length - 1
+                        ]?.addonTax || 0)
                     )
                   )}`}
                 </p>

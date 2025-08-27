@@ -78,6 +78,34 @@ const vehicleSlice = createSlice({
         },
       };
     },
+    updateStationAddon: (state, action) => {
+      let payload = action.payload;
+      const currentAddOns = state.vehicleMaster[0]?.extraAddOn || [];
+
+      if (Array.isArray(payload)) {
+        state.vehicleMaster[0].extraAddOn = payload;
+      } else {
+        const index = currentAddOns.findIndex(
+          (item) => item._id === payload._id
+        );
+        if (index !== -1) {
+          currentAddOns[index] = payload;
+        } else {
+          currentAddOns.push(payload);
+        }
+        state.vehicleMaster[0].extraAddOn = currentAddOns;
+      }
+    },
+    removeStationAddOn: (state, action) => {
+      const idToRemove = action.payload;
+      if (state.vehicleMaster.length > 0) {
+        state.vehicleMaster[0].extraAddOn =
+          state.vehicleMaster[0].extraAddOn.filter(
+            (item) => String(item._id) !== String(idToRemove)
+          );
+      }
+    },
+
     handleIsHeaderChecked: (state, action) => {
       state.isHeaderChecked = action.payload;
     },
@@ -442,5 +470,7 @@ export const {
   resetMaintenanceData,
   handleChangesAfterVehicleChange,
   addOrRemoveTempData,
+  updateStationAddon,
+  removeStationAddOn,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

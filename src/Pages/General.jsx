@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import GeneralForm from "../components/general/GeneralForm";
 import TabButton from "../components/TabButton/TabButton";
-import GeneralAddOn from "../components/general/GeneralAddOn";
 import WebsiteForm from "../components/general/WebsiteForm";
 import OthersForm from "../components/general/OthersForm";
 
@@ -18,9 +16,7 @@ const General = () => {
           <TabButton
             options={[
               { id: "general", title: "General" },
-              { id: "basic", title: "Basic" },
-              { id: "addon", title: "Add-On" },
-              { id: "others", title: "Others" },
+              { id: "others", title: "Banners" },
             ]}
             tab={tab}
             setTab={setTab}
@@ -29,10 +25,8 @@ const General = () => {
       </div>
 
       <div className="bg-white p-2 shadow-md rounded-md">
-        {tab === "general" && <GeneralForm />}
-        {tab === "basic" && <WebsiteForm />}
+        {tab === "general" && <WebsiteForm />}
         {tab === "others" && <OthersForm />}
-        {tab === "addon" && <GeneralAddOn />}
       </div>
     </>
   );

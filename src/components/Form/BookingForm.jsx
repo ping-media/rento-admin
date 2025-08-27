@@ -13,10 +13,10 @@ import BookingStepThree from "./BookingComponents/BookingStepThree";
 import { postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { tableIcons } from "../../Data/Icons";
+import { addNewAddOnData } from "../../Redux/GeneralSlice/GeneralSlice";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
-  const { GST } = useSelector((state) => state.general);
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -26,6 +26,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
     stepOneData: {},
     stepTwoData: {},
   });
+
+  const [GST, setGST] = useState(null);
   const [coupon, setCoupon] = useState({
     couponName: "",
     couponId: "",
@@ -59,6 +61,14 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       bookingEndDate
     );
 
+    // setting global gst and addon based on specific station
+    const gstSettings = {
+      status: selectedVehicle?.stationData?.isGstActive || "inactive",
+      percentage: selectedVehicle?.vehicleMasterData?.gstPercentage || 1,
+    };
+    dispatch(addNewAddOnData(selectedVehicle?.stationData?.extraAddOn));
+    setGST(gstSettings);
+
     let hasMatchPlan = null;
     if (selectedVehicle?.vehiclePlan?.length > 0) {
       hasMatchPlan = selectedVehicle?.vehiclePlan?.filter(
@@ -83,26 +93,38 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       setAddOn([]);
     }
 
-    const totalExtraAddOnPrice = Math.round(
-      Number(
-        calculateTotalAddOnPrice(addOnArr, durationBetweenStartAndEnd?.days)
-      )
-    );
+    const totalExtraAddOnPrice =
+      Math.round(
+        Number(
+          calculateTotalAddOnPrice(addOnArr, durationBetweenStartAndEnd?.days)
+        )
+      ) || 0;
+    const addonGstPercentage =
+      selectedVehicle?.stationData?.extraAddOn[0]?.gstPercentage;
+
+    const addonTax =
+      calculateTax(totalExtraAddOnPrice, addonGstPercentage) || 0;
 
     let tax = 0;
-    if (GST?.status === "active") {
-      tax = Math.round(
-        calculateTax(bookingPrice + totalExtraAddOnPrice, GST?.percentage)
-      );
+    if (selectedVehicle?.stationData?.isGstActive === "active") {
+      tax =
+        selectedVehicle?.tax ||
+        Math.round(
+          calculateTax(
+            bookingPrice,
+            Number(selectedVehicle?.vehicleMasterData?.gstPercentage)
+          )
+        );
     }
 
-    const totalPrice = bookingPrice + totalExtraAddOnPrice + tax;
+    const totalPrice = bookingPrice + totalExtraAddOnPrice + tax + addonTax;
 
     const combinedData = {
       bookingPrice,
       rentAmount,
       extraAddonPrice: totalExtraAddOnPrice,
       tax,
+      addonTax,
       totalPrice,
     };
 
@@ -202,7 +224,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           vehiclePrice: formData?.stepTwoData?.bookingPrice,
           extraAddonDetails: addOns,
           extraAddonPrice: formData?.stepTwoData?.extraAddonPrice,
-          tax: formData?.stepTwoData?.tax,
+          tax: formData?.stepTwoData?.tax || 0,
+          addonTax: formData?.stepTwoData?.addonTax || 0,
           totalPrice:
             coupon?.couponName != "" &&
             coupon?.couponId != "" &&
@@ -361,7 +384,6 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               setFormData={setFormData}
               plan={planData}
               setPlan={setPlanData}
-              // onNext={handleNext}
             />
           )}
 

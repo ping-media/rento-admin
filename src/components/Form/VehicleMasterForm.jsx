@@ -53,6 +53,12 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
                 require={true}
                 isSearchEnable={false}
               />
+              <Input
+                item={"gstPercentage"}
+                value={id && vehicleMaster?.[0]?.gstPercentage}
+                type="number"
+                require={true}
+              />
               <SelectDropDown
                 item={"vehicleBrand"}
                 options={vehicleBrands}

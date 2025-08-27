@@ -1,6 +1,10 @@
 import { useSelector } from "react-redux";
 import ExtraAmount from "./ExtraAmount";
-import { formatPrice, getDurationInDays } from "../../utils/index";
+import {
+  formatNumber,
+  formatPrice,
+  getDurationInDays,
+} from "../../utils/index";
 import CopyButton from "../Buttons/CopyButton";
 import { ExtendSummary, RideSummary } from "./RideSummary";
 
@@ -60,6 +64,27 @@ const AdditionalInfo = () => {
         )}
       </div>
 
+      {vehicleMaster[0]?.pickupImage && (
+        <>
+          <div className="w-full flex items-center justify-between  flex items-center mb-1">
+            <p className="font-semibold mr-1">Odometer Start Reading:</p>
+            <p className="flex items-center">
+              {formatNumber(
+                vehicleMaster[0]?.pickupImage?.startMeterReading || 0
+              )}
+            </p>
+          </div>
+          <div className="w-full flex items-center justify-between  flex items-center">
+            <p className="font-semibold mr-1">Odometer End Reading:</p>
+            <p className="flex items-center">
+              {formatNumber(
+                vehicleMaster[0]?.pickupImage?.endMeterReading || 0
+              )}
+            </p>
+          </div>
+        </>
+      )}
+
       {diffAmount !== null && diffAmount?.refundAmount > 0 && (
         <div className="mt-1 mb-2.5">
           <div className="w-full flex items-center justify-between text-sm  uppercase">
@@ -81,14 +106,6 @@ const AdditionalInfo = () => {
         <div className="w-full flex items-center justify-between text-sm  mb-1">
           <p className="font-semibold mr-1">Free Limit:</p>
           <p>
-            {/* {vehicleMaster[0]?.vehicleBasic?.freeLimit
-              ? vehicleMaster[0]?.vehicleBasic?.freeLimit *
-                getDurationInDays(
-                  vehicleMaster[0]?.BookingStartDateAndTime,
-                  vehicleMaster[0]?.extendBooking?.originalEndDate ||
-                    vehicleMaster[0]?.BookingEndDateAndTime
-                )
-              : "--"} */}
             {vehicleMaster[0]?.vehicleBasic?.freeLimit ? freeLimit : "--"} KM
           </p>
         </div>
@@ -168,7 +185,7 @@ const AdditionalInfo = () => {
         <h2 className="text-md text-gray-600 font-bold border-b pb-1 mb-1">
           Ride Summary
         </h2>
-        <div className="mb-2">
+        <div className="my-2">
           {vehicleMaster[0]?.bookingPrice && (
             <RideSummary
               daysBreakdown={vehicleMaster[0]?.bookingPrice?.daysBreakdown}
@@ -187,6 +204,7 @@ const AdditionalInfo = () => {
                       <ExtendSummary
                         daysBreakdown={item?.daysBreakdown || []}
                         appliedPlans={item?.appliedPlans || []}
+                        bookingDuration={item?.extendDuration || 0}
                         item={item}
                       />
                     </li>

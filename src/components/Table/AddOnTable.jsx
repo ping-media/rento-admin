@@ -3,7 +3,6 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { tableIcons } from "../../Data/Icons";
 import { camelCaseToSpaceSeparated } from "../../utils/index";
-import InputSwitchForAddOn from "../../components/InputAndDropdown/InputSwitchForAddOn";
 
 const AddOnTable = ({
   addOnId,
@@ -12,16 +11,12 @@ const AddOnTable = ({
   deleteFn,
   loading,
 }) => {
-  const { extraAddOn } = useSelector((state) => state.general);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
+
+  const extraAddOn = vehicleMaster && vehicleMaster?.[0]?.extraAddOn;
 
   // table header
-  const addOnHeader = [
-    "Add-On Name",
-    "Per Day Cost",
-    "Max Cost",
-    "Status",
-    "Action",
-  ];
+  const addOnHeader = ["Add-On Name", "Per Day Cost", "Max Cost", "Action"];
 
   const handleEditAddOn = (id) => {
     setAddOnId && setAddOnId(id);
@@ -53,8 +48,8 @@ const AddOnTable = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-300 ">
-                  {extraAddOn?.data?.length > 0 ? (
-                    extraAddOn?.data?.map((item, index) => (
+                  {extraAddOn?.length > 0 ? (
+                    extraAddOn?.map((item, index) => (
                       <tr
                         className="bg-white transition-all duration-500 hover:bg-gray-50"
                         key={index}
@@ -67,13 +62,6 @@ const AddOnTable = ({
                         </td>
                         <td className="p-2.5 max-w-24 break-words whitespace-wrap text-sm leading-6 font-medium text-gray-900 capitalize">
                           {item?.maxAmount}
-                        </td>
-                        <td className="p-2.5 max-w-24 break-words whitespace-wrap text-sm leading-6 font-medium text-gray-900 capitalize">
-                          <InputSwitchForAddOn
-                            value={item?.status}
-                            id={item?._id}
-                          />
-                          {/* {item?.status} */}
                         </td>
                         <td className="p-2.5 whitespace-nowrap text-sm items-center">
                           <div className="flex items-center gap-1">
@@ -110,27 +98,6 @@ const AddOnTable = ({
                 </tbody>
               </table>
             )}
-
-            {/* {extraAddOn?.pagination !== null &&
-              extraAddOn?.pagination?.limit >= 10 &&
-              extraAddOn?.data?.length > 0 && (
-                <div className="flex flex-wrap items-center justify-start lg:justify-between gap-4 lg:gap-2 mt-5">
-                  <div className="flex items-center gap-2">
-                    <h2 className="capitalize">Rows per Page</h2>
-                    <DropDownComponent
-                      options={showRecordsOptions}
-                      customLimit={limit}
-                      setLimitChanger={setLimit}
-                    />
-                  </div>
-                  <span className="hidden lg:mx-1">|</span>
-                  <Pagination
-                    totalNumberOfPages={extraAddOn?.pagination?.totalPages}
-                    currentPage={currentPage}
-                    setPageChanger={setCurrentPage}
-                  />
-                </div>
-              )} */}
           </div>
         </div>
       </div>

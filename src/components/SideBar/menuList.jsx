@@ -8,6 +8,7 @@ import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import {
   AccountCircleOutlined,
+  AccountTreeOutlined,
   EventAvailableOutlined,
   InventoryOutlined,
   PeopleOutlineOutlined,
@@ -34,31 +35,17 @@ const menuList = [
     roles: ["admin", "manager"],
   },
   {
+    menuImg: <AccountTreeOutlined />,
+    menuTitle: "Extra Addon",
+    menuLink: "/extra-addon",
+    roles: ["manager"],
+  },
+  {
     menuImg: <PersonOutlinedIcon />,
     menuTitle: "Customers",
     menuLink: "/all-users",
     roles: ["admin", "manager"],
   },
-  // {
-  //   menuImg: <PersonOutlinedIcon />,
-  //   menuTitle: "Users",
-  //   menuLink: "#",
-  //   roles: ["admin"],
-  //   nestedLink: [
-  //     {
-  //       menuImg: <AdjustRoundedIcon />,
-  //       menuTitle: "All Customers",
-  //       menuLink: "/all-users",
-  //       roles: ["admin"],
-  //     },
-  //     {
-  //       menuImg: <AdjustRoundedIcon />,
-  //       menuTitle: "All Managers",
-  //       menuLink: "/all-managers",
-  //       roles: ["admin"],
-  //     },
-  //   ],
-  // },
   {
     menuImg: <AccountBalanceOutlinedIcon />,
     menuTitle: "Payments",

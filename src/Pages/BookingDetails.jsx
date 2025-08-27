@@ -41,7 +41,6 @@ const BookingDetails = () => {
   const dispatch = useDispatch();
 
   const bookingId = useMemo(() => id?.split("_")[0], [id]);
-  const displayId = useMemo(() => id?.split("_")[1] || "--", [id]);
   const booking = vehicleMaster?.[0];
 
   // through this we are fetching single vehicle data
@@ -169,10 +168,8 @@ const BookingDetails = () => {
       <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">
         <div className="flex items-center gap-2">
           <BackButton endpoint={"/all-bookings"} />
-          {/* <h1 className="text-2xl uppercase font-bold text-theme">
-            Booking Id: #{displayId}
-          </h1> */}
         </div>
+
         {/* actions for cancel & start ride  */}
         <BookingDetailsButton
           booking={vehicleMaster && vehicleMaster[0]}

@@ -10,13 +10,14 @@ const ExtendSummary = ({
     daysBreakdown?.length > 0
       ? daysBreakdown?.filter((day) => day.isWeekend === true)
       : [];
+
   const weekDays =
     daysBreakdown?.length > 0
       ? daysBreakdown?.filter((day) => day.isWeekend === false)
       : [];
 
   return (
-    <div className="p-1 mb-1 rounded-md">
+    <div className="p-2 mb-2 rounded-md bg-theme/10">
       <div className="w-full flex items-center justify-between">
         <div>
           <div>
@@ -33,7 +34,12 @@ const ExtendSummary = ({
         </div>
         <div>
           <span className="text-sm font-bold text-theme ml-1">
-            ₹{formatPrice(item?.amount)}
+            ₹
+            {formatPrice(
+              item?.amount +
+                (Number(item?.tax) || 0) +
+                (Number(item?.addonTax) || 0)
+            )}
           </span>
           {item?.status === "unpaid" && (
             <span
@@ -91,7 +97,7 @@ const RideSummary = ({
       : [];
 
   return (
-    <div className="p-1 mb-1 rounded-md">
+    <div className="p-2 mb-2 rounded-md bg-theme/10">
       <div className="w-full flex items-center justify-between">
         <div>
           <div>

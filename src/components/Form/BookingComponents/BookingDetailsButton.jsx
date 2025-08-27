@@ -10,10 +10,6 @@ import {
   toggleRideEndModal,
 } from "../../../Redux/SideBarSlice/SideBarSlice";
 import GenerateInvoiceButton from "../../Table/GenerateInvoiceButton";
-import {
-  formatDateToISO,
-  formatDateToISOWithoutSecond,
-} from "../../../utils/index";
 import { postData } from "../../../Data/index";
 import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
 import { addTempVehicleData } from "../../../Redux/VehicleSlice/VehicleSlice";
@@ -169,19 +165,21 @@ const BookingDetailsButton = ({
         )}
 
       {!(
-        booking?.rideStatus === "completed" ||
-        booking?.bookingStatus === "canceled" ||
-        booking?.BookingEndDateAndTime <
-          formatDateToISOWithoutSecond(new Date())
+        (
+          booking?.rideStatus === "completed" ||
+          booking?.bookingStatus === "canceled"
+        )
+        // booking?.BookingEndDateAndTime <
+        //   formatDateToISOWithoutSecond(new Date())
       ) && (
         <button
           className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-1 disabled:bg-theme/75"
           type="button"
           onClick={() => dispatch(toggleChangeVehicleModal())}
-          disabled={
-            formatDateToISO(new Date()).replace(".000Z", "Z") <
-            booking?.BookingStartDateAndTime
-          }
+          // disabled={
+          //   formatDateToISO(new Date()).replace(".000Z", "Z") <
+          //   booking?.BookingStartDateAndTime
+          // }
         >
           Change Vehicle
         </button>
