@@ -74,6 +74,8 @@ const ExtendBookingModal = ({ bookingData }) => {
           handleAsyncError(dispatch, isVehicleFree?.message);
           return;
         }
+      } else {
+        handleAsyncError(dispatch, isVehicleFree?.message);
       }
     } catch (error) {
       handleAsyncError(dispatch, "Unable to get Vehicle Info! try again");
@@ -128,8 +130,10 @@ const ExtendBookingModal = ({ bookingData }) => {
     const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;
 
     const addonGstPercentage =
-      freeVehicle?.stationData?.extraAddOn[0]?.gstPercentage;
-    const addonTax = calculateTax(addOnPrice, addonGstPercentage) || 0;
+      freeVehicle?.stationData?.extraAddOn?.[0]?.gstPercentage || 0;
+
+    const addonTax =
+      addonGstPercentage > 0 ? calculateTax(addOnPrice, addonGstPercentage) : 0;
 
     let data = {
       _id: bookingData?._id,
@@ -181,7 +185,11 @@ const ExtendBookingModal = ({ bookingData }) => {
         {
           _id: bookingData?._id,
           bookingId: bookingData?.bookingId,
-          amount: Number(extendPrice) + Number(addOnPrice),
+          amount:
+            Number(extendPrice) +
+            Number(addOnPrice) +
+            Number(data?.extendAmount?.tax || 0) +
+            Number(data?.extendAmount?.addonTax || 0),
           extensionMode,
           extensionNote,
           data,
@@ -258,7 +266,7 @@ const ExtendBookingModal = ({ bookingData }) => {
 
   // main pricing calculation (without tax)
   useEffect(() => {
-    if (Number(extensionDays) !== 0) {
+    if (Number(extensionDays) !== 0 && freeVehicle !== null) {
       const hasPlan =
         plan?.data?.length > 0
           ? plan?.data?.filter(
