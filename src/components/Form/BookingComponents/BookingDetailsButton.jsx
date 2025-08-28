@@ -152,7 +152,8 @@ const BookingDetailsButton = ({
       )}
 
       {booking?.bookingStatus !== "canceled" &&
-        booking?.rideStatus === "pending" && (
+        booking?.rideStatus === "pending" &&
+        loggedInRole === "admin" && (
           <Button
             title={"Reschedule"}
             fn={() => dispatch(toggleRescheduleModal())}
@@ -160,7 +161,8 @@ const BookingDetailsButton = ({
         )}
 
       {booking?.bookingStatus !== "canceled" &&
-        booking?.rideStatus === "pending" && (
+        booking?.rideStatus === "pending" &&
+        loggedInRole === "admin" && (
           <Button title={"Add-On"} fn={() => dispatch(toggleAddonModal())} />
         )}
 

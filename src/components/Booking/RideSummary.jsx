@@ -55,16 +55,22 @@ const ExtendSummary = ({
       <div className="text-xs">
         {appliedPlans?.length > 0 && (
           <>
-            <span>
-              {appliedPlans[0]?.days} Days Package: ₹
-              {appliedPlans[0]?.planPrice}{" "}
-              {appliedPlans[0]?.count > 1 && `x ${appliedPlans[0]?.count}`}
-            </span>
-            <span className="mx-2">|</span>
+            {appliedPlans.map((plan, index) => (
+              <>
+                <span key={plan.id}>
+                  {plan?.days} Days Package: ₹{plan?.planPrice}{" "}
+                  {plan?.count > 1 && `x ${plan?.count}`}
+                </span>
+                {index < appliedPlans.length - 1 && (
+                  <span className="mx-2">|</span>
+                )}
+              </>
+            ))}
           </>
         )}
         {weekend?.length > 0 && (
           <>
+            {appliedPlans?.length > 0 && <span className="mx-2">|</span>}
             <span>
               Weekend ₹{weekend[0]?.dailyRate} x {weekend?.length}
             </span>

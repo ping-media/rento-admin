@@ -1,6 +1,7 @@
 import React from "react";
 import {
   formatFullDateAndTime,
+  formatNumber,
   formatPrice,
   formatTimeStampToDate,
 } from "../../utils/index";
@@ -15,6 +16,10 @@ const RenderCellContent = (column, value) => {
     column.includes("Price")
   ) {
     return `₹ ${formatPrice(value)}`;
+  }
+
+  if (column.includes("amount")) {
+    return `₹ ${formatNumber(value)}`;
   }
 
   if (column.includes("kmLimit")) {
