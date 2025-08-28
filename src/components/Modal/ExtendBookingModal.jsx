@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import {
   addDaysToDate,
   addOneMinute,
-  calculatePriceForExtendBooking,
+  // calculatePriceForExtendBooking,
   calculateTax,
   calculateTotalAddOnPrice,
   formatFullDateAndTime,
@@ -204,6 +204,13 @@ const ExtendBookingModal = ({ bookingData }) => {
           dispatch(updateTimeLineData(timeLineData));
         }
         if (extensionMode === "cash") {
+          data = {
+            ...data,
+            extendAmount: {
+              ...data.extendAmount,
+              status: "paid",
+            },
+          };
           const { contact, firstName, managerContact, ...reduxData } = data;
           if (extensionNote !== null) {
             dispatch(
