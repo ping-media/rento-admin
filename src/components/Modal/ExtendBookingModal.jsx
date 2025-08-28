@@ -199,7 +199,7 @@ const ExtendBookingModal = ({ bookingData }) => {
       if (order?.success) {
         setExtensionDays(0);
         setNewDate("");
-        const timeLineData = order?.timeLine;
+        const timeLineData = order?.timeLine || null;
         if (timeLineData !== null) {
           dispatch(updateTimeLineData(timeLineData));
         }
