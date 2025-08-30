@@ -6,7 +6,6 @@ import React, { useEffect, useState } from "react";
 import {
   addDaysToDate,
   addOneMinute,
-  // calculatePriceForExtendBooking,
   calculateTax,
   calculateTotalAddOnPrice,
   formatFullDateAndTime,
@@ -185,11 +184,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         {
           _id: bookingData?._id,
           bookingId: bookingData?.bookingId,
-          amount:
-            Number(extendPrice) +
-            Number(addOnPrice) +
-            Number(data?.extendAmount?.tax || 0) +
-            Number(data?.extendAmount?.addonTax || 0),
+          amount: totalExtendPrice,
           extensionMode,
           extensionNote,
           data,

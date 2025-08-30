@@ -109,8 +109,7 @@ const vehicleBrands = [
   "mahindra",
   "royal enfield",
   "harley-davidson",
-  "kawasaki",
-  "ducati",
+  "hyundai",
 ];
 
 const vehicleColor = ["white", "black", "gray", "blue", "yellow", "dark blue"];

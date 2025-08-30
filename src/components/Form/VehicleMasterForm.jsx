@@ -15,7 +15,7 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
   const [image, setImage] = useState(null);
 
   //options for vehicleType
-  const vehicleTypeOptions = ["gear", "non-gear"];
+  const vehicleTypeOptions = ["gear", "non-gear", "electric"];
   const vehicleCategoryOptions = ["two-wheeler", "four-wheeler"];
 
   useEffect(() => {
@@ -34,6 +34,12 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
             {/* for updating the value of the existing one  */}
 
             <div className="flex flex-wrap gap-2">
+              <SelectDropDown
+                item={"vehicleBrand"}
+                options={vehicleBrands}
+                value={id && vehicleMaster?.[0]?.vehicleBrand}
+                require={true}
+              />
               <Input
                 item={"vehicleName"}
                 value={id && vehicleMaster?.[0]?.vehicleName}
@@ -57,12 +63,6 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
                 item={"gstPercentage"}
                 value={id && vehicleMaster?.[0]?.gstPercentage}
                 type="number"
-                require={true}
-              />
-              <SelectDropDown
-                item={"vehicleBrand"}
-                options={vehicleBrands}
-                value={id && vehicleMaster?.[0]?.vehicleBrand}
                 require={true}
               />
               <SelectDropDown

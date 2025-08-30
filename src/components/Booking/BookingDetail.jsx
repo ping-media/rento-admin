@@ -88,7 +88,7 @@ const BookingDetail = ({ tabs }) => {
           }`,
         },
         {
-          key: "Extended Booking End",
+          key: "Extended Drop Time",
           value: `${formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
         },
         {
