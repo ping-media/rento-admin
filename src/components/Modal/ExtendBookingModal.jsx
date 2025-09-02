@@ -74,7 +74,20 @@ const ExtendBookingModal = ({ bookingData }) => {
           return;
         }
       } else {
-        handleAsyncError(dispatch, isVehicleFree?.message);
+        const vehicleData =
+          isVehicleFree?.unavailabilityReasons &&
+          isVehicleFree?.unavailabilityReasons.length > 0
+            ? isVehicleFree.unavailabilityReasons[0]
+            : null;
+
+        const customMessage =
+          vehicleData !== null
+            ? `${vehicleData?.reason} and booking id is ${vehicleData?.bookingId}`
+            : null;
+        handleAsyncError(
+          dispatch,
+          customMessage !== null ? customMessage : isVehicleFree?.message
+        );
       }
     } catch (error) {
       handleAsyncError(dispatch, "Unable to get Vehicle Info! try again");

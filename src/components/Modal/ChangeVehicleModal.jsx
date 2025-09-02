@@ -66,7 +66,20 @@ const ChangeVehicleModal = ({ bookingData }) => {
         if (response?.status === 200) {
           setFreeVehicles(response?.data);
         } else {
-          return handleAsyncError(dispatch, response?.message);
+          const vehicleData =
+            response?.unavailabilityReasons &&
+            response?.unavailabilityReasons.length > 0
+              ? response.unavailabilityReasons[0]
+              : null;
+
+          const customMessage =
+            vehicleData !== null
+              ? `${vehicleData?.reason} and booking id is ${vehicleData?.bookingId}`
+              : null;
+          return handleAsyncError(
+            dispatch,
+            customMessage !== null ? customMessage : response?.message
+          );
         }
       } catch (error) {
         return handleAsyncError(dispatch, error?.message);
