@@ -305,7 +305,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                             : Columns?.length + 1) || 7
                         }
                       />
-                    ) : Data && newUpdatedData?.length > 0 ? (
+                    ) : newUpdatedData?.length > 0 ? (
                       newUpdatedData.map((item, index) => (
                         <tr
                           className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"

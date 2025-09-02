@@ -384,6 +384,7 @@ const RideEndModal = ({ id }) => {
               <div className="text-left mb-2">
                 <SelectDropDown
                   options={["cash"]}
+                  value="cash"
                   item="PaymentMode"
                   require={true}
                   isSearchEnable={false}
