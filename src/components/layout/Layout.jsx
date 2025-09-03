@@ -141,7 +141,7 @@ const Layout = () => {
               <SideBar />
             </aside>
 
-            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-slate-900 overflow-hidden">
+            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-slate-900 overflow-hidden min-h-screen">
               <div className="bg-white dark:bg-slate-900 h-[60.4px] z-10">
                 <Header />
               </div>

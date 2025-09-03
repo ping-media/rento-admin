@@ -139,6 +139,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     //     };
     //   }
     // }
+
     let updatedBooking = {
       ...currentBooking,
       bookingPrice: {
@@ -222,12 +223,18 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
 
         dispatch(handleInvoiceCreated(updatedBooking));
         // updating the timeline for booking
+        const isRideStart =
+          (vehicleMaster && vehicleMaster[0]?.rideStatus === "ongoing") ||
+          false;
+
         const timeLineData = {
           currentBooking_id: vehicleMaster && vehicleMaster[0]?._id,
           timeLine: [
             {
               title:
-                isChange && isChange === true ? "Ride Updated" : "Ride Started",
+                isChange && isChange === true && isRideStart
+                  ? "Ride Updated"
+                  : "Ride Started",
               date: Date.now(),
               vehicleName: vehicleMaster[0]?.vehicleName,
               vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,

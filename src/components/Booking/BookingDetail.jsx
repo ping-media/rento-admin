@@ -3,8 +3,6 @@ import VehicleInfo from "../VehicleDetails/VehicleInfo";
 import { lazy, useMemo, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
-  // formatDateToISO,
-  // formatDateToISOWithoutSecond,
   formatFullDateAndTime,
   millisecToReadableFormat,
 } from "../../utils/index";
@@ -13,10 +11,7 @@ import BookingUserDetails from "./BookingUserDetail";
 import BookingStatusFlag from "./BookingStatusFlag";
 import BookingMoreInfo from "./BookingMoreInfo";
 import BookingNote from "./BookingNote";
-import {
-  // toggleChangeVehicleModal,
-  togglePaymentUpdateModal,
-} from "../../Redux/SideBarSlice/SideBarSlice";
+import { togglePaymentUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import BookingTimeLine from "./BookingTimeLine";
 import AdditionalInfo from "./AdditionalInfo";
 import Button from "../Buttons/Button";
@@ -104,6 +99,22 @@ const BookingDetail = ({ tabs }) => {
           value: `${
             vm?.vehicleBasic?.RideEnd
               ? millisecToReadableFormat(Number(vm?.vehicleBasic?.RideEnd))
+              : ""
+          }`,
+        },
+        {
+          key: "Odometer Start Reading:",
+          value: `${
+            vm?.pickupImage?.startMeterReading
+              ? formatNumber(Number(vm?.pickupImage?.startMeterReading))
+              : ""
+          }`,
+        },
+        {
+          key: "Odometer End Reading:",
+          value: `${
+            vm?.pickupImage?.endMeterReading
+              ? formatNumber(Number(vm?.pickupImage?.endMeterReading))
               : ""
           }`,
         },

@@ -64,7 +64,7 @@ const AdditionalInfo = () => {
         )}
       </div>
 
-      {vehicleMaster[0]?.pickupImage && (
+      {/* {vehicleMaster[0]?.pickupImage && (
         <>
           <div className="w-full flex items-center justify-between  flex items-center mb-1">
             <p className="font-semibold mr-1">Odometer Start Reading:</p>
@@ -83,7 +83,7 @@ const AdditionalInfo = () => {
             </p>
           </div>
         </>
-      )}
+      )} */}
 
       {diffAmount !== null && diffAmount?.refundAmount > 0 && (
         <div className="mt-1 mb-2.5">
@@ -158,19 +158,21 @@ const AdditionalInfo = () => {
               <p className="w-full flex items-center justify-between text-sm text-theme">
                 <span className="mr-1 font-semibold">Hour Late Fee:</span>₹
                 {formatPrice(
-                  Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour)
+                  Number(
+                    vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour || 0
+                  )
                 )}
               </p>
               <p className="w-full flex items-center justify-between text-sm text-theme">
                 <span className="mr-1 font-semibold">KM Late Fee:</span>₹
                 {formatPrice(
-                  Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM)
+                  Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM || 0)
                 )}
               </p>
               <p className="w-full flex items-center justify-between text-sm text-theme">
                 <span className="mr-1 font-semibold">Additional Price:</span>₹
                 {formatPrice(
-                  Number(vehicleMaster[0]?.bookingPrice?.additionalPrice)
+                  Number(vehicleMaster[0]?.bookingPrice?.additionalPrice || 0)
                 )}
               </p>
             </div>

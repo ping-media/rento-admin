@@ -63,7 +63,7 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
         navigate(userType === "manager" ? "/all-bookings" : "/dashboard");
         handleAsyncError(dispatch, "Login Successfully", "success");
       } else {
-        handleAsyncError(dispatch, response?.message);
+        handleAsyncError(dispatch, "Login failed! try again");
       }
     } else {
       handleAsyncError(dispatch, "Invalid Email & Password");
