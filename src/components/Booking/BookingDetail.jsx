@@ -4,6 +4,7 @@ import { lazy, useMemo, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
   formatFullDateAndTime,
+  formatNumber,
   millisecToReadableFormat,
 } from "../../utils/index";
 import BookingFareDetails from "./BookingFareDetails";
