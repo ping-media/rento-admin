@@ -58,7 +58,7 @@ const SideBar = () => {
         </div>
       </div>
       <div
-        className="px-3.5 py-3 overflow-y-scroll no-scrollbar w-full"
+        className="px-3.5 py-3 overflow-y-scroll w-full"
         style={{ height: "calc(100vh - 88px)" }}
       >
         <ul className="leading-9">
