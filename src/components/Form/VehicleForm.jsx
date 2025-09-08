@@ -121,6 +121,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
                 value={id && vehicleMaster[0]?.locationId}
                 setIsLocationSelected={setIsLocationSelected}
                 require={true}
+                placeholder={"City"}
               />
             </div>
           )}

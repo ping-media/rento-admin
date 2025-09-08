@@ -145,7 +145,9 @@ const ExtendBookingModal = ({ bookingData }) => {
       freeVehicle?.stationData?.extraAddOn?.[0]?.gstPercentage || 0;
 
     const addonTax =
-      addonGstPercentage > 0 ? calculateTax(addOnPrice, addonGstPercentage) : 0;
+      taxStatus && addonGstPercentage > 0
+        ? calculateTax(addOnPrice, addonGstPercentage)
+        : 0;
 
     let data = {
       _id: bookingData?._id,

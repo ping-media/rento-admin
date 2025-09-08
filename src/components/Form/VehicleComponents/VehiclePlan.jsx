@@ -145,7 +145,7 @@ const VehiclePlan = ({ collectedData, data }) => {
             />
             <input
               type="number"
-              className={`rounded-md px-4 py-1.5 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none ml-2 ${
+              className={`rounded-md md:max-w-[25%] lg:max-w-[20%] px-4 py-1.5 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none ml-2 ${
                 checkedPlans[plan?._id] ? "" : "invisible"
               }`}
               placeholder="Enter Km Limit"

@@ -33,14 +33,16 @@ const BookingTimeLine = () => {
                       item?.title?.includes(status)
                     )
                       ? ""
-                      : "mb-2"
-                  } flex justify-between items-center w-full`}
+                      : "mb-5"
+                  } flex justify-between  w-full`}
                   key={index}
                 >
                   <div className="order-1 w-5/12 text-right">
-                    <p className="text-gray-700 leading-tight">
+                    <p className="text-gray-700 text-sm leading-tight whitespace-pre-line">
                       {typeof item?.date === "number" &&
-                        millisecToReadableFormat(item?.date)}
+                        millisecToReadableFormat(item?.date)
+                          .split(/,(?=[^,]*$)/)
+                          .join("\n")}
                     </p>
                   </div>
 
