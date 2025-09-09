@@ -65,21 +65,11 @@ const FilterSideBar = () => {
       searchTag: `search=${todaysDate}&rideStatus=ongoingdateCheck=dropoff`,
       divider: false,
     },
-    // {
-    //   title: "Completed (Booking)",
-    //   searchTag: "bookingStatus=done",
-    //   divider: false,
-    // },
     {
       title: "Completed Ride",
       searchTag: "rideStatus=completed",
       divider: false,
     },
-    // {
-    //   title: "cancelled (Booking)",
-    //   searchTag: "bookingStatus=canceled",
-    //   divider: false,
-    // },
     {
       title: "cancelled Ride",
       searchTag: "rideStatus=canceled",
@@ -281,7 +271,7 @@ const FilterSideBar = () => {
       >
         {/* close button  */}
         <div className="flex items-center justify-between px-5 py-4 border-b-2">
-          <h2 className="text-base lg:text-xl uppercase text-theme font-semibold">
+          <h2 className="text-xl uppercase text-theme font-semibold">
             Filters
           </h2>
           <button

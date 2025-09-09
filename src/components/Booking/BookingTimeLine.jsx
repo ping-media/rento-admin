@@ -156,7 +156,9 @@ const BookingTimeLine = () => {
                             </p>
                           )}
 
-                        {(item?.endDate || item?.extendDate) && (
+                        {(item?.endDate ||
+                          item?.extendDate ||
+                          item?.bookingEndDateAndTime) && (
                           <p className="text-gray-800 leading-tight text-xs">
                             {item?.extended === true
                               ? "Extended Till"
@@ -165,6 +167,10 @@ const BookingTimeLine = () => {
                               formatFullDateAndTime(item?.endDate)}
                             {item?.extendDate &&
                               formatFullDateAndTime(item?.extendDate)}
+                            {item?.bookingEndDateAndTime &&
+                              formatFullDateAndTime(
+                                item?.bookingEndDateAndTime
+                              )}
                           </p>
                         )}
                       </div>
