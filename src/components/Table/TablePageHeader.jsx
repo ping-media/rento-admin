@@ -80,7 +80,7 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
           <div className="w-full bg-white rounded-md shadow-lg">
             <form
               onSubmit={handleControlSubmit}
-              className="flex items-center justify-center p-1 lg:p-2"
+              className="flex items-center justify-center p-2"
             >
               <input
                 type="text"

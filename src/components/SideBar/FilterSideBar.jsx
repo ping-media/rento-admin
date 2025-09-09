@@ -281,7 +281,7 @@ const FilterSideBar = () => {
       >
         {/* close button  */}
         <div className="flex items-center justify-between px-5 py-4 border-b-2">
-          <h2 className="text-md lg:text-xl uppercase text-theme font-semibold">
+          <h2 className="text-base lg:text-xl uppercase text-theme font-semibold">
             Filters
           </h2>
           <button
@@ -311,7 +311,7 @@ const FilterSideBar = () => {
         >
           {location.pathname !== "/all-vehicles" && (
             <>
-              <ul className="leading-8">
+              <ul className="leading-10 flex flex-col gap-3">
                 {menuList &&
                   menuList?.length > 0 &&
                   menuList?.map((item, index) => (

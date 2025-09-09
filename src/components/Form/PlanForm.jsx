@@ -36,7 +36,7 @@ const PlanForm = ({ handleFormSubmit, loading }) => {
           <Input
             item={"kmLimit"}
             type="number"
-            value={id && Number(vehicleMaster?.[0]?.freeKMLimit)}
+            value={id && Number(vehicleMaster?.[0]?.kmLimit)}
             placeholder={"Free KM Limit"}
           />
         </div>
