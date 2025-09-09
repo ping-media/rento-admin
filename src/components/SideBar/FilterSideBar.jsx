@@ -296,8 +296,8 @@ const FilterSideBar = () => {
           </button>
         </div>
         <div
-          className="px-3.5 py-3 overflow-y-scroll no-scrollbar"
-          style={{ height: "calc(100vh - 88px)" }}
+          className="px-3.5 py-3 overflow-y-scroll no-scrollbar flex-1"
+          // style={{ height: "calc(100vh - 88px)" }}
         >
           {location.pathname !== "/all-vehicles" && (
             <>
