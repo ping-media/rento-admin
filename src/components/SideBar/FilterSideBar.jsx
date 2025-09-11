@@ -62,7 +62,7 @@ const FilterSideBar = () => {
     },
     {
       title: "Today's Drops",
-      searchTag: `search=${todaysDate}&rideStatus=ongoingdateCheck=dropoff`,
+      searchTag: `search=${todaysDate}&rideStatus=ongoing&dateCheck=dropoff`,
       divider: false,
     },
     {
