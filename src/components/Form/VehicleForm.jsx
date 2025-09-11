@@ -203,12 +203,24 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <div className="w-full lg:w-[48%]">
-            <Input
-              item={"lastServiceDate"}
-              type="date"
-              value={id && vehicleMaster[0]?.lastServiceDate}
-              require={true}
-            />
+            <div className="w-full relative">
+              <label
+                htmlFor={"lastServiceDate"}
+                className="block text-gray-800 font-semibold text-sm capitalize text-left"
+              >
+                Enter Last Service Date <span className="text-red-500">*</span>
+              </label>
+              <div className="mt-2">
+                <input
+                  type="date"
+                  value={id && vehicleMaster[0]?.lastServiceDate}
+                  id="lastServiceDate"
+                  name="lastServiceDate"
+                  className="block rounded-md w-full px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none relative disabled:bg-gray-400/20 disabled:bg-opacity-20"
+                  required
+                />
+              </div>
+            </div>
             <p className="text-xs mt-1 text-gray-500 italic">
               Enter the last service date of the vehicle.
             </p>

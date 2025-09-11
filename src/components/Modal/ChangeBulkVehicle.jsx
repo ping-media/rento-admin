@@ -42,24 +42,45 @@ const ChangeBulkVehicle = () => {
       .filter(([key]) => !excludedKeys.includes(key))
       .filter(([key, value]) => {
         if (key.endsWith("_limit")) return false;
+
+        // allow zero also (0 is valid), but must be a number
         const num = Number(value);
-        return value && !isNaN(num) && num >= 0;
+        const kmLimitKey = `${key}_limit`;
+        const kmLimit = Number(results[kmLimitKey]);
+
+        // keep entry if either price OR kmLimit is provided
+        return (
+          (!isNaN(num) && value !== "" && num >= 0) ||
+          (!isNaN(kmLimit) && kmLimit > 0)
+        );
       })
       .map(([id, price]) => {
         const kmLimitKey = `${id}_limit`;
         const kmLimit = Number(results[kmLimitKey]) || 0;
-        const matchedPlan = planMaster.find((plan) => plan._id === id);
+
         return {
           _id: id,
-          planPrice: Number(price),
-          planName: matchedPlan?.planName || "",
-          planDuration: Number(matchedPlan?.planDuration) || 0,
-          kmLimit,
+          // only include if user provided price
+          ...(price !== undefined && price !== "" && !isNaN(Number(price))
+            ? { planPrice: Number(price) }
+            : {}),
+          // only include if user provided kmLimit
+          ...(results[kmLimitKey] !== undefined && !isNaN(kmLimit)
+            ? { kmLimit }
+            : {}),
         };
       });
 
-    if (results.vehicleStatus === "don'tChange" && vehiclePlan.length === 0) {
-      handleAsyncError(dispatch, "Please add price for at least one plan.");
+    // Final validation
+    if (
+      results.vehicleStatus === "don'tChange" &&
+      vehiclePlan.length === 0 &&
+      results?.length === 0
+    ) {
+      handleAsyncError(
+        dispatch,
+        "Please add price or kmLimit for at least one plan or per day cost."
+      );
       return;
     }
 
@@ -230,13 +251,11 @@ const ChangeBulkVehicle = () => {
                         placeholder={plan.planName}
                         item={plan._id}
                         type="number"
-                        require={true}
                       />
                       <Input
                         placeholder={"km Limit"}
                         item={`${plan._id}_limit`}
                         type="number"
-                        require={true}
                       />
                     </div>
                   ))

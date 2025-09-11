@@ -19,8 +19,6 @@ const GeneralAddOn = () => {
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
 
-  const extraAddOn = vehicleMaster && vehicleMaster?.[0]?.extraAddOn;
-
   // for creating and updating
   const handleMangeAddOn = async (e) => {
     e.preventDefault();
