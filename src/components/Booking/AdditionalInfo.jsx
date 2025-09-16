@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import ExtraAmount from "./ExtraAmount";
 import {
-  formatNumber,
+  // formatNumber,
   formatPrice,
   getDurationInDays,
 } from "../../utils/index";
@@ -218,7 +218,7 @@ const AdditionalInfo = () => {
       </div>
       <div className="w-full">
         <h2 className="text-md text-gray-600 border-b pb-1 font-bold mb-1">
-          Change Vehicle Summary
+          Vehicle Change Summary
         </h2>
         <div className="mb-2 w-full">
           {vehicleMaster[0]?.bookingPrice?.diffAmount &&

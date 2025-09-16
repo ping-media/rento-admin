@@ -8,11 +8,13 @@ import { useEffect, useState } from "react";
 import { bookingSearchList } from "../../Data/commonData";
 import { handleChangeSearchType } from "../../Redux/PaginationSlice/PaginationSlice";
 import { toggleRefresh } from "../../Redux/VehicleSlice/VehicleSlice";
+import useSidebarFilter from "../../hooks/use-sidebar-filter";
 
 const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
   const { vehiclesFilter, activeFilterName } = useSelector(
     (state) => state.pagination
   );
+  const { searchDataBasedOnFilters, loading } = useSidebarFilter();
   const dispatch = useDispatch();
   const [count, setCount] = useState(0);
 
@@ -138,7 +140,36 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
             {tableIcons?.refresh}{" "}
             <span className="block ml-1 lg:hidden text-sm">Refresh</span>
           </button>
-          {/* filters  */}
+          {/* most used filters button */}
+          <button
+            className="flex md:hidden border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
+            title="pending-pickup"
+            disabled={loading}
+            onClick={() => {
+              searchDataBasedOnFilters(
+                "rideStatus=pending&sortBy=BookingStartDateAndTime&sortOrder=asc",
+                "Pending Pickups",
+                true
+              );
+            }}
+          >
+            Pending Pickups
+          </button>
+          <button
+            className="flex md:hidden border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
+            title="pending-dropoff"
+            disabled={loading}
+            onClick={() => {
+              searchDataBasedOnFilters(
+                "rideStatus=ongoing&sortBy=BookingEndDateAndTime&sortOrder=asc",
+                "Pending Drops",
+                true
+              );
+            }}
+          >
+            Pending Drops
+          </button>
+          {/* all filters list button  */}
           {(location.pathname === "/all-users" ||
             location.pathname === "/all-managers" ||
             location.pathname === "/all-bookings" ||

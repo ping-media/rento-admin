@@ -358,7 +358,7 @@ export const tableIcons = {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="size-5"
+      className="size-6 md:size-5"
     >
       <path
         strokeLinecap="round"
@@ -374,7 +374,7 @@ export const tableIcons = {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="size-5"
+      className="size-6 md:size-5"
     >
       <path
         strokeLinecap="round"
@@ -390,7 +390,7 @@ export const tableIcons = {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="size-4 lg:size-5"
+      className="size-6 md:size-5"
     >
       <path
         strokeLinecap="round"

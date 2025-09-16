@@ -186,7 +186,7 @@ const AddonModal = () => {
               {!formLoading ? (
                 `${
                   tempData?.status === "active" ? "Enable" : "Disable"
-                } Station`
+                } Vehicle`
               ) : (
                 <Spinner message={"loading..."} />
               )}

@@ -6,7 +6,7 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { handleUpdateNotes } from "../../Redux/VehicleSlice/VehicleSlice";
 import Spinner from "../../components/Spinner/Spinner";
 import { tableIcons } from "../../Data/Icons";
-import { formatMilliseconds } from "../../utils/index";
+import { formatFullDateAndTime } from "../../utils/index";
 
 const BookingNote = () => {
   const { currentUser, token } = useSelector((state) => state.user);
@@ -14,6 +14,7 @@ const BookingNote = () => {
   const [Note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+
   //   submitting the note
   const handleSubmitNotRelatedBooking = async (event) => {
     event.preventDefault();
@@ -48,7 +49,7 @@ const BookingNote = () => {
       if (response.status !== 200) {
         return handleAsyncError(dispatch, "unable to add note");
       }
-      //   updating the redux state after successfully adding the note in booking
+
       dispatch(handleUpdateNotes(pushDataInRedux));
       setNote("");
     } catch (error) {
@@ -63,7 +64,6 @@ const BookingNote = () => {
       <ul className="leading-8 mb-2 list-disc">
         {vehicleMaster && vehicleMaster[0]?.notes?.length > 0 ? (
           vehicleMaster[0]?.notes?.map((item, indx) => {
-            // avoiding any null value to show
             if (item?.key?.length <= 0 || item?.noteType === "cancel") {
               return null;
             }
@@ -73,7 +73,8 @@ const BookingNote = () => {
                   {item?.value} | {item?.key}
                 </p>
                 <p className="text-xs">
-                  {item?.createdAt && formatMilliseconds(item?.createdAt)}
+                  {/* {item?.createdAt && formatMilliseconds(item?.createdAt)} */}
+                  {item?.createdAt && formatFullDateAndTime(item?.createdAt)}
                 </p>
               </li>
             );

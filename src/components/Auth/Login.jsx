@@ -125,7 +125,7 @@ const Login = () => {
                     >
                       {!isPasswordTextActive
                         ? tableIcons.eyeOpen
-                        : tableIcons.close}
+                        : tableIcons.eyeClose}
                     </button>
                   </div>
                 </div>

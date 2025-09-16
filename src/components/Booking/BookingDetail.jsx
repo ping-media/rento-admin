@@ -61,13 +61,13 @@ const BookingDetail = ({ tabs }) => {
       ],
       moreInfo: [
         {
-          key: "Pick Up Location",
+          key: "Pick Up & Drop Off Location",
           value: `${vehicleMaster && vm?.stationName}`,
         },
-        {
-          key: "Drop Off Location",
-          value: `${vehicleMaster && vm?.stationName}`,
-        },
+        // {
+        //   key: "Drop Off Location",
+        //   value: `${vehicleMaster && vm?.stationName}`,
+        // },
         {
           key: "Booking Start",
           value: `${formatFullDateAndTime(vm?.BookingStartDateAndTime)}`,
@@ -84,11 +84,27 @@ const BookingDetail = ({ tabs }) => {
           }`,
         },
         {
-          key: "Extended Drop Time",
+          key: "Start Odometer Reading",
+          value: `${
+            vm?.pickupImage?.startMeterReading
+              ? `${formatNumber(Number(vm?.pickupImage?.startMeterReading))} Km`
+              : ""
+          }`,
+        },
+        {
+          key: "End Odometer Reading",
+          value: `${
+            vm?.pickupImage?.endMeterReading
+              ? `${formatNumber(Number(vm?.pickupImage?.endMeterReading))} km`
+              : ""
+          }`,
+        },
+        {
+          key: "Extended Till",
           value: `${formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
         },
         {
-          key: "Start Ride",
+          key: "Ride Start",
           value: `${
             vm?.vehicleBasic?.RideStart
               ? millisecToReadableFormat(Number(vm?.vehicleBasic?.RideStart))
@@ -96,26 +112,10 @@ const BookingDetail = ({ tabs }) => {
           }`,
         },
         {
-          key: "End Ride",
+          key: "Ride End",
           value: `${
             vm?.vehicleBasic?.RideEnd
               ? millisecToReadableFormat(Number(vm?.vehicleBasic?.RideEnd))
-              : ""
-          }`,
-        },
-        {
-          key: "Odometer Start Reading:",
-          value: `${
-            vm?.pickupImage?.startMeterReading
-              ? formatNumber(Number(vm?.pickupImage?.startMeterReading))
-              : ""
-          }`,
-        },
-        {
-          key: "Odometer End Reading:",
-          value: `${
-            vm?.pickupImage?.endMeterReading
-              ? formatNumber(Number(vm?.pickupImage?.endMeterReading))
               : ""
           }`,
         },
@@ -327,7 +327,7 @@ const BookingDetail = ({ tabs }) => {
           </div>
           <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
-              Add Note
+              Notes
             </h2>
           </div>
           <BookingNote />

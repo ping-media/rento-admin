@@ -2,135 +2,27 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleFilterSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../InputAndDropdown/Input";
 import FilterRadioInput from "./FilterRadioInput";
-import { getData } from "../../Data/index";
-import { fetchVehicleMasterData } from "../../Redux/VehicleSlice/VehicleSlice";
-import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import React, { useEffect, useRef, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
-import { formatDateToISO } from "../../utils/index";
-import {
-  resetVehiclesFilter,
-  setActiveFilterName,
-  setFilters,
-  setSearch,
-  setVehicleName,
-} from "../../Redux/PaginationSlice/PaginationSlice";
+import { resetVehiclesFilter } from "../../Redux/PaginationSlice/PaginationSlice";
 import { useClickOutside } from "../../utils/Helper/useClickOutside";
+import useSidebarFilter from "../../hooks/use-sidebar-filter";
 
 const FilterSideBar = () => {
   const dispatch = useDispatch();
   const { isFilterOpen } = useSelector((state) => state.sideBar);
-  const { page, limit, vehiclesFilter } = useSelector(
-    (state) => state.pagination
-  );
-  const { token, loggedInRole, userStation } = useSelector(
-    (state) => state.user
-  );
+  const { vehiclesFilter } = useSelector((state) => state.pagination);
+  const {
+    filterMenuList,
+    filterUserMenuList,
+    searchDataBasedOnFilters,
+    handleApplyFilters,
+    loading,
+    formLoading,
+  } = useSidebarFilter();
   const [menuList, setMenuList] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [filterState, setFilterState] = useState("All");
-  const [formLoading, setFormLoading] = useState(false);
   const sideBarRef = useRef(null);
-
-  const todaysDate = formatDateToISO(new Date())
-    .replace(".000Z", "Z")
-    .split("T")[0];
-
-  const tomorrowDate = formatDateToISO(new Date(Date.now() + 86400000))
-    .replace(".000Z", "Z")
-    .split("T")[0];
-
-  //booking status  list
-  const filterMenuList = [
-    { title: "All Bookings", searchTag: "", divider: false },
-    {
-      title: "Pending Pickups",
-      searchTag:
-        "rideStatus=pending&sortBy=BookingStartDateAndTime&sortOrder=asc",
-      divider: false,
-    },
-    {
-      title: "Pending Drops",
-      searchTag:
-        "rideStatus=ongoing&sortBy=BookingEndDateAndTime&sortOrder=asc",
-      divider: false,
-    },
-    {
-      title: "Today's Pickups",
-      searchTag: `search=${todaysDate}&rideStatus=pending&dateCheck=pickup`,
-      divider: false,
-    },
-    {
-      title: "Today's Drops",
-      searchTag: `search=${todaysDate}&rideStatus=ongoing&dateCheck=dropoff`,
-      divider: false,
-    },
-    {
-      title: "Completed Ride",
-      searchTag: "rideStatus=completed",
-      divider: false,
-    },
-    {
-      title: "cancelled Ride",
-      searchTag: "rideStatus=canceled",
-      divider: false,
-    },
-    {
-      title: "Today's Cash Bookings",
-      searchTag: `search=${todaysDate}&isCash=true&dateCheck=pickup`,
-      divider: false,
-    },
-    {
-      title: "All Cash Bookings",
-      searchTag: "isCash=true",
-      divider: false,
-    },
-    { title: "Extended", searchTag: "bookingStatus=extended", divider: true },
-    {
-      title: "Tomorrow's Pickups",
-      searchTag: `search=${tomorrowDate}&rideStatus=pending`,
-      divider: false,
-    },
-    {
-      title: "Failed (Payment)",
-      searchTag: "paymentStatus=failed",
-      divider: false,
-    },
-    {
-      title: "Refunded (Payment)",
-      searchTag: "paymentStatus=refunded",
-      divider: false,
-    },
-    {
-      title: "Full Paid (Payment)",
-      searchTag: "paymentStatus=paid",
-      divider: false,
-    },
-    {
-      title: "Partially Paid (Payment)",
-      searchTag: "paymentStatus=partiallyPay",
-      divider: false,
-    },
-  ];
-
-  //user status  list
-  const filterUserMenuList = [
-    { title: "All", searchTag: "" },
-    { title: "kyc Approved (Verified)", searchTag: "kycApproved=yes" },
-    { title: "kyc Approved (Not Verified)", searchTag: "kycApproved=no" },
-    { title: "Email Verified (Verified)", searchTag: "isEmailVerified=yes" },
-    { title: "Email Verified (Not Verified)", searchTag: "isEmailVerified=no" },
-    {
-      title: "Contact Verified (Verified)",
-      searchTag: "isContactVerified=yes",
-    },
-    {
-      title: "Contact Verified (Not Verified)",
-      searchTag: "isContactVerified=no",
-    },
-    { title: "Status (Active)", searchTag: "status=active" },
-    { title: "Status (In-Active)", searchTag: "status=inactive" },
-  ];
 
   useClickOutside(
     sideBarRef,
@@ -150,111 +42,6 @@ const FilterSideBar = () => {
       setMenuList(filterUserMenuList);
     }
   }, [location?.href]);
-
-  //   search data based on flags
-  const searchDataBasedOnFilters = async (searchTerm, title) => {
-    try {
-      setLoading(true);
-
-      const userType =
-        location?.pathname === "/all-users"
-          ? "userType=customer"
-          : "userType=manager";
-
-      let endpoint;
-      let StationId = "";
-
-      if (title) {
-        dispatch(setActiveFilterName(title));
-      } else {
-        dispatch(setActiveFilterName(null));
-      }
-
-      if (loggedInRole === "manager") {
-        StationId = `stationId=${userStation?.stationId}`;
-      }
-
-      if (location?.pathname === "/all-bookings") {
-        endpoint =
-          StationId !== ""
-            ? searchTerm
-              ? `/getBooking?${StationId}&${
-                  searchTerm?.includes("Status=") ||
-                  searchTerm.includes("isCash=")
-                    ? ""
-                    : "search="
-                }${searchTerm}&page=${page}&limit=${limit}`
-              : `/getBooking?${StationId}&page=${page}&limit=${limit}`
-            : searchTerm
-            ? `/getBooking?${
-                searchTerm?.includes("Status=") ||
-                searchTerm.includes("isCash=")
-                  ? ""
-                  : "search="
-              }${searchTerm}&page=${page}&limit=${limit}`
-            : `/getBooking?page=${page}&limit=${limit}`;
-      } else {
-        endpoint = searchTerm
-          ? `/getAllUsers?${
-              searchTerm?.includes("=") ? "" : "search="
-            }${searchTerm}&${userType}&page=${page}&limit=${limit}`
-          : `/getBooking?${userType}&page=${page}&limit=${limit}`;
-      }
-      // getting response
-      const response = await getData(endpoint, token);
-      if (response?.status === 200) {
-        dispatch(toggleFilterSideBar());
-        return dispatch(fetchVehicleMasterData(response));
-      } else {
-        return handleAsyncError(dispatch, response?.message);
-      }
-    } catch (error) {
-      return handleAsyncError(dispatch, error?.message);
-    } finally {
-      setLoading(false);
-      dispatch(setFilters(searchTerm));
-    }
-  };
-
-  //   search data based on station Name and vehicle Name
-  const handleApplyFilters = (event) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.target);
-    let result = Object.fromEntries(formData.entries());
-
-    if (!result.vehicleName && !result.stationName) {
-      handleAsyncError(dispatch, "Atleast add one field in order filter data.");
-      return;
-    }
-
-    if (
-      result.vehicleName === vehiclesFilter.vehicleName &&
-      result.stationName === vehiclesFilter.stationName
-    )
-      return;
-
-    try {
-      setFormLoading(true);
-      if (result.vehicleName !== "" && result.stationName !== "") {
-        dispatch(setVehicleName(result.vehicleName));
-        dispatch(setSearch(result.stationName));
-      } else if (result.vehicleName !== "") {
-        dispatch(setVehicleName(result.vehicleName));
-      } else if (result.stationName !== "") {
-        dispatch(setSearch(result.stationName));
-      }
-      dispatch(toggleFilterSideBar());
-    } catch (error) {
-      handleAsyncError(
-        dispatch,
-        "Unable to find vehicle with filters!. try again"
-      );
-      return;
-    } finally {
-      setFormLoading(false);
-    }
-  };
 
   return (
     <div

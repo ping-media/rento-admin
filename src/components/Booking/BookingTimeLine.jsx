@@ -57,6 +57,13 @@ const BookingTimeLine = () => {
                         <h3 className="mb-1 font-bold text-gray-800 text-sm">
                           {item?.title}
                         </h3>
+
+                        {item?.bookingEndDateAndTime && (
+                          <p className="text-gray-700 leading-tight text-sm">
+                            {formatFullDateAndTime(item?.bookingEndDateAndTime)}
+                          </p>
+                        )}
+
                         {Object.keys(item)?.length > 2 && (
                           <p
                             className={`text-gray-700 leading-tight ${
@@ -86,24 +93,23 @@ const BookingTimeLine = () => {
                         )}
                         {(item?.newStartDate || item?.newEndDate) && (
                           <>
-                            <p className="text-gray-800 leading-tight text-xs">
-                              {isBothDatesChange &&
-                                "Booking Date(s) changes to"}
-                            </p>
-                            <p className="text-gray-800 leading-tight text-xs">
-                              {item?.newStartDate &&
-                                !isBothDatesChange &&
-                                "Booking Start Date Change to "}
-                              {item?.newStartDate &&
-                                formatFullDateAndTime(item?.newStartDate)}
-                            </p>
-                            <p className="text-gray-800 leading-tight text-xs">
-                              {item?.newEndDate &&
-                                !isBothDatesChange &&
-                                "Booking End Date Change to "}
-                              {item?.newEndDate &&
-                                formatFullDateAndTime(item?.newEndDate)}
-                            </p>
+                            {isBothDatesChange && (
+                              <p className="text-gray-800 leading-tight text-xs">
+                                Booking Date(s) changes to
+                              </p>
+                            )}
+                            {item?.newStartDate && !isBothDatesChange && (
+                              <p className="text-gray-800 leading-tight text-xs">
+                                Booking Start Date Change to
+                                {formatFullDateAndTime(item?.newStartDate)}
+                              </p>
+                            )}
+                            {item?.newEndDate && !isBothDatesChange && (
+                              <p className="text-gray-800 leading-tight text-xs">
+                                Booking End Date Change to
+                                {formatFullDateAndTime(item?.newEndDate)}
+                              </p>
+                            )}
                           </>
                         )}
                       </>
@@ -156,9 +162,7 @@ const BookingTimeLine = () => {
                             </p>
                           )}
 
-                        {(item?.endDate ||
-                          item?.extendDate ||
-                          item?.bookingEndDateAndTime) && (
+                        {(item?.endDate || item?.extendDate) && (
                           <p className="text-gray-800 leading-tight text-xs">
                             {item?.extended === true
                               ? "Extended Till"
@@ -167,10 +171,6 @@ const BookingTimeLine = () => {
                               formatFullDateAndTime(item?.endDate)}
                             {item?.extendDate &&
                               formatFullDateAndTime(item?.extendDate)}
-                            {item?.bookingEndDateAndTime &&
-                              formatFullDateAndTime(
-                                item?.bookingEndDateAndTime
-                              )}
                           </p>
                         )}
                       </div>
