@@ -1,3 +1,4 @@
+import React from "react";
 import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
 
 const ExtendSummary = ({
@@ -53,21 +54,19 @@ const ExtendSummary = ({
         </div>
       </div>
       <div className="text-xs">
-        {appliedPlans?.length > 0 && (
-          <>
-            {appliedPlans.map((plan, index) => (
-              <>
-                <span key={plan.id}>
-                  {plan?.days} Days Package: ₹{plan?.planPrice}{" "}
-                  {plan?.count > 1 && `x ${plan?.count}`}
-                </span>
-                {index < appliedPlans.length - 1 && (
-                  <span className="mx-2">|</span>
-                )}
-              </>
-            ))}
-          </>
-        )}
+        {appliedPlans?.length > 0 &&
+          appliedPlans.map((plan, index) => (
+            <React.Fragment key={`${plan.id}_${index}`}>
+              <span>
+                {plan?.days} Days Package: ₹{plan?.planPrice}{" "}
+                {plan?.count > 1 && `x ${plan?.count}`}
+              </span>
+              {index < appliedPlans.length - 1 && (
+                <span className="mx-2">|</span>
+              )}
+            </React.Fragment>
+          ))}
+
         {weekend?.length > 0 && (
           <>
             {appliedPlans?.length > 0 && <span className="mx-2">|</span>}

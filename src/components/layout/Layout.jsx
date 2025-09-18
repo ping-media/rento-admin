@@ -132,16 +132,16 @@ const Layout = () => {
 
         {/* Layout Wrapper */}
         <div
-          className={`flex flex-col h-screen w-full ${
+          className={`flex flex-col max-h-dvh w-full ${
             theme === "dark" ? "dark" : ""
           }`}
         >
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 h-svh overflow-hidden">
             <aside className="hidden lg:block w-[210px] h-full overflow-y-auto bg-white dark:bg-slate-900 border-r">
               <SideBar />
             </aside>
 
-            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-slate-900 overflow-hidden min-h-screen">
+            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-slate-900 overflow-hidden">
               <div className="bg-white dark:bg-slate-900 h-[60.4px] z-10">
                 <Header />
               </div>

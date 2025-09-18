@@ -2,9 +2,57 @@ import { formatFullDateAndTime, formatPrice } from "../../utils/index";
 import StatusChange from "../../components/Table/StatusChange";
 import { tableIcons } from "../../Data/Icons";
 import { Link, useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 
 const BookingCard = ({ item }) => {
   const navigate = useNavigate();
+
+  const bookingPrice =
+    item?.bookingPrice?.isDiscountZero === true ||
+    (item?.bookingPrice?.discountTotalPrice &&
+      item?.bookingPrice?.discountTotalPrice !== 0)
+      ? item?.bookingPrice?.discountTotalPrice
+      : item?.bookingPrice?.totalPrice;
+
+  const extendAmount = item.bookingPrice?.extendAmount || [];
+  const extendPrice = useMemo(() => {
+    return extendAmount.reduce((sum, extend) => {
+      if (extend?.status === "paid") {
+        return (
+          sum +
+          Number(extend?.amount || 0) +
+          Number(extend?.addOnAmount || 0) +
+          Number(extend?.tax || 0) +
+          Number(extend?.addonTax || 0)
+        );
+      }
+      return sum;
+    }, 0);
+  }, [extendAmount]);
+
+  const diffAmount = item.bookingPrice?.diffAmount || [];
+  const diffPrice = useMemo(() => {
+    return diffAmount.reduce((sum, diff) => {
+      if (diff?.status === "paid") {
+        const debit = Number(diff?.amount || 0);
+        const credit = Number(diff?.refundAmount || 0);
+        return sum + (debit - credit);
+      }
+      return sum;
+    }, 0);
+  }, [diffAmount]);
+
+  const newBookingPrice = bookingPrice + extendPrice + diffPrice;
+
+  // booking end date (reuse extendAmount)
+  let BookingEndDateAndTime = item?.BookingEndDateAndTime;
+  if (extendAmount.length > 0) {
+    const lastExtend = extendAmount[extendAmount.length - 1];
+    if (lastExtend?.bookingEndDateAndTime) {
+      BookingEndDateAndTime = lastExtend.bookingEndDateAndTime;
+    }
+  }
+
   return (
     <div
       onClick={() => navigate(`details/${item?._id}_${item?.bookingId}`)}
@@ -42,11 +90,11 @@ const BookingCard = ({ item }) => {
               </div>
             </div>
             <p className="text-right text-theme font-bold mb-2">
-              ₹
-              {item?.bookingPrice?.discountTotalPrice &&
+              ₹{formatPrice(newBookingPrice)}
+              {/* {item?.bookingPrice?.discountTotalPrice &&
               item?.bookingPrice?.discountTotalPrice > 0
                 ? formatPrice(item?.bookingPrice?.discountTotalPrice)
-                : formatPrice(item?.bookingPrice?.totalPrice)}
+                : formatPrice(item?.bookingPrice?.totalPrice)} */}
             </p>
 
             <p className="text-right capitalize">{item.stationName}</p>
@@ -88,8 +136,8 @@ const BookingCard = ({ item }) => {
           <p className="flex items-center">
             {tableIcons?.dateCalender}{" "}
             <span className="ml-1">
-              {item?.BookingEndDateAndTime &&
-                formatFullDateAndTime(item?.BookingEndDateAndTime)}
+              {BookingEndDateAndTime &&
+                formatFullDateAndTime(BookingEndDateAndTime)}
             </span>
           </p>
         </div>

@@ -6,7 +6,7 @@ import {
   formatTimeStampToDate,
 } from "../../utils/index";
 
-const RenderCellContent = (column, value) => {
+const RenderCellContent = (column, value, item) => {
   if (!value && value !== 0) return "";
 
   if (
@@ -39,7 +39,22 @@ const RenderCellContent = (column, value) => {
   }
 
   if (location.pathname === "/all-bookings" && column.includes("DateAndTime")) {
-    const full = formatFullDateAndTime(value);
+    let newValue = value;
+    if (column === "BookingEndDateAndTime") {
+      const extendData =
+        item.bookingPrice?.extendAmount?.length > 0
+          ? item.bookingPrice?.extendAmount
+          : null;
+      const extendBookingDate =
+        extendData != null
+          ? extendData[extendData?.length - 1]?.bookingEndDateAndTime
+          : null;
+
+      if (extendBookingDate !== null && extendBookingDate !== undefined) {
+        newValue = extendBookingDate;
+      }
+    }
+    const full = formatFullDateAndTime(newValue);
     const parts = full.split(",");
     const date = `${parts[0]},${parts[1]}`.trim();
     const time = parts[2]?.trim() || "";

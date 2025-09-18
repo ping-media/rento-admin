@@ -5,6 +5,7 @@ import { toggleSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { tableIcons } from "../../Data/Icons";
 import HeaderMenuList from "./HeaderMenuList";
 import { useLocation } from "react-router-dom";
+import BackButton from "../../components/Buttons/BackButton";
 
 const Header = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -69,16 +70,19 @@ const Header = () => {
           </button>
           {/* for showing booking id in sidebar  */}
           {location.pathname.includes("/all-bookings/details/") && (
-            <div className="relative capitalize shadow-md rounded-xl flex items-center gap-2 px-4 py-2.5 lg:py-3 dark:bg-gray-700">
-              <p className="text-theme text-base uppercase font-medium">
-                Booking Id:
-              </p>
-              <p className="text-base">
-                {vehicleMaster && vehicleMaster?.length > 0
-                  ? vehicleMaster[0]?.bookingId
-                  : "--"}
-              </p>
-            </div>
+            <>
+              <BackButton endpoint={"/all-bookings"} />
+              <div className="relative capitalize shadow-md rounded-xl flex items-center gap-2 px-4 py-2.5 lg:py-3 dark:bg-gray-700">
+                <p className="text-theme text-base uppercase font-medium">
+                  Booking Id:
+                </p>
+                <p className="text-base">
+                  {vehicleMaster && vehicleMaster?.length > 0
+                    ? vehicleMaster[0]?.bookingId
+                    : "--"}
+                </p>
+              </div>
+            </>
           )}
         </div>
         {/* user menu */}

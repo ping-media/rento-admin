@@ -165,10 +165,10 @@ const BookingDetails = () => {
       <RideEndModal id={bookingId} />
 
       {/* main booking details start here */}
-      <div className="flex items-center flex-wrap justify-between gap-2 lg:gap-0 mb-3">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center flex-wrap justify-end gap-2 lg:gap-0 mb-3">
+        {/* <div className="flex items-center gap-2">
           <BackButton endpoint={"/all-bookings"} />
-        </div>
+        </div> */}
 
         {/* actions for cancel & start ride  */}
         <BookingDetailsButton
@@ -178,7 +178,7 @@ const BookingDetails = () => {
         />
       </div>
       <div className="mt-5">
-        <div className="w-full lg:hidden mb-5 lg:mb-0">
+        <div className="w-full bg-white rounded-md lg:hidden mb-5 lg:mb-0">
           <TabButton
             options={[
               { id: "customer", title: "Customer" },

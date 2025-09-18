@@ -2,7 +2,6 @@ import DropDownComponent from "../DropDown/DropDownComponent.jsx";
 import {
   changeNumberIntoTime,
   formatPathNameToTitle,
-  formatPrice,
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
 import React, { useCallback, useEffect, useState } from "react";
@@ -28,8 +27,8 @@ import BookingCard from "../../components/Card/BookingCard.jsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import CardNotFound from "../../components/Skeleton/CardNotFound.jsx";
 import CardDataLoading from "../../components/Skeleton/CardDataLoading.jsx";
-import MaintenanceStatusBadge from "./MaintenanceBadge.jsx";
 import RenderCellContent from "./RenderCellContent.jsx";
+import PriceCell from "./PriceCell.jsx";
 
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const [loadingStates, setLoadingStates] = useState({});
@@ -272,6 +271,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
         <TablePageHeader
           inputSearchQuery={inputSearchQuery}
           setInputSearchQuery={setInputSearchQuery}
+          bookingData={newUpdatedData}
         />
       </div>
 
@@ -441,62 +441,15 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
 
                             if (typeof item[column] === "object") {
                               const paymentKey = `payment-${item._id}-${column}-${columnIndex}-${index}`;
-                              const priceKey = `price-${item._id}-${column}-${columnIndex}-${index}`;
+                              // const priceKey = `price-${item._id}-${column}-${columnIndex}-${index}`;
 
                               return (
                                 <React.Fragment key={cellKey}>
-                                  {location?.pathname === "/payments" && (
-                                    <td
-                                      className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
-                                      key={paymentKey}
-                                    >
-                                      ₹{" "}
-                                      {item?.paymentStatus ===
-                                        "partially_paid" ||
-                                      item?.paymentStatus === "partiallyPay"
-                                        ? formatPrice(
-                                            item?.bookingPrice?.userPaid
-                                          )
-                                        : item?.bookingPrice
-                                            ?.discountTotalPrice > 0
-                                        ? formatPrice(
-                                            item?.bookingPrice
-                                              ?.discountTotalPrice
-                                          )
-                                        : formatPrice(
-                                            item?.bookingPrice?.totalPrice
-                                          )}
-                                    </td>
-                                  )}
-                                  <td
-                                    className={`px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900 ${
-                                      column.includes("maintenance")
-                                        ? "capitalize"
-                                        : ""
-                                    }`}
-                                    key={priceKey}
-                                  >
-                                    {column.includes("maintenance") &&
-                                      console.log()}
-                                    {column.includes(
-                                      "files"
-                                    ) ? null : column.includes(
-                                        "maintenance"
-                                      ) ? (
-                                      <MaintenanceStatusBadge
-                                        maintenanceList={item[column]}
-                                      />
-                                    ) : (
-                                      `₹${formatPrice(
-                                        item[column]?.isDiscountZero === true ||
-                                          (item[column]?.discountTotalPrice &&
-                                            item[column]?.discountTotalPrice !=
-                                              0)
-                                          ? item[column]?.discountTotalPrice
-                                          : item[column]?.totalPrice
-                                      )}`
-                                    )}
-                                  </td>
+                                  <PriceCell
+                                    key={paymentKey}
+                                    item={item}
+                                    column={column}
+                                  />
                                 </React.Fragment>
                               );
                             }
@@ -516,7 +469,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 }`}
                                 key={cellKey}
                               >
-                                {RenderCellContent(column, item[column])}
+                                {RenderCellContent(column, item[column], item)}
                               </td>
                             );
                           })}

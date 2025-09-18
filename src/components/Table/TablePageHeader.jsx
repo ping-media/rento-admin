@@ -7,13 +7,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { bookingSearchList } from "../../Data/commonData";
 import { handleChangeSearchType } from "../../Redux/PaginationSlice/PaginationSlice";
-import { toggleRefresh } from "../../Redux/VehicleSlice/VehicleSlice";
+// import { toggleRefresh } from "../../Redux/VehicleSlice/VehicleSlice";
 import useSidebarFilter from "../../hooks/use-sidebar-filter";
+import ExportButton from "../../components/ExcelExport/ExportButton";
 
-const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
+const TablePageHeader = ({
+  inputSearchQuery,
+  setInputSearchQuery,
+  bookingData,
+}) => {
   const { vehiclesFilter, activeFilterName } = useSelector(
     (state) => state.pagination
   );
+  const { loggedInRole } = useSelector((state) => state.user);
   const { searchDataBasedOnFilters, loading } = useSidebarFilter();
   const dispatch = useDispatch();
   const [count, setCount] = useState(0);
@@ -132,14 +138,16 @@ const TablePageHeader = ({ inputSearchQuery, setInputSearchQuery }) => {
             </form>
           </div>
           {/* refresh button  */}
-          <button
+          {/* <button
             className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 flex items-center transition-all duration-200 ease-in"
             title="Refresh"
             onClick={() => dispatch(toggleRefresh())}
           >
             {tableIcons?.refresh}{" "}
             <span className="block ml-1 lg:hidden text-sm">Refresh</span>
-          </button>
+          </button> */}
+          {/* export to excel button  */}
+          {loggedInRole === "admin" && <ExportButton data={bookingData} />}
           {/* most used filters button */}
           <button
             className="flex md:hidden border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"

@@ -150,8 +150,11 @@ const BookingDetail = ({ tabs }) => {
           )}
           <div className={`${tabs !== "customer" && "hidden lg:block"}`}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base lg:text-lg font-semibold text-gray-500 flex items-center">
+              <h2 className="text-base lg:text-lg font-semibold text-gray-500 hidden md:flex items-center">
                 Customer Information
+              </h2>
+              <h2 className="text-base lg:text-lg font-semibold text-gray-500 flex md:hidden items-center">
+                Booking Status
               </h2>
               <BookingStatusFlag
                 title={"Booking Status"}
@@ -168,8 +171,11 @@ const BookingDetail = ({ tabs }) => {
           </div>
           <div className={`${tabs !== "booking" && "hidden lg:block"}`}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base lg:text-lg font-semibold text-gray-500">
+              <h2 className="hidden md:block text-base lg:text-lg font-semibold text-gray-500">
                 Booking Information
+              </h2>
+              <h2 className="block md:hidden text-base lg:text-lg font-semibold text-gray-500">
+                Ride Status
               </h2>
               <BookingStatusFlag
                 title={"Ride Status"}
@@ -288,8 +294,11 @@ const BookingDetail = ({ tabs }) => {
             />
           </div>
           <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
-            <h2 className="text-base lg:text-lg font-semibold text-gray-600">
+            <h2 className="hidden md:block text-base lg:text-lg font-semibold text-gray-600">
               Fare Details
+            </h2>
+            <h2 className="block md:hidden text-base lg:text-lg font-semibold text-gray-600">
+              Payment Status
             </h2>
             <BookingStatusFlag
               title={"Payment Status"}

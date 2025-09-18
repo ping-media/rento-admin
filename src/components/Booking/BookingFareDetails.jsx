@@ -7,6 +7,42 @@ import Tooltip from "../../components/Tooltip/Tooltip";
 import { renderTooltipBreakdown } from "../../utils/Helper/Helper";
 
 const BookingFareDetails = ({ rides }) => {
+  // --- handle booking end date from extend ---
+  const extendAmount = rides.bookingPrice?.extendAmount || [];
+
+  // --- prices ---
+  const bookingPrice =
+    rides?.bookingPrice?.isDiscountZero === true ||
+    (rides?.bookingPrice?.discountTotalPrice &&
+      rides?.bookingPrice?.discountTotalPrice !== 0)
+      ? rides?.bookingPrice?.discountTotalPrice
+      : rides?.bookingPrice?.totalPrice;
+
+  const extendPrice = extendAmount.reduce((sum, extend) => {
+    if (extend?.status === "paid") {
+      return (
+        sum +
+        Number(extend?.amount || 0) +
+        Number(extend?.addOnAmount || 0) +
+        Number(extend?.tax || 0) +
+        Number(extend?.addonTax || 0)
+      );
+    }
+    return sum;
+  }, 0);
+
+  const diffAmount = rides.bookingPrice?.diffAmount || [];
+  const diffPrice = diffAmount.reduce((sum, diff) => {
+    if (diff?.status === "paid") {
+      const debit = Number(diff?.amount || 0);
+      const credit = Number(diff?.refundAmount || 0);
+      return sum + (debit - credit);
+    }
+    return sum;
+  }, 0);
+
+  const newBookingPrice = bookingPrice + extendPrice + diffPrice;
+
   return (
     <>
       {rides && (
@@ -59,7 +95,9 @@ const BookingFareDetails = ({ rides }) => {
                     value?.map((item, index) => (
                       <li
                         key={`key-${index}`}
-                        className="flex items-center justify-between border-b-2"
+                        className={`flex items-center justify-between ${
+                          index === value.length - 1 ? "" : "border-b-2"
+                        }`}
                       >
                         <div className="my-1">
                           <p className="text-sm font-semibold uppercase">
@@ -125,7 +163,7 @@ const BookingFareDetails = ({ rides }) => {
                   return (
                     <li
                       key={key}
-                      className="flex items-center justify-between border-b-2"
+                      className={`flex items-center justify-between`}
                     >
                       <div className="my-1">
                         <div className="text-sm font-semibold uppercase">
@@ -133,6 +171,8 @@ const BookingFareDetails = ({ rides }) => {
                             ? `GST(${
                                 rides?.vehicleMasterId?.gstPercentage || "--"
                               }%)`
+                            : key === "bookingPrice"
+                            ? "Booking Amount"
                             : camelCaseToSpaceSeparated(key)}
                           {key === "bookingPrice" &&
                             rides?.bookingPrice?.daysBreakdown && (
@@ -158,7 +198,7 @@ const BookingFareDetails = ({ rides }) => {
 
             {/* Display the totalPrice & user paid & remaining amount last */}
             {/* totalPrice */}
-            {rides?.bookingPrice?.totalPrice && (
+            {/* {rides?.bookingPrice?.totalPrice && (
               <li className="flex items-center justify-between mt-1 my-1">
                 <p className="text-sm font-bold uppercase text-left">
                   {rides?.bookingPrice?.discountPrice &&
@@ -183,7 +223,7 @@ const BookingFareDetails = ({ rides }) => {
                   {`₹${formatPrice(rides?.bookingPrice?.totalPrice)}`}
                 </p>
               </li>
-            )}
+            )} */}
             {/* discount price  */}
             {rides?.bookingPrice?.discountPrice > 0 && (
               <li
@@ -204,7 +244,7 @@ const BookingFareDetails = ({ rides }) => {
             )}
 
             {/* total price  */}
-            {(rides?.bookingPrice?.isDiscountZero === true ||
+            {/* {(rides?.bookingPrice?.isDiscountZero === true ||
               rides?.bookingPrice?.discountTotalPrice > 0) && (
               <li
                 className={`flex items-center justify-between mt-1 my-1 ${
@@ -230,7 +270,7 @@ const BookingFareDetails = ({ rides }) => {
                   {`₹${formatPrice(rides?.bookingPrice?.discountTotalPrice)}`}
                 </p>
               </li>
-            )}
+            )} */}
 
             {/* user paid */}
             {rides?.bookingPrice?.userPaid > 0 &&
@@ -256,7 +296,7 @@ const BookingFareDetails = ({ rides }) => {
                         )
                       </small>
                     </p>
-                    <p className="text-sm font-bold text-theme text-right">
+                    <p className="text-sm font-bold text-right">
                       {`₹${formatPrice(
                         rides?.bookingPrice.AmountLeftAfterUserPaid?.amount ||
                           rides?.bookingPrice.AmountLeftAfterUserPaid
@@ -265,6 +305,7 @@ const BookingFareDetails = ({ rides }) => {
                   </li>
                 </>
               )}
+
             {/* for refund process  */}
             {(rides?.paymentStatus === "refundInt" ||
               rides?.paymentStatus === "refunded") && (
@@ -317,7 +358,7 @@ const BookingFareDetails = ({ rides }) => {
               )}
             {/* extend amount  */}
             {rides?.bookingPrice?.extendAmount?.length > 0 && (
-              <li className="flex items-center justify-between pt-1 mt-1 border-t-2">
+              <li className="flex items-center justify-between pt-1 mt-1">
                 <p className="text-sm font-semibold uppercase text-left">
                   Extend Amount
                   <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
@@ -330,7 +371,7 @@ const BookingFareDetails = ({ rides }) => {
                     )
                   </small>
                 </p>
-                <p className="text-sm font-bold text-right text-theme">
+                <p className="text-sm font-bold text-right">
                   {`₹${formatPrice(
                     Number(
                       rides?.bookingPrice?.extendAmount[
@@ -347,6 +388,17 @@ const BookingFareDetails = ({ rides }) => {
                 </p>
               </li>
             )}
+
+            {/* total price  */}
+            <li className="flex items-center justify-between mt-1 border-t-2 pt-2 my-2">
+              <p className="text-sm font-bold uppercase text-left">
+                Total Price
+              </p>
+              <p className="text-sm font-extrabold text-right text-theme">
+                {`₹${formatPrice(newBookingPrice || 0)}`}
+              </p>
+            </li>
+
             {/* refunded amount  */}
             <li className="pt-1 mt-1 border-t-2">
               <div className="flex items-center">
