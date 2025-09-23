@@ -76,7 +76,7 @@ const VehicleMaster = () => {
       const nextPath = window.location.pathname;
       const isGoingToDetails = nextPath.includes("/details");
 
-      if (!isGoingToDetails) {
+      if (!isGoingToDetails && nextPath !== "/all-bookings") {
         dispatch(handleRestPagination());
       }
 

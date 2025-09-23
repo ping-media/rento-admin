@@ -3,6 +3,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { tableIcons } from "../../Data/Icons";
 import { camelCaseToSpaceSeparated } from "../../utils/index";
+import InputSwitch from "../InputAndDropdown/InputSwitch";
 
 const AddOnTable = ({
   addOnId,
@@ -70,7 +71,12 @@ const AddOnTable = ({
                           {item?.maxAmount}
                         </td>
                         <td className="p-2.5 max-w-24 break-words whitespace-wrap text-sm leading-6 font-medium text-gray-900 capitalize">
-                          <div
+                          <InputSwitch
+                            value={item.status}
+                            id={vehicleMaster?.[0]?._id}
+                            addonId={item._id}
+                          />
+                          {/* <div
                             className={`p-1 lg:py-1.5 lg:px-2.5 border ${
                               item.status === "active"
                                 ? "bg-emerald-50 border-emerald-100"
@@ -104,7 +110,7 @@ const AddOnTable = ({
                             >
                               {item.status}
                             </span>
-                          </div>
+                          </div> */}
                         </td>
                         <td className="p-2.5 whitespace-nowrap text-sm items-center">
                           <div className="flex items-center gap-1">

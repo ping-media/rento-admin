@@ -28,7 +28,7 @@ const paginationPersistConfig = {
   key: "pagination",
   version: "1",
   storage,
-  whitelist: ["searchTerm"],
+  whitelist: ["searchTerm", "filters", "activeFilterName"],
 };
 
 const persistedUserReducer = persistReducer(userPersistConfig, userReducer);

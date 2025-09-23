@@ -15,7 +15,7 @@ import { formatDateToISO } from "../utils/index";
 const useSidebarFilter = () => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
-  const { page, limit, vehiclesFilter } = useSelector(
+  const { page, limit, vehiclesFilter, activeFilterName } = useSelector(
     (state) => state.pagination
   );
   const { token, loggedInRole, userStation } = useSelector(
@@ -246,6 +246,7 @@ const useSidebarFilter = () => {
     handleApplyFilters,
     loading,
     formLoading,
+    activeFilterName,
   };
 };
 

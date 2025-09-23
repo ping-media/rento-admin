@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { formatPathNameToTitle } from "../../utils/index";
 import { tableIcons } from "../../Data/Icons";
 import BulkActionButtons from "./BulkActionButtons";
@@ -19,6 +19,7 @@ const TablePageHeader = ({
   const { vehiclesFilter, activeFilterName } = useSelector(
     (state) => state.pagination
   );
+  const { pathname } = useLocation();
   const { loggedInRole } = useSelector((state) => state.user);
   const { searchDataBasedOnFilters, loading } = useSidebarFilter();
   const dispatch = useDispatch();
@@ -146,8 +147,13 @@ const TablePageHeader = ({
             {tableIcons?.refresh}{" "}
             <span className="block ml-1 lg:hidden text-sm">Refresh</span>
           </button> */}
+
           {/* export to excel button  */}
-          {loggedInRole === "admin" && <ExportButton data={bookingData} />}
+          {loggedInRole === "admin" &&
+            ["/all-bookings", "/all-users"].includes(pathname) && (
+              <ExportButton data={bookingData} />
+            )}
+
           {/* most used filters button */}
           <button
             className="flex md:hidden border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"

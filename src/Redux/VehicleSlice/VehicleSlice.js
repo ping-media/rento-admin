@@ -149,6 +149,15 @@ const vehicleSlice = createSlice({
         data[flag] = newStatus;
       }
     },
+    handleUpdateAddonStatus: (state, action) => {
+      const { id, newStatus } = action.payload;
+      const data = state?.vehicleMaster?.[0]?.extraAddOn?.find(
+        (item) => item._id === id
+      );
+      if (data) {
+        data.status = newStatus;
+      }
+    },
     handleUpdateExtendVehicle: (state, action) => {
       const {
         // BookingStartDateAndTime,
@@ -429,6 +438,7 @@ export const {
   addTempIds,
   removeTempIds,
   handleUpdateStatus,
+  handleUpdateAddonStatus,
   updateTempId,
   removeTempIdById,
   removeSingleTempIdById,

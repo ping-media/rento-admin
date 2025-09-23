@@ -9,8 +9,10 @@ import {
   getDurationBetweenDates,
 } from "../../utils/index";
 import Spinner from "../../components/Spinner/Spinner";
+import { useLocation } from "react-router-dom";
 
 const ExportButton = () => {
+  const { pathname } = useLocation();
   const { token } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
@@ -19,10 +21,12 @@ const ExportButton = () => {
     try {
       setLoading(true);
 
-      const response = await getFullData(
-        "/getBooking?&page=1&limit=1000",
-        token
-      );
+      const endpoint =
+        pathname === "/all-users"
+          ? "/getAllUsers?userType=customer&page=1&limit=1000"
+          : "/getBooking?&page=1&limit=1000";
+
+      const response = await getFullData(endpoint, token);
 
       if (response?.status !== 200) {
         handleAsyncError(dispatch, "Unable to get data! try again");
@@ -30,84 +34,99 @@ const ExportButton = () => {
       }
 
       const data = response?.data?.data || [];
+      const reportName = pathname === "/all-users" ? "User" : "Booking";
 
       const exportData = data.map((item) => {
-        // --- handle booking end date from extend ---
-        const extendAmount = item.bookingPrice?.extendAmount || [];
-        let BookingEndDateAndTime = item?.BookingEndDateAndTime;
+        if (pathname === "/all-bookings") {
+          // --- handle booking end date from extend ---
+          const extendAmount = item.bookingPrice?.extendAmount || [];
+          let BookingEndDateAndTime = item?.BookingEndDateAndTime;
 
-        if (extendAmount.length > 0) {
-          const lastExtend = extendAmount[extendAmount.length - 1];
-          if (lastExtend?.bookingEndDateAndTime) {
-            BookingEndDateAndTime = lastExtend.bookingEndDateAndTime;
+          if (extendAmount.length > 0) {
+            const lastExtend = extendAmount[extendAmount.length - 1];
+            if (lastExtend?.bookingEndDateAndTime) {
+              BookingEndDateAndTime = lastExtend.bookingEndDateAndTime;
+            }
           }
-        }
 
-        // --- duration ---
-        let Duration = "";
-        if (item?.BookingStartDateAndTime && BookingEndDateAndTime) {
-          const { days, hours } = getDurationBetweenDates(
-            item?.BookingStartDateAndTime,
-            BookingEndDateAndTime
-          );
-          Duration = `${days} days ${hours > 0 ? `${hours} hours` : ""}`;
-        }
-
-        // --- prices ---
-        const bookingPrice =
-          item?.bookingPrice?.isDiscountZero === true ||
-          (item?.bookingPrice?.discountTotalPrice &&
-            item?.bookingPrice?.discountTotalPrice !== 0)
-            ? item?.bookingPrice?.discountTotalPrice
-            : item?.bookingPrice?.totalPrice;
-
-        const extendPrice = extendAmount.reduce((sum, extend) => {
-          if (extend?.status === "paid") {
-            return (
-              sum +
-              Number(extend?.amount || 0) +
-              Number(extend?.addOnAmount || 0) +
-              Number(extend?.tax || 0) +
-              Number(extend?.addonTax || 0)
+          // --- duration ---
+          let Duration = "";
+          if (item?.BookingStartDateAndTime && BookingEndDateAndTime) {
+            const { days, hours } = getDurationBetweenDates(
+              item?.BookingStartDateAndTime,
+              BookingEndDateAndTime
             );
+            Duration = `${days} days ${hours > 0 ? `${hours} hours` : ""}`;
           }
-          return sum;
-        }, 0);
 
-        const diffAmount = item.bookingPrice?.diffAmount || [];
-        const diffPrice = diffAmount.reduce((sum, diff) => {
-          if (diff?.status === "paid") {
-            const debit = Number(diff?.amount || 0);
-            const credit = Number(diff?.refundAmount || 0);
-            return sum + (debit - credit);
-          }
-          return sum;
-        }, 0);
+          // --- prices ---
+          const bookingPrice =
+            item?.bookingPrice?.isDiscountZero === true ||
+            (item?.bookingPrice?.discountTotalPrice &&
+              item?.bookingPrice?.discountTotalPrice !== 0)
+              ? item?.bookingPrice?.discountTotalPrice
+              : item?.bookingPrice?.totalPrice;
 
-        const newBookingPrice = bookingPrice + extendPrice + diffPrice;
+          const extendPrice = extendAmount.reduce((sum, extend) => {
+            if (extend?.status === "paid") {
+              return (
+                sum +
+                Number(extend?.amount || 0) +
+                Number(extend?.addOnAmount || 0) +
+                Number(extend?.tax || 0) +
+                Number(extend?.addonTax || 0)
+              );
+            }
+            return sum;
+          }, 0);
 
-        // --- final row object ---
-        return {
-          BookingId: item?.bookingId,
-          PickupDateAndTime:
-            item?.BookingStartDateAndTime &&
-            formatFullDateAndTime(item?.BookingStartDateAndTime),
-          DropDateAndTime: formatFullDateAndTime(BookingEndDateAndTime),
-          Duration,
-          CustomerName: `${item?.userId?.firstName || ""} ${
-            item?.userId?.lastName || ""
-          }`,
-          CustomerNumber: item?.contact,
-          VehicleModel: `${item?.vehicleBrand || ""} ${
-            item?.vehicleName || ""
-          }`,
-          VehicleNumber: item?.vehicleBasic?.vehicleNumber,
-          TotalAmount: newBookingPrice,
-          PaymentStatus: item.paymentStatus,
-          BookingStatus:
-            item?.bookingStatus === "done" ? "confirmed" : item?.bookingStatus,
-          RideStatus: item?.rideStatus,
-        };
+          const diffAmount = item.bookingPrice?.diffAmount || [];
+          const diffPrice = diffAmount.reduce((sum, diff) => {
+            if (diff?.status === "paid") {
+              const debit = Number(diff?.amount || 0);
+              const credit = Number(diff?.refundAmount || 0);
+              return sum + (debit - credit);
+            }
+            return sum;
+          }, 0);
+
+          const newBookingPrice = bookingPrice + extendPrice + diffPrice;
+
+          // --- final row object ---
+          return {
+            BookingId: item?.bookingId,
+            PickupDateAndTime:
+              item?.BookingStartDateAndTime &&
+              formatFullDateAndTime(item?.BookingStartDateAndTime),
+            DropDateAndTime: formatFullDateAndTime(BookingEndDateAndTime),
+            Duration,
+            CustomerName: item?.userId?.fullName || "--",
+            CustomerNumber: item?.userId?.contact || "--",
+            AltCustomerNumber: item?.userId?.altContact || "--",
+            CustomerEmail: item?.userId?.email || "--",
+            VehicleModel: `${item?.vehicleBrand || "--"} ${
+              item?.vehicleName || ""
+            }`,
+            VehicleNumber: item?.vehicleBasic?.vehicleNumber,
+            TotalAmount: newBookingPrice,
+            PaymentStatus: item.paymentStatus,
+            BookingStatus:
+              item?.bookingStatus === "done"
+                ? "confirmed"
+                : item?.bookingStatus,
+            RideStatus: item?.rideStatus,
+          };
+        } else if (pathname === "/all-users") {
+          return {
+            FullName: `${item?.firstName || "--"} ${item?.lastName || ""}`,
+            CustomerNumber: item?.contact || "--",
+            AltCustomerNumber: item?.altContact || "--",
+            Email: item?.email || "--",
+            CreatedAt: item?.createdAt
+              ? formatFullDateAndTime(item?.createdAt)
+              : "--",
+          };
+        }
       });
 
       if (exportData.length > 0) {
@@ -117,7 +136,10 @@ const ExportButton = () => {
           .replace(/T/, "_") // → "2025-09-18_06:12:34.567Z"
           .replace(/\..+/, ""); // → "2025-09-18_06:12:34"
 
-        exportToExcel(exportData, `RentoBikes_Booking_Report_${timestamp}`);
+        exportToExcel(
+          exportData,
+          `RentoBikes_${reportName}_Report_${timestamp}`
+        );
       }
     } catch (error) {
       console.error(error?.message);

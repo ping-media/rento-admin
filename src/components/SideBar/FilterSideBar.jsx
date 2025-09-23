@@ -19,9 +19,12 @@ const FilterSideBar = () => {
     handleApplyFilters,
     loading,
     formLoading,
+    activeFilterName,
   } = useSidebarFilter();
   const [menuList, setMenuList] = useState([]);
-  const [filterState, setFilterState] = useState("All");
+  const [filterState, setFilterState] = useState(
+    activeFilterName !== "" ? activeFilterName : "All Bookings"
+  );
   const sideBarRef = useRef(null);
 
   useClickOutside(

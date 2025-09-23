@@ -94,7 +94,13 @@ const Layout = () => {
 
   //need to reset some value when ever user change page
   useEffect(() => {
-    dispatch(handleRestPagination());
+    if (
+      location.pathname !== "/all-bookings" &&
+      !location.pathname.startsWith("/all-bookings/details")
+    ) {
+      dispatch(handleRestPagination());
+    }
+
     dispatch(resetVehiclesFilter());
     dispatch(removeTempIds());
     dispatch(removemaintenanceIds());
