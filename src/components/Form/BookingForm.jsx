@@ -93,17 +93,16 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       setAddOn([]);
     }
 
-    const totalExtraAddOnPrice =
-      Math.round(
-        Number(
-          calculateTotalAddOnPrice(addOnArr, durationBetweenStartAndEnd?.days)
-        )
-      ) || 0;
-    const addonGstPercentage =
-      selectedVehicle?.stationData?.extraAddOn[0]?.gstPercentage;
+    const { totalAddonAmount, totalAddonTax } = calculateTotalAddOnPrice(
+      addOnArr,
+      durationBetweenStartAndEnd?.days
+    );
+    // const addonGstPercentage =
+    //   selectedVehicle?.stationData?.extraAddOn[0]?.gstPercentage;
 
-    const addonTax =
-      calculateTax(totalExtraAddOnPrice, addonGstPercentage) || 0;
+    // const addonTax =
+    //   calculateTax(Math.round(Number(totalAddonAmount)), addonGstPercentage) ||
+    //   0;
 
     let tax = 0;
     if (selectedVehicle?.stationData?.isGstActive === "active") {
@@ -117,14 +116,15 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         );
     }
 
-    const totalPrice = bookingPrice + totalExtraAddOnPrice + tax + addonTax;
+    const totalPrice =
+      bookingPrice + Math.round(Number(totalAddonAmount)) + tax + totalAddonTax;
 
     const combinedData = {
       bookingPrice,
       rentAmount,
-      extraAddonPrice: totalExtraAddOnPrice,
+      extraAddonPrice: Math.round(Number(totalAddonAmount)),
       tax,
-      addonTax,
+      addonTax: totalAddonTax,
       totalPrice,
     };
 

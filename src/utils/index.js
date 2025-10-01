@@ -617,16 +617,29 @@ const getFullYearMonthOptions = (count = 12) => {
 };
 
 const calculateTotalAddOnPrice = (addOns, days) => {
-  return addOns.reduce((total, item) => {
-    const multiplied = item.amount * days;
+  return addOns.reduce(
+    (acc, item) => {
+      const multiplied = item.amount * days;
 
-    const finalAmount =
-      item.maxAmount > 0 && multiplied > item.maxAmount
-        ? item.maxAmount
-        : multiplied;
+      const finalAmount =
+        item.maxAmount > 0 && multiplied > item.maxAmount
+          ? item.maxAmount
+          : multiplied;
 
-    return total + finalAmount;
-  }, 0);
+      const taxAmount =
+        item.gstStatus === "active" && item.gstPercentage
+          ? calculateTax(finalAmount, item.gstPercentage)
+          : 0;
+
+      const addonTotal = finalAmount + taxAmount;
+
+      acc.totalAddonAmount += addonTotal;
+      acc.totalAddonTax += taxAmount;
+
+      return acc;
+    },
+    { totalAddonAmount: 0, totalAddonTax: 0 }
+  );
 };
 
 const formatMilliseconds = (ms) => {

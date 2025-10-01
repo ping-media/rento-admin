@@ -32,6 +32,7 @@ const ExtendBookingModal = ({ bookingData }) => {
   const [isPlanApplied, setIsPlanApplied] = useState(false);
   const [extensionDays, setExtensionDays] = useState(0);
   const [addOnPrice, setAddOnPrice] = useState(0);
+  const [addOnTax, setAddOnTax] = useState(0);
   const [freeVehicle, setFreeVehicle] = useState(null);
   const [extendPrice, setExtendPrice] = useState(0);
   const [totalExtendPrice, setTotalExtendPrice] = useState(0);
@@ -141,13 +142,10 @@ const ExtendBookingModal = ({ bookingData }) => {
 
     const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;
 
-    const addonGstPercentage =
-      freeVehicle?.stationData?.extraAddOn?.[0]?.gstPercentage || 0;
+    // const addonGstPercentage =
+    //   freeVehicle?.stationData?.extraAddOn?.[0]?.gstPercentage || 0;
 
-    const addonTax =
-      taxStatus && addonGstPercentage > 0
-        ? calculateTax(addOnPrice, addonGstPercentage)
-        : 0;
+    const finalAddonTax = taxStatus ? Math.round(Number(addOnTax)) || 0 : 0;
 
     let data = {
       _id: bookingData?._id,
@@ -167,7 +165,7 @@ const ExtendBookingModal = ({ bookingData }) => {
         amount: extendPrice,
         addOnAmount: Number(addOnPrice),
         tax: freeVehicle?.tax || 0,
-        addonTax,
+        addonTax: finalAddonTax,
         originalBookingEndDateAndTime:
           bookingData?.BookingEndDateAndTime.replace(".000Z", "Z"),
         BookingStartDateAndTime: newStartDate,
@@ -293,7 +291,7 @@ const ExtendBookingModal = ({ bookingData }) => {
 
       const planPrice = hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
 
-      const extraAddonPrice =
+      const { totalAddonAmount, totalAddonTax } =
         bookingData?.bookingPrice?.extraAddonDetails &&
         bookingData?.bookingPrice?.extraAddonDetails?.length > 0
           ? calculateTotalAddOnPrice(
@@ -312,7 +310,8 @@ const ExtendBookingModal = ({ bookingData }) => {
         planPrice > 0 ? planPrice : Number(freeVehicle?.totalRentalCost);
 
       setExtendPrice(price);
-      setAddOnPrice(extraAddonPrice);
+      setAddOnPrice(totalAddonAmount);
+      setAddOnTax(totalAddonTax);
 
       setDaysBreakdown(freeVehicle?._daysBreakdown);
       setAppliedPlans(freeVehicle?.appliedPlans);
@@ -321,6 +320,7 @@ const ExtendBookingModal = ({ bookingData }) => {
     } else {
       setExtendPrice(0);
       setAddOnPrice(0);
+      setAddOnTax(0);
       setTotalExtendPrice(0);
       setDisplayTax({ tax: 0, addonTax: 0 });
     }

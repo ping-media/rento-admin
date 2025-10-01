@@ -18,12 +18,16 @@ const AddonModal = () => {
   const dispatch = useDispatch();
   const { isAddonModalActive } = useSelector((state) => state.sideBar);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
-  const { extraAddOn } = useSelector((state) => state.general);
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
   const [selectedAddOns, setSelectedAddOns] = useState(
     vehicleMaster[0]?.bookingPrice?.extraAddonDetails || []
   );
+
+  const extraAddOn =
+    vehicleMaster[0]?.stationData?.extraAddOn?.filter(
+      (addon) => addon?.status !== "inactive"
+    ) || [];
 
   //   updating the booking or Reschedule the booking
   const handleUpdateBooking = async (e) => {
@@ -67,14 +71,16 @@ const AddonModal = () => {
         return;
       }
 
-      const newExtraAddonPrice = Math.round(
-        Number(calculateTotalAddOnPrice(uniqueAddOns, bookingDuration?.days))
+      const { totalAddonAmount, totalAddonTax } = calculateTotalAddOnPrice(
+        uniqueAddOns,
+        bookingDuration?.days
       );
 
       const data = {
         _id: bookingId,
         addOn: uniqueAddOns,
-        totalAddOnPrice: newExtraAddonPrice,
+        totalAddOnPrice: Math.round(Number(totalAddonAmount)),
+        addonTax: Math.round(Number(totalAddonTax)),
       };
 
       const response = await postData("/edit-booking", data, token);
@@ -137,44 +143,47 @@ const AddonModal = () => {
           <form onSubmit={handleUpdateBooking}>
             <div className="w-full mb-2">
               <h2 className="font-semibold text-md">Extra Add-On</h2>
-              {extraAddOn?.data?.length > 0 &&
-                extraAddOn?.data
-                  ?.filter((addon) => addon?.status !== "inactive")
-                  ?.map((item, index) => {
-                    const isChecked = selectedAddOns.some(
-                      (i) => i._id === item._id
-                    );
-                    return (
-                      <div
-                        className="flex items-center gap-1 mb-1 lg:mb-2"
-                        key={index}
+              {extraAddOn?.length > 0 ? (
+                extraAddOn?.map((item, index) => {
+                  const isChecked = selectedAddOns.some(
+                    (i) => i._id === item._id
+                  );
+                  return (
+                    <div
+                      className="flex items-center gap-1 mb-1 lg:mb-2"
+                      key={index}
+                    >
+                      <input
+                        type="checkbox"
+                        id={item?.name}
+                        className="w-4 h-4 accent-red-600"
+                        checked={isChecked}
+                        onChange={(e) =>
+                          handleAddonToggle(e.target.checked, item)
+                        }
+                      />
+                      <label
+                        htmlFor={item?.name}
+                        className="text-sm cursor-pointer capitalize"
                       >
-                        <input
-                          type="checkbox"
-                          id={item?.name}
-                          className="w-4 h-4 accent-red-600"
-                          checked={isChecked}
-                          onChange={(e) =>
-                            handleAddonToggle(e.target.checked, item)
-                          }
-                        />
-                        <label
-                          htmlFor={item?.name}
-                          className="text-sm cursor-pointer capitalize"
-                        >
-                          {item?.name}
-                          <span className="text-gray-500 italic">
-                            (₹{formatPrice(item?.amount)}/day)
-                          </span>
-                        </label>
-                      </div>
-                    );
-                  })}
+                        {item?.name}
+                        <span className="text-gray-500 italic">
+                          (₹{formatPrice(item?.amount)}/day)
+                        </span>
+                      </label>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="italic text-gray-500 text-center capitalize mb-2">
+                  No addon found.
+                </p>
+              )}
             </div>
             <button
               type="submit"
               className="bg-theme px-4 py-2 mt-3 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full flex items-center justify-center outline-none"
-              disabled={formLoading}
+              disabled={formLoading || extraAddOn?.length === 0}
             >
               {!formLoading ? "Add Add-On" : <Spinner message={"loading..."} />}
             </button>

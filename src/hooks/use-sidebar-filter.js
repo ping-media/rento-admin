@@ -67,8 +67,8 @@ const useSidebarFilter = () => {
       divider: false,
     },
     {
-      title: "Tomorrow's Pickups",
-      searchTag: `search=${tomorrowDate}&rideStatus=pending`,
+      title: "Tomorrow's Pending Pickups",
+      searchTag: `search=${tomorrowDate}&rideStatus=pending&dateCheck=pickup`,
       divider: false,
     },
     {

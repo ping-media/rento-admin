@@ -165,10 +165,6 @@ const BookingDetails = () => {
 
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-end gap-2 lg:gap-0 mb-3">
-        {/* <div className="flex items-center gap-2">
-          <BackButton endpoint={"/all-bookings"} />
-        </div> */}
-
         {/* actions for cancel & start ride  */}
         <BookingDetailsButton
           booking={vehicleMaster && vehicleMaster[0]}
