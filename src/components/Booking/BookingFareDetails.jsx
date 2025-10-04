@@ -31,17 +31,17 @@ const BookingFareDetails = ({ rides }) => {
     return sum;
   }, 0);
 
-  const diffAmount = rides.bookingPrice?.diffAmount || [];
-  const diffPrice = diffAmount.reduce((sum, diff) => {
-    if (diff?.status === "paid") {
-      const debit = Number(diff?.amount || 0);
-      const credit = Number(diff?.refundAmount || 0);
-      return sum + (debit - credit);
-    }
-    return sum;
-  }, 0);
+  // const diffAmount = rides.bookingPrice?.diffAmount || [];
+  // const diffPrice = diffAmount.reduce((sum, diff) => {
+  //   if (diff?.status === "paid") {
+  //     const debit = Number(diff?.amount || 0);
+  //     const credit = Number(diff?.refundAmount || 0);
+  //     return sum + (debit - credit);
+  //   }
+  //   return sum;
+  // }, 0);
 
-  const newBookingPrice = bookingPrice + extendPrice + diffPrice;
+  const newBookingPrice = bookingPrice + extendPrice;
 
   return (
     <>

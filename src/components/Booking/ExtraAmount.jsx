@@ -20,14 +20,22 @@ const ExtraAmount = ({ item }) => {
                 item?.appliedPlans,
                 item?.daysBreakdown
               )}
-              className=""
             />
           </span>
+        )}
+        {item.refundAmount > 0 && (
+          <small className="ml-1">(Refund Amount)</small>
         )}
         <span className="text-sm  font-semibold mx-1">:</span>
       </div>
       <div>
-        <span className="text-sm  ml-1">₹{formatPrice(item?.amount)}</span>
+        {item?.refundAmount > 0 ? (
+          <span className="text-sm ml-1 text-red-500 font-semibold">
+            ₹{formatPrice(item.refundAmount)}
+          </span>
+        ) : (
+          <span className="text-sm  ml-1">₹{formatPrice(item?.amount)}</span>
+        )}
         {item?.status === "unpaid" && (
           <span
             className={`text-sm font-bold ${
