@@ -138,6 +138,10 @@ const AdditionalInfo = () => {
               : "APP" || "--"}
           </p>
         </div>
+        <div className="w-full flex items-center justify-between text-sm ">
+          <p className="font-semibold mr-1">Payment Method:</p>
+          <p>{vehicleMaster[0]?.paymentMethod || "--"}</p>
+        </div>
       </div>
       <div className="w-full">
         <div className="flex items-center gap-1 mb-1">

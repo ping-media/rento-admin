@@ -163,10 +163,21 @@ const fetchVehicleMasterWithPagination = debounce(
   ) => {
     try {
       dispatch(fetchVehicleStart());
-      let dynamicEndpoint = `${endpoint}?page=${page}&limit=${limit}`;
+
+      const shouldResetPage =
+        isSearchTermPresent ||
+        searchBasedOnFilter !== "" ||
+        (vehiclesFilter &&
+          (vehiclesFilter.vehicleName !== "" ||
+            vehiclesFilter.search !== "" ||
+            vehiclesFilter.maintenanceType !== ""));
+
+      const currentPage = shouldResetPage ? 1 : page;
+
+      let dynamicEndpoint = `${endpoint}?page=${currentPage}&limit=${limit}`;
 
       if (filters !== null && filters !== " ") {
-        dynamicEndpoint = `${endpoint}?${filters}&page=${page}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?${filters}&page=${currentPage}&limit=${limit}`;
       }
 
       if (
@@ -174,24 +185,24 @@ const fetchVehicleMasterWithPagination = debounce(
         vehiclesFilter.search !== "" &&
         vehiclesFilter.maintenanceType !== ""
       ) {
-        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&filteredVehicles?.length&page=${page}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&filteredVehicles?.length&page=${currentPage}&limit=${limit}`;
       } else if (
         vehiclesFilter.vehicleName !== "" ||
         vehiclesFilter.search !== ""
       ) {
-        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${page}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
       } else if (vehiclesFilter.maintenanceType !== "") {
-        dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${page}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
       } else if (isSearchTermPresent !== null) {
         if (searchType !== "all") {
-          dynamicEndpoint = `${endpoint}?${searchType}=${isSearchTermPresent}&page=${page}&limit=${limit}`;
+          dynamicEndpoint = `${endpoint}?${searchType}=${isSearchTermPresent}&page=${currentPage}&limit=${limit}`;
         } else if (searchBasedOnFilter === "") {
-          dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`;
+          dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&page=${currentPage}&limit=${limit}`;
         } else {
-          dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${page}&limit=${limit}`;
+          dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
         }
       } else if (searchBasedOnFilter !== "") {
-        dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${page}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
       }
 
       const response = await getFullData(dynamicEndpoint, token);

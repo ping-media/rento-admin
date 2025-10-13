@@ -279,7 +279,54 @@ const ExtendBookingModal = ({ bookingData }) => {
     dispatch(toggleBookingExtendModal());
   };
 
-  // main pricing calculation (without tax)
+  // old main pricing calculation
+  // useEffect(() => {
+  //   if (Number(extensionDays) !== 0 && freeVehicle !== null) {
+  //     const hasPlan =
+  //       plan?.data?.length > 0
+  //         ? plan?.data?.filter(
+  //             (plan) => Number(plan?.planDuration) === Number(extensionDays)
+  //           )
+  //         : [];
+
+  //     const planPrice = hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
+
+  //     const { totalAddonAmount, totalAddonTax } =
+  //       bookingData?.bookingPrice?.extraAddonDetails &&
+  //       bookingData?.bookingPrice?.extraAddonDetails?.length > 0
+  //         ? calculateTotalAddOnPrice(
+  //             bookingData?.bookingPrice?.extraAddonDetails,
+  //             extensionDays
+  //           )
+  //         : 0;
+
+  //     if (planPrice > 0) {
+  //       setIsPlanApplied(true);
+  //     } else {
+  //       setIsPlanApplied(false);
+  //     }
+
+  //     const price =
+  //       planPrice > 0 ? planPrice : Number(freeVehicle?.totalRentalCost);
+
+  //     setExtendPrice(price);
+  //     setAddOnPrice(totalAddonAmount);
+  //     setAddOnTax(totalAddonTax);
+
+  //     setDaysBreakdown(freeVehicle?._daysBreakdown);
+  //     setAppliedPlans(freeVehicle?.appliedPlans);
+  //     setNewFreeLimit(freeVehicle?.freeKms);
+  //     setSelectedPlan(hasPlan);
+  //   } else {
+  //     setExtendPrice(0);
+  //     setAddOnPrice(0);
+  //     setAddOnTax(0);
+  //     setTotalExtendPrice(0);
+  //     setDisplayTax({ tax: 0, addonTax: 0 });
+  //   }
+  // }, [extensionDays, freeVehicle]);
+
+  // main pricing calculation
   useEffect(() => {
     if (Number(extensionDays) !== 0 && freeVehicle !== null) {
       const hasPlan =
@@ -291,14 +338,21 @@ const ExtendBookingModal = ({ bookingData }) => {
 
       const planPrice = hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
 
-      const { totalAddonAmount, totalAddonTax } =
+      // FIX: Properly handle the return value from calculateTotalAddOnPrice
+      let totalAddonAmount = 0;
+      let totalAddonTax = 0;
+
+      if (
         bookingData?.bookingPrice?.extraAddonDetails &&
         bookingData?.bookingPrice?.extraAddonDetails?.length > 0
-          ? calculateTotalAddOnPrice(
-              bookingData?.bookingPrice?.extraAddonDetails,
-              extensionDays
-            )
-          : 0;
+      ) {
+        const addonResult = calculateTotalAddOnPrice(
+          bookingData?.bookingPrice?.extraAddonDetails,
+          extensionDays
+        );
+        totalAddonAmount = addonResult?.totalAddonAmount || 0;
+        totalAddonTax = addonResult?.totalAddonTax || 0;
+      }
 
       if (planPrice > 0) {
         setIsPlanApplied(true);
@@ -307,15 +361,15 @@ const ExtendBookingModal = ({ bookingData }) => {
       }
 
       const price =
-        planPrice > 0 ? planPrice : Number(freeVehicle?.totalRentalCost);
+        planPrice > 0 ? planPrice : Number(freeVehicle?.totalRentalCost || 0);
 
       setExtendPrice(price);
       setAddOnPrice(totalAddonAmount);
       setAddOnTax(totalAddonTax);
 
-      setDaysBreakdown(freeVehicle?._daysBreakdown);
-      setAppliedPlans(freeVehicle?.appliedPlans);
-      setNewFreeLimit(freeVehicle?.freeKms);
+      setDaysBreakdown(freeVehicle?._daysBreakdown || []);
+      setAppliedPlans(freeVehicle?.appliedPlans || []);
+      setNewFreeLimit(freeVehicle?.freeKms || 0);
       setSelectedPlan(hasPlan);
     } else {
       setExtendPrice(0);
@@ -330,7 +384,7 @@ const ExtendBookingModal = ({ bookingData }) => {
   useEffect(() => {
     if (!taxStatus) {
       setDisplayTax({ tax: 0, addonTax: 0 });
-      setTotalExtendPrice(extendPrice + addOnPrice);
+      setTotalExtendPrice(Number(extendPrice) + Number(addOnPrice));
       return;
     }
 
@@ -338,21 +392,53 @@ const ExtendBookingModal = ({ bookingData }) => {
     let addonTax = 0;
 
     if (extendPrice > 0) {
-      const taxPercentage = freeVehicle?.vehicleMasterData?.gstPercentage || 0;
-      tax = calculateTax(extendPrice, taxPercentage);
+      const taxPercentage = Number(
+        freeVehicle?.vehicleMasterData?.gstPercentage || 0
+      );
+      tax = calculateTax(Number(extendPrice), taxPercentage);
     }
 
     if (addOnPrice > 0) {
-      const addonGstPercentage =
-        freeVehicle?.stationData?.extraAddOn[0]?.gstPercentage || 0;
-      addonTax = calculateTax(addOnPrice, addonGstPercentage);
+      const addonGstPercentage = Number(
+        freeVehicle?.stationData?.extraAddOn?.[0]?.gstPercentage || 0
+      );
+      addonTax = calculateTax(Number(addOnPrice), addonGstPercentage);
     }
 
-    setDisplayTax({ tax, addonTax });
+    setDisplayTax({ tax: Math.round(tax), addonTax: Math.round(addonTax) });
 
-    const total = extendPrice + addOnPrice + tax + addonTax;
-    setTotalExtendPrice(total);
+    const total =
+      Number(extendPrice) + Number(addOnPrice) + Number(tax) + Number(addonTax);
+    setTotalExtendPrice(Math.round(total));
   }, [extendPrice, addOnPrice, taxStatus, freeVehicle]);
+
+  // old tax update
+  // useEffect(() => {
+  //   if (!taxStatus) {
+  //     setDisplayTax({ tax: 0, addonTax: 0 });
+  //     setTotalExtendPrice(extendPrice + addOnPrice);
+  //     return;
+  //   }
+
+  //   let tax = 0;
+  //   let addonTax = 0;
+
+  //   if (extendPrice > 0) {
+  //     const taxPercentage = freeVehicle?.vehicleMasterData?.gstPercentage || 0;
+  //     tax = calculateTax(extendPrice, taxPercentage);
+  //   }
+
+  //   if (addOnPrice > 0) {
+  //     const addonGstPercentage =
+  //       freeVehicle?.stationData?.extraAddOn[0]?.gstPercentage || 0;
+  //     addonTax = calculateTax(addOnPrice, addonGstPercentage);
+  //   }
+
+  //   setDisplayTax({ tax, addonTax });
+
+  //   const total = extendPrice + addOnPrice + tax + addonTax;
+  //   setTotalExtendPrice(total);
+  // }, [extendPrice, addOnPrice, taxStatus, freeVehicle]);
 
   // through this we are disabling the extension util previous one is completed
   const isDisabled =
