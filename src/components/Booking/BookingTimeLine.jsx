@@ -91,6 +91,11 @@ const BookingTimeLine = () => {
                             </span>
                           </p>
                         )}
+                        {item?.paymentId && (
+                          <p className="text-gray-900 leading-tight text-xs">
+                            TxID: {item.paymentId}
+                          </p>
+                        )}
                         {(item?.newStartDate || item?.newEndDate) && (
                           <>
                             {isBothDatesChange && (
