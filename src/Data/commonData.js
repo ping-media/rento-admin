@@ -163,6 +163,12 @@ const monthNames = [
   "December",
 ];
 
+const PAYMENT_LABELS = {
+  online: "Full Payment",
+  partiallyPay: "Partial Payment",
+  cash: "Cash Payment",
+};
+
 export {
   endPointBasedOnURL,
   endPointBasedOnKey,
@@ -174,4 +180,5 @@ export {
   bookingSearchList,
   blockReasonList,
   monthNames,
+  PAYMENT_LABELS,
 };

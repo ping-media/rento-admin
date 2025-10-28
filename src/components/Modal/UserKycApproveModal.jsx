@@ -24,6 +24,7 @@ const UserKycApproveModal = () => {
     licenseNumber: "",
   });
   const [userDocumentLoading, setUserDocumentLoading] = useState([]);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   //   approval of kyc
@@ -47,6 +48,10 @@ const UserKycApproveModal = () => {
         dispatch(toogleKycModalActive());
         return handleAsyncError(dispatch, response?.message, "success");
       } else {
+        // setting the user info for better info
+        if (response?.userInfo) {
+          setError(response?.userInfo);
+        }
         return handleAsyncError(dispatch, response?.message);
       }
     } catch (error) {
@@ -185,6 +190,19 @@ const UserKycApproveModal = () => {
               </div>
             )}
           </div>
+          {/* showing conflict user info here  */}
+          {error && (
+            <div className="mt-5 mb-3 text-sm text-red-600">
+              <p className="text-left">
+                These details are already linked to{" "}
+                <span className="capitalize font-semibold">
+                  {error?.name} ({error?.phone})
+                </span>
+                .
+              </p>
+            </div>
+          )}
+
           {/* continue form  */}
           <form onSubmit={handleSubmitAndChangeKYCStatus}>
             <div className="mb-2">

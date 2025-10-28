@@ -11,6 +11,7 @@ import InputSearch from "../InputAndDropdown/InputSearch";
 import { formatHourToTime } from "../../utils/index";
 import GoogleSearchLocation from "../../components/InputAndDropdown/GoogleSearchLocation";
 import GeneralAddOn from "../../components/general/GeneralAddOn";
+import PaymentToggler from "../station/PaymentToggler";
 
 const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -203,6 +204,8 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
           </button>
         </div>
       </form>
+
+      <PaymentToggler />
 
       {/* addon form  */}
       <GeneralAddOn />

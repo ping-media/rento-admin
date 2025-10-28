@@ -403,6 +403,16 @@ const vehicleSlice = createSlice({
         endDate: action.payload,
       };
     },
+    updateStationPayment: (state, action) => {
+      const { keyName, value } = action.payload;
+
+      if (state.vehicleMaster?.length > 0) {
+        state.vehicleMaster[0].payments = {
+          ...state.vehicleMaster[0].payments,
+          [keyName]: value,
+        };
+      }
+    },
     resetMaintenanceData: (state) => {
       state.maintenanceData.data = null;
       state.maintenanceData.pagination = null;
@@ -481,6 +491,7 @@ export const {
   handleChangesAfterVehicleChange,
   addOrRemoveTempData,
   updateStationAddon,
+  updateStationPayment,
   removeStationAddOn,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;
