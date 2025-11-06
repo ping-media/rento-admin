@@ -227,6 +227,23 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
           (vehicleMaster && vehicleMaster[0]?.rideStatus === "ongoing") ||
           false;
 
+        let amount = 0;
+
+        // adding remaning amount
+        if (paymentMethod === "partiallyPay") {
+          amount =
+            vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid &&
+            vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.status ===
+              "unpaid"
+              ? vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.amount
+              : 0;
+        } else if (paymentMethod === "cash") {
+          amount =
+            vehicleMaster[0]?.bookingPrice?.discountTotalPrice > 0
+              ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice
+              : vehicleMaster[0]?.bookingPrice?.totalPrice;
+        }
+
         const timeLineData = {
           currentBooking_id: vehicleMaster && vehicleMaster[0]?._id,
           timeLine: [
@@ -238,6 +255,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
               date: Date.now(),
               vehicleName: vehicleMaster[0]?.vehicleName,
               vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
+              remaining_amount: amount,
               paymentMode: !isChange ? updatePaymentMode : "",
             },
           ],

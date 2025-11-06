@@ -60,6 +60,7 @@ const BookingTimeLine = () => {
 
                         {item?.bookingEndDateAndTime && (
                           <p className="text-gray-700 leading-tight text-sm">
+                            {(item?.title).endsWith("Created") && "End date:"}{" "}
                             {formatFullDateAndTime(item?.bookingEndDateAndTime)}
                           </p>
                         )}
@@ -81,6 +82,14 @@ const BookingTimeLine = () => {
                                 `₹${formatPrice(item?.paymentAmount)}`) ||
                               item?.extendedTill ||
                               item?.changedTo}
+                          </p>
+                        )}
+                        {item?.remaining_amount && (
+                          <p className="text-sm">
+                            Amount:{" "}
+                            <span className="font-semibold text-theme">
+                              {`₹${formatPrice(item?.remaining_amount)}`}
+                            </span>
                           </p>
                         )}
                         {item?.paymentMode && (
