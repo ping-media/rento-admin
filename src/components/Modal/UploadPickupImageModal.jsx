@@ -230,14 +230,14 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
         let amount = 0;
 
         // adding remaning amount
-        if (paymentMethod === "partiallyPay") {
+        if (vehicleMaster[0]?.paymentMethod === "partiallyPay") {
           amount =
             vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid &&
             vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.status ===
               "unpaid"
               ? vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.amount
               : 0;
-        } else if (paymentMethod === "cash") {
+        } else if (vehicleMaster[0]?.paymentMethod === "cash") {
           amount =
             vehicleMaster[0]?.bookingPrice?.discountTotalPrice > 0
               ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice
