@@ -27,7 +27,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const [freeVehicles, setFreeVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const { token } = useSelector((state) => state.user);
-  const [payableAmount, setPayableAmount] = useState(0);
+  // const [payableAmount, setPayableAmount] = useState(0);
   const [vehicleId, setVehicleId] = useState("");
 
   const isGSTActive =
@@ -129,7 +129,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
         (changeToNewVehicle?.tax || 0) + (oldBookingPrice?.addonTax || 0);
     }
 
-    setPayableAmount(oldBookingPrice?.totalPrice - total);
+    // setPayableAmount(oldBookingPrice?.totalPrice - total);
     return setSelectedVehicle(data);
   };
 

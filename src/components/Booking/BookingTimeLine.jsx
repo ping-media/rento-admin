@@ -152,7 +152,9 @@ const BookingTimeLine = () => {
                             {item?.paymentAmount > 0 && (
                               <p className="text-sm lg:text-xs text-theme">
                                 {item?.extended === true
-                                  ? "(Amount Paid)"
+                                  ? item?.title?.endsWith("Admin")
+                                    ? "(Cash Collected)"
+                                    : "(Amount Paid)"
                                   : "Amount need to pay by customer"}
                               </p>
                             )}
