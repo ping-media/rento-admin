@@ -11,6 +11,7 @@ import {
 import Input from "../InputAndDropdown/Input";
 import { useNavigate } from "react-router-dom";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
+import TextArea from "../InputAndDropdown/TextArea";
 
 const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
@@ -105,40 +106,6 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     const updatePaymentMode =
       finalFormData.get("PaymentMode") ||
       currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
-
-    // let updatedBooking;
-    // if (!isChange) {
-    //   if (currentBooking?.paymentMethod?.toLowerCase() === "cash") {
-    //     updatedBooking = {
-    //       ...currentBooking,
-    //       bookingPrice: {
-    //         ...currentBooking.bookingPrice,
-    //         isPickupImageAdded: true,
-    //         payOnPickupMethod: updatePaymentMode || "cash",
-    //       },
-    //       paymentStatus: "paid",
-    //       rideStatus: "ongoing",
-    //     };
-    //   } else {
-    //     updatedBooking = {
-    //       ...currentBooking,
-    //       bookingPrice: {
-    //         ...currentBooking.bookingPrice,
-    //         isPickupImageAdded: true,
-    //         AmountLeftAfterUserPaid: {
-    //           ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
-    //           status: "paid",
-    //           paymentMethod:
-    //             updatePaymentMode ||
-    //             currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
-    //               ?.paymentMethod,
-    //         },
-    //       },
-    //       paymentStatus: "paid",
-    //       rideStatus: "ongoing",
-    //     };
-    //   }
-    // }
 
     let updatedBooking = {
       ...currentBooking,
@@ -437,6 +404,27 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                 />
               </div>
             </div>
+
+            {/* adding altContact and address fields  */}
+            {/* <div className="flex items-center flex-wrap gap-4 mb-3">
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  type="number"
+                  item="altContactNumber"
+                  placeholder={"Enter Alternate Contact Number"}
+                  require={loggedInRole !== "admin" ? true : false}
+                  isLabel={false}
+                />
+              </div>
+              <div className="w-full lg:w-[48%]">
+                <Input
+                  item="address"
+                  placeholder={"Enter Address"}
+                  require={loggedInRole !== "admin" ? true : false}
+                  isLabel={false}
+                />
+              </div>
+            </div> */}
             <button
               className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-theme/60"
               type="submit"

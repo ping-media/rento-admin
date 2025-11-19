@@ -97,12 +97,6 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       addOnArr,
       durationBetweenStartAndEnd?.days
     );
-    // const addonGstPercentage =
-    //   selectedVehicle?.stationData?.extraAddOn[0]?.gstPercentage;
-
-    // const addonTax =
-    //   calculateTax(Math.round(Number(totalAddonAmount)), addonGstPercentage) ||
-    //   0;
 
     let tax = 0;
     if (selectedVehicle?.stationData?.isGstActive === "active") {
@@ -137,24 +131,6 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   const handlePrevious = () => {
     setCurrentStep(currentStep - 1);
   };
-
-  // for fetching package data
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       setPlanData((prev) => ({ ...prev, loading: true }));
-  //       const planResponse = await getData(
-  //         "/getPlanData?page=1&limit=50",
-  //         token
-  //       );
-  //       if (planResponse?.status === 200) {
-  //         setPlanData((prev) => ({ ...prev, data: planResponse?.data }));
-  //       }
-  //     } finally {
-  //       setPlanData((prev) => ({ ...prev, loading: false }));
-  //     }
-  //   })();
-  // }, []);
 
   // for creating new booking
   const handleFormSubmitForNew = async (event) => {

@@ -135,7 +135,7 @@ const Login = () => {
                     className="text-gray-100 lg:text-theme hover:underline transition-all duration-200 ease-in-out"
                     onClick={() => dispatch(toggleForgetPasswordModal())}
                   >
-                    Forget Password?
+                    Forgot Password?
                   </button>
                 </div>
                 <button
