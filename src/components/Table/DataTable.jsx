@@ -465,7 +465,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   )
                                     ? "max-w-32 truncate"
                                     : column.includes("vehicleName")
-                                    ? "max-w-20 truncate"
+                                    ? "max-w-24 truncate"
                                     : "whitespace-nowrap"
                                 }`}
                                 key={cellKey}

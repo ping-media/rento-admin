@@ -143,15 +143,25 @@ const VehicleDetail = () => {
                                             className="w-full"
                                             key={plan?._id}
                                           >
-                                            <div className="flex items-center gap-1 w-full">
-                                              <p className="text-sm font-semibold">
-                                                {plan?.planName || "Plan Name"}:
-                                              </p>
+                                            <div>
+                                              <div className="flex items-center gap-1 w-full">
+                                                <p className="text-sm font-semibold">
+                                                  {plan?.planName ||
+                                                    "Plan Name"}
+                                                  :
+                                                </p>
+                                                <p className="text-sm">
+                                                  ₹
+                                                  {formatPrice(
+                                                    Number(plan.planPrice)
+                                                  )}
+                                                </p>
+                                              </div>
                                               <p className="text-sm">
-                                                ₹
-                                                {formatPrice(
-                                                  Number(plan.planPrice)
-                                                )}
+                                                <span className="font-semibold">
+                                                  KM Limit:
+                                                </span>{" "}
+                                                {plan.kmLimit}
                                               </p>
                                             </div>
                                           </li>

@@ -80,6 +80,18 @@ const RenderCellContent = (column, value, item) => {
     return value === "partiallyPay" ? "online" : value;
   }
 
+  if (
+    column?.includes("vehicleName") &&
+    location.pathname === "/all-bookings"
+  ) {
+    return (
+      <>
+        <p className="w-full truncate">{value}</p>
+        <p className="text-xs">({item?.vehicleBasic?.vehicleNumber})</p>
+      </>
+    );
+  }
+
   return value;
 };
 

@@ -17,7 +17,12 @@ const BookingTimeLine = () => {
       <div className="container mx-auto py-4">
         {loading && <PreLoader />}
         <div className="relative wrap overflow-hidden">
-          <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-1/2"></div>
+          {/* <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-1/2"></div> */}
+          <div
+            className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border"
+            style={{ left: "37.5%" }}
+          ></div>
+
           {!loading &&
             timeLineData != null &&
             timeLineData?.timeLine?.map((item, index) => {
@@ -37,7 +42,8 @@ const BookingTimeLine = () => {
                   } flex justify-between  w-full`}
                   key={index}
                 >
-                  <div className="order-1 w-5/12 text-right">
+                  {/* <div className="order-1 w-5/12 text-right"> */}
+                  <div className="order-1 w-4/12 text-right">
                     <p className="text-gray-700 text-sm leading-tight whitespace-pre-line">
                       {typeof item?.date === "number" &&
                         millisecToReadableFormat(item?.date)
@@ -47,7 +53,8 @@ const BookingTimeLine = () => {
                   </div>
 
                   <div className="z-10 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative"></div>
-                  <div className="order-1 w-5/12 text-left">
+                  {/* <div className="order-1 w-5/12 text-left"> */}
+                  <div className="order-1 w-7/12 text-left">
                     {!(
                       item?.title?.includes("Link") ||
                       item?.title?.includes("Extended") ||
@@ -65,7 +72,7 @@ const BookingTimeLine = () => {
                           </p>
                         )}
 
-                        {Object.keys(item)?.length > 2 && (
+                        {/* {Object.keys(item)?.length > 2 && (
                           <p
                             className={`text-gray-700 leading-tight ${
                               item?.paymentAmount
@@ -83,15 +90,49 @@ const BookingTimeLine = () => {
                               item?.extendedTill ||
                               item?.changedTo}
                           </p>
+                        )} */}
+                        {Object.keys(item)?.length > 2 && (
+                          <>
+                            {item?.vehicleName && (
+                              <p className="text-gray-700 leading-tight text-sm">
+                                <span className="capitalize">
+                                  {item?.vehicleName}({item?.vehicleNumber})
+                                </span>
+                              </p>
+                            )}
+                            {!item?.vehicleName && item?.paymentAmount && (
+                              <p className="text-gray-700 leading-tight text-md font-semibold">
+                                ₹{formatPrice(item?.paymentAmount)}
+                              </p>
+                            )}
+                            {!item?.vehicleName &&
+                              !item?.paymentAmount &&
+                              item?.extendedTill && (
+                                <p className="text-gray-700 leading-tight text-sm">
+                                  {item?.extendedTill}
+                                </p>
+                              )}
+                            {!item?.vehicleName &&
+                              !item?.paymentAmount &&
+                              !item?.extendedTill &&
+                              item?.changedTo && (
+                                <p className="text-gray-700 leading-tight text-sm">
+                                  {item?.changedTo}
+                                </p>
+                              )}
+                          </>
                         )}
-                        {item?.remaining_amount && (
+
+                        {item?.remaining_amount &&
+                        Number(item?.remaining_amount) > 0 ? (
                           <p className="text-sm">
                             Amount:{" "}
                             <span className="font-semibold text-theme">
                               {`₹${formatPrice(item?.remaining_amount)}`}
                             </span>
                           </p>
-                        )}
+                        ) : null}
+
                         {item?.paymentMode && (
                           <p className="text-sm">
                             Paid through:{" "}
@@ -160,7 +201,8 @@ const BookingTimeLine = () => {
                             )}
                           </>
                         )}
-                        {item?.refundAmount > 0 && (
+
+                        {Number(item?.refundAmount || 0) > 0 && (
                           <>
                             <p className="text-gray-700 leading-tight text-md font-semibold">
                               ₹{formatPrice(item.refundAmount)}

@@ -100,10 +100,6 @@ const BookingDetail = ({ tabs }) => {
           }`,
         },
         {
-          key: "Extended Till",
-          value: `${formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
-        },
-        {
           key: "Ride Start",
           value: `${
             vm?.vehicleBasic?.RideStart
@@ -118,6 +114,10 @@ const BookingDetail = ({ tabs }) => {
               ? millisecToReadableFormat(Number(vm?.vehicleBasic?.RideEnd))
               : ""
           }`,
+        },
+        {
+          key: "Extended Till",
+          value: `${formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
         },
       ],
     };
@@ -293,7 +293,7 @@ const BookingDetail = ({ tabs }) => {
               vehicleName={vehicleMaster[0]?.vehicleName}
             />
           </div>
-          <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
+          <div className="flex items-center justify-between border-b-2 pb-1.5 mb-1.5">
             <h2 className="hidden md:block text-base lg:text-lg font-semibold text-gray-600">
               Fare Details
             </h2>
@@ -334,7 +334,7 @@ const BookingDetail = ({ tabs }) => {
           <div className="mb-3">
             <AdditionalInfo />
           </div>
-          <div className="flex items-center justify-between mb-3 border-b-2 pb-1.5 mb-1.5">
+          <div className="flex items-center justify-between border-b-2 pb-1.5 mb-1.5">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
               Notes
             </h2>

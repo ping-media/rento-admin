@@ -3,6 +3,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* setting font for different screen size for  responsive layout */
+@media (max-width: 1366px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 1280px) {
+  html {
+    font-size: 14px;
+  }
+}
+
 /* Sidebar Scrollbar Styling */
 .sidebar-scroll::-webkit-scrollbar {
   width: 8px;
