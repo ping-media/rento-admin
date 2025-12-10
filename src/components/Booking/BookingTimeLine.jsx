@@ -72,25 +72,6 @@ const BookingTimeLine = () => {
                           </p>
                         )}
 
-                        {/* {Object.keys(item)?.length > 2 && (
-                          <p
-                            className={`text-gray-700 leading-tight ${
-                              item?.paymentAmount
-                                ? "text-md font-semibold"
-                                : "text-sm"
-                            }`}
-                          >
-                            {(item?.vehicleName && (
-                              <span className="capitalize">
-                                {item?.vehicleName}({item?.vehicleNumber})
-                              </span>
-                            )) ||
-                              (item?.paymentAmount &&
-                                `₹${formatPrice(item?.paymentAmount)}`) ||
-                              item?.extendedTill ||
-                              item?.changedTo}
-                          </p>
-                        )} */}
                         {Object.keys(item)?.length > 2 && (
                           <>
                             {item?.vehicleName && (
@@ -100,11 +81,13 @@ const BookingTimeLine = () => {
                                 </span>
                               </p>
                             )}
-                            {!item?.vehicleName && item?.paymentAmount && (
+                            {!item?.vehicleName &&
+                            item?.paymentAmount &&
+                            item?.paymentAmount > 0 ? (
                               <p className="text-gray-700 leading-tight text-md font-semibold">
                                 ₹{formatPrice(item?.paymentAmount)}
                               </p>
-                            )}
+                            ) : null}
                             {!item?.vehicleName &&
                               !item?.paymentAmount &&
                               item?.extendedTill && (

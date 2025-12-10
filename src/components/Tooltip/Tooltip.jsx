@@ -19,9 +19,9 @@ const Tooltip = ({
         {buttonMessage}
       </button>
       {visible && (
-        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max text-sm text-white bg-gray-800 px-3 py-1 rounded transition-opacity duration-300 z-10">
+        <div className="absolute bottom-full mb-2 -left-1/2 md:left-1/2 -translate-x-1/2 w-max text-sm text-white bg-gray-800 px-3 py-1 rounded transition-opacity duration-300 z-10">
           {tooltipData}
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
+          <div className="absolute -bottom-1 right-10 md:left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
         </div>
       )}
     </div>
