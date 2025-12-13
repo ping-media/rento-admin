@@ -6,13 +6,13 @@ const InfoCard = ({ item }) => {
   return (
     <Link to={item?.link}>
       <div className="shadow-md rounded-xl bg-white px-4 py-4">
-        <div className="flex flex-wrap justify-center lg:justify-start items-center gap-3">
-          <div className="bg-theme p-2.5 rounded-full text-gray-100">
+        <div className="block md:flex flex-wrap justify-center lg:justify-start items-center gap-3">
+          <div className="bg-theme w-14 h-14 flex items-center justify-center mx-auto rounded-full text-gray-100 mb-2">
             <span>{item?.icon}</span>
           </div>
-          <div>
+          <div className="flex-1">
             <p
-              className="text-semibold text-gray-400 text-sm text-center uppercase truncate max-w-[140px] lg:w-full"
+              className="text-semibold text-gray-400 text-sm text-center uppercase truncate max-w-[140px] lg:w-full lg:text-start"
               title={camelCaseToSpaceSeparated(item?.title)}
             >
               {camelCaseToSpaceSeparated(item?.title)}

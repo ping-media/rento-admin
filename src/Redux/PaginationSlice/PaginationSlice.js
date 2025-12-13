@@ -4,6 +4,7 @@ const initialState = {
   page: 1,
   limit: 100,
   searchTerm: null,
+  stationName: null,
   filters: null,
   activeFilterName: null,
   searchType: "all",
@@ -69,6 +70,9 @@ const PaginationSlice = createSlice({
       state.vehiclesFilter.bookingVehicleName = "";
       state.vehiclesFilter.couponName = "";
     },
+    handleChangeStationName: (state, action) => {
+      state.stationName = action.payload;
+    },
     handleRestPagination: () => initialState,
   },
 });
@@ -90,6 +94,7 @@ export const {
   resetCouponName,
   resetBookingVehicleName,
   setFilters,
+  handleChangeStationName,
   setActiveFilterName,
 } = PaginationSlice.actions;
 

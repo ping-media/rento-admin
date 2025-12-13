@@ -15,9 +15,14 @@ import { formatDateToISO } from "../utils/index";
 const useSidebarFilter = () => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
-  const { page, limit, vehiclesFilter, activeFilterName } = useSelector(
-    (state) => state.pagination
-  );
+  const [stationName, setStationName] = useState("");
+  const {
+    page,
+    limit,
+    vehiclesFilter,
+    activeFilterName,
+    // stationName: GlobalSearchTerm,
+  } = useSelector((state) => state.pagination);
   const { token, loggedInRole, userStation } = useSelector(
     (state) => state.user
   );
@@ -181,6 +186,13 @@ const useSidebarFilter = () => {
             }${searchTerm}&${userType}&page=${page}&limit=${limit}`
           : `/getBooking?${userType}&page=${page}&limit=${limit}`;
       }
+
+      // if (GlobalSearchTerm && GlobalSearchTerm.trim() !== "") {
+      //   endpoint += `&stationName=${encodeURIComponent(
+      //     GlobalSearchTerm.trim()
+      //   )}`;
+      // }
+
       // getting response
       const response = await getData(endpoint, token);
       if (response?.status === 200) {
@@ -247,6 +259,8 @@ const useSidebarFilter = () => {
     loading,
     formLoading,
     activeFilterName,
+    stationName,
+    setStationName,
   };
 };
 

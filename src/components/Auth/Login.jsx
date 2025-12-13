@@ -96,7 +96,7 @@ const Login = () => {
                       placeholder="Enter Email Address"
                       name="email"
                       id="email"
-                      className="w-full pl-[3.4rem] pr-4 py-2.5 lg:py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 outline-none rounded-lg placeholder-gray-100 lg:placeholder-gray-400 autofill:bg-autofill-bg autofill:text-autofill-text"
+                      className="w-full pl-[3.4rem] pr-4 py-2.5 lg:py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 rounded-lg placeholder-gray-100 lg:placeholder-gray-400 autofill:bg-autofill-bg autofill:text-autofill-text"
                       onChange={(e) => e.target.value}
                       autoComplete="off"
                       required
@@ -113,7 +113,7 @@ const Login = () => {
                       placeholder="Enter password"
                       name="password"
                       id="password"
-                      className="w-full pl-[3.4rem] pr-4 py-2.5 lg:py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 outline-none rounded-lg placeholder-gray-100 lg:placeholder-gray-400 autofill:bg-autofill-bg autofill:text-autofill-text"
+                      className="w-full pl-[3.4rem] pr-4 py-2.5 lg:py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 rounded-lg placeholder-gray-100 lg:placeholder-gray-400 autofill:bg-autofill-bg autofill:text-autofill-text"
                       onChange={(e) => e.target.value}
                       ref={passwordRef}
                       required
