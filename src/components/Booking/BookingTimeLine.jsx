@@ -165,8 +165,8 @@ const BookingTimeLine = () => {
                               </span>
                             )}
                         </h3>
-                        {(!item?.refundAmount ||
-                          (item?.refundAmount && item?.refundAmount === 0)) && (
+                        {!item?.refundAmount ||
+                        (item?.refundAmount && item?.refundAmount === 0) ? (
                           <>
                             <p
                               className={`text-gray-700 leading-tight text-md font-semibold`}
@@ -183,18 +183,18 @@ const BookingTimeLine = () => {
                               </p>
                             )}
                           </>
-                        )}
+                        ) : null}
 
-                        {Number(item?.refundAmount || 0) > 0 && (
+                        {Number(item?.refundAmount || 0) > 0 ? (
                           <>
                             <p className="text-gray-700 leading-tight text-md font-semibold">
-                              ₹{formatPrice(item.refundAmount)}
+                              ₹{formatPrice(item.refundAmount || 0)}
                             </p>
                             <p className="text-sm lg:text-xs text-theme">
                               Amount Refunded
                             </p>
                           </>
-                        )}
+                        ) : null}
 
                         {item?.changeToVehicle &&
                           item?.changeToVehicle != "" && (
@@ -212,6 +212,12 @@ const BookingTimeLine = () => {
                               formatFullDateAndTime(item?.endDate)}
                             {item?.extendDate &&
                               formatFullDateAndTime(item?.extendDate)}
+                          </p>
+                        )}
+
+                        {item?.paymentId && (
+                          <p className="text-gray-900 leading-tight text-xs">
+                            TxID: {item.paymentId}
                           </p>
                         )}
                       </div>

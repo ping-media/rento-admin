@@ -103,7 +103,7 @@ const FilterSideBar = () => {
         >
           {location.pathname !== "/all-vehicles" && (
             <>
-              {loggedInRole && (
+              {/* {loggedInRole && (
                 <div className="mt-2 mb-5">
                   <div className="flex gap-2 items-center">
                     <div className="flex-1">
@@ -124,8 +124,7 @@ const FilterSideBar = () => {
                     </div>
                   </div>
                 </div>
-              )}
-
+              )} */}
               {/* filter options  */}
               <ul className="leading-10 flex flex-col gap-3">
                 {menuList &&
