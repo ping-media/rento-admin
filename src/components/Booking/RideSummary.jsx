@@ -21,23 +21,23 @@ const ExtendSummary = ({
     <div className="p-2 mb-2 rounded-md bg-theme/10">
       <div className="w-full flex items-center justify-between">
         <div>
-          <div>
-            <span className="text-sm font-semibold capitalize">
-              {camelCaseToSpaceSeparated(item?.title)}
+          <span className="text-sm font-semibold capitalize">
+            {`${Number(item?.id || 0) + 1}.`}{" "}
+            {camelCaseToSpaceSeparated(item?.title)}
+          </span>
+          <span className="text-sm font-semibold mx-1">:</span>
+          {bookingDuration && (
+            <span className="text-sm font-semibold">
+              {bookingDuration} Day(s)
             </span>
-            <span className="text-sm font-semibold mx-1">:</span>
-            {bookingDuration && (
-              <span className="text-sm font-semibold">
-                {bookingDuration} Day(s)
-              </span>
-            )}
-          </div>
+          )}
         </div>
         <div>
           <span className="text-sm font-bold text-theme ml-1">
             ₹
             {formatPrice(
               item?.amount +
+                (Number(item?.addOnAmount) || 0) +
                 (Number(item?.tax) || 0) +
                 (Number(item?.addonTax) || 0)
             )}
@@ -82,6 +82,14 @@ const ExtendSummary = ({
           </span>
         )}
       </div>
+
+      <div className="text-xs">
+        {item?.addOnAmount && (
+          <p className="text-xs">
+            <span className="mr-1">Addon:</span>₹{item?.addOnAmount}
+          </p>
+        )}
+      </div>
     </div>
   );
 };
@@ -107,7 +115,7 @@ const RideSummary = ({
         <div>
           <div>
             <span className="text-sm font-semibold capitalize">
-              Main Booking
+              1. Main Booking
             </span>
             <span className="text-sm font-semibold mx-1">:</span>
             <span className="text-sm font-semibold">

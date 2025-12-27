@@ -187,11 +187,9 @@ const useSidebarFilter = () => {
           : `/getBooking?${userType}&page=${page}&limit=${limit}`;
       }
 
-      // if (GlobalSearchTerm && GlobalSearchTerm.trim() !== "") {
-      //   endpoint += `&stationName=${encodeURIComponent(
-      //     GlobalSearchTerm.trim()
-      //   )}`;
-      // }
+      if (stationName && stationName.trim() !== "") {
+        endpoint += `&stationName=${encodeURIComponent(stationName.trim())}`;
+      }
 
       // getting response
       const response = await getData(endpoint, token);

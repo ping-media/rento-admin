@@ -19,7 +19,11 @@ const InfoCard = ({ item }) => {
             </p>
             <h1 className="lg:text-xl font-bold text-center lg:text-start">
               {item?.title?.includes("REVENUE") ? "₹" : ""}
-              <CountUp className="ml-1" end={item?.count} />
+              {Number(item?.count ?? 0) > 0 ? (
+                <CountUp className="ml-1" end={item?.count} />
+              ) : (
+                "-"
+              )}
             </h1>
           </div>
         </div>

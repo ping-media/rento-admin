@@ -57,7 +57,13 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
         );
         // decrypting the user data and setting data
         dispatch(handleNavigateLoad(true));
-        dispatch(handleSetToken(response?.token));
+        dispatch(handleSetToken({ token: response?.token }));
+        // dispatch(
+        //   handleSetToken({
+        //     token: response?.token,
+        //     refreshToken: response?.refreshToken,
+        //   })
+        // );
         dispatch(handleSignIn(response?.data));
         const userType = response?.data?.userType?.toLowerCase();
         navigate(userType === "manager" ? "/all-bookings" : "/dashboard");
@@ -403,7 +409,7 @@ const handleUpdateAdminProfile = async (
       dispatch(updateCurrentUser(result));
       dispatch(handleSignIn(response?.data));
       if (response?.token) {
-        dispatch(handleSetToken(response?.token));
+        dispatch(handleSetToken({ token: response?.token }));
       }
       handleAsyncError(dispatch, response?.message, "success");
       navigate(removeAfterSecondSlash(location?.pathname));

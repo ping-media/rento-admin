@@ -274,7 +274,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
         !isUploadPickupImageActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white max-w-xl">
+      <div className="relative top-12 md:top-14 mx-auto shadow-xl rounded-md bg-white max-w-xl">
         <div className="flex justify-between p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Start Ride
@@ -303,7 +303,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
         <div className="p-6 pt-0 text-center">
           <form
             onSubmit={handleUploadPickupImages}
-            className="lg:h-[30rem] overflow-y-hidden overflow-y-scroll px-0 lg:px-2"
+            className="lg:h-[30rem] overflow-y-scroll px-0 lg:px-2"
           >
             {isKycApproved && (
               <div className="flex items-center justify-end gap-2 mb-2">

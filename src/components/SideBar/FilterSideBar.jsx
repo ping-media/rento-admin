@@ -11,7 +11,7 @@ import useSidebarFilter from "../../hooks/use-sidebar-filter";
 const FilterSideBar = () => {
   const dispatch = useDispatch();
   const { isFilterOpen } = useSelector((state) => state.sideBar);
-  const { loggedInRole } = useSelector((state) => state.user);
+  // const { loggedInRole } = useSelector((state) => state.user);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
   const {
     filterMenuList,

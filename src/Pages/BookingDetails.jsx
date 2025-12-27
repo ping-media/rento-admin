@@ -2,7 +2,14 @@ import BookingDetail from "../components/Booking/BookingDetail";
 import { useParams } from "react-router-dom";
 import { toggleDeleteModal } from "../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { lazy, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 import PreLoader from "../components/Skeleton/PreLoader";
 import { cancelBookingById, fetchVehicleMasterById } from "../Data/Function";
@@ -143,25 +150,27 @@ const BookingDetails = () => {
 
   return (
     <>
-      {/* cancel modal */}
-      <CancelModal
-        title={"cancel booking"}
-        handleDelete={handleCancelBooking}
-        loading={vehicleLoading}
-        isNoteRequired={true}
-        value={Note}
-        setValueChange={setNote}
-      />
-      {/* pickupImage modal */}
-      <UploadPickupImageModal isBookingIdPresent={!!bookingId} />
-      <RescheduleModal />
-      <AddonModal />
-      {/* update bookingpayment modal */}
-      <UpdateBookingPayment id={bookingId} />
-      {/* Kyc modal */}
-      <UserKycApproveModal />
-      {/* ride end modal */}
-      <RideEndModal id={bookingId} />
+      <Suspense fallback={null}>
+        {/* cancel modal */}
+        <CancelModal
+          title={"cancel booking"}
+          handleDelete={handleCancelBooking}
+          loading={vehicleLoading}
+          isNoteRequired={true}
+          value={Note}
+          setValueChange={setNote}
+        />
+        {/* pickupImage & start ride modal */}
+        <UploadPickupImageModal isBookingIdPresent={!!bookingId} />
+        <RescheduleModal />
+        <AddonModal />
+        {/* update bookingpayment modal */}
+        <UpdateBookingPayment id={bookingId} />
+        {/* Kyc modal */}
+        <UserKycApproveModal />
+        {/* ride end modal */}
+        <RideEndModal id={bookingId} />
+      </Suspense>
 
       {/* main booking details start here */}
       <div className="flex items-center flex-wrap justify-end gap-2 lg:gap-0 mb-3">

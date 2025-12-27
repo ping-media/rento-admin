@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import VehicleInfo from "../VehicleDetails/VehicleInfo";
-import { lazy, useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import PreLoader from "../Skeleton/PreLoader";
 import {
   formatFullDateAndTime,
@@ -32,10 +32,12 @@ const BookingDetail = ({ tabs }) => {
   const [tab, setTab] = useState("booking");
   const dispatch = useDispatch();
 
+  const booking = useMemo(() => vehicleMaster?.[0] ?? null, [vehicleMaster]);
+
   // combining data for use
   const data = useMemo(() => {
-    if (!vehicleMaster?.[0]) return null;
-    const vm = vehicleMaster[0];
+    if (!booking) return null;
+    const vm = booking;
     return {
       user: [
         {
@@ -121,12 +123,14 @@ const BookingDetail = ({ tabs }) => {
         },
       ],
     };
-  }, [vehicleMaster]);
+  }, [booking]);
 
   return data != null ? (
     <>
-      <ChangeVehicleModal bookingData={vehicleMaster && vehicleMaster[0]} />
-      <ExtendBookingModal bookingData={vehicleMaster && vehicleMaster[0]} />
+      <Suspense fallback={null}>
+        <ChangeVehicleModal bookingData={vehicleMaster && booking} />
+        <ExtendBookingModal bookingData={vehicleMaster && booking} />
+      </Suspense>
 
       <div className="flex gap-0 lg:gap-4 flex-wrap">
         <div
@@ -136,18 +140,19 @@ const BookingDetail = ({ tabs }) => {
               : ""
           }`}
         >
-          {vehicleMaster[0]?.notes && (
+          {booking?.notes && (
             <p className="text-sm text-end italic text-gray-400 mb-1">
               {/* here we will show only notes with noteType cancel  */}
-              {vehicleMaster[0]?.notes
+              {booking?.notes
                 ?.filter((note) => note.noteType === "cancel")
                 .map((note, index) => (
-                  <div key={note._id || index}>
+                  <p key={note._id || index}>
                     {`Cancel note by ${note.key}: (${note.value})`}
-                  </div>
+                  </p>
                 ))}
             </p>
           )}
+
           <div className={`${tabs !== "customer" && "hidden lg:block"}`}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base lg:text-lg font-semibold text-gray-500 hidden md:flex items-center">
@@ -158,15 +163,12 @@ const BookingDetail = ({ tabs }) => {
               </h2>
               <BookingStatusFlag
                 title={"Booking Status"}
-                rides={vehicleMaster[0]}
+                rides={booking}
                 flag={"bookingStatus"}
               />
             </div>
             <div className="border-2 p-2 border-gray-300 rounded-lg mb-4">
-              <BookingUserDetails
-                data={data}
-                userId={vehicleMaster[0]?.userId?._id}
-              />
+              <BookingUserDetails data={data} userId={booking?.userId?._id} />
             </div>
           </div>
           <div className={`${tabs !== "booking" && "hidden lg:block"}`}>
@@ -179,7 +181,7 @@ const BookingDetail = ({ tabs }) => {
               </h2>
               <BookingStatusFlag
                 title={"Ride Status"}
-                rides={vehicleMaster[0]}
+                rides={booking}
                 flag={"rideStatus"}
               />
             </div>
@@ -190,8 +192,8 @@ const BookingDetail = ({ tabs }) => {
               <h2 className="text-base lg:text-lg font-semibold text-gray-500 mt-5">
                 Vehicle Images
               </h2>
-              {vehicleMaster[0]?.pickupImage !== null ? (
-                <VehicleImages pickupImage={vehicleMaster[0]?.pickupImage} />
+              {booking?.pickupImage !== null ? (
+                <VehicleImages pickupImage={booking?.pickupImage} />
               ) : (
                 <p className="text-sm italic text-gray-400">
                   No vehicles Images Found.
@@ -204,30 +206,26 @@ const BookingDetail = ({ tabs }) => {
                 Ride Summary
               </h2>
               <div>
-                {vehicleMaster[0]?.bookingPrice && (
+                {booking?.bookingPrice && (
                   <RideSummary
-                    daysBreakdown={
-                      vehicleMaster[0]?.bookingPrice?.daysBreakdown
-                    }
-                    appliedPlans={vehicleMaster[0]?.bookingPrice?.appliedPlan}
-                    item={vehicleMaster[0]?.bookingPrice}
+                    daysBreakdown={booking?.bookingPrice?.daysBreakdown}
+                    appliedPlans={booking?.bookingPrice?.appliedPlan}
+                    item={booking?.bookingPrice}
                   />
                 )}
 
-                {vehicleMaster[0]?.bookingPrice?.extendAmount &&
-                  vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0 && (
+                {booking?.bookingId &&
+                  booking?.bookingPrice?.extendAmount?.length > 0 && (
                     <ul className="leading-6 lg:leading-7 list-disc">
-                      {vehicleMaster[0]?.bookingPrice?.extendAmount?.map(
-                        (item, index) => (
-                          <li className="flex flex-col" key={index}>
-                            <ExtendSummary
-                              daysBreakdown={item?.daysBreakdown || []}
-                              appliedPlans={item?.appliedPlans || []}
-                              item={item}
-                            />
-                          </li>
-                        )
-                      )}
+                      {booking?.bookingPrice?.extendAmount?.map((item) => (
+                        <li className="flex flex-col" key={item.id}>
+                          <ExtendSummary
+                            daysBreakdown={item?.daysBreakdown || []}
+                            appliedPlans={item?.appliedPlans || []}
+                            item={item}
+                          />
+                        </li>
+                      ))}
                     </ul>
                   )}
               </div>
@@ -265,8 +263,8 @@ const BookingDetail = ({ tabs }) => {
                 </div>
               </div>
 
-              {(vehicleMaster[0] && tab === "booking" && <BookingTimeLine />) ||
-                (vehicleMaster[0] && tab === "rides" && <UserRideTimeLine />)}
+              {(booking && tab === "booking" && <BookingTimeLine />) ||
+                (booking && tab === "rides" && <UserRideTimeLine />)}
             </div>
           </div>
         </div>
@@ -278,19 +276,19 @@ const BookingDetail = ({ tabs }) => {
           <div className="hidden lg:flex lg:items-center justify-between">
             <div>
               <h2 className="font-bold uppercase text-md lg:text-lg flex flex-wrap items-center gap-2">
-                {vehicleMaster[0]?.vehicleBasic?.vehicleNumber}
+                {booking?.vehicleBasic?.vehicleNumber}
               </h2>
             </div>
           </div>
 
           <small className="capitalize lg:block text-sm text-gray-400 mb-2 lg:mb-5">
-            {`${vehicleMaster[0]?.vehicleBrand} ${vehicleMaster[0]?.vehicleName}`}
+            {`${booking?.vehicleBrand} ${booking?.vehicleName}`}
           </small>
 
           <div className="hidden lg:block">
             <VehicleInfo
-              vehicleImage={vehicleMaster[0]?.vehicleImage}
-              vehicleName={vehicleMaster[0]?.vehicleName}
+              vehicleImage={booking?.vehicleImage}
+              vehicleName={booking?.vehicleName}
             />
           </div>
           <div className="flex items-center justify-between border-b-2 pb-1.5 mb-1.5">
@@ -302,26 +300,26 @@ const BookingDetail = ({ tabs }) => {
             </h2>
             <BookingStatusFlag
               title={"Payment Status"}
-              rides={vehicleMaster[0]}
+              rides={booking}
               flag={"paymentStatus"}
             />
           </div>
-          <BookingFareDetails rides={vehicleMaster && vehicleMaster[0]} />
+          <BookingFareDetails rides={vehicleMaster && booking} />
           <div className="flex items-center justify-between border-b-2 pt-1.5 mt-2 pb-1.5 mb-3">
             <h2 className="text-base lg:text-lg font-semibold text-gray-600">
               Additional Information
             </h2>
             {loggedInRole === "admin" &&
               ((vehicleMaster &&
-                vehicleMaster[0]?.bookingPrice?.diffAmount &&
-                vehicleMaster[0]?.bookingPrice?.diffAmount?.length > 0 &&
-                vehicleMaster[0]?.bookingPrice?.diffAmount?.filter(
+                booking?.bookingPrice?.diffAmount &&
+                booking?.bookingPrice?.diffAmount?.length > 0 &&
+                booking?.bookingPrice?.diffAmount?.filter(
                   (record) => record?.status !== "paid"
                 )?.length > 0) ||
                 (vehicleMaster &&
-                  vehicleMaster[0]?.bookingPrice?.extendAmount &&
-                  vehicleMaster[0]?.bookingPrice?.extendAmount?.length > 0 &&
-                  vehicleMaster[0]?.bookingPrice?.extendAmount?.filter(
+                  booking?.bookingPrice?.extendAmount &&
+                  booking?.bookingPrice?.extendAmount?.length > 0 &&
+                  booking?.bookingPrice?.extendAmount?.filter(
                     (record) => record?.status !== "paid"
                   )?.length > 0)) && (
                 <Button

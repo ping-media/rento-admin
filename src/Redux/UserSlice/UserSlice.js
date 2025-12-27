@@ -5,6 +5,7 @@ const UserSlice = createSlice({
   name: "user",
   initialState: {
     token: null,
+    // refreshToken: null,
     user: null,
     loggedInRole: "",
     userStation: null,
@@ -26,7 +27,9 @@ const UserSlice = createSlice({
       state.verifyLoading = action.payload;
     },
     handleSetToken: (state, action) => {
-      state.token = action.payload;
+      const { token } = action.payload;
+      state.token = token;
+      // state.refreshToken = refreshToken;
       state.loading = false;
     },
     SetLoggedInRole: (state, action) => {

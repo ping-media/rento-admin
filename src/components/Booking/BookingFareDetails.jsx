@@ -8,7 +8,7 @@ import { renderTooltipBreakdown } from "../../utils/Helper/Helper";
 
 const BookingFareDetails = ({ rides }) => {
   // --- handle booking end date from extend ---
-  const extendAmount = rides.bookingPrice?.extendAmount || [];
+  // const extendAmount = rides.bookingPrice?.extendAmount || [];
 
   // --- prices ---
   const bookingPrice =
@@ -18,30 +18,20 @@ const BookingFareDetails = ({ rides }) => {
       ? rides?.bookingPrice?.discountTotalPrice
       : rides?.bookingPrice?.totalPrice;
 
-  const extendPrice = extendAmount.reduce((sum, extend) => {
-    if (extend?.status === "paid") {
-      return (
-        sum +
-        Number(extend?.amount || 0) +
-        Number(extend?.addOnAmount || 0) +
-        Number(extend?.tax || 0) +
-        Number(extend?.addonTax || 0)
-      );
-    }
-    return sum;
-  }, 0);
-
-  // const diffAmount = rides.bookingPrice?.diffAmount || [];
-  // const diffPrice = diffAmount.reduce((sum, diff) => {
-  //   if (diff?.status === "paid") {
-  //     const debit = Number(diff?.amount || 0);
-  //     const credit = Number(diff?.refundAmount || 0);
-  //     return sum + (debit - credit);
+  // const extendPrice = extendAmount.reduce((sum, extend) => {
+  //   if (extend?.status === "paid") {
+  //     return (
+  //       sum +
+  //       Number(extend?.amount || 0) +
+  //       Number(extend?.addOnAmount || 0) +
+  //       Number(extend?.tax || 0) +
+  //       Number(extend?.addonTax || 0)
+  //     );
   //   }
   //   return sum;
   // }, 0);
 
-  const newBookingPrice = bookingPrice + extendPrice;
+  // const newBookingPrice = bookingPrice;
 
   return (
     <>
@@ -107,12 +97,16 @@ const BookingFareDetails = ({ rides }) => {
                             (
                             {`₹${item?.amount} x ${getDurationInDays(
                               rides?.BookingStartDateAndTime,
-                              rides?.extendBooking?.originalEndDate ||
+                              (rides?.extendBooking?.oldBooking?.length > 0 &&
+                                rides?.extendBooking?.oldBooking[0]
+                                  ?.BookingEndDateAndTime) ||
                                 rides?.BookingEndDateAndTime
                             )} ${
                               getDurationInDays(
                                 rides?.BookingStartDateAndTime,
-                                rides?.extendBooking?.originalEndDate ||
+                                (rides?.extendBooking?.oldBooking?.length > 0 &&
+                                  rides?.extendBooking?.oldBooking[0]
+                                    ?.BookingEndDateAndTime) ||
                                   rides?.BookingEndDateAndTime
                               ) == 1
                                 ? "day"
@@ -126,7 +120,11 @@ const BookingFareDetails = ({ rides }) => {
                             ? item?.amount *
                                 getDurationInDays(
                                   rides?.BookingStartDateAndTime,
-                                  rides?.extendBooking?.originalEndDate ||
+                                  // rides?.extendBooking?.originalEndDate ||
+                                  (rides?.extendBooking?.oldBooking?.length >
+                                    0 &&
+                                    rides?.extendBooking?.oldBooking[0]
+                                      ?.BookingEndDateAndTime) ||
                                     rides?.BookingEndDateAndTime
                                 ) >
                               item?.maxAmount
@@ -134,13 +132,21 @@ const BookingFareDetails = ({ rides }) => {
                               : item?.amount *
                                 getDurationInDays(
                                   rides?.BookingStartDateAndTime,
-                                  rides?.extendBooking?.originalEndDate ||
+                                  // rides?.extendBooking?.originalEndDate ||
+                                  (rides?.extendBooking?.oldBooking?.length >
+                                    0 &&
+                                    rides?.extendBooking?.oldBooking[0]
+                                      ?.BookingEndDateAndTime) ||
                                     rides?.BookingEndDateAndTime
                                 )
                             : item?.amount *
                                 getDurationInDays(
                                   rides?.BookingStartDateAndTime,
-                                  rides?.extendBooking?.originalEndDate ||
+                                  // rides?.extendBooking?.originalEndDate ||
+                                  (rides?.extendBooking?.oldBooking?.length >
+                                    0 &&
+                                    rides?.extendBooking?.oldBooking[0]
+                                      ?.BookingEndDateAndTime) ||
                                     rides?.BookingEndDateAndTime
                                 )
                         )}`}</p>
@@ -196,34 +202,6 @@ const BookingFareDetails = ({ rides }) => {
                 }
               })}
 
-            {/* Display the totalPrice & user paid & remaining amount last */}
-            {/* totalPrice */}
-            {/* {rides?.bookingPrice?.totalPrice && (
-              <li className="flex items-center justify-between mt-1 my-1">
-                <p className="text-sm font-bold uppercase text-left">
-                  {rides?.bookingPrice?.discountPrice &&
-                  rides?.bookingPrice?.discountPrice != 0
-                    ? "Subtotal"
-                    : "Total Price"}
-                  <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
-                    {rides?.bookingPrice?.discountPrice &&
-                    rides?.bookingPrice?.discountPrice != 0
-                      ? ""
-                      : rides?.paymentMethod == "online" &&
-                        rides?.paySuccessId != "NA"
-                      ? "(Full Paid)"
-                      : rides?.paymentMethod == "partiallyPay"
-                      ? ""
-                      : rides?.bookingPrice?.payOnPickupMethod
-                      ? `(${rides?.bookingPrice?.payOnPickupMethod})`
-                      : "(need to pay at pickup)"}
-                  </small>
-                </p>
-                <p className="text-sm font-extrabold text-right text-theme">
-                  {`₹${formatPrice(rides?.bookingPrice?.totalPrice)}`}
-                </p>
-              </li>
-            )} */}
             {/* discount price  */}
             {rides?.bookingPrice?.discountPrice > 0 && (
               <li
@@ -233,7 +211,7 @@ const BookingFareDetails = ({ rides }) => {
               >
                 <p className="text-sm font-semibold uppercase text-left">
                   Discount Price
-                  <small className="text-sm font-semibold text-xs mx-1 block text-gray-400 italic">
+                  <small className="text-sm font-semibold mx-1 block text-gray-400 italic">
                     Coupon: ({rides?.discountCuopon?.couponName})
                   </small>
                 </p>
@@ -242,35 +220,6 @@ const BookingFareDetails = ({ rides }) => {
                 </p>
               </li>
             )}
-
-            {/* total price  */}
-            {/* {(rides?.bookingPrice?.isDiscountZero === true ||
-              rides?.bookingPrice?.discountTotalPrice > 0) && (
-              <li
-                className={`flex items-center justify-between mt-1 my-1 ${
-                  rides?.bookingPrice?.userPaid ? "border-b-2" : ""
-                }`}
-              >
-                <p className="text-sm font-bold uppercase text-left">
-                  Total Price
-                  <small className="font-semibold text-xs mx-1 block text-gray-400 italic">
-                    {rides?.paymentMethod == "online" &&
-                    rides?.paySuccessId !== "NA"
-                      ? "(Full Paid)"
-                      : rides?.paymentMethod == "partiallyPay"
-                      ? ""
-                      : rides?.bookingPrice?.isDiscountZero === true
-                      ? ""
-                      : rides?.bookingPrice?.payOnPickupMethod
-                      ? `(${rides?.bookingPrice?.payOnPickupMethod})`
-                      : "(Need to pay at pickup)"}
-                  </small>
-                </p>
-                <p className="text-sm font-extrabold text-right text-theme">
-                  {`₹${formatPrice(rides?.bookingPrice?.discountTotalPrice)}`}
-                </p>
-              </li>
-            )} */}
 
             {/* user paid */}
             {rides?.bookingPrice?.userPaid > 0 &&
@@ -307,7 +256,7 @@ const BookingFareDetails = ({ rides }) => {
               )}
 
             {/* for refund process  */}
-            {(rides?.paymentStatus === "refundInt" ||
+            {/* {(rides?.paymentStatus === "refundInt" ||
               rides?.paymentStatus === "refunded") && (
               <li className="flex items-center justify-between pt-1 mt-1 border-t-2">
                 <p className="text-sm font-semibold uppercase text-left">
@@ -326,7 +275,7 @@ const BookingFareDetails = ({ rides }) => {
                   {`₹${formatPrice(rides?.bookingPrice?.refundAmount)}`}
                 </p>
               </li>
-            )}
+            )} */}
             {/* difference amount  */}
             {rides?.bookingPrice?.diffAmount?.length > 0 &&
               rides?.bookingPrice?.diffAmount[
@@ -357,7 +306,7 @@ const BookingFareDetails = ({ rides }) => {
                 </li>
               )}
             {/* extend amount  */}
-            {rides?.bookingPrice?.extendAmount?.length > 0 && (
+            {/* {rides?.bookingPrice?.extendAmount?.length > 0 && (
               <li className="flex items-center justify-between pt-1 mt-1">
                 <p className="text-sm font-semibold uppercase text-left">
                   Extend Amount
@@ -387,7 +336,7 @@ const BookingFareDetails = ({ rides }) => {
                   )}`}
                 </p>
               </li>
-            )}
+            )} */}
 
             {/* total price  */}
             <li className="flex items-center justify-between mt-1 border-t-2 pt-2 my-2">
@@ -395,7 +344,7 @@ const BookingFareDetails = ({ rides }) => {
                 Total Price
               </p>
               <p className="text-sm font-extrabold text-right text-theme">
-                {`₹${formatPrice(newBookingPrice || 0)}`}
+                {`₹${formatPrice(bookingPrice || 0)}`}
               </p>
             </li>
 
@@ -411,7 +360,7 @@ const BookingFareDetails = ({ rides }) => {
                   )}`}
                 </p>
               </div>
-              <p className="text-xs font-semibold text-xs mx-1 block text-gray-400 italic">
+              <p className="text-xs font-semibold mx-1 block text-gray-400 italic">
                 (need to pay at pickup and will be refunded after drop)
               </p>
             </li>
