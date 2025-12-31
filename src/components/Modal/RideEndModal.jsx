@@ -401,7 +401,7 @@ const RideEndModal = ({ id }) => {
             </div>
             <button
               type="submit"
-              className="mt-2 text-center bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/60 w-full flex items-center justify-center"
+              className="mt-2 text-center bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/60 w-full items-center justify-center"
               disabled={formLoading || endRide === 0}
             >
               {!formLoading ? "End Ride" : <Spinner message={"loading..."} />}

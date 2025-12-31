@@ -84,11 +84,11 @@ const ExtendSummary = ({
       </div>
 
       <div className="text-xs">
-        {item?.addOnAmount && (
+        {item?.addOnAmount > 0 ? (
           <p className="text-xs">
             <span className="mr-1">Addon:</span>₹{item?.addOnAmount}
           </p>
-        )}
+        ) : null}
       </div>
     </div>
   );

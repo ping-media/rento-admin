@@ -279,53 +279,6 @@ const ExtendBookingModal = ({ bookingData }) => {
     dispatch(toggleBookingExtendModal());
   };
 
-  // old main pricing calculation
-  // useEffect(() => {
-  //   if (Number(extensionDays) !== 0 && freeVehicle !== null) {
-  //     const hasPlan =
-  //       plan?.data?.length > 0
-  //         ? plan?.data?.filter(
-  //             (plan) => Number(plan?.planDuration) === Number(extensionDays)
-  //           )
-  //         : [];
-
-  //     const planPrice = hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
-
-  //     const { totalAddonAmount, totalAddonTax } =
-  //       bookingData?.bookingPrice?.extraAddonDetails &&
-  //       bookingData?.bookingPrice?.extraAddonDetails?.length > 0
-  //         ? calculateTotalAddOnPrice(
-  //             bookingData?.bookingPrice?.extraAddonDetails,
-  //             extensionDays
-  //           )
-  //         : 0;
-
-  //     if (planPrice > 0) {
-  //       setIsPlanApplied(true);
-  //     } else {
-  //       setIsPlanApplied(false);
-  //     }
-
-  //     const price =
-  //       planPrice > 0 ? planPrice : Number(freeVehicle?.totalRentalCost);
-
-  //     setExtendPrice(price);
-  //     setAddOnPrice(totalAddonAmount);
-  //     setAddOnTax(totalAddonTax);
-
-  //     setDaysBreakdown(freeVehicle?._daysBreakdown);
-  //     setAppliedPlans(freeVehicle?.appliedPlans);
-  //     setNewFreeLimit(freeVehicle?.freeKms);
-  //     setSelectedPlan(hasPlan);
-  //   } else {
-  //     setExtendPrice(0);
-  //     setAddOnPrice(0);
-  //     setAddOnTax(0);
-  //     setTotalExtendPrice(0);
-  //     setDisplayTax({ tax: 0, addonTax: 0 });
-  //   }
-  // }, [extensionDays, freeVehicle]);
-
   // main pricing calculation
   useEffect(() => {
     if (Number(extensionDays) !== 0 && freeVehicle !== null) {
@@ -411,34 +364,6 @@ const ExtendBookingModal = ({ bookingData }) => {
       Number(extendPrice) + Number(addOnPrice) + Number(tax) + Number(addonTax);
     setTotalExtendPrice(Math.round(total));
   }, [extendPrice, addOnPrice, taxStatus, freeVehicle]);
-
-  // old tax update
-  // useEffect(() => {
-  //   if (!taxStatus) {
-  //     setDisplayTax({ tax: 0, addonTax: 0 });
-  //     setTotalExtendPrice(extendPrice + addOnPrice);
-  //     return;
-  //   }
-
-  //   let tax = 0;
-  //   let addonTax = 0;
-
-  //   if (extendPrice > 0) {
-  //     const taxPercentage = freeVehicle?.vehicleMasterData?.gstPercentage || 0;
-  //     tax = calculateTax(extendPrice, taxPercentage);
-  //   }
-
-  //   if (addOnPrice > 0) {
-  //     const addonGstPercentage =
-  //       freeVehicle?.stationData?.extraAddOn[0]?.gstPercentage || 0;
-  //     addonTax = calculateTax(addOnPrice, addonGstPercentage);
-  //   }
-
-  //   setDisplayTax({ tax, addonTax });
-
-  //   const total = extendPrice + addOnPrice + tax + addonTax;
-  //   setTotalExtendPrice(total);
-  // }, [extendPrice, addOnPrice, taxStatus, freeVehicle]);
 
   // through this we are disabling the extension util previous one is completed
   const isDisabled =
@@ -665,7 +590,7 @@ const ExtendBookingModal = ({ bookingData }) => {
 
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/80 w-full flex items-center justify-center"
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/80 w-full items-center justify-center"
               disabled={
                 isDisabled || extensionDays == 0
                   ? true

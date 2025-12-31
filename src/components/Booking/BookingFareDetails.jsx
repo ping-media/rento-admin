@@ -42,8 +42,10 @@ const BookingFareDetails = ({ rides }) => {
               <span className="font-bold">Package:</span>
               {`(${getDurationInDays(
                 rides?.BookingStartDateAndTime,
-                rides?.extendBooking?.originalEndDate
-                  ? rides?.extendBooking?.originalEndDate
+                rides?.bookingPrice?.extendAmount?.[0]
+                  ?.originalBookingEndDateAndTime
+                  ? rides?.bookingPrice?.extendAmount?.[0]
+                      ?.originalBookingEndDateAndTime
                   : rides?.BookingEndDateAndTime
               )} days Package Applied)`}
             </div>
