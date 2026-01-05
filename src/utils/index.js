@@ -251,7 +251,11 @@ const formatDateForInvoice = (dateString) => {
 
 const formatTimeStampToDate = (timestamp) => {
   // Convert to milliseconds
-  const date = new Date(timestamp * 1000);
+  const date =
+    String(timestamp).length === 10
+      ? new Date(timestamp * 1000) // seconds
+      : new Date(timestamp); // milliseconds
+  // const date = new Date(timestamp * 1000);
 
   // Extract day, month, and year
   const day = String(date.getDate()).padStart(2, "0"); // Adding leading zero
@@ -275,6 +279,44 @@ const formatTimeStampToDate = (timestamp) => {
   const formattedDateTime = `${formattedDate} ${formattedTime}`;
 
   return formattedDateTime;
+};
+
+const formatTimeStampToDateNew = (timestamp) => {
+  if (timestamp === null || timestamp === undefined || timestamp === "") {
+    return "";
+  }
+
+  // ✅ force numeric conversion
+  const ts = Number(timestamp);
+
+  if (Number.isNaN(ts)) {
+    return "";
+  }
+
+  // ✅ detect seconds vs milliseconds
+  const date =
+    ts < 1e12
+      ? new Date(ts * 1000) // seconds
+      : new Date(ts); // milliseconds
+
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear()).slice(-2);
+
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  const amPm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+
+  return `${day}/${month}/${year} ${String(hours).padStart(
+    2,
+    "0"
+  )}:${minutes} ${amPm}`;
 };
 
 const getDurationBetweenDates = (startDate, endDate) => {
@@ -856,4 +898,5 @@ export {
   compressImageToBlob,
   getRoundedDateTime,
   formatNumber,
+  formatTimeStampToDateNew,
 };

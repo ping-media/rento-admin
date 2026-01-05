@@ -52,18 +52,22 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const bookingId = (vehicleMaster && vehicleMaster[0]?.bookingId) || "";
   const docId = (vehicleMaster && vehicleMaster[0]?._id) || "";
 
+  const isDev = import.meta.env.VITE_ENV === "development";
+
   // new image compress per image
   const handleUploadPickupImages = async (event) => {
     event.preventDefault();
     setLoading(true);
 
-    const isAnyImageMissing = Object.values(imagesUrl).some(
-      (value) => value === ""
-    );
+    if (!isDev) {
+      const isAnyImageMissing = Object.values(imagesUrl).some(
+        (value) => value === ""
+      );
 
-    if (isAnyImageMissing) {
-      setLoading(false);
-      return handleAsyncError(dispatch, "All Images Required!.");
+      if (isAnyImageMissing) {
+        setLoading(false);
+        return handleAsyncError(dispatch, "All Images Required!.");
+      }
     }
 
     if (!tempVehicleData) {
@@ -86,9 +90,10 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
       }
     }
     // filter data
-    const imagesToSend = Object.values(image).filter(Boolean);
-
-    finalFormData.append("imageLinks", JSON.stringify(imagesToSend));
+    if (!isDev) {
+      const imagesToSend = Object.values(image).filter(Boolean);
+      finalFormData.append("imageLinks", JSON.stringify(imagesToSend));
+    }
     finalFormData.append("userId", userId);
     finalFormData.append("bookingId", bookingId);
     finalFormData.append("_id", docId);
@@ -265,7 +270,9 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   ];
 
   const isAllImagesUploaded = useMemo(() => {
-    return Object.values(imagesUrl).every((val) => val !== "");
+    return import.meta.env.VITE_ENV !== "development"
+      ? Object.values(imagesUrl).every((val) => val !== "")
+      : true;
   }, [imagesUrl]);
 
   return (
@@ -330,6 +337,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                     setImageUrlMultiChanger={setImageUrl}
                     isUpload={true}
                     userId={userId}
+                    isRequired={!isDev}
                     isDisableRemove={loading}
                     customImageText={item?.title}
                     isLabel={false}

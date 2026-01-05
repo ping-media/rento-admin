@@ -37,6 +37,119 @@ const RideEndModal = ({ id }) => {
   const meterDebounceValue = useDebounce(EndMeterReading, 300);
   const dispatch = useDispatch();
 
+  // const calculateLateFeeBeforeRidend = () => {
+  //   const {
+  //     BookingStartDateAndTime,
+  //     BookingEndDateAndTime,
+  //     vehicleBasic,
+  //     bookingPrice,
+  //   } = vehicleMaster[0];
+  //   // avoid calulating the rate before end date
+  //   const nowIso = formatDateToISO(new Date()).replace(".000Z", "Z");
+  //   const bookingEndDate = BookingEndDateAndTime.split("T")[0];
+  //   const bookingEndTime = BookingEndDateAndTime.split("T")[1];
+
+  //   const nowDate = nowIso.split("T")[0];
+  //   const nowTime = nowIso.split("T")[1];
+
+  //   const isCurrentDateIsSmall =
+  //     BookingEndDateAndTime.split("T")[0] >
+  //     formatDateToISO(new Date()).split("T")[0];
+
+  //   const bookingDuration = getDurationInDaysAndHours(
+  //     BookingStartDateAndTime,
+  //     BookingEndDateAndTime
+  //   );
+  //   let extendBookingDuration = null;
+
+  //   if (bookingPrice?.extendAmount && bookingPrice?.extendAmount?.length > 0) {
+  //     extendBookingDuration = getDurationInDaysAndHours(
+  //       bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
+  //         ?.BookingStartDateAndTime,
+  //       BookingEndDateAndTime
+  //     );
+  //   }
+
+  //   const duration = getDurationInDaysAndHours(
+  //     BookingEndDateAndTime,
+  //     formatDateToISO(new Date()).replace(".000Z", "Z")
+  //   );
+
+  //   const extendBookings =
+  //     bookingPrice?.extendAmount && bookingPrice?.extendAmount?.length > 0
+  //       ? bookingPrice?.extendAmount
+  //       : [];
+
+  //   let refundAmount = 0;
+  //   let extensionAmount = 0;
+
+  //   if (isCurrentDateIsSmall) {
+  //     const totalPrice =
+  //       bookingPrice?.discountTotalPrice > 0
+  //         ? bookingPrice?.discountTotalPrice
+  //         : bookingPrice?.totalPrice;
+
+  //     if (Number(bookingDuration?.days) > 0) {
+  //       refundAmount = Number(totalPrice);
+  //     }
+  //     if (extendBookingDuration !== null) {
+  //       const totalAmount =
+  //         bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
+  //           ?.status === "paid"
+  //           ? bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
+  //               ?.amount
+  //           : 0;
+
+  //       if (totalAmount > 0) {
+  //         extensionAmount = Number(totalAmount);
+  //       }
+  //     }
+
+  //     const subRefundAmount =
+  //       (refundAmount > 0 ? refundAmount : 0) +
+  //       (extensionAmount > 0 ? extensionAmount : 0);
+  //     const totalRefundAmount =
+  //       (subRefundAmount / Number(bookingDuration?.days)) *
+  //       Number(duration?.days);
+
+  //     setRefundAmount(Math.round(totalRefundAmount));
+  //   }
+
+  //   let lateFeeBasedOnHour = 0;
+  //   if (isCurrentDateIsSmall !== true) {
+  //     lateFeeBasedOnHour =
+  //       Number(vehicleBasic?.lateFee) *
+  //         (duration?.days * 24 + duration?.hours) || 0;
+  //   }
+
+  //   const lateKm =
+  //     (Number(meterDebounceValue) > Number(oldMeterReading) &&
+  //       Number(meterDebounceValue) - Number(oldMeterReading)) ||
+  //     0;
+
+  //   // checking unpaid extend booking and removing there duration out of it
+  //   const isBookingExtend = extendBookings?.filter(
+  //     (booking) => booking.status === "unpaid"
+  //   );
+
+  //   const extendKmLimit =
+  //     isBookingExtend?.length > 0
+  //       ? isBookingExtend.reduce(
+  //           (sum, extend) => sum + Number(extend?.freeLimit || 0),
+  //           0
+  //         )
+  //       : 0;
+
+  //   let allowKm = extendKmLimit + Number(vehicleBasic?.freeLimit);
+
+  //   const lateFeeBasedOnKM = (lateKm - allowKm) * vehicleBasic?.extraKmCharge;
+
+  //   setLateFees({
+  //     lateFeeBasedOnHour: lateFeeBasedOnHour || 0,
+  //     lateFeeBasedOnKM: lateFeeBasedOnKM > 0 ? lateFeeBasedOnKM : 0,
+  //   });
+  // };
+
   const calculateLateFeeBeforeRidend = () => {
     const {
       BookingStartDateAndTime,
@@ -44,102 +157,122 @@ const RideEndModal = ({ id }) => {
       vehicleBasic,
       bookingPrice,
     } = vehicleMaster[0];
-    // avoid calulating the rate before end date
-    const isCurrentDateIsSmall =
-      BookingEndDateAndTime.split("T")[0] >
-      formatDateToISO(new Date()).split("T")[0];
 
-    const bookingDuration = getDurationInDaysAndHours(
-      BookingStartDateAndTime,
-      BookingEndDateAndTime
-    );
-    let extendBookingDuration = null;
+    const nowIso = formatDateToISO(new Date()).replace(".000Z", "Z");
 
-    if (bookingPrice?.extendAmount && bookingPrice?.extendAmount?.length > 0) {
-      extendBookingDuration = getDurationInDaysAndHours(
-        bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
-          ?.BookingStartDateAndTime,
-        BookingEndDateAndTime
-      );
-    }
+    const bookingStartDate = BookingStartDateAndTime.split("T")[0];
+    const bookingEndDate = BookingEndDateAndTime.split("T")[0];
+    const bookingEndTime = BookingEndDateAndTime.split("T")[1];
 
-    const duration = getDurationInDaysAndHours(
-      BookingEndDateAndTime,
-      formatDateToISO(new Date()).replace(".000Z", "Z")
-    );
+    const nowDate = nowIso.split("T")[0];
+    const nowTime = nowIso.split("T")[1];
 
-    const extendBookings =
-      bookingPrice?.extendAmount && bookingPrice?.extendAmount?.length > 0
-        ? bookingPrice?.extendAmount
-        : [];
-
+    /* ---------------------------------
+     REFUND LOGIC
+     --------------------------------- */
     let refundAmount = 0;
-    let extensionAmount = 0;
 
-    if (isCurrentDateIsSmall) {
-      const totalPrice =
-        bookingPrice?.discountTotalPrice > 0
-          ? bookingPrice?.discountTotalPrice
-          : bookingPrice?.totalPrice;
+    const totalPrice =
+      bookingPrice?.discountTotalPrice > 0
+        ? Number(bookingPrice.discountTotalPrice)
+        : Number(bookingPrice?.totalPrice || 0);
 
-      if (Number(bookingDuration?.days) > 0) {
-        refundAmount = Number(totalPrice);
-      }
-      if (extendBookingDuration !== null) {
-        const totalAmount =
-          bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
-            ?.status === "paid"
-            ? bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
-                ?.amount
-            : 0;
-
-        if (totalAmount > 0) {
-          extensionAmount = Number(totalAmount);
-        }
-      }
-
-      const subRefundAmount =
-        (refundAmount > 0 ? refundAmount : 0) +
-        (extensionAmount > 0 ? extensionAmount : 0);
-      const totalRefundAmount =
-        (subRefundAmount / Number(bookingDuration?.days)) *
-        Number(duration?.days);
-
-      setRefundAmount(Math.round(totalRefundAmount));
+    // CASE 1: Same-day close → FULL refund
+    if (nowDate === bookingStartDate) {
+      refundAmount = totalPrice;
     }
 
-    let lateFeeBasedOnHour;
-    if (isCurrentDateIsSmall !== true) {
-      lateFeeBasedOnHour =
-        Number(vehicleBasic?.lateFee) *
-          (duration?.days * 24 + duration?.hours) || 0;
+    // CASE 2: Close between start & end → per-day refund
+    // else if (nowDate > bookingStartDate && nowDate < bookingEndDate) {
+    //   const bookingDuration = getDurationInDaysAndHours(
+    //     BookingStartDateAndTime,
+    //     BookingEndDateAndTime
+    //   );
+
+    //   const totalDays = Number(bookingDuration?.days || 0);
+
+    //   if (totalDays > 0) {
+    //     const perDayPrice = totalPrice / totalDays;
+
+    //     const usedDays = getDurationInDaysAndHours(
+    //       BookingStartDateAndTime,
+    //       nowIso
+    //     ).days;
+
+    //     const remainingDays = Math.max(0, totalDays - usedDays);
+
+    //     refundAmount = Math.round(remainingDays * perDayPrice);
+    //   }
+    // }
+    else if (nowDate > bookingStartDate && nowDate < bookingEndDate) {
+      const totalDurationDays = getDurationInDaysAndHours(
+        BookingStartDateAndTime,
+        BookingEndDateAndTime
+      ).days;
+
+      const remainingDurationDays = getDurationInDaysAndHours(
+        nowIso,
+        BookingEndDateAndTime
+      ).days;
+
+      if (totalDurationDays > 0 && remainingDurationDays > 0) {
+        refundAmount = Math.round(
+          totalPrice * (remainingDurationDays / totalDurationDays)
+        );
+      }
     }
 
-    const lateKm =
-      (Number(meterDebounceValue) > Number(oldMeterReading) &&
-        Number(meterDebounceValue) - Number(oldMeterReading)) ||
-      0;
+    // CASE 3: On or after booking end → NO refund
+    else {
+      refundAmount = 0;
+    }
 
-    // checking unpaid extend booking and removing there duration out of it
-    const isBookingExtend = extendBookings?.filter(
-      (booking) => booking.status === "unpaid"
+    setRefundAmount(refundAmount);
+
+    /* ---------------------------------
+     HOUR LATE FEE
+     --------------------------------- */
+    let lateFeeBasedOnHour = 0;
+
+    if (
+      bookingEndDate < nowDate ||
+      (bookingEndDate === nowDate && nowTime > bookingEndTime)
+    ) {
+      const duration = getDurationInDaysAndHours(BookingEndDateAndTime, nowIso);
+
+      const totalLateHours = duration.days * 24 + duration.hours;
+
+      lateFeeBasedOnHour = totalLateHours * Number(vehicleBasic?.lateFee || 0);
+    }
+
+    /* ---------------------------------
+     KM LATE FEE
+     --------------------------------- */
+    const totalDrivenKm = Math.max(
+      0,
+      Number(meterDebounceValue) - Number(oldMeterReading)
     );
 
-    const extendKmLimit =
-      isBookingExtend?.length > 0
-        ? isBookingExtend.reduce(
-            (sum, extend) => sum + Number(extend?.freeLimit || 0),
-            0
-          )
-        : 0;
+    const unpaidExtends =
+      bookingPrice?.extendAmount?.filter((b) => b.status === "unpaid") || [];
 
-    let allowKm = extendKmLimit + Number(vehicleBasic?.freeLimit);
+    const extendKmLimit = unpaidExtends.reduce(
+      (sum, e) => sum + Number(e?.freeLimit || 0),
+      0
+    );
 
-    const lateFeeBasedOnKM = (lateKm - allowKm) * vehicleBasic?.extraKmCharge;
+    const allowedKm = Number(vehicleBasic?.freeLimit || 0) + extendKmLimit;
 
+    const extraKm = Math.max(0, totalDrivenKm - allowedKm);
+
+    const lateFeeBasedOnKM = extraKm * Number(vehicleBasic?.extraKmCharge || 0);
+
+    /* ---------------------------------
+     FINAL SET
+     --------------------------------- */
     setLateFees({
-      lateFeeBasedOnHour: lateFeeBasedOnHour || 0,
-      lateFeeBasedOnKM: lateFeeBasedOnKM > 0 ? lateFeeBasedOnKM : 0,
+      lateFeeBasedOnHour,
+      lateFeeBasedOnKM,
     });
   };
 
@@ -252,7 +385,7 @@ const RideEndModal = ({ id }) => {
         !isRideEndModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-lg">
+      <div className="relative top-20 md:top-14 mx-auto shadow-xl rounded-md bg-white max-w-lg">
         <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Finish Ride

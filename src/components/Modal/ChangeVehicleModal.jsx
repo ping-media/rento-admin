@@ -57,10 +57,10 @@ const ChangeVehicleModal = ({ bookingData }) => {
     (async () => {
       try {
         setVehicleLoading(true);
-        let endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&BookingStartDateAndTime=${bookingData?.BookingStartDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&page=1&limit=25`;
+        let endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&BookingStartDateAndTime=${bookingData?.BookingStartDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=25`;
 
         if (vehiclesFilter?.bookingVehicleName !== "") {
-          endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&search=${vehiclesFilter?.bookingVehicleName}&BookingStartDateAndTime=${bookingData?.BookingStartDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&page=1&limit=100`;
+          endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&search=${vehiclesFilter?.bookingVehicleName}&BookingStartDateAndTime=${bookingData?.BookingStartDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=100`;
         }
         const response = await getData(endpoint, token);
         if (response?.status === 200) {
@@ -261,12 +261,13 @@ const ChangeVehicleModal = ({ bookingData }) => {
           )}
           <form onSubmit={handleChangeVehicle}>
             <div className="w-full bg-gray-300 rounded-lg bg-opacity-75 py-2 px-2.5 mb-2">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between">
                 <h2 className="text-left font-semibold">
                   Current Vehicle Info
                 </h2>
                 <p className="text-sm capitalize">
-                  ({`${bookingData?.vehicleBrand} ${bookingData?.vehicleName}`})
+                  {bookingData?.vehicleBasic?.vehicleNumber}(
+                  {`${bookingData?.vehicleBrand} ${bookingData?.vehicleName}`})
                 </p>
               </div>
               <ul className="leading-7 text-left mb-1">
@@ -293,7 +294,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
                       New Vehicle Info
                     </h2>
                     <p className="text-sm capitalize">
-                      (
+                      {selectedVehicle?.newVehicleData?.vehicleNumber}(
                       {`${selectedVehicle?.newVehicleData?.vehicleBrand} ${selectedVehicle?.newVehicleData?.vehicleName}`}
                       )
                     </p>
@@ -359,7 +360,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
             </p> */}
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full flex items-center justify-center"
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full items-center justify-center"
               disabled={isDisabled || formLoading || selectedVehicle === null}
             >
               {!formLoading ? (

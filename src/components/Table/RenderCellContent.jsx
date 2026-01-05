@@ -4,6 +4,7 @@ import {
   formatNumber,
   formatPrice,
   formatTimeStampToDate,
+  formatTimeStampToDateNew,
 } from "../../utils/index";
 
 const RenderCellContent = (column, value, item) => {
@@ -69,7 +70,8 @@ const RenderCellContent = (column, value, item) => {
   }
 
   if (column?.includes("InitiatedDate")) {
-    return value !== "NA" ? formatTimeStampToDate(value) : "--";
+    // return value !== "NA" ? formatTimeStampToDate(value) : "--";
+    return value !== "NA" ? formatTimeStampToDateNew(value) : "--";
   }
 
   if (column?.includes("bookingId")) {

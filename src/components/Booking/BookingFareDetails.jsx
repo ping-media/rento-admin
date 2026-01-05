@@ -279,7 +279,7 @@ const BookingFareDetails = ({ rides }) => {
               </li>
             )} */}
             {/* difference amount  */}
-            {rides?.bookingPrice?.diffAmount?.length > 0 &&
+            {/* {rides?.bookingPrice?.diffAmount?.length > 0 &&
               rides?.bookingPrice?.diffAmount[
                 rides?.bookingPrice?.diffAmount?.length - 1
               ]?.amount > 0 && (
@@ -306,7 +306,8 @@ const BookingFareDetails = ({ rides }) => {
                     )}`}
                   </p>
                 </li>
-              )}
+              )} */}
+
             {/* extend amount  */}
             {/* {rides?.bookingPrice?.extendAmount?.length > 0 && (
               <li className="flex items-center justify-between pt-1 mt-1">
