@@ -597,6 +597,29 @@ const getDurationInDaysAndHours = (date1Str, date2Str) => {
   return { days, hours };
 };
 
+const newGetDurationInDaysAndHours = (fromStr, toStr) => {
+  const from = new Date(fromStr);
+  const to = new Date(toStr);
+
+  if (isNaN(from) || isNaN(to)) {
+    throw new Error("Invalid date format");
+  }
+
+  // IMPORTANT: keep the sign
+  const diffMs = to.getTime() - from.getTime();
+
+  const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+  const days = Math.trunc(totalHours / 24);
+  const hours = totalHours % 24;
+
+  return {
+    days,
+    hours,
+    totalHours, // keep this, very useful
+  };
+};
+
 const removeSecondsFromDateAndTime = (dateStr) => {
   // Convert input to a Date object
   let date = new Date(dateStr);
@@ -899,4 +922,5 @@ export {
   getRoundedDateTime,
   formatNumber,
   formatTimeStampToDateNew,
+  newGetDurationInDaysAndHours,
 };

@@ -13,6 +13,7 @@ import {
   formatDateToISO,
   formatPrice,
   getDurationInDaysAndHours,
+  newGetDurationInDaysAndHours,
 } from "../../utils/index";
 import { useDebounce } from "../../utils/Helper/debounce";
 import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
@@ -37,126 +38,13 @@ const RideEndModal = ({ id }) => {
   const meterDebounceValue = useDebounce(EndMeterReading, 300);
   const dispatch = useDispatch();
 
-  // const calculateLateFeeBeforeRidend = () => {
-  //   const {
-  //     BookingStartDateAndTime,
-  //     BookingEndDateAndTime,
-  //     vehicleBasic,
-  //     bookingPrice,
-  //   } = vehicleMaster[0];
-  //   // avoid calulating the rate before end date
-  //   const nowIso = formatDateToISO(new Date()).replace(".000Z", "Z");
-  //   const bookingEndDate = BookingEndDateAndTime.split("T")[0];
-  //   const bookingEndTime = BookingEndDateAndTime.split("T")[1];
-
-  //   const nowDate = nowIso.split("T")[0];
-  //   const nowTime = nowIso.split("T")[1];
-
-  //   const isCurrentDateIsSmall =
-  //     BookingEndDateAndTime.split("T")[0] >
-  //     formatDateToISO(new Date()).split("T")[0];
-
-  //   const bookingDuration = getDurationInDaysAndHours(
-  //     BookingStartDateAndTime,
-  //     BookingEndDateAndTime
-  //   );
-  //   let extendBookingDuration = null;
-
-  //   if (bookingPrice?.extendAmount && bookingPrice?.extendAmount?.length > 0) {
-  //     extendBookingDuration = getDurationInDaysAndHours(
-  //       bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
-  //         ?.BookingStartDateAndTime,
-  //       BookingEndDateAndTime
-  //     );
-  //   }
-
-  //   const duration = getDurationInDaysAndHours(
-  //     BookingEndDateAndTime,
-  //     formatDateToISO(new Date()).replace(".000Z", "Z")
-  //   );
-
-  //   const extendBookings =
-  //     bookingPrice?.extendAmount && bookingPrice?.extendAmount?.length > 0
-  //       ? bookingPrice?.extendAmount
-  //       : [];
-
-  //   let refundAmount = 0;
-  //   let extensionAmount = 0;
-
-  //   if (isCurrentDateIsSmall) {
-  //     const totalPrice =
-  //       bookingPrice?.discountTotalPrice > 0
-  //         ? bookingPrice?.discountTotalPrice
-  //         : bookingPrice?.totalPrice;
-
-  //     if (Number(bookingDuration?.days) > 0) {
-  //       refundAmount = Number(totalPrice);
-  //     }
-  //     if (extendBookingDuration !== null) {
-  //       const totalAmount =
-  //         bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
-  //           ?.status === "paid"
-  //           ? bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
-  //               ?.amount
-  //           : 0;
-
-  //       if (totalAmount > 0) {
-  //         extensionAmount = Number(totalAmount);
-  //       }
-  //     }
-
-  //     const subRefundAmount =
-  //       (refundAmount > 0 ? refundAmount : 0) +
-  //       (extensionAmount > 0 ? extensionAmount : 0);
-  //     const totalRefundAmount =
-  //       (subRefundAmount / Number(bookingDuration?.days)) *
-  //       Number(duration?.days);
-
-  //     setRefundAmount(Math.round(totalRefundAmount));
-  //   }
-
-  //   let lateFeeBasedOnHour = 0;
-  //   if (isCurrentDateIsSmall !== true) {
-  //     lateFeeBasedOnHour =
-  //       Number(vehicleBasic?.lateFee) *
-  //         (duration?.days * 24 + duration?.hours) || 0;
-  //   }
-
-  //   const lateKm =
-  //     (Number(meterDebounceValue) > Number(oldMeterReading) &&
-  //       Number(meterDebounceValue) - Number(oldMeterReading)) ||
-  //     0;
-
-  //   // checking unpaid extend booking and removing there duration out of it
-  //   const isBookingExtend = extendBookings?.filter(
-  //     (booking) => booking.status === "unpaid"
-  //   );
-
-  //   const extendKmLimit =
-  //     isBookingExtend?.length > 0
-  //       ? isBookingExtend.reduce(
-  //           (sum, extend) => sum + Number(extend?.freeLimit || 0),
-  //           0
-  //         )
-  //       : 0;
-
-  //   let allowKm = extendKmLimit + Number(vehicleBasic?.freeLimit);
-
-  //   const lateFeeBasedOnKM = (lateKm - allowKm) * vehicleBasic?.extraKmCharge;
-
-  //   setLateFees({
-  //     lateFeeBasedOnHour: lateFeeBasedOnHour || 0,
-  //     lateFeeBasedOnKM: lateFeeBasedOnKM > 0 ? lateFeeBasedOnKM : 0,
-  //   });
-  // };
-
   const calculateLateFeeBeforeRidend = () => {
     const {
       BookingStartDateAndTime,
       BookingEndDateAndTime,
       vehicleBasic,
       bookingPrice,
-    } = vehicleMaster[0];
+    } = vehicleMaster?.[0];
 
     const nowIso = formatDateToISO(new Date()).replace(".000Z", "Z");
 
@@ -238,11 +126,17 @@ const RideEndModal = ({ id }) => {
       bookingEndDate < nowDate ||
       (bookingEndDate === nowDate && nowTime > bookingEndTime)
     ) {
-      const duration = getDurationInDaysAndHours(BookingEndDateAndTime, nowIso);
+      const duration = newGetDurationInDaysAndHours(
+        BookingEndDateAndTime,
+        nowIso
+      );
 
-      const totalLateHours = duration.days * 24 + duration.hours;
-
-      lateFeeBasedOnHour = totalLateHours * Number(vehicleBasic?.lateFee || 0);
+      if (duration?.totalHours > 0) {
+        // const totalLateHours = duration.days * 24 + duration.hours;
+        const totalLateHours = duration.totalHours;
+        lateFeeBasedOnHour =
+          totalLateHours * Number(vehicleBasic?.lateFee || 0);
+      }
     }
 
     /* ---------------------------------
