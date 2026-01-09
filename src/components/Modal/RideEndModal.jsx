@@ -267,7 +267,7 @@ const RideEndModal = ({ id }) => {
     }
   }, [vehiclePickupImage, vehicleMaster]);
 
-  // after closing the modal clear all the state to default
+  // closing modal and clear all the state to default
   const handleCloseModal = () => {
     SetEndRide(0);
     dispatch(toggleRideEndModal());
