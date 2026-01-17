@@ -62,6 +62,7 @@ const SelectDropDownCoupon = ({
   // const handleToggleDropdown = () => {
   //   setIsOpen((prev) => !prev);
   // };
+
   const handleToggleDropdown = () => {
     if (!isOpen && dropdownRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect();
