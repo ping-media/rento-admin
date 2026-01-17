@@ -27,9 +27,10 @@ const BookingDetailsButton = ({
 
   const diffData = useMemo(
     () => booking?.bookingPrice?.diffAmount?.slice(-1)[0] ?? null,
-    [booking]
+    [booking],
   );
   const isChange = useMemo(() => diffData?.rideStatus === false, [diffData]);
+  const isBookingCanceled = booking?.bookingStatus === "canceled";
 
   const isStartRideVisible = useMemo(() => {
     const rideStatus = booking?.rideStatus;
@@ -51,7 +52,7 @@ const BookingDetailsButton = ({
     const timer = setTimeout(() => {
       if (vehicleLoading || !booking || !diffData) return;
 
-      if (isChange) {
+      if (isChange && !isBookingCanceled) {
         handleStartRideAndAddImages();
       }
     }, 100);

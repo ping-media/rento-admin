@@ -54,11 +54,11 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
     bookingStartDate,
     bookingEndDate,
     selectedVehicle,
-    addOnArr
+    addOnArr,
   ) => {
     const durationBetweenStartAndEnd = getDurationBetweenDates(
       bookingStartDate,
-      bookingEndDate
+      bookingEndDate,
     );
 
     // setting global gst and addon based on specific station
@@ -74,7 +74,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       hasMatchPlan = selectedVehicle?.vehiclePlan?.filter(
         (plan) =>
           Number(plan?.planDuration) ===
-          Number(durationBetweenStartAndEnd?.days)
+          Number(durationBetweenStartAndEnd?.days),
       )[0];
       setPlanData((prev) => ({ ...prev, data: hasMatchPlan }));
     } else {
@@ -95,7 +95,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
 
     const { totalAddonAmount, totalAddonTax } = calculateTotalAddOnPrice(
       addOnArr,
-      durationBetweenStartAndEnd?.days
+      durationBetweenStartAndEnd?.days,
     );
 
     let tax = 0;
@@ -105,8 +105,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         Math.round(
           calculateTax(
             bookingPrice,
-            Number(selectedVehicle?.vehicleMasterData?.gstPercentage)
-          )
+            Number(selectedVehicle?.vehicleMasterData?.gstPercentage),
+          ),
         );
     }
 
@@ -275,20 +275,23 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         rideStatus: result?.rideStatus || "pending",
       };
 
+      console.log("Booking Data to send:", data);
+      return;
+
       const bookingResponse = await postData(
         "/initiate-booking",
         {
           bookingData: data,
           paymentMethod: result?.paymentMethod,
         },
-        token
+        token,
       );
 
       if (result?.paymentMethod === "cash") {
         if (bookingResponse?.status === 200) {
           handleAsyncError(dispatch, "Ride booked successfully", "success");
           navigate(
-            `/all-bookings/details/${bookingResponse?.data?._id}_${bookingResponse?.data?.bookingId}`
+            `/all-bookings/details/${bookingResponse?.data?._id}_${bookingResponse?.data?.bookingId}`,
           );
           return;
         } else {
@@ -306,12 +309,12 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
               type:
                 paymentMethodStatus === "partiallyPay" ? "partiallyPay" : "",
             },
-            token
+            token,
           );
           if (paymentLinkResponse?.linkCreated === true) {
             handleAsyncError(dispatch, "Ride booked successfully", "success");
             navigate(
-              `/all-bookings/details/${bookingResponse?.data?.booking_id}_${bookingResponse?.data?.bookingId}`
+              `/all-bookings/details/${bookingResponse?.data?.booking_id}_${bookingResponse?.data?.bookingId}`,
             );
             return;
           } else {

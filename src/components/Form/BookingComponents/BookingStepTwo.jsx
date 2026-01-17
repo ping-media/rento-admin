@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Input from "../../InputAndDropdown/Input";
 import PreLoader from "../../Skeleton/PreLoader";
 import { formatPrice, getDurationBetweenDates } from "../../../utils/index";
@@ -28,6 +28,8 @@ const BookingStepTwo = ({
   const [loading, setLoading] = useState(false);
   const [bookingDuration, setBookingDuration] = useState(0);
   const [selectedAddOns, setSelectedAddOns] = useState([]);
+
+  const appliedCouponRef = useRef(null);
 
   const isData =
     data && data?.selectedVehicle?._daysBreakdown?.length > 0
@@ -64,14 +66,14 @@ const BookingStepTwo = ({
       }
       const durationBetweenStartAndEnd = getDurationBetweenDates(
         bookingStartDate,
-        bookingEndDate
+        bookingEndDate,
       );
       setBookingDuration(durationBetweenStartAndEnd?.days);
       if (selectedVehicle?.vehiclePlan?.length > 0) {
         const isPlanMatch = selectedVehicle?.vehiclePlan?.filter(
           (plan) =>
             Number(plan.planDuration) ===
-            Number(durationBetweenStartAndEnd?.days)
+            Number(durationBetweenStartAndEnd?.days),
         );
         if (isPlanMatch?.length > 0) {
           setIsPlanApplied(true);
@@ -87,7 +89,7 @@ const BookingStepTwo = ({
         bookingStartDate,
         bookingEndDate,
         selectedVehicle,
-        selectedAddOns
+        selectedAddOns,
       );
       setStepTwoData(newData);
     } finally {
@@ -118,12 +120,13 @@ const BookingStepTwo = ({
         setCouponLoading(false);
       }
     })();
-  }, [vehiclesFilter]);
+  }, [vehiclesFilter?.couponName]);
 
   // for apply coupon
-
   useEffect(() => {
     if (coupon?.couponName === "" && coupon?.couponId === "") return;
+    if (appliedCouponRef.current === coupon?.couponId) return;
+
     (async () => {
       try {
         setApplyLoading(true);
@@ -137,12 +140,14 @@ const BookingStepTwo = ({
                 : Number(stepTwoData?.bookingPrice),
             isExtra: applyLoading,
           },
-          token
+          token,
         );
         if (response?.status === 200) {
+          appliedCouponRef.current = coupon?.couponId;
+
           const discountAmount = Math.round(Number(response?.data?.discount));
           const finalAmount = Math.round(
-            Number(response?.data?.finalAmount) + stepTwoData?.extraAddonPrice
+            Number(response?.data?.finalAmount) + stepTwoData?.extraAddonPrice,
           );
           if (finalAmount === 0) {
             setCoupon({ ...coupon, isDiscountZero: true });
@@ -161,10 +166,13 @@ const BookingStepTwo = ({
         setApplyLoading(false);
       }
     })();
-  }, [coupon]);
+    // }, [coupon]);
+  }, [coupon?.couponId, coupon?.couponName]);
 
   // reset coupon
   const removeCoupon = () => {
+    appliedCouponRef.current = null;
+
     setStepTwoData({
       ...stepTwoData,
       totalPrice: Number(coupon?.totalPrice + stepTwoData?.extraAddonPrice),

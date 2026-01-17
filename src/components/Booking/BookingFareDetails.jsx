@@ -46,7 +46,7 @@ const BookingFareDetails = ({ rides }) => {
                   ?.originalBookingEndDateAndTime
                   ? rides?.bookingPrice?.extendAmount?.[0]
                       ?.originalBookingEndDateAndTime
-                  : rides?.BookingEndDateAndTime
+                  : rides?.BookingEndDateAndTime,
               )} days Package Applied)`}
             </div>
           )}
@@ -78,7 +78,7 @@ const BookingFareDetails = ({ rides }) => {
                   // !(key === "extraAddonPrice" && value === 0)
                   key !== "extraAddonPrice" &&
                   key !== "daysBreakdown" &&
-                  key !== "appliedPlan"
+                  key !== "appliedPlan",
               ) // Exclude totalPrice
               .map(([key, value]) => {
                 if (typeof value === "object") {
@@ -102,14 +102,14 @@ const BookingFareDetails = ({ rides }) => {
                               (rides?.extendBooking?.oldBooking?.length > 0 &&
                                 rides?.extendBooking?.oldBooking[0]
                                   ?.BookingEndDateAndTime) ||
-                                rides?.BookingEndDateAndTime
+                                rides?.BookingEndDateAndTime,
                             )} ${
                               getDurationInDays(
                                 rides?.BookingStartDateAndTime,
                                 (rides?.extendBooking?.oldBooking?.length > 0 &&
                                   rides?.extendBooking?.oldBooking[0]
                                     ?.BookingEndDateAndTime) ||
-                                  rides?.BookingEndDateAndTime
+                                  rides?.BookingEndDateAndTime,
                               ) == 1
                                 ? "day"
                                 : "days"
@@ -127,7 +127,7 @@ const BookingFareDetails = ({ rides }) => {
                                     0 &&
                                     rides?.extendBooking?.oldBooking[0]
                                       ?.BookingEndDateAndTime) ||
-                                    rides?.BookingEndDateAndTime
+                                    rides?.BookingEndDateAndTime,
                                 ) >
                               item?.maxAmount
                               ? item?.maxAmount
@@ -139,7 +139,7 @@ const BookingFareDetails = ({ rides }) => {
                                     0 &&
                                     rides?.extendBooking?.oldBooking[0]
                                       ?.BookingEndDateAndTime) ||
-                                    rides?.BookingEndDateAndTime
+                                    rides?.BookingEndDateAndTime,
                                 )
                             : item?.amount *
                                 getDurationInDays(
@@ -149,8 +149,8 @@ const BookingFareDetails = ({ rides }) => {
                                     0 &&
                                     rides?.extendBooking?.oldBooking[0]
                                       ?.BookingEndDateAndTime) ||
-                                    rides?.BookingEndDateAndTime
-                                )
+                                    rides?.BookingEndDateAndTime,
+                                ),
                         )}`}</p>
                       </li>
                     ))
@@ -180,8 +180,8 @@ const BookingFareDetails = ({ rides }) => {
                                 rides?.vehicleMasterId?.gstPercentage || "--"
                               }%)`
                             : key === "bookingPrice"
-                            ? "Booking Amount"
-                            : camelCaseToSpaceSeparated(key)}
+                              ? "Booking Amount"
+                              : camelCaseToSpaceSeparated(key)}
                           {key === "bookingPrice" &&
                             rides?.bookingPrice?.daysBreakdown && (
                               <span className="ml-1">
@@ -191,7 +191,7 @@ const BookingFareDetails = ({ rides }) => {
                                   tooltipData={renderTooltipBreakdown(
                                     rides?.bookingPrice?.appliedPlan ||
                                       rides?.bookingPrice?.appliedPlans,
-                                    rides?.bookingPrice?.daysBreakdown
+                                    rides?.bookingPrice?.daysBreakdown,
                                   )}
                                 />
                               </span>
@@ -250,7 +250,7 @@ const BookingFareDetails = ({ rides }) => {
                     <p className="text-sm font-bold text-right">
                       {`₹${formatPrice(
                         rides?.bookingPrice.AmountLeftAfterUserPaid?.amount ||
-                          rides?.bookingPrice.AmountLeftAfterUserPaid
+                          rides?.bookingPrice.AmountLeftAfterUserPaid,
                       )}`}
                     </p>
                   </li>
@@ -359,7 +359,7 @@ const BookingFareDetails = ({ rides }) => {
                 </p>
                 <p className="text-sm font-bold text-right">
                   {`₹${formatPrice(
-                    Number(rides?.vehicleBasic?.refundableDeposit)
+                    Number(rides?.vehicleBasic?.refundableDeposit),
                   )}`}
                 </p>
               </div>

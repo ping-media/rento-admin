@@ -23,10 +23,11 @@ const SelectDropDownCoupon = ({
   const debounceTimerRef = useRef(null);
   const dispatch = useDispatch();
 
-  const handleOptionClick = (val) => {
+  const handleOptionClick = (e, val) => {
+    e.preventDefault();
+
     setInputSelect && setInputSelect(val?.couponName);
     setIsOpen(false);
-    // console.log(val);
     setCoupon &&
       setCoupon({ ...coupon, couponName: val?.couponName, couponId: val?._id });
   };
@@ -120,12 +121,14 @@ const SelectDropDownCoupon = ({
             ? `${
                 options?.find(
                   (opt) =>
-                    opt.couponName?.toLowerCase() === inputSelect?.toLowerCase()
+                    opt.couponName?.toLowerCase() ===
+                    inputSelect?.toLowerCase(),
                 )?.couponName || ""
               } | ${
                 options?.find(
                   (opt) =>
-                    opt.couponName?.toLowerCase() === inputSelect?.toLowerCase()
+                    opt.couponName?.toLowerCase() ===
+                    inputSelect?.toLowerCase(),
                 )?.discountType || ""
               }`
             : `Select ${item}`}
@@ -152,7 +155,7 @@ const SelectDropDownCoupon = ({
               options.map((opt) => (
                 <div
                   key={opt._id}
-                  onClick={() => handleOptionClick(opt)}
+                  onClick={(e) => handleOptionClick(e, opt)}
                   className="px-4 py-2 hover:bg-gray-100 text-sm capitalize cursor-pointer"
                 >
                   {opt.couponName} | {opt.discountType}
