@@ -275,8 +275,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         rideStatus: result?.rideStatus || "pending",
       };
 
-      console.log("Booking Data to send:", data);
-      return;
+      // console.log("Booking Data to send:", data);
+      // return;
 
       const bookingResponse = await postData(
         "/initiate-booking",
