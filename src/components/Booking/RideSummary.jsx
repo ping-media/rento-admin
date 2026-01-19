@@ -22,8 +22,8 @@ const ExtendSummary = ({
       <div className="w-full flex items-center justify-between">
         <div>
           <span className="text-sm font-semibold capitalize">
-            {`${Number(item?.id || 0) + 1}.`}{" "}
-            {camelCaseToSpaceSeparated(item?.title)}
+            {`${Number(item?.id || 0) + 1}.`} Extension
+            {/* {camelCaseToSpaceSeparated(item?.title)} */}
           </span>
           <span className="text-sm font-semibold mx-1">:</span>
           {bookingDuration && (
@@ -39,7 +39,7 @@ const ExtendSummary = ({
               item?.amount +
                 (Number(item?.addOnAmount) || 0) +
                 (Number(item?.tax) || 0) +
-                (Number(item?.addonTax) || 0)
+                (Number(item?.addonTax) || 0),
             )}
           </span>
           {item?.status === "unpaid" && (
@@ -78,7 +78,7 @@ const ExtendSummary = ({
         )}
         {weekDays?.length > 0 && (
           <span>
-            Week ₹{weekDays[0]?.dailyRate} x {weekDays?.length}
+            Weekday ₹{weekDays[0]?.dailyRate} x {weekDays?.length}
           </span>
         )}
       </div>

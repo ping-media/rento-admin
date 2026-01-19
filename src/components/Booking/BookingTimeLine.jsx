@@ -35,7 +35,7 @@ const BookingTimeLine = () => {
                 <div
                   className={`${
                     ["Completed", "Ended", "Cancelled"].some((status) =>
-                      item?.title?.includes(status)
+                      item?.title?.includes(status),
                     )
                       ? ""
                       : "mb-5"
@@ -156,7 +156,11 @@ const BookingTimeLine = () => {
                         <h3
                           className={`mb-1 font-bold text-gray-800 text-sm flex justify-start`}
                         >
-                          {item?.title}
+                          {item?.title === "Booking Extended by User"
+                            ? "Extension by User"
+                            : item?.title === "Booking Extended by Admin"
+                              ? "Extension by Admin"
+                              : item?.title}
                           {item?.extended !== true &&
                             item?.PaymentLink &&
                             item?.PaymentLink !== "" && (
