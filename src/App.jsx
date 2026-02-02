@@ -7,52 +7,56 @@ import { useSelector } from "react-redux";
 import ErrorBoundary from "./components/Error/ErrorBoundary";
 
 const Dashboard = lazy(() =>
-  import("./Pages/index").then((module) => ({ default: module.Dashboard }))
+  import("./Pages/index").then((module) => ({ default: module.Dashboard })),
 );
 const NotFound = lazy(() =>
-  import("./Pages/index").then((module) => ({ default: module.NotFound }))
+  import("./Pages/index").then((module) => ({ default: module.NotFound })),
 );
 const Unauthorized = lazy(() =>
-  import("./Pages/index").then((module) => ({ default: module.Unauthorized }))
+  import("./Pages/index").then((module) => ({ default: module.Unauthorized })),
 );
 const VehicleDetails = lazy(() =>
-  import("./Pages/index").then((module) => ({ default: module.VehicleDetails }))
+  import("./Pages/index").then((module) => ({
+    default: module.VehicleDetails,
+  })),
 );
 const BookingDetails = lazy(() =>
-  import("./Pages/index").then((module) => ({ default: module.BookingDetails }))
+  import("./Pages/index").then((module) => ({
+    default: module.BookingDetails,
+  })),
 );
 const VehicleMaster = lazy(() =>
-  import("./Pages/index").then((module) => ({ default: module.VehicleMaster }))
+  import("./Pages/index").then((module) => ({ default: module.VehicleMaster })),
 );
 const CreateNewAndUpdateForm = lazy(() =>
   import("./Pages/index").then((module) => ({
     default: module.CreateNewAndUpdateForm,
-  }))
+  })),
 );
 const Profile = lazy(() =>
   import("./Pages/index").then((module) => ({
     default: module.Profile,
-  }))
+  })),
 );
 const InvoiceDetails = lazy(() =>
   import("./Pages/index").then((module) => ({
     default: module.InvoiceDetails,
-  }))
+  })),
 );
 const General = lazy(() =>
   import("./Pages/index").then((module) => ({
     default: module.General,
-  }))
+  })),
 );
 const AddDocuments = lazy(() =>
   import("./Pages/index").then((module) => ({
     default: module.AddDocuments,
-  }))
+  })),
 );
 const AddonManager = lazy(() =>
   import("./Pages/index").then((module) => ({
     default: module.AddonManager,
-  }))
+  })),
 );
 // for default exports
 const Layout = lazy(() => import("./components/layout/Layout"));
@@ -381,7 +385,7 @@ const App = () => {
                 exact
                 element={
                   <PrivateRouteBasedOnUser
-                    allowedRoles={["admin"]}
+                    allowedRoles={["admin", "manager"]}
                     userRole={loggedInRole}
                     isLoading={verifyLoading}
                   >

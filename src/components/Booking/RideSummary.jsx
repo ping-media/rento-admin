@@ -174,6 +174,11 @@ const RideSummary = ({
           </span>
         )}
       </div>
+      {Number(item?.extraAddonPrice ?? 0) > 0 ? (
+        <div className="text-xs">
+          <span>Accessories: ₹{item.extraAddonPrice}</span>
+        </div>
+      ) : null}
     </div>
   );
 };

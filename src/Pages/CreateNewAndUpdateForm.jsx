@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState } from "react";
+import { lazy, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -18,11 +18,11 @@ import {
   toggleForgetPasswordModal,
   toogleKycModalActive,
 } from "../Redux/SideBarSlice/SideBarSlice.js";
-const ForgetPasswordModal = lazy(() =>
-  import("../components/Modal/ForgetPasswordModal.jsx")
+const ForgetPasswordModal = lazy(
+  () => import("../components/Modal/ForgetPasswordModal.jsx"),
 );
-const UserKycApproveModal = lazy(() =>
-  import("../components/Modal/UserKycApproveModal.jsx")
+const UserKycApproveModal = lazy(
+  () => import("../components/Modal/UserKycApproveModal.jsx"),
 );
 
 const CreateNewAndUpdateForm = () => {
@@ -32,12 +32,24 @@ const CreateNewAndUpdateForm = () => {
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
   const { loading, vehicleMaster, tempIds } = useSelector(
-    (state) => state.vehicles
+    (state) => state.vehicles,
   );
+
+  const isId = useMemo(() => {
+    return id !== undefined && id?.trim() !== "";
+  }, [id]);
+
+  const isUsersPageWithoutId = useMemo(() => {
+    return (
+      ["/all-users/", "/all-managers/"].some((path) =>
+        location.pathname.includes(path),
+      ) && isId
+    );
+  }, [location.pathname, isId]);
 
   // fetch data based on id taking from url
   useEffect(() => {
-    if (id) {
+    if (isId) {
       fetchVehicleMasterById(
         dispatch,
         id,
@@ -45,10 +57,10 @@ const CreateNewAndUpdateForm = () => {
         location?.pathname.includes("/all-users/") ||
           location.pathname.includes("/all-managers/")
           ? "/getDocument?userId="
-          : endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")]
+          : endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")],
       );
     }
-  }, [dispatch, id, token]);
+  }, [dispatch, id, isId, token]);
 
   // Dynamically select the form to render based on the URL
   const getFormType = () => {
@@ -60,10 +72,10 @@ const CreateNewAndUpdateForm = () => {
 
   return !loading ? (
     <>
-      {(location.pathname.includes("/all-users/") ||
-        location.pathname.includes("/all-managers/")) && (
-        <UserKycApproveModal />
-      )}
+      {/* location.pathname.includes("/all-users/") */}
+      {/* location.pathname.includes("/all-managers/") */}
+      {isUsersPageWithoutId && <UserKycApproveModal />}
+
       {location.pathname.includes("/all-managers/") &&
         !location.pathname.includes("/add-new") && (
           <ForgetPasswordModal
@@ -86,31 +98,33 @@ const CreateNewAndUpdateForm = () => {
           {/* heading render dynamically based on url  */}
           <h1 className="text-xl lg:text-2xl uppercase font-bold text-theme">
             {location.pathname.includes("/all-bookings/")
-              ? `${id ? "Edit" : "Add"} Booking${
+              ? `${id ? "Edit" : "Create"} Booking${
                   id ? `: #${vehicleMaster[0]?.bookingId}` : ""
                 }`
               : location.pathname.includes("/all-plans/")
-              ? `${id ? "Edit" : "Add"} Plan Master`
-              : location.pathname.includes("/all-vehicles/")
-              ? `${id ? "Edit" : "Add"} Vehicle`
-              : location.pathname.includes("/all-users/")
-              ? `${id ? "Edit" : "Add"} User`
-              : location.pathname.includes("/all-managers/")
-              ? `${id ? "Edit" : "Add"} Manager`
-              : location.pathname.includes("/all-coupons/")
-              ? `${id ? "Edit" : "Add"} Coupon`
-              : location.pathname.includes("/location-master/")
-              ? `${id ? "Edit" : "Add"} City`
-              : location.pathname.includes("/station-master/")
-              ? `${id ? "Edit" : "Add"} Station`
-              : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
-                  location.pathname
-                )}`}
+                ? `${id ? "Edit" : "Add"} Plan Master`
+                : location.pathname.includes("/all-vehicles/")
+                  ? `${id ? "Edit" : "Add"} Vehicle`
+                  : location.pathname.includes("/all-users/")
+                    ? `${id ? "Edit" : "Create"} Customer`
+                    : location.pathname.includes("/all-managers/")
+                      ? `${id ? "Edit" : "Add"} Manager`
+                      : location.pathname.includes("/all-coupons/")
+                        ? `${id ? "Edit" : "Add"} Coupon`
+                        : location.pathname.includes("/location-master/")
+                          ? `${id ? "Edit" : "Add"} City`
+                          : location.pathname.includes("/station-master/")
+                            ? `${id ? "Edit" : "Add"} Station`
+                            : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
+                                location.pathname,
+                              )}`}
           </h1>
         </div>
         {/* for kyc approval  */}
-        {(location.pathname.includes("/all-users/") ||
-          location.pathname.includes("/all-managers/")) && (
+        {/* {(location.pathname.includes("/all-users/") ||
+          location.pathname.includes("/all-managers/")) && ( */}
+
+        {isUsersPageWithoutId && (
           <div className="flex items-center gap-2">
             <button
               className="bg-theme/90 text-gray-100 p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md"
@@ -161,7 +175,7 @@ const CreateNewAndUpdateForm = () => {
                 navigate,
                 tempIds,
                 removeTempIds,
-                id
+                id,
               )
             }
             loading={formLoading}

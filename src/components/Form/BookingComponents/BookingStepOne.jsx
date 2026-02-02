@@ -10,34 +10,84 @@ import { endPointBasedOnKey } from "../../../Data/commonData";
 import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
 import { fetchStationBasedOnLocation } from "../../../Data/Function";
 import { isDuration24Hours } from "../../../utils/index";
+import { DateRange } from "../../../components/DateTimePicker/DateRange";
+import { BookingPlan } from "./BookingPlan";
 
-const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
-  const [userId, setUserId] = useState("");
-  const [vehicleId, setVehicleId] = useState("");
-  const [stationId, setStationId] = useState("");
-  const [bookingStartDate, setBookingStartDate] = useState("");
-  const [bookingEndDate, setBookingEndDate] = useState("");
-  const [selectedVehicle, setSlectedVehicle] = useState(null);
+const BookingStepOne = ({
+  data,
+  vehicleMaster,
+  token,
+  onNext,
+  setFormData,
+}) => {
+  const [userId, setUserId] = useState(data?.userId || "");
+  const [vehicleId, setVehicleId] = useState(data?.vehicleId || "");
+  const [stationId, setStationId] = useState(data?.stationId || "");
+  const [bookingStartDate, setBookingStartDate] = useState(
+    data?.bookingStartDate || "",
+  );
+  const [bookingEndDate, setBookingEndDate] = useState(
+    data?.bookingEndDate || "",
+  );
+  const [selectedVehicle, setSlectedVehicle] = useState(
+    data?.selectedVehicle || null,
+  );
+  const [isLocationSelected, setIsLocationSelected] = useState(
+    data?.isLocationSelected || "",
+  );
+  const [duration, setDuration] = useState(data?.duration || 1);
+
+  // const [userId, setUserId] = useState("");
+  // const [vehicleId, setVehicleId] = useState("");
+  // const [stationId, setStationId] = useState("");
+  // const [bookingStartDate, setBookingStartDate] = useState("");
+  // const [bookingEndDate, setBookingEndDate] = useState("");
+  // const [selectedVehicle, setSlectedVehicle] = useState(null);
   const [loading, setLoading] = useState(null);
   //vehicle suggestion list
   const [suggestedData, setSuggestionData] = useState(null);
   const [collectedData, setCollectedData] = useState(null);
   const [stationData, setStationData] = useState(null);
   const [error, setError] = useState("");
-  const [isLocationSelected, setIsLocationSelected] = useState("");
+  // const [isLocationSelected, setIsLocationSelected] = useState("");
+  // const [duration, setDuration] = useState(1);
+
   const { loggedInRole, userStation } = useSelector((state) => state.user);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
   const dispatch = useDispatch();
 
-  const handleNext = () => {
-    onNext({
+  // Update parent formData whenever any value changes
+  useEffect(() => {
+    setFormData({
       userId,
       vehicleId,
+      stationId,
       bookingStartDate,
       bookingEndDate,
       selectedVehicle,
+      isLocationSelected,
+      duration,
     });
-  };
+  }, [
+    userId,
+    vehicleId,
+    stationId,
+    bookingStartDate,
+    bookingEndDate,
+    selectedVehicle,
+    isLocationSelected,
+    duration,
+  ]);
+
+  // const handleNext = () => {
+  //   onNext({
+  //     userId,
+  //     vehicleId,
+  //     bookingStartDate,
+  //     bookingEndDate,
+  //     selectedVehicle,
+  //   });
+  // };
 
   //updating station based on location id
   useEffect(() => {
@@ -47,7 +97,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
         isLocationSelected,
         setStationData,
         token,
-        setLoading
+        setLoading,
       );
     }
   }, [isLocationSelected]);
@@ -115,7 +165,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
   const fetchCollectedData = async (locationUrl) => {
     const locationResponse = await getData(
       endPointBasedOnKey[locationUrl],
-      token
+      token,
     );
 
     if (locationResponse) {
@@ -141,7 +191,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
             <SelectDropDown
               item={"locationId"}
               options={collectedData?.locationId?.filter(
-                (location) => location?.locationStatus !== "inactive"
+                (location) => location?.locationStatus !== "inactive",
               )}
               setIsLocationSelected={setIsLocationSelected}
               require={true}
@@ -160,16 +210,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
           </div>
         </>
       )}
-      <div className="w-full lg:w-[48%]">
-        <InputSearch
-          item={"User"}
-          name={"userId"}
-          token={token}
-          require={true}
-          setValueChanger={setUserId}
-        />
-      </div>
-      <div className="w-full lg:w-[48%]">
+      {/* <div className="w-full lg:w-[48%]">
         <InputDateAndTime
           item={"BookingStartDateAndTime"}
           name={"BookingStartDateAndTime"}
@@ -198,6 +239,19 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
         >
           {error}
         </p>
+      </div> */}
+      <DateRange
+        {...{ error, setBookingStartDate, setBookingEndDate, duration }}
+        className="lg:w-[48%]"
+      />
+      <div className="w-full lg:w-[48%]">
+        <InputSearch
+          item={"User"}
+          name={"userId"}
+          token={token}
+          require={true}
+          setValueChanger={setUserId}
+        />
       </div>
       <div className="w-full lg:w-[48%]">
         <SelectDropDownVehicle
@@ -209,7 +263,10 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
           require={true}
         />
       </div>
-      <button
+
+      <BookingPlan {...{ duration, setDuration }} />
+
+      {/* <button
         className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
         type="button"
         onClick={handleNext}
@@ -221,7 +278,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
         }
       >
         Continue
-      </button>
+      </button> */}
     </>
   );
 };

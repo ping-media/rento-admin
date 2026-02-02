@@ -31,6 +31,7 @@ const Input = ({
   btnLoading,
   isFull = true,
   btnDisable,
+  ...rest
 }) => {
   const [inputValue, setInputValue] = useState(value);
   // for debouncing state
@@ -139,8 +140,8 @@ const Input = ({
                 (item?.includes("Proof")
                   ? camelCaseToSpaceSeparated(item).replace("Proof", "")
                   : item?.includes("_For")
-                  ? camelCaseToSpaceSeparated(item).replace("_For", "")
-                  : camelCaseToSpaceSeparated(item))
+                    ? camelCaseToSpaceSeparated(item).replace("_For", "")
+                    : camelCaseToSpaceSeparated(item))
               }`}{" "}
           {require && <span className="text-red-500">*</span>}
         </label>
@@ -154,8 +155,8 @@ const Input = ({
               ? item === "vehicleNumber"
                 ? "uppercase"
                 : isPassword
-                ? ""
-                : "capitalize"
+                  ? ""
+                  : "capitalize"
               : ""
           } relative disabled:bg-gray-400/20 disabled:bg-opacity-20`}
           value={
@@ -174,13 +175,14 @@ const Input = ({
           placeholder={`${
             item.includes("Proof")
               ? camelCaseToSpaceSeparated(
-                  placeholder || item.replace("Proof", "")
+                  placeholder || item.replace("Proof", ""),
                 )
               : camelCaseToSpaceSeparated(placeholder || item)
           }`}
           disabled={disabled}
           required={require}
           step="3600"
+          {...rest}
         />
         {isPassword && (
           <button

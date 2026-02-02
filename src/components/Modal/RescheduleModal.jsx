@@ -49,7 +49,7 @@ const RescheduleModal = () => {
   const [dropoffDate, setDropoffDate] = useState(formattedDate());
   const [pickupTime, setPickupTime] = useState(new Date().toLocaleTimeString());
   const [dropoffTime, setDropoffTime] = useState(
-    new Date().toLocaleTimeString()
+    new Date().toLocaleTimeString(),
   );
 
   //   adding booking date and time in input field
@@ -90,10 +90,10 @@ const RescheduleModal = () => {
       }
 
       const dbBookingStartDateAndTime = formatIntoISO(
-        result?.BookingStartDateAndTime
+        result?.BookingStartDateAndTime,
       );
       const dbBookingEndDateAndTime = formatIntoISO(
-        result?.BookingEndDateAndTime
+        result?.BookingEndDateAndTime,
       );
 
       const response = await postData(
@@ -103,7 +103,7 @@ const RescheduleModal = () => {
           BookingStartDateAndTime: dbBookingStartDateAndTime,
           BookingEndDateAndTime: dbBookingEndDateAndTime,
         },
-        token
+        token,
       );
       if (response?.success) {
         let data = null;
@@ -191,7 +191,7 @@ const RescheduleModal = () => {
             </div>
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full flex items-center justify-center outline-none"
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full items-center justify-center outline-none"
               disabled={formLoading}
             >
               {!formLoading ? (

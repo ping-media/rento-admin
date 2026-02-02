@@ -14,6 +14,7 @@ const SelectDropDownCoupon = ({
   setCoupon,
   removeCoupon,
   coupon,
+  onSearchChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,13 +24,14 @@ const SelectDropDownCoupon = ({
   const debounceTimerRef = useRef(null);
   const dispatch = useDispatch();
 
-  const handleOptionClick = (e, val) => {
+  const handleOptionClick = async (e, val) => {
     e.preventDefault();
 
     setInputSelect && setInputSelect(val?.couponName);
-    setIsOpen(false);
     setCoupon &&
       setCoupon({ ...coupon, couponName: val?.couponName, couponId: val?._id });
+
+    setIsOpen(false);
   };
 
   const handleClickOutside = (e) => {
@@ -50,6 +52,7 @@ const SelectDropDownCoupon = ({
     }
     debounceTimerRef.current = setTimeout(() => {
       dispatch(setCouponName(searchTerm));
+      onSearchChange && onSearchChange(searchTerm);
     }, 300);
 
     return () => {

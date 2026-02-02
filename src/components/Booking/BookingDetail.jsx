@@ -19,11 +19,11 @@ import Button from "../Buttons/Button";
 import VehicleImages from "./VehicleImages";
 import UserRideTimeLine from "./UserRideTimeLine";
 import { ExtendSummary, RideSummary } from "./RideSummary";
-const ChangeVehicleModal = lazy(() =>
-  import("../../components/Modal/ChangeVehicleModal")
+const ChangeVehicleModal = lazy(
+  () => import("../../components/Modal/ChangeVehicleModal"),
 );
-const ExtendBookingModal = lazy(() =>
-  import("../../components/Modal/ExtendBookingModal")
+const ExtendBookingModal = lazy(
+  () => import("../../components/Modal/ExtendBookingModal"),
 );
 
 const BookingDetail = ({ tabs }) => {
@@ -81,7 +81,7 @@ const BookingDetail = ({ tabs }) => {
             formatFullDateAndTime(
               (vm?.extendBooking?.oldBooking?.length > 0 &&
                 vm?.extendBooking?.oldBooking[0]?.BookingEndDateAndTime) ||
-                vm?.BookingEndDateAndTime
+                vm?.BookingEndDateAndTime,
             )
           }`,
         },
@@ -141,7 +141,7 @@ const BookingDetail = ({ tabs }) => {
           }`}
         >
           {booking?.notes && (
-            <p className="text-sm text-end italic text-gray-400 mb-1">
+            <div className="text-sm text-end italic text-gray-400 mb-1">
               {/* here we will show only notes with noteType cancel  */}
               {booking?.notes
                 ?.filter((note) => note.noteType === "cancel")
@@ -150,7 +150,7 @@ const BookingDetail = ({ tabs }) => {
                     {`Cancel note by ${note.key}: (${note.value})`}
                   </p>
                 ))}
-            </p>
+            </div>
           )}
 
           <div className={`${tabs !== "customer" && "hidden lg:block"}`}>
@@ -314,13 +314,13 @@ const BookingDetail = ({ tabs }) => {
                 booking?.bookingPrice?.diffAmount &&
                 booking?.bookingPrice?.diffAmount?.length > 0 &&
                 booking?.bookingPrice?.diffAmount?.filter(
-                  (record) => record?.status !== "paid"
+                  (record) => record?.status !== "paid",
                 )?.length > 0) ||
                 (vehicleMaster &&
                   booking?.bookingPrice?.extendAmount &&
                   booking?.bookingPrice?.extendAmount?.length > 0 &&
                   booking?.bookingPrice?.extendAmount?.filter(
-                    (record) => record?.status !== "paid"
+                    (record) => record?.status !== "paid",
                   )?.length > 0)) && (
                 <Button
                   title={"Update Payment"}

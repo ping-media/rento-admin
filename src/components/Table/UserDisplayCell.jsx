@@ -17,7 +17,7 @@ const UserDisplayCell = ({ item, firstName, lastName, Contact }) => {
   const contact = user?.contact || Contact || "NA";
 
   const shouldLink = !["/all-users", "/all-managers"].includes(
-    location.pathname
+    location.pathname,
   );
 
   return (
@@ -28,10 +28,16 @@ const UserDisplayCell = ({ item, firstName, lastName, Contact }) => {
     >
       <p
         className={
-          shouldLink ? "hover:text-theme truncate hover:underline" : ""
+          shouldLink
+            ? "max-w-[160px] hover:text-theme truncate hover:underline"
+            : ""
         }
       >
-        <Link to={shouldLink ? `/all-users/${userId}` : "#"}>
+        <Link
+          to={shouldLink ? `/all-users/${userId}` : "#"}
+          className="block truncate"
+          title={`${displayFirstName} ${displayLastName}`}
+        >
           {`${displayFirstName} ${displayLastName}`}
         </Link>
       </p>

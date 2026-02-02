@@ -7,9 +7,56 @@ import {
 } from "../../utils/index";
 import CopyButton from "../Buttons/CopyButton";
 import { ExtendSummary, RideSummary } from "./RideSummary";
+import { useEffect, useReducer } from "react";
+
+const priceReducer = (_, action) => {
+  const price = action.payload;
+  if (!price) return 0;
+
+  let total = 0;
+
+  // Base price
+  if (price.discountTotalPrice > 0) {
+    total += Number(price.discountTotalPrice);
+  } else {
+    total += Number(price.totalPrice || 0) + Number(price.tax || 0);
+    // Number(price.extraAddonPrice || 0);
+  }
+
+  // diffAmount adjustments
+  if (Array.isArray(price.diffAmount)) {
+    price.diffAmount.forEach((item) => {
+      if (item.status === "paid") {
+        if (item.amount > 0) {
+          total += Number(item.amount);
+        }
+        if (item.refundAmount > 0) {
+          total -= Number(item.refundAmount);
+        }
+      }
+    });
+  }
+
+  // extendAmount adjustments
+  if (Array.isArray(price.extendAmount)) {
+    price.extendAmount.forEach((item) => {
+      if (item.status === "paid") {
+        total += Number(item.amount || 0);
+        total += Number(item.tax || 0);
+      }
+    });
+  }
+
+  // Late fees
+  total +=
+    Number(price.lateFeeBasedOnHour || 0) + Number(price.lateFeeBasedOnKM || 0);
+
+  return Math.max(total, 0); // safety
+};
 
 const AdditionalInfo = () => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
+  const [totalPrice, calculateTotal] = useReducer(priceReducer, 0);
 
   const diffAmount = vehicleMaster[0]?.bookingPrice?.diffAmount
     ? vehicleMaster[0]?.bookingPrice?.diffAmount[
@@ -18,6 +65,7 @@ const AdditionalInfo = () => {
     : null;
 
   const booking = vehicleMaster?.[0];
+  const bookingPrice = booking?.bookingPrice ?? null;
   const startDate = booking?.BookingStartDateAndTime;
   const isExtend = booking?.bookingPrice?.extendAmount?.length > 0;
   const endDate = isExtend
@@ -35,13 +83,19 @@ const AdditionalInfo = () => {
   const freeLimit =
     Number(booking?.vehicleBasic?.freeLimit) + Number(extendBookingLimit);
 
+  useEffect(() => {
+    if (!bookingPrice) return null;
+
+    calculateTotal({ payload: bookingPrice });
+  }, [bookingPrice]);
+
   return (
     <>
       {/* ride otp's  */}
       <div className="mb-2">
         {((diffAmount !== null && diffAmount?.rideStatus === false) ||
           vehicleMaster[0]?.rideStatus !== "ongoing") && (
-          <div className="w-full flex items-center justify-between  flex items-center">
+          <div className="w-full flex items-center justify-between">
             <p className="font-semibold mr-1">Start OTP:</p>
             <p className="flex items-center">
               {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
@@ -52,7 +106,7 @@ const AdditionalInfo = () => {
           </div>
         )}
         {vehicleMaster[0]?.vehicleBasic?.endRide > 0 && (
-          <div className="w-full flex items-center justify-between  flex items-center">
+          <div className="w-full flex items-center justify-between">
             <p className="font-semibold mr-1">End OTP:</p>
             <p className="flex items-center">
               {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
@@ -63,27 +117,6 @@ const AdditionalInfo = () => {
           </div>
         )}
       </div>
-
-      {/* {vehicleMaster[0]?.pickupImage && (
-        <>
-          <div className="w-full flex items-center justify-between  flex items-center mb-1">
-            <p className="font-semibold mr-1">Odometer Start Reading:</p>
-            <p className="flex items-center">
-              {formatNumber(
-                vehicleMaster[0]?.pickupImage?.startMeterReading || 0
-              )}
-            </p>
-          </div>
-          <div className="w-full flex items-center justify-between  flex items-center">
-            <p className="font-semibold mr-1">Odometer End Reading:</p>
-            <p className="flex items-center">
-              {formatNumber(
-                vehicleMaster[0]?.pickupImage?.endMeterReading || 0
-              )}
-            </p>
-          </div>
-        </>
-      )} */}
 
       {diffAmount !== null && diffAmount?.refundAmount > 0 && (
         <div className="mt-1 mb-2.5">
@@ -96,7 +129,7 @@ const AdditionalInfo = () => {
               {formatPrice(
                 vehicleMaster[0]?.bookingPrice?.diffAmount[
                   vehicleMaster[0]?.bookingPrice?.diffAmount?.length - 1
-                ]?.refundAmount
+                ]?.refundAmount,
               )}
             </p>
           </div>
@@ -116,7 +149,7 @@ const AdditionalInfo = () => {
               <>
                 ₹
                 {formatPrice(
-                  Number(vehicleMaster[0]?.vehicleBasic?.extraKmCharge)
+                  Number(vehicleMaster[0]?.vehicleBasic?.extraKmCharge),
                 )}
                 /km{" "}
                 <span className="hidden lg:inline">
@@ -134,18 +167,25 @@ const AdditionalInfo = () => {
             {vehicleMaster[0]?.bookedFrom === "web"
               ? "WEBSITE"
               : vehicleMaster[0]?.bookedFrom === "admin"
-              ? "ADMIN"
-              : "APP" || "--"}
+                ? "ADMIN"
+                : "APP" || "--"}
           </p>
         </div>
         <div className="w-full flex items-center justify-between text-sm ">
           <p className="font-semibold mr-1">Payment Method:</p>
-          <p>{vehicleMaster[0]?.paymentMethod || "--"}</p>
+          <p>
+            {vehicleMaster?.[0]?.paymentMethod === "partiallyPay"
+              ? "Partially Pay"
+              : vehicleMaster?.[0]?.paymentMethod || "--"}
+          </p>
         </div>
       </div>
       <div className="w-full">
         <div className="flex items-center gap-1 mb-1">
-          <p className="text-md text-gray-600 font-bold">Late Fee Charges</p>
+          {/* <h2 className="text-md w-full text-gray-600 border-b pb-1 font-bold mb-1">
+            Other Charges
+          </h2> */}
+
           {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod &&
             vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod !== "NA" && (
               <span className="text-xs italic ">
@@ -153,6 +193,7 @@ const AdditionalInfo = () => {
               </span>
             )}
         </div>
+
         <div className="mb-2">
           {vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour ||
           vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM ||
@@ -160,23 +201,23 @@ const AdditionalInfo = () => {
           vehicleMaster[0]?.rideStatus === "completed" ? (
             <div>
               <p className="w-full flex items-center justify-between text-sm text-theme">
-                <span className="mr-1 font-semibold">Hour Late Fee:</span>₹
+                <span className="mr-1 font-semibold">Late Hour Charges:</span>₹
                 {formatPrice(
                   Number(
-                    vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour || 0
-                  )
+                    vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour || 0,
+                  ),
                 )}
               </p>
               <p className="w-full flex items-center justify-between text-sm text-theme">
-                <span className="mr-1 font-semibold">KM Late Fee:</span>₹
+                <span className="mr-1 font-semibold">Late KM Charges:</span>₹
                 {formatPrice(
-                  Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM || 0)
+                  Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM || 0),
                 )}
               </p>
               <p className="w-full flex items-center justify-between text-sm text-theme">
-                <span className="mr-1 font-semibold">Additional Price:</span>₹
+                <span className="mr-1 font-semibold">Other Charges:</span>₹
                 {formatPrice(
-                  Number(vehicleMaster[0]?.bookingPrice?.additionalPrice || 0)
+                  Number(vehicleMaster[0]?.bookingPrice?.additionalPrice || 0),
                 )}
               </p>
             </div>
@@ -214,13 +255,13 @@ const AdditionalInfo = () => {
                         item={item}
                       />
                     </li>
-                  )
+                  ),
                 )}
               </ul>
             )}
         </div>
       </div>
-      <div className="w-full">
+      {/* <div className="w-full">
         <h2 className="text-md text-gray-600 border-b pb-1 font-bold mb-1">
           Vehicle Change Summary
         </h2>
@@ -233,7 +274,7 @@ const AdditionalInfo = () => {
                   <li className="flex gap-1" key={index}>
                     <ExtraAmount item={item} />
                   </li>
-                )
+                ),
               )}
             </ul>
           ) : (
@@ -242,6 +283,11 @@ const AdditionalInfo = () => {
             </p>
           )}
         </div>
+      </div> */}
+
+      <div className="flex items-center justify-between border-t-2 mt-5 pt-2.5">
+        <h2 className="md:text-base font-medium">Total Price:</h2>
+        <p className="text-theme font-semibold">₹{formatPrice(totalPrice)}</p>
       </div>
     </>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { fetchUserDataBasedOnQuery } from "../../Data/Function";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -7,6 +7,8 @@ import {
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { getData } from "../../Data";
 import PreLoader from "../Skeleton/PreLoader";
+import { Link, useNavigate } from "react-router-dom";
+import { Add } from "@mui/icons-material";
 
 const InputSearch = ({
   item,
@@ -25,6 +27,7 @@ const InputSearch = ({
   const [userLoading, setUserLoading] = useState(false);
   const { tempVehicleData } = useSelector((state) => state.vehicles);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // search user data based on query entered
   const handleSelectUser = async (e) => {
@@ -43,7 +46,7 @@ const InputSearch = ({
       if (value) {
         const data = await fetchUserDataBasedOnQuery(
           `/getAllUsers?search=${value}`,
-          token
+          token,
         );
         dispatch(addTempVehicleData(data));
       }
@@ -69,13 +72,27 @@ const InputSearch = ({
         if (response.status == 200) {
           const data = response?.data;
           setInputValue(
-            `${data[0]?.firstName} | ${data[0]?.contact} | ${data[0]?.userType}`
+            `${data[0]?.firstName} | ${data[0]?.contact} | ${data[0]?.userType}`,
           );
         }
         setUserLoading(false);
       })();
     }
   }, [value]);
+
+  const isStationRoute =
+    location.pathname === "/station-master/add-new" ||
+    location.pathname.includes("/station-master/");
+
+  const filteredUsers = useMemo(() => {
+    if (!Array.isArray(tempVehicleData)) return [];
+
+    return tempVehicleData.filter((item) =>
+      isStationRoute
+        ? item.userType !== "customer"
+        : item.userType !== "admin" && item.userType !== "manager",
+    );
+  }, [tempVehicleData, isStationRoute]);
 
   return userLoading == false ? (
     <div className="w-full relative">
@@ -108,53 +125,84 @@ const InputSearch = ({
           autoComplete="off"
         />
       </div>
-      {/* {inputValue?.length > 0 && tempVehicleData?.length > 0 && ( */}
+
       {inputValue?.length > 0 && inputValue?.length <= 10 && (
         <div className="absolute top-20 w-full rounded-md px-3 py-2 bg-white border-2 z-30">
           <ul>
-            {tempVehicleData ? (
-              tempVehicleData.length > 0 ? (
-                tempVehicleData.filter((item) =>
-                  location.pathname == "/station-master/add-new" ||
-                  location.pathname.includes("/station-master/")
-                    ? item.userType !== "customer"
-                    : item.userType !== "admin" && item.userType !== "manager"
-                ).length > 0 ? (
-                  tempVehicleData
-                    .filter((item) =>
-                      location.pathname == "/station-master/add-new" ||
-                      location.pathname.includes("/station-master/")
-                        ? item.userType !== "customer"
-                        : item.userType !== "admin" &&
-                          item.userType !== "manager"
-                    )
-                    .map((item) => (
-                      <li
-                        key={item._id}
-                        className="my-2 cursor-pointer text-gray-500 w-full"
-                        onClick={() => handleSelectUserById(item)}
-                      >
-                        {item.firstName} {item.lastName} | {item.contact} |{" "}
-                        {item.userType}
-                      </li>
-                    ))
-                ) : (
-                  <li className="my-2 cursor-pointer italic text-gray-400">
-                    no user found.
-                  </li>
-                )
-              ) : (
-                <li className="my-2 cursor-pointer italic text-gray-400">
-                  no user found.
-                </li>
-              )
-            ) : (
-              <li className="my-2 cursor-pointer italic text-gray-400">
-                loading...
+            {!tempVehicleData && (
+              <li className="my-2 italic text-gray-400">loading...</li>
+            )}
+
+            {tempVehicleData && filteredUsers.length === 0 && (
+              // <li className="my-2 italic text-gray-400">no user found.</li>
+              <li
+                tabIndex="0"
+                role="button"
+                className="my-1.5 italic text-gray-400 cursor-pointer"
+                onClick={() => navigate("/all-users/add-new")}
+              >
+                <Add className="size-5" /> Add Customer
               </li>
             )}
+
+            {filteredUsers.map((item) => (
+              <li
+                key={item._id}
+                className="my-2 cursor-pointer text-gray-500 w-full"
+                onClick={() => handleSelectUserById(item)}
+              >
+                {item.firstName} {item.lastName} | {item.contact} |{" "}
+                {item.userType}
+              </li>
+            ))}
           </ul>
         </div>
+
+        // <div className="absolute top-20 w-full rounded-md px-3 py-2 bg-white border-2 z-30">
+        //   <ul>
+        //     {tempVehicleData ? (
+        //       tempVehicleData.length > 0 ? (
+        //         tempVehicleData.filter((item) =>
+        //           location.pathname == "/station-master/add-new" ||
+        //           location.pathname.includes("/station-master/")
+        //             ? item.userType !== "customer"
+        //             : item.userType !== "admin" && item.userType !== "manager"
+        //         ).length > 0 ? (
+        //           tempVehicleData
+        //             .filter((item) =>
+        //               location.pathname == "/station-master/add-new" ||
+        //               location.pathname.includes("/station-master/")
+        //                 ? item.userType !== "customer"
+        //                 : item.userType !== "admin" &&
+        //                   item.userType !== "manager"
+        //             )
+        //             .map((item) => (
+        //               <li
+        //                 key={item._id}
+        //                 className="my-2 cursor-pointer text-gray-500 w-full"
+        //                 onClick={() => handleSelectUserById(item)}
+        //               >
+        //                 {item.firstName} {item.lastName} | {item.contact} |{" "}
+        //                 {item.userType}
+        //               </li>
+        //             ))
+        //         ) : (
+        //           <li className="my-2 cursor-pointer italic text-gray-400">
+        //             no user found.
+        //           </li>
+        //         )
+        //       ) : (
+        //         <li className="my-2 cursor-pointer italic text-gray-400">
+        //           no user found.
+        //         </li>
+        //       )
+        //     ) : (
+        //       <li className="my-2 cursor-pointer italic text-gray-400">
+        //         loading...
+        //       </li>
+        //     )}
+        //   </ul>
+        // </div>
       )}
     </div>
   ) : (

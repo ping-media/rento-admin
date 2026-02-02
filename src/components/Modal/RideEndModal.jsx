@@ -22,7 +22,7 @@ import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInp
 const RideEndModal = ({ id }) => {
   const { isRideEndModalActive } = useSelector((state) => state.sideBar);
   const { vehicleMaster, vehiclePickupImage } = useSelector(
-    (state) => state.vehicles
+    (state) => state.vehicles,
   );
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
@@ -95,17 +95,17 @@ const RideEndModal = ({ id }) => {
     else if (nowDate > bookingStartDate && nowDate < bookingEndDate) {
       const totalDurationDays = getDurationInDaysAndHours(
         BookingStartDateAndTime,
-        BookingEndDateAndTime
+        BookingEndDateAndTime,
       ).days;
 
       const remainingDurationDays = getDurationInDaysAndHours(
         nowIso,
-        BookingEndDateAndTime
+        BookingEndDateAndTime,
       ).days;
 
       if (totalDurationDays > 0 && remainingDurationDays > 0) {
         refundAmount = Math.round(
-          totalPrice * (remainingDurationDays / totalDurationDays)
+          totalPrice * (remainingDurationDays / totalDurationDays),
         );
       }
     }
@@ -128,7 +128,7 @@ const RideEndModal = ({ id }) => {
     ) {
       const duration = newGetDurationInDaysAndHours(
         BookingEndDateAndTime,
-        nowIso
+        nowIso,
       );
 
       if (duration?.totalHours > 0) {
@@ -144,7 +144,7 @@ const RideEndModal = ({ id }) => {
      --------------------------------- */
     const totalDrivenKm = Math.max(
       0,
-      Number(meterDebounceValue) - Number(oldMeterReading)
+      Number(meterDebounceValue) - Number(oldMeterReading),
     );
 
     const unpaidExtends =
@@ -152,7 +152,7 @@ const RideEndModal = ({ id }) => {
 
     const extendKmLimit = unpaidExtends.reduce(
       (sum, e) => sum + Number(e?.freeLimit || 0),
-      0
+      0,
     );
 
     const allowedKm = Number(vehicleBasic?.freeLimit || 0) + extendKmLimit;
@@ -214,7 +214,7 @@ const RideEndModal = ({ id }) => {
         ? data.lateFeeBasedOnHour + data.lateFeeBasedOnKM
         : 0;
 
-      // this is for preclosing the ride
+      // adding refund amount if greater than 0
       // if (
       //   formatDateToISO(new Date()).replace(".000Z", "Z") <
       //   vehicleMaster[0]?.BookingEndDateAndTime
@@ -225,6 +225,13 @@ const RideEndModal = ({ id }) => {
       //     refundAmount: refundAmount,
       //   };
       // }
+      if (refundAmount > 0) {
+        data = {
+          ...data,
+          closingDate: formatDateToISO(new Date()).replace(".000Z", "Z"),
+          refundAmount: Number(refundAmount ?? 0) ?? 0,
+        };
+      }
 
       const response = await postData("/rideUpdate", data, token, "put");
       if (response.status === 200) {
@@ -238,6 +245,7 @@ const RideEndModal = ({ id }) => {
                 refundAmount > 0
                   ? "Booking Ended & Refunded"
                   : "Booking Completed",
+              refundAmount: Number(refundAmount ?? 0) ?? 0,
               paymentAmount: LateFeeAmount > 0 ? Number(LateFeeAmount) : 0,
               paymentMode: result?.PaymentMode || "",
               date: Date.now(),
@@ -309,11 +317,11 @@ const RideEndModal = ({ id }) => {
           {/* if payment are pending this message will be show  */}
           {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
             vehicleMaster[0]?.bookingPrice?.diffAmount?.every(
-              (item) => item.status === "paid"
+              (item) => item.status === "paid",
             ) === false) ||
             (vehicleMaster[0]?.bookingPrice?.extendAmount &&
               vehicleMaster[0]?.bookingPrice?.extendAmount?.every(
-                (item) => item.status === "paid"
+                (item) => item.status === "paid",
               ) === false)) && (
             <p className="italic text-xs lg:text-sm my-2 text-red-300 font-bold text-left">
               Warning: Some payments are pending. Please clear them before
@@ -372,7 +380,7 @@ const RideEndModal = ({ id }) => {
                   ₹
                   {formatPrice(
                     Number(lateFees?.lateFeeBasedOnHour) +
-                      Number(lateFees?.lateFeeBasedOnKM)
+                      Number(lateFees?.lateFeeBasedOnKM),
                   )}
                 </p>
               )}

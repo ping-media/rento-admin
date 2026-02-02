@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
 import { tableIcons } from "../../Data/Icons";
+import { useLocation } from "react-router-dom";
 
 const SelectDropDown = ({
   item,
@@ -21,10 +22,13 @@ const SelectDropDown = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef();
+  const { pathname } = useLocation();
 
   const title = {
     stationId: "Station",
-    locationId: "Location",
+    locationId: pathname?.endsWith("all-bookings/add-new")
+      ? "Cities"
+      : "Location",
     userId: "User",
     vehicleMasterId: "Vehicle",
     vehicleTableId: "Vehicle",
@@ -186,7 +190,7 @@ const SelectDropDown = ({
                 className="w-full px-4 py-2 border-b border-gray-300 outline-none focus:ring-0 focus:outline-none"
               />
             )}
-            <div
+            {/* <div
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer capitalize"
               onClick={() => handleChangeValue("default")}
             >
@@ -196,16 +200,22 @@ const SelectDropDown = ({
                     camelCaseToSpaceSeparated(placeholder || title[item]) ||
                     camelCaseToSpaceSeparated(placeholder || item)
                   }`}
-            </div>
-            {filteredOptions?.map((opt, i) => (
-              <div
-                key={getValue(opt) + i}
-                onClick={() => handleChangeValue(getValue(opt), getLabel(opt))}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer capitalize"
-              >
-                {getLabel(opt)}
-              </div>
-            ))}
+            </div> */}
+            {filteredOptions?.length === 0 ? (
+              <div className="px-4 py-2 text-gray-400">No options found</div>
+            ) : (
+              filteredOptions?.map((opt, i) => (
+                <div
+                  key={getValue(opt) + i}
+                  onClick={() =>
+                    handleChangeValue(getValue(opt), getLabel(opt))
+                  }
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer capitalize"
+                >
+                  {getLabel(opt)}
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>

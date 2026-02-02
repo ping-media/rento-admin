@@ -104,14 +104,14 @@ const handleSignOutUser = (dispatch) => {
 const encryptData = (data) => {
   return CryptoJS.AES.encrypt(
     JSON.stringify(data),
-    import.meta.env.VITE_SECRET_KEY
+    import.meta.env.VITE_SECRET_KEY,
   ).toString();
 };
 
 const decryptData = (encryptedData) => {
   const bytes = CryptoJS.AES.decrypt(
     encryptedData,
-    import.meta.env.VITE_SECRET_KEY
+    import.meta.env.VITE_SECRET_KEY,
   );
   const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
   return JSON.parse(decryptedData);
@@ -315,7 +315,7 @@ const formatTimeStampToDateNew = (timestamp) => {
 
   return `${day}/${month}/${year} ${String(hours).padStart(
     2,
-    "0"
+    "0",
   )}:${minutes} ${amPm}`;
 };
 
@@ -330,7 +330,7 @@ const getDurationBetweenDates = (startDate, endDate) => {
   // Convert milliseconds to days, hours, minutes, and seconds
   const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
   const hours = Math.floor(
-    (diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    (diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
   );
   const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diffInMs % (1000 * 60)) / 1000);
@@ -412,7 +412,7 @@ const formatDateTimeISTForUser = (input) => {
 
   // Format the time as per IST
   const formattedTime = new Date(
-    Date.UTC(year, istDate.getUTCMonth(), day, hours, minutes)
+    Date.UTC(year, istDate.getUTCMonth(), day, hours, minutes),
   )
     .toLocaleTimeString("en-US", {
       ...timeOptions,
@@ -482,7 +482,7 @@ const addDaysToDate = (dateString, days) => {
   const date = new Date(dateString);
   if (isNaN(date)) {
     throw new Error(
-      "Invalid date format. Please use a valid ISO 8601 date string."
+      "Invalid date format. Please use a valid ISO 8601 date string.",
     );
   }
   // Add the specified number of days to the date's timestamp
@@ -496,7 +496,7 @@ const calculatePriceForExtendBooking = (
   // extensionDays,
   extraAddonPrice = 0,
   isGSTActive = false,
-  GSTPercentage = 18
+  GSTPercentage = 18,
 ) => {
   const bookingPrice = Number(totalRentalCost);
   const AddonPrice = Number(extraAddonPrice);
@@ -703,7 +703,7 @@ const calculateTotalAddOnPrice = (addOns, days) => {
 
       return acc;
     },
-    { totalAddonAmount: 0, totalAddonTax: 0 }
+    { totalAddonAmount: 0, totalAddonTax: 0 },
   );
 };
 
@@ -723,7 +723,7 @@ const encryptedAdminTransform = createTransform(
   (inboundState) => {
     const encrypted = CryptoJS.AES.encrypt(
       JSON.stringify(inboundState),
-      import.meta.env.VITE_SECRET_KEY
+      import.meta.env.VITE_SECRET_KEY,
     ).toString();
     return encrypted;
   },
@@ -733,7 +733,7 @@ const encryptedAdminTransform = createTransform(
     try {
       const bytes = CryptoJS.AES.decrypt(
         outboundState,
-        import.meta.env.VITE_SECRET_KEY
+        import.meta.env.VITE_SECRET_KEY,
       );
       const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
       return JSON.parse(decryptedStr);
@@ -741,7 +741,7 @@ const encryptedAdminTransform = createTransform(
       console.error("Failed to decrypt admin state:", error);
       return { email: null, userName: null, role: null, id: null };
     }
-  }
+  },
 );
 
 const formatTimeWithoutSeconds = (timeStr) => {
@@ -823,7 +823,7 @@ const compressImageToBlob = (file, quality = 0.7) => {
             }
           },
           "image/jpeg",
-          quality
+          quality,
         );
       } catch (err) {
         reject(err);
@@ -869,6 +869,10 @@ const millisecToReadableFormat = (timestamp) => {
 
   const formatted = format(new Date(timestamp), "MMM dd, yyyy, hh:mm a");
   return formatted;
+};
+
+const isValidIndianMobile = (value) => {
+  return /^[6-9]\d{9}$/.test(String(value));
 };
 
 export {
@@ -923,4 +927,5 @@ export {
   formatNumber,
   formatTimeStampToDateNew,
   newGetDurationInDaysAndHours,
+  isValidIndianMobile,
 };

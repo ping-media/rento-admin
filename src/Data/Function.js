@@ -53,7 +53,7 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
           SetLoggedInRole({
             loggedInRole: response?.data?.userType,
             userStation: response?.Station,
-          })
+          }),
         );
         // decrypting the user data and setting data
         dispatch(handleNavigateLoad(true));
@@ -88,7 +88,7 @@ const fetchDashboardData = async (
   token,
   roleBaseFilter,
   navigate,
-  currentMonthAndYear
+  currentMonthAndYear,
   // dasboardDataCount
 ) => {
   try {
@@ -99,13 +99,13 @@ const fetchDashboardData = async (
         `/getAllDataCount${roleBaseFilter}${roleBaseFilter ? "&" : "?"}month=${
           currentMonthAndYear?.split(" ")[0]
         }&year=${currentMonthAndYear?.split(" ")[1]}`,
-        token
+        token,
       ),
       getData(
         `/getGraphData${roleBaseFilter}${
           roleBaseFilter ? "&" : "?"
         }monthYear=${currentMonthAndYear}`,
-        token
+        token,
       ),
     ]);
 
@@ -113,7 +113,7 @@ const fetchDashboardData = async (
       handleDashboardData({
         dashboard: dashboardResponse?.data,
         payments: paymentResponse?.data,
-      })
+      }),
     );
     // } else {
     //   const graphData = await getData(
@@ -165,7 +165,7 @@ const fetchVehicleMasterWithPagination = debounce(
     searchBasedOnFilter = "",
     searchType,
     vehiclesFilter,
-    filters
+    filters,
   ) => {
     try {
       dispatch(fetchVehicleStart());
@@ -222,7 +222,7 @@ const fetchVehicleMasterWithPagination = debounce(
       handleAsyncError(dispatch, error?.message);
     }
   },
-  50
+  50,
 );
 
 // const fetchVehicleMasterById = debounce(
@@ -264,7 +264,7 @@ const fetchVehicleMasterById = debounce(
     token,
     endpoint,
     secondEndpoint = "",
-    thirdEndpoint = ""
+    thirdEndpoint = "",
   ) => {
     try {
       dispatch(fetchVehicleStart());
@@ -283,7 +283,7 @@ const fetchVehicleMasterById = debounce(
         const extraCalls = [];
         if (secondEndpoint) {
           extraCalls.push(
-            getData(`${secondEndpoint}?bookingId=${bookingId}`, token)
+            getData(`${secondEndpoint}?bookingId=${bookingId}`, token),
           );
         }
         if (thirdEndpoint) {
@@ -312,7 +312,7 @@ const fetchVehicleMasterById = debounce(
       handleAsyncError(dispatch, error?.message);
     }
   },
-  50
+  50,
 );
 const handleCreateAndUpdateVehicle = async (
   event,
@@ -322,7 +322,7 @@ const handleCreateAndUpdateVehicle = async (
   navigate,
   tempIds,
   removeTempIds,
-  id
+  id,
 ) => {
   event.preventDefault();
   setFormLoading(true);
@@ -368,6 +368,7 @@ const handleCreateAndUpdateVehicle = async (
         ]
       }?_id=${id}`
     : `${endPointBasedOnURL[modifyUrl(location?.pathname)]}`;
+
   try {
     const response = await postData(endpoint, result, token);
     if (response?.status !== 200) {
@@ -389,7 +390,7 @@ const handleUpdateAdminProfile = async (
   id,
   userType,
   token,
-  navigate
+  navigate,
 ) => {
   event.preventDefault();
   setFormLoading(true);
@@ -425,7 +426,7 @@ const fetchStationBasedOnLocation = async (
   isLocationSelected,
   setStationData,
   token,
-  setLoading
+  setLoading,
 ) => {
   try {
     setLoading && setLoading(true);
@@ -433,12 +434,12 @@ const fetchStationBasedOnLocation = async (
     if (vehicleMaster && vehicleMaster?.length == 1) {
       stationResponse = await getData(
         `/getStationData?locationId=${isLocationSelected}`,
-        token
+        token,
       );
     } else {
       stationResponse = await getData(
         `/getStationData?locationId=${isLocationSelected}`,
-        token
+        token,
       );
     }
     if (stationResponse?.status === 200) {
@@ -474,7 +475,7 @@ const handleGenerateInvoice = async (
   token,
   setLoadingStates,
   bookingData,
-  handleInvoiceCreated
+  handleInvoiceCreated,
 ) => {
   if (!id && !bookingData)
     return handleAsyncError(dispatch, "failed to create Invoice! try again.");
@@ -496,7 +497,7 @@ const handleGenerateInvoice = async (
     const response = await postData(
       "/createInvoice",
       { currentBookingId: id },
-      token
+      token,
     );
     if (response?.status === 200) {
       dispatch(handleInvoiceCreated(updatedBooking));
@@ -520,7 +521,7 @@ const validateUser = debounce(
     handleLogoutUser,
     dispatch,
     setPreLoaderLoading,
-    retries = 3
+    retries = 3,
   ) => {
     try {
       if (!token) return;
@@ -533,14 +534,14 @@ const validateUser = debounce(
           const response = await postData(
             `/validedToken`,
             { token: token, dataFlag: false },
-            token
+            token,
           );
           const isUserValid = response?.isUserValid;
 
           if (isUserValid === true) {
             if (location.pathname === "/") {
               navigate(
-                loggedInRole === "manager" ? "/all-bookings" : "/dashboard"
+                loggedInRole === "manager" ? "/all-bookings" : "/dashboard",
               );
               return;
             }
@@ -562,7 +563,7 @@ const validateUser = debounce(
       setPreLoaderLoading && dispatch(setPreLoaderLoading(false));
     }
   },
-  60
+  60,
 );
 
 const handleLogoutUser = (dispatch) => {
@@ -581,7 +582,7 @@ const handleDeleteAndEditAllData = async (
   restvehicleMaster,
   token,
   handleIsHeaderChecked,
-  handleCloseModal
+  handleCloseModal,
 ) => {
   dispatch(changeTempLoadingTrue(operation));
   try {
@@ -607,13 +608,13 @@ const cancelBookingById = async (
   id,
   data,
   token,
-  endpoint = "/createBooking"
+  endpoint = "/createBooking",
 ) => {
   try {
     const response = await postData(
       endpoint === "/createBooking" ? `/createBooking?_id=${id}` : endpoint,
       data,
-      token
+      token,
     );
     if (response?.status !== 200) {
       return response?.message;
@@ -664,7 +665,7 @@ const updateTimeLineForPayment = async (
   data,
   token,
   title,
-  isvehicleNumbers = ""
+  isvehicleNumbers = "",
 ) => {
   const { _id, extendAmount, bookingPrice } = data;
 
@@ -672,7 +673,7 @@ const updateTimeLineForPayment = async (
     (extendAmount && extendAmount?.amount) ||
     (bookingPrice?.diffAmount &&
       Number(
-        bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.amount
+        bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.amount,
       ));
   const refundAmount =
     bookingPrice?.diffAmount?.length > 0
@@ -711,8 +712,8 @@ const CreatePaymentLinkAndTimeline = async (data, token, title) => {
     bookingPrice?.discountTotalPrice > 0
       ? bookingPrice?.discountTotalPrice
       : bookingPrice?.userPaid > 0
-      ? bookingPrice?.userPaid
-      : bookingPrice?.totalPrice;
+        ? bookingPrice?.userPaid
+        : bookingPrice?.totalPrice;
   const baseUrl = import.meta.env.VITE_FRONTEND_URL;
   // encoding the data before creating a link
   const payload = {
@@ -726,7 +727,7 @@ const CreatePaymentLinkAndTimeline = async (data, token, title) => {
   const encodePayload = await postDataWithRetry(
     "/GeneratePaymentToken",
     { payload: payload },
-    token
+    token,
   );
 
   const paymentLink =

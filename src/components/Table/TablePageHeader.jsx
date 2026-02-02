@@ -16,7 +16,7 @@ const TablePageHeader = ({
   bookingData,
 }) => {
   const { vehiclesFilter, activeFilterName } = useSelector(
-    (state) => state.pagination
+    (state) => state.pagination,
   );
   const { pathname } = useLocation();
   const { loggedInRole } = useSelector((state) => state.user);
@@ -56,21 +56,23 @@ const TablePageHeader = ({
           {location.pathname === "/station-master"
             ? formatPathNameToTitle(location.pathname).replace(" Master", "s")
             : location.pathname === "/all-users"
-            ? "All Customers"
-            : location.pathname === "/all-plans"
-            ? "Plan Master"
-            : location.pathname === "/location-master"
-            ? "Cities"
-            : location.pathname.includes("/all-bookings") &&
-              activeFilterName !== null
-            ? activeFilterName
-            : formatPathNameToTitle(location.pathname)}
+              ? "All Customers"
+              : location.pathname === "/all-plans"
+                ? "Plan Master"
+                : location.pathname === "/location-master"
+                  ? "Cities"
+                  : location.pathname.includes("/all-bookings") &&
+                      activeFilterName !== null
+                    ? activeFilterName
+                    : formatPathNameToTitle(location.pathname)}
         </h1>
         {!(
-          location.pathname == "/payments" ||
-          location.pathname == "/all-invoices" ||
-          location.pathname == "/users-documents" ||
-          location.pathname == "/all-users"
+          (
+            location.pathname == "/payments" ||
+            location.pathname == "/all-invoices" ||
+            location.pathname == "/users-documents"
+          )
+          // location.pathname == "/all-users"
         ) && (
           <Link
             className="bg-theme font-semibold text-gray-100 px-2.5 py-1 lg:py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
@@ -162,7 +164,7 @@ const TablePageHeader = ({
               searchDataBasedOnFilters(
                 "rideStatus=pending&sortBy=BookingStartDateAndTime&sortOrder=asc",
                 "Pending Pickups",
-                true
+                true,
               );
             }}
           >
@@ -176,7 +178,7 @@ const TablePageHeader = ({
               searchDataBasedOnFilters(
                 "rideStatus=ongoing&sortBy=BookingEndDateAndTime&sortOrder=asc",
                 "Pending Drops",
-                true
+                true,
               );
             }}
           >

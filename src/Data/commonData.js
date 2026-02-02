@@ -3,16 +3,16 @@ import { lazy } from "react";
 const CouponForm = lazy(() => import("../components/Form/CouponsForm.jsx"));
 const BookingForm = lazy(() => import("../components/Form/BookingForm.jsx"));
 const PlanForm = lazy(() => import("../components/Form/PlanForm.jsx"));
-const StationMasterForm = lazy(() =>
-  import("../components/Form/StationMasterForm.jsx")
+const StationMasterForm = lazy(
+  () => import("../components/Form/StationMasterForm.jsx"),
 );
 const VehicleForm = lazy(() => import("../components/Form/VehicleForm.jsx"));
-const LocationMasterForm = lazy(() =>
-  import("../components/Form/LocationMasterForm.jsx")
+const LocationMasterForm = lazy(
+  () => import("../components/Form/LocationMasterForm.jsx"),
 );
 const UserForm = lazy(() => import("../components/Form/UserForm.jsx"));
-const VehicleMasterForm = lazy(() =>
-  import("../components/Form/VehicleMasterForm.jsx")
+const VehicleMasterForm = lazy(
+  () => import("../components/Form/VehicleMasterForm.jsx"),
 );
 
 // for fetching & posting data to backend link
@@ -92,6 +92,7 @@ const States = [
 ];
 
 const userType = ["customer", "manager", "admin"];
+const userTypeWithoutAdmin = ["customer", "manager", "admin"];
 
 // brands
 const vehicleBrands = [
@@ -174,6 +175,7 @@ export {
   endPointBasedOnKey,
   States,
   userType,
+  userTypeWithoutAdmin,
   vehicleBrands,
   forms,
   vehicleColor,

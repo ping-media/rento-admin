@@ -12,7 +12,7 @@ const BarChart = ({ data }) => {
     if (!data || data.length === 0) return [];
 
     const sortedData = [...data].sort(
-      (a, b) => new Date(a._id) - new Date(b._id)
+      (a, b) => new Date(a._id) - new Date(b._id),
     );
 
     if (viewMode === "Daily") {
@@ -172,19 +172,22 @@ const BarChart = ({ data }) => {
       },
     },
     dataLabels: {
-      enabled: !isMobile,
-      formatter: (val) => {
-        if (val === 0) return "";
-        if (val >= 10000) return `₹${(val / 1000).toFixed(0)}K`;
-        return `₹${val.toLocaleString()}`;
-      },
-      style: {
-        fontSize: "12px",
-        colors: ["#333"],
-        fontWeight: "bold",
-      },
-      offsetY: -20,
+      enabled: false,
     },
+    // dataLabels: {
+    //   enabled: !isMobile,
+    //   formatter: (val) => {
+    //     if (val === 0) return "";
+    //     if (val >= 10000) return `₹${(val / 1000).toFixed(0)}K`;
+    //     return `₹${val.toLocaleString()}`;
+    //   },
+    //   style: {
+    //     fontSize: "12px",
+    //     colors: ["#333"],
+    //     fontWeight: "bold",
+    //   },
+    //   offsetY: -20,
+    // },
     states: {
       hover: {
         filter: {
@@ -241,7 +244,7 @@ const BarChart = ({ data }) => {
       acc.totalRevenue += item.totalPrice;
       return acc;
     },
-    { totalBookings: 0, totalRevenue: 0 }
+    { totalBookings: 0, totalRevenue: 0 },
   );
 
   return (

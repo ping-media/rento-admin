@@ -15,6 +15,8 @@ const BookingStepTwo = ({
   coupon,
   plan,
   setPlan,
+  stepTwoData: parentStepTwoData,
+  setStepTwoData: setParentStepTwoData,
 }) => {
   const [stepTwoData, setStepTwoData] = useState(null);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
@@ -24,12 +26,19 @@ const BookingStepTwo = ({
   const [CouponLoading, setCouponLoading] = useState(false);
   const [isPlanApplied, setIsPlanApplied] = useState(false);
   const [applyLoading, setApplyLoading] = useState(false);
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
   const [bookingDuration, setBookingDuration] = useState(0);
   const [selectedAddOns, setSelectedAddOns] = useState([]);
 
   const appliedCouponRef = useRef(null);
+
+  // Sync with parent stepTwoData
+  useEffect(() => {
+    if (parentStepTwoData) {
+      setStepTwoData(parentStepTwoData);
+    }
+  }, [parentStepTwoData]);
 
   const isData =
     data && data?.selectedVehicle?._daysBreakdown?.length > 0
@@ -49,16 +58,16 @@ const BookingStepTwo = ({
     }
   };
 
-  // console.log(stepTwoData);
-
   // for calculating price
   useEffect(() => {
-    if (!data && CouponLoading) return;
+    // if (!data && CouponLoading) return;
+    if (!data) return;
+    const { bookingStartDate, bookingEndDate, selectedVehicle } = data;
+    if (!bookingStartDate || !bookingEndDate || !selectedVehicle) return;
+
     try {
       setLoading(true);
-      const { bookingStartDate, bookingEndDate, selectedVehicle } = data;
 
-      if (!bookingStartDate || !bookingEndDate || !selectedVehicle) return;
       // reset coupon if try to add extra helemet after apply coupon
       if (coupon?.className !== "" && coupon?.couponId !== "") {
         setInputSelect("");
@@ -91,7 +100,9 @@ const BookingStepTwo = ({
         selectedVehicle,
         selectedAddOns,
       );
+
       setStepTwoData(newData);
+      setParentStepTwoData && setParentStepTwoData(newData);
     } finally {
       setLoading(false);
     }
@@ -100,15 +111,38 @@ const BookingStepTwo = ({
     data?.bookingEndDate,
     data?.selectedVehicle,
     selectedAddOns,
-    CouponLoading,
+    // CouponLoading,
   ]);
 
   // for fetching coupon
+  // const fetchCoupons = useCallback(async () => {
+  //   try {
+  //     setCouponLoading(true);
+
+  //     const endpoint = couponName
+  //       ? `/getCoupons?search=${couponName}&page=1&limit=25`
+  //       : `/getCoupons?page=1&limit=25`;
+
+  //     const response = await getData(endpoint, token);
+
+  //     if (response?.status === 200) {
+  //       setCouponData(response.data);
+  //     }
+  //   } finally {
+  //     setCouponLoading(false);
+  //   }
+  // }, [couponName]);
+
+  // useEffect(() => {
+  //   fetchCoupons();
+  // }, [fetchCoupons]);
+
   useEffect(() => {
     (async () => {
       try {
         setCouponLoading(true);
         let endpoint = "/getCoupons?page=1&limit=25";
+
         if (vehiclesFilter.couponName) {
           endpoint = `/getCoupons?search=${vehiclesFilter.couponName}&page=1&limit=25`;
         }
@@ -126,6 +160,7 @@ const BookingStepTwo = ({
   useEffect(() => {
     if (coupon?.couponName === "" && coupon?.couponId === "") return;
     if (appliedCouponRef.current === coupon?.couponId) return;
+    if (!stepTwoData) return;
 
     (async () => {
       try {
@@ -160,14 +195,19 @@ const BookingStepTwo = ({
               discountPrice: finalAmount,
             });
           }
-          setStepTwoData({ ...stepTwoData, totalPrice: finalAmount });
+          const updatedStepTwoData = {
+            ...stepTwoData,
+            totalPrice: finalAmount,
+          };
+          setStepTwoData(updatedStepTwoData);
+          setParentStepTwoData && setParentStepTwoData(updatedStepTwoData);
         }
       } finally {
         setApplyLoading(false);
       }
     })();
     // }, [coupon]);
-  }, [coupon?.couponId, coupon?.couponName]);
+  }, [coupon?.couponId, coupon?.couponName, stepTwoData?.bookingPrice]);
 
   // reset coupon
   const removeCoupon = () => {
@@ -177,6 +217,7 @@ const BookingStepTwo = ({
       ...stepTwoData,
       totalPrice: Number(coupon?.totalPrice + stepTwoData?.extraAddonPrice),
     });
+    // setCouponName("");
     setCoupon({
       couponName: "",
       couponId: "",
@@ -185,6 +226,57 @@ const BookingStepTwo = ({
       discountPrice: 0,
       isDiscountZero: false,
     });
+  };
+
+  // Add these handler functions after the removeCoupon function
+  const handleBookingPriceChange = (e) => {
+    const newBookingPrice = Number(e.target.value) || 0;
+
+    // Recalculate tax if GST is active
+    let newTax = 0;
+    if (gst?.status === "active") {
+      newTax = Math.round((newBookingPrice * gst.percentage) / 100);
+    }
+
+    // Recalculate total price
+    const newTotalPrice =
+      newBookingPrice +
+      stepTwoData.extraAddonPrice +
+      newTax +
+      stepTwoData.addonTax;
+
+    const updatedStepTwoData = {
+      ...stepTwoData,
+      bookingPrice: newBookingPrice,
+      vehiclePrice: newBookingPrice,
+      tax: newTax,
+      totalPrice: newTotalPrice,
+    };
+
+    setStepTwoData(updatedStepTwoData);
+    setParentStepTwoData && setParentStepTwoData(updatedStepTwoData);
+
+    // Reset coupon if applied
+    if (coupon?.couponName !== "" && coupon?.couponId !== "") {
+      removeCoupon();
+    }
+  };
+
+  const handleTotalPriceChange = (e) => {
+    const newTotalPrice = Number(e.target.value) || 0;
+
+    const updatedStepTwoData = {
+      ...stepTwoData,
+      totalPrice: newTotalPrice,
+    };
+
+    setStepTwoData(updatedStepTwoData);
+    setParentStepTwoData && setParentStepTwoData(updatedStepTwoData);
+
+    // Reset coupon if applied
+    if (coupon?.couponName !== "" && coupon?.couponId !== "") {
+      removeCoupon();
+    }
   };
 
   if (applyLoading) {
@@ -201,12 +293,26 @@ const BookingStepTwo = ({
         </div>
       )}
       <div className="w-full lg:w-[48%]">
+        <label
+          htmlFor={"bookingPrice"}
+          className="block text-gray-800 font-semibold text-sm capitalize text-left"
+        >
+          Price
+        </label>
         <Input
           item={"bookingPrice"}
           type="number"
           value={Number(stepTwoData?.bookingPrice) ?? ""}
-          require={true}
-          disabled={true}
+          require
+          disabled={
+            loggedInRole === "admin"
+              ? coupon?.couponName !== "" && coupon?.couponId !== ""
+              : true
+          }
+          isLabel={false}
+          onChange={
+            loggedInRole === "admin" ? handleBookingPriceChange : undefined
+          }
         />
         {isPlanApplied && (
           <p className="text-sm font-semibold mt-1">
@@ -243,12 +349,26 @@ const BookingStepTwo = ({
         </>
       )}
       <div className="w-full lg:w-[48%]">
+        <label
+          htmlFor={"bookingPrice"}
+          className="block text-gray-800 font-semibold text-sm capitalize text-left"
+        >
+          Total Price
+        </label>
         <Input
           item={"totalPrice"}
           type="number"
           value={Number(stepTwoData?.totalPrice) || ""}
           require={true}
-          disabled={true}
+          disabled={
+            loggedInRole === "admin"
+              ? coupon?.couponName !== "" && coupon?.couponId !== ""
+              : true
+          }
+          isLabel={false}
+          onChange={
+            loggedInRole === "admin" ? handleTotalPriceChange : undefined
+          }
         />
       </div>
       <div className="w-full mb-2">
@@ -293,6 +413,7 @@ const BookingStepTwo = ({
           setCoupon={setCoupon}
           removeCoupon={removeCoupon}
           loading={CouponLoading}
+          // onSearchChange={setCouponName}
         />
       </div>
       <div className="w-full lg:w-[48%]">

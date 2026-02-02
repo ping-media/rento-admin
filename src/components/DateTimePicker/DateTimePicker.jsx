@@ -2,6 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { formatDate, formatTimeWithoutSeconds } from "../../utils/index";
+import { parse } from "date-fns";
+import { format } from "date-fns-tz";
+
+const formatIntoISO = (input) => {
+  const parsedDate = parse(input, "dd MMM, yyyy h:mm a", new Date());
+  return format(parsedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'", { timeZone: "UTC" });
+};
 
 const DatePicker = ({
   value,
@@ -9,6 +16,7 @@ const DatePicker = ({
   setValueChanger,
   timeValue,
   setTimeValueChanger,
+  setISOValue,
 }) => {
   const datePickerRef = useRef(null);
   const timePickerRef = useRef(null);
@@ -26,11 +34,25 @@ const DatePicker = ({
   }
 
   const handleDateSelect = (date) => {
+    if (!date) return;
     setValueChanger(date);
+
+    if (setISOValue) {
+      const combinedDateTime = `${formatDate(date)} ${formatTimeWithoutSeconds(timeValue)}`;
+      const isoValue = formatIntoISO(combinedDateTime);
+      setISOValue(isoValue);
+    }
   };
 
   const handleTimeSelect = (time) => {
     setTimeValueChanger(time);
+
+    if (setISOValue) {
+      const combinedDateTime = `${formatDate(new Date(value))} ${formatTimeWithoutSeconds(time)}`;
+      const isoValue = formatIntoISO(combinedDateTime);
+      setISOValue(isoValue);
+    }
+
     setCalendarVisible(false);
   };
 
@@ -49,8 +71,11 @@ const DatePicker = ({
       const spaceBelow = window.innerHeight - rect.bottom;
       const spaceAbove = rect.top;
       setDropdownPosition(
-        spaceBelow < 300 && spaceAbove > spaceBelow ? "top" : "bottom"
+        spaceBelow < 350 && spaceAbove > 350 ? "top" : "bottom",
       );
+      // setDropdownPosition(
+      //   spaceBelow < 300 && spaceAbove > spaceBelow ? "top" : "bottom",
+      // );
     }
   };
 
@@ -76,7 +101,7 @@ const DatePicker = ({
     <div className="relative" ref={datePickerRef}>
       <button
         type="button"
-        className="flex items-center justify-between border-2 px-1.5 py-2.5 focus:border-theme rounded-lg relative w-full"
+        className="flex items-center justify-between px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none rounded-lg relative w-full"
         onClick={() => setCalendarVisible(!calendarVisible)}
       >
         <div className="w-full flex items-center justify-between gap-0.5">
@@ -101,7 +126,7 @@ const DatePicker = ({
             className="outline-none w-full cursor-pointer"
             placeholder="Select date & time"
             value={`${formatDate(new Date(value))} ${formatTimeWithoutSeconds(
-              timeValue
+              timeValue,
             )}`}
             name={name}
             readOnly
@@ -125,7 +150,7 @@ const DatePicker = ({
 
       {calendarVisible && (
         <div
-          className={`absolute bg-white shadow-md rounded-md mt-1 z-30 lg:z-10 border border-gray-300 w-full lg:w-96 p-2 flex ${
+          className={`absolute bg-white shadow-md rounded-md mt-1 z-50 border border-gray-300 w-full lg:w-[28rem] p-2 flex ${
             dropdownPosition === "top" ? "bottom-full mb-2" : "top-full"
           }`}
         >

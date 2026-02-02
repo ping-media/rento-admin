@@ -11,12 +11,13 @@ import {
 import Input from "../InputAndDropdown/Input";
 import { useNavigate } from "react-router-dom";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
+import { isValidIndianMobile } from "../../utils";
 
 const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const { token, loggedInRole } = useSelector((state) => state.user);
   const { tempVehicleData, vehicleMaster } = useSelector(
-    (state) => state.vehicles
+    (state) => state.vehicles,
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -38,6 +39,8 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
   });
   const [loading, setLoading] = useState(false);
   const [isKycApproved, setIsKycApproved] = useState(false);
+
+  const currentUser = vehicleMaster?.[0]?.userId ?? null;
 
   const diffData = useMemo(() => {
     const list = vehicleMaster?.[0]?.bookingPrice?.diffAmount || [];
@@ -61,7 +64,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
 
     if (!isDev) {
       const isAnyImageMissing = Object.values(imagesUrl).some(
-        (value) => value === ""
+        (value) => value === "",
       );
 
       if (isAnyImageMissing) {
@@ -81,7 +84,39 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     }
 
     const rawFormData = new FormData(event.target);
+    const altContact = rawFormData.get("altContact");
     const finalFormData = new FormData();
+
+    const savedAltContact = currentUser?.altContact;
+
+    const hasValidSavedAltContact =
+      savedAltContact && isValidIndianMobile(savedAltContact);
+
+    const hasValidNewAltContact = altContact && isValidIndianMobile(altContact);
+
+    if (loggedInRole !== "admin") {
+      // If no valid saved alt contact exists
+      if (!hasValidSavedAltContact) {
+        // Then new altContact becomes mandatory
+        if (!altContact) {
+          setLoading(false);
+          return handleAsyncError(
+            dispatch,
+            "Alternate contact number is required.",
+          );
+        }
+
+        if (!hasValidNewAltContact) {
+          setLoading(false);
+          return handleAsyncError(
+            dispatch,
+            "Alternate contact number must be a valid 10-digit mobile number.",
+          );
+        }
+      }
+    }
+
+    // return;
 
     // Copy all non-file fields
     for (let [key, value] of rawFormData.entries()) {
@@ -99,11 +134,19 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
     finalFormData.append("_id", docId);
     finalFormData.append("startDateAndTime", Date.now());
 
+    const finalAltContact = hasValidSavedAltContact
+      ? savedAltContact
+      : altContact;
+
+    if (finalAltContact) {
+      finalFormData.append("altContact", finalAltContact);
+    }
+
     // changing the data based on id is present or not
     let currentData = !isBookingIdPresent ? vehicleMaster?.data : vehicleMaster;
 
     let currentBooking = currentData?.find(
-      (item) => item?._id === tempVehicleData?._id
+      (item) => item?._id === tempVehicleData?._id,
     );
 
     // for paymentmethod update in booking price
@@ -141,14 +184,14 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
       if (isChange) {
         finalFormData.append(
           "vehicleNumber",
-          currentBooking?.vehicleBasic?.vehicleNumber
+          currentBooking?.vehicleBasic?.vehicleNumber,
         );
         finalFormData.append("isVehicleUpdate", true);
         finalFormData.append(
           "diffAmountId",
           currentBooking?.bookingPrice?.diffAmount[
             currentBooking?.bookingPrice?.diffAmount?.length - 1
-          ]?.id
+          ]?.id,
         );
       }
 
@@ -177,7 +220,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
             bookingPrice: {
               ...updatedBooking.bookingPrice,
               diffAmount: updatedBooking.bookingPrice.diffAmount.map((item) =>
-                item.id === targetId ? { ...item, rideStatus: true } : item
+                item.id === targetId ? { ...item, rideStatus: true } : item,
               ),
             },
           };
@@ -363,16 +406,17 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                       (vehicleMaster[0]?.paymentMethod === "cash"
                         ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice > 0
                           ? Number(
-                              vehicleMaster[0]?.bookingPrice?.discountTotalPrice
+                              vehicleMaster[0]?.bookingPrice
+                                ?.discountTotalPrice,
                             )
                           : Number(vehicleMaster[0]?.bookingPrice?.totalPrice)
                         : Number(
                             vehicleMaster[0]?.bookingPrice
-                              ?.AmountLeftAfterUserPaid?.amount
+                              ?.AmountLeftAfterUserPaid?.amount,
                           ) ||
                           Number(
                             vehicleMaster[0]?.bookingPrice
-                              ?.AmountLeftAfterUserPaid
+                              ?.AmountLeftAfterUserPaid,
                           )) || 0
                     }
                   />
@@ -419,7 +463,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                   type="number"
                   item="altContact"
                   placeholder={"Enter Alternate Contact Number"}
-                  require={loggedInRole !== "admin" ? true : false}
+                  // require={loggedInRole !== "admin" ? true : false}
                   isLabel={false}
                 />
               </div>
