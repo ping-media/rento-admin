@@ -2,14 +2,18 @@ import { camelCaseToSpaceSeparated } from "../../utils/index";
 import React from "react";
 import CheckBoxInputToMultiple from "../InputAndDropdown/CheckBoxInputToMultiple";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
   const { loggedInRole } = useSelector((state) => state.user);
+  const location = useLocation();
 
   const headerForBooking = [
     { vehicleName: "vehicle" },
     { BookingStartDateAndTime: "Pick Up" },
     { BookingEndDateAndTime: "Drop Off" },
+    { paymentgatewayOrderId: "Payment Order ID" },
+    { utrNumber: "UTR Number" },
     { bookingPrice: "Price" },
   ];
 
@@ -40,7 +44,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
         (item) =>
           !item.includes("status") &&
           !item.includes("Status") &&
-          !item.includes("Active")
+          !item.includes("Active"),
       ).map((item, index) => {
         if (item === "files") {
           const maxFiles =
@@ -62,9 +66,10 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           );
         }
 
-        if (location?.pathname === "/all-bookings") {
+        // if (location?.pathname === "/all-bookings") {
+        if (["/all-bookings", "/payments"].includes(location?.pathname)) {
           const bookingHeader = headerForBooking.find(
-            (header) => Object.keys(header)[0] === item
+            (header) => Object.keys(header)[0] === item,
           );
           if (bookingHeader) {
             const label = Object.values(bookingHeader)[0];
@@ -196,7 +201,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
         (item) =>
           item.includes("status") ||
           item.includes("Status") ||
-          item.includes("Active")
+          item.includes("Active"),
       ).map((item, index) => (
         <th
           scope="col"

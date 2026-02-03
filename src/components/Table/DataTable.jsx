@@ -144,6 +144,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "isGstActive",
           "gstPercentage",
           "extraAddOn",
+          "transactionType",
           "payments",
         ].includes(key),
     );
