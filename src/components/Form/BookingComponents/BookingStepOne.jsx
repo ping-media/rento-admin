@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import InputDateAndTime from "../../InputAndDropdown/InputDateAndTime";
 import InputSearch from "../../InputAndDropdown/InputSearch";
 import SelectDropDownVehicle from "../../InputAndDropdown/SelectDropDownVehicle";
 import { getData } from "../../../Data/index";
@@ -210,40 +209,12 @@ const BookingStepOne = ({
           </div>
         </>
       )}
-      {/* <div className="w-full lg:w-[48%]">
-        <InputDateAndTime
-          item={"BookingStartDateAndTime"}
-          name={"BookingStartDateAndTime"}
-          require={true}
-          setValueChanger={setBookingStartDate}
-        />
-        <p
-          className={`italic text-sm ${
-            error ? "text-theme" : "text-gray-400"
-          } my-1`}
-        >
-          {error}
-        </p>
-      </div>
-      <div className="w-full lg:w-[48%]">
-        <InputDateAndTime
-          item={"BookingEndDateAndTime"}
-          namme={"BookingEndDateAndTime"}
-          require={true}
-          setValueChanger={setBookingEndDate}
-        />
-        <p
-          className={`italic text-sm ${
-            error ? "text-theme" : "text-gray-400"
-          } my-1`}
-        >
-          {error}
-        </p>
-      </div> */}
       <DateRange
         {...{ error, setBookingStartDate, setBookingEndDate, duration }}
         className="lg:w-[48%]"
       />
+      <BookingPlan {...{ duration, setDuration }} />
+
       <div className="w-full lg:w-[48%]">
         <InputSearch
           item={"User"}
@@ -263,8 +234,6 @@ const BookingStepOne = ({
           require={true}
         />
       </div>
-
-      <BookingPlan {...{ duration, setDuration }} />
 
       {/* <button
         className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"

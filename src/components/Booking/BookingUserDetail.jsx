@@ -2,25 +2,30 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import CopyButton from "../../components/Buttons/CopyButton";
 import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../../Data";
-import { useEffect, useState } from "react";
-import PreLoader from "../../components/Skeleton/PreLoader";
+import { useCallback, useEffect, useState } from "react";
 import UserDocuments from "../../components/Form/User Components/UserDocuments";
 import { toogleKycModalActive } from "../../Redux/SideBarSlice/SideBarSlice";
-import {
-  addUserDocuments,
-  removeUserDocuments,
-} from "../../Redux/VehicleSlice/VehicleSlice";
+import { addUserDocuments } from "../../Redux/VehicleSlice/VehicleSlice";
 import { tableIcons } from "../../Data/Icons";
 import { Link } from "react-router-dom";
+import { DetailsStatusRow } from "../../components/Skeleton/DetailSkeleton";
 
-const BookingUserDetails = ({ data, userId }) => {
+const BookingUserDetails = ({ data, user }) => {
   const { token } = useSelector((state) => state.user);
   const { userDocuments } = useSelector((state) => state.vehicles);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
+  // if not of users data stop right here
+  if (Object.keys(user)?.length === 0) return null;
+
+  const { _id: userId } = user;
+
   // fetchDocument data
-  const handleFetchDocuments = async () => {
+  const handleFetchDocuments = useCallback(async () => {
+    if (!userId) return null;
+    if (loading) return;
+
     try {
       setLoading(true);
       const response = await getData(`/getDocument?userId=${userId}`, token);
@@ -34,23 +39,22 @@ const BookingUserDetails = ({ data, userId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, token, userDocuments, loading, dispatch]);
 
   useEffect(() => {
-    if (userId) {
-      handleFetchDocuments();
-    }
+    if (!userId) return;
+
+    handleFetchDocuments();
   }, [userId]);
 
-  useEffect(() => {
-    return () => {
-      dispatch(removeUserDocuments());
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     dispatch(removeUserDocuments());
+  //   };
+  // }, []);
 
   return (
     <>
-      {loading && <PreLoader />}
       {data?.user?.map((item, index) => (
         <div
           className={`flex justify-between items-center py-1.5 ${
@@ -118,8 +122,13 @@ const BookingUserDetails = ({ data, userId }) => {
           </span>
         </div>
       ))}
+
       {/* user documents  */}
-      <UserDocuments data={userDocuments?.[0]?.files} hookLoading={loading} />
+      {!loading ? (
+        <UserDocuments data={userDocuments?.[0]?.files} hookLoading={loading} />
+      ) : (
+        <DetailsStatusRow />
+      )}
     </>
   );
 };

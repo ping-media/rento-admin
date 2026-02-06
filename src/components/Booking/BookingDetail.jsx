@@ -1,7 +1,6 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import VehicleInfo from "../VehicleDetails/VehicleInfo";
 import { lazy, Suspense, useMemo, useState } from "react";
-import PreLoader from "../Skeleton/PreLoader";
 import {
   formatFullDateAndTime,
   formatNumber,
@@ -12,13 +11,14 @@ import BookingUserDetails from "./BookingUserDetail";
 import BookingStatusFlag from "./BookingStatusFlag";
 import BookingMoreInfo from "./BookingMoreInfo";
 import BookingNote from "./BookingNote";
-import { togglePaymentUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice";
-import BookingTimeLine from "./BookingTimeLine";
 import AdditionalInfo from "./AdditionalInfo";
-import Button from "../Buttons/Button";
 import VehicleImages from "./VehicleImages";
-import UserRideTimeLine from "./UserRideTimeLine";
-import { ExtendSummary, RideSummary } from "./RideSummary";
+import { Timeline } from "./_components/Timeline";
+import { UpdatePaymentBtn } from "./_components/UpdatePaymentBtn";
+import { OrderSummaryList } from "./_components/OrderSummaryList";
+import { DetailsSkeleton } from "../../components/Skeleton/DetailSkeleton";
+
+// lazy loading
 const ChangeVehicleModal = lazy(
   () => import("../../components/Modal/ChangeVehicleModal"),
 );
@@ -28,11 +28,14 @@ const ExtendBookingModal = lazy(
 
 const BookingDetail = ({ tabs }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
-  const { loggedInRole } = useSelector((state) => state.user);
   const [tab, setTab] = useState("booking");
-  const dispatch = useDispatch();
 
   const booking = useMemo(() => vehicleMaster?.[0] ?? null, [vehicleMaster]);
+
+  const CancelNotes = useMemo(
+    () => booking?.notes?.filter((note) => note.noteType === "cancel") ?? [],
+    [booking?.notes],
+  );
 
   // combining data for use
   const data = useMemo(() => {
@@ -125,7 +128,7 @@ const BookingDetail = ({ tabs }) => {
     };
   }, [booking]);
 
-  return data != null ? (
+  return (
     <>
       <Suspense fallback={null}>
         <ChangeVehicleModal bookingData={vehicleMaster && booking} />
@@ -140,16 +143,14 @@ const BookingDetail = ({ tabs }) => {
               : ""
           }`}
         >
-          {booking?.notes && (
+          {CancelNotes?.length > 0 && (
             <div className="text-sm text-end italic text-gray-400 mb-1">
               {/* here we will show only notes with noteType cancel  */}
-              {booking?.notes
-                ?.filter((note) => note.noteType === "cancel")
-                .map((note, index) => (
-                  <p key={note._id || index}>
-                    {`Cancel note by ${note.key}: (${note.value})`}
-                  </p>
-                ))}
+              {CancelNotes.map((note, index) => (
+                <p key={note._id || index}>
+                  {`Cancel note by ${note.key}: (${note.value})`}
+                </p>
+              ))}
             </div>
           )}
 
@@ -168,9 +169,14 @@ const BookingDetail = ({ tabs }) => {
               />
             </div>
             <div className="border-2 p-2 border-gray-300 rounded-lg mb-4">
-              <BookingUserDetails data={data} userId={booking?.userId?._id} />
+              {data !== null ? (
+                <BookingUserDetails data={data} user={booking?.userId ?? {}} />
+              ) : (
+                <DetailsSkeleton />
+              )}
             </div>
           </div>
+
           <div className={`${tabs !== "booking" && "hidden lg:block"}`}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="hidden md:block text-base lg:text-lg font-semibold text-gray-500">
@@ -186,7 +192,11 @@ const BookingDetail = ({ tabs }) => {
               />
             </div>
             <div className="border-2 p-2 border-gray-300 rounded-lg">
-              <BookingMoreInfo data={data} datatype={"moreInfo"} />
+              {data !== null ? (
+                <BookingMoreInfo data={data} datatype={"moreInfo"} />
+              ) : (
+                <DetailsSkeleton rows={3} showStatusRow={false} />
+              )}
             </div>
             <div>
               <h2 className="text-base lg:text-lg font-semibold text-gray-500 mt-5">
@@ -200,74 +210,21 @@ const BookingDetail = ({ tabs }) => {
                 </p>
               )}
             </div>
-            {/* ride summary start */}
+
+            {/* ride summary */}
             <div className="border px-2 rounded-md my-4 py-2 lg:hidden w-full mt-8">
               <h2 className="text-md text-gray-600 font-bold mb-2">
                 Ride Summary
               </h2>
-              <div>
-                {booking?.bookingPrice && (
-                  <RideSummary
-                    daysBreakdown={booking?.bookingPrice?.daysBreakdown}
-                    appliedPlans={booking?.bookingPrice?.appliedPlan}
-                    item={booking?.bookingPrice}
-                  />
-                )}
 
-                {booking?.bookingId &&
-                  booking?.bookingPrice?.extendAmount?.length > 0 && (
-                    <ul className="leading-6 lg:leading-7 list-disc">
-                      {booking?.bookingPrice?.extendAmount?.map((item) => (
-                        <li className="flex flex-col" key={item.id}>
-                          <ExtendSummary
-                            daysBreakdown={item?.daysBreakdown || []}
-                            appliedPlans={item?.appliedPlans || []}
-                            item={item}
-                          />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-              </div>
+              <OrderSummaryList />
             </div>
-            {/* ride summary end */}
 
-            <div className="mt-5 mb-5">
-              <div className="flex items-center gap-1 justify-between mb-5">
-                <h2 className="text-base lg:text-lg font-semibold text-gray-500 w-2/4">
-                  {tab.charAt(0).toUpperCase() + tab.slice(1) || "Booking"}{" "}
-                  Timeline
-                </h2>
-                <div className="relative flex border rounded overflow-hidden flex-1">
-                  <div
-                    className={`absolute top-0 left-0 h-full bg-theme transition-all duration-300 rounded text-white z-0`}
-                    style={{
-                      width: "50%",
-                      transform: `translateX(${
-                        tab === "rides" ? "100%" : "0%"
-                      })`,
-                    }}
-                  />
-                  {["booking", "rides"].map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      className={`flex-1 z-10 p-1 font-semibold transition-colors duration-300 ${
-                        tab === item ? "text-white" : "text-gray-800"
-                      }`}
-                      onClick={() => setTab(item)}
-                    >
-                      {item.charAt(0).toUpperCase() + item.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {(booking && tab === "booking" && <BookingTimeLine />) ||
-                (booking && tab === "rides" && <UserRideTimeLine />)}
-            </div>
+            {/* timeline list   */}
+            <Timeline {...{ tab, booking, setTab }} />
           </div>
         </div>
+
         <div
           className={`${
             tabs !== "payment" && "hidden"
@@ -305,33 +262,19 @@ const BookingDetail = ({ tabs }) => {
             />
           </div>
           <BookingFareDetails rides={vehicleMaster && booking} />
+
           <div className="flex items-center justify-between border-b-2 pt-1.5 mt-2 pb-1.5 mb-3">
             <h2 className="text-base lg:text-lg font-semibold text-gray-600">
               Additional Information
             </h2>
-            {loggedInRole === "admin" &&
-              ((vehicleMaster &&
-                booking?.bookingPrice?.diffAmount &&
-                booking?.bookingPrice?.diffAmount?.length > 0 &&
-                booking?.bookingPrice?.diffAmount?.filter(
-                  (record) => record?.status !== "paid",
-                )?.length > 0) ||
-                (vehicleMaster &&
-                  booking?.bookingPrice?.extendAmount &&
-                  booking?.bookingPrice?.extendAmount?.length > 0 &&
-                  booking?.bookingPrice?.extendAmount?.filter(
-                    (record) => record?.status !== "paid",
-                  )?.length > 0)) && (
-                <Button
-                  title={"Update Payment"}
-                  customClass={"text-sm bg-theme text-gray-100 px-1.5 py-1"}
-                  fn={() => dispatch(togglePaymentUpdateModal())}
-                />
-              )}
+
+            {/* manual update changevehicle or extendvehicle  */}
+            <UpdatePaymentBtn />
           </div>
           <div className="mb-3">
             <AdditionalInfo />
           </div>
+
           <div className="flex items-center justify-between border-b-2 pb-1.5 mb-1.5">
             <h2 className="text-md lg:text-lg font-semibold text-gray-500">
               Notes
@@ -341,8 +284,6 @@ const BookingDetail = ({ tabs }) => {
         </div>
       </div>
     </>
-  ) : (
-    <PreLoader />
   );
 };
 

@@ -24,15 +24,15 @@ import NoData from "../components/Error/NoData";
 import TabButton from "../components/TabButton/TabButton";
 import BookingDetailsButton from "../components/Form/BookingComponents/BookingDetailsButton";
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
-const UploadPickupImageModal = lazy(() =>
-  import("../components/Modal/UploadPickupImageModal")
+const UploadPickupImageModal = lazy(
+  () => import("../components/Modal/UploadPickupImageModal"),
 );
 const RideEndModal = lazy(() => import("../components/Modal/RideEndModal"));
-const RescheduleModal = lazy(() =>
-  import("../components/Modal/RescheduleModal")
+const RescheduleModal = lazy(
+  () => import("../components/Modal/RescheduleModal"),
 );
-const UserKycApproveModal = lazy(() =>
-  import("../components/Modal/UserKycApproveModal.jsx")
+const UserKycApproveModal = lazy(
+  () => import("../components/Modal/UserKycApproveModal.jsx"),
 );
 const AddonModal = lazy(() => import("../components/Modal/AddonModal.jsx"));
 
@@ -58,10 +58,10 @@ const BookingDetails = () => {
         token,
         "/getBookings",
         "/getTimelineData",
-        "/getBookings"
+        "/getBookings",
       );
     }
-  }, [bookingId, token]);
+  }, [bookingId, id, token]);
 
   useEffect(() => {
     fetchSingleVehicleDetails();
@@ -69,7 +69,7 @@ const BookingDetails = () => {
     return () => {
       dispatch(resetUserRideInfo());
     };
-  }, [fetchSingleVehicleDetails]);
+  }, []);
 
   // // for opening cancel model
   const handleCancelBooking = async () => {
@@ -104,7 +104,7 @@ const BookingDetails = () => {
           bookingId,
           data,
           token,
-          "/cancelledBooking"
+          "/cancelledBooking",
         );
         if (isCanceled === true) {
           // updating the timeline for booking
@@ -137,7 +137,7 @@ const BookingDetails = () => {
     } else {
       return handleAsyncError(
         dispatch,
-        "Note should be between 10 to 35 characters"
+        "Note should be between 10 to 35 characters",
       );
     }
   };

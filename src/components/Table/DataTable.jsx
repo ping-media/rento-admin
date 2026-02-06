@@ -4,7 +4,7 @@ import {
   formatPathNameToTitle,
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice.js";
 import { addVehicleIdToDelete } from "../../Redux/VehicleSlice/VehicleSlice.js";
@@ -67,7 +67,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
 
       setNewUpdatedData(dataToDisplay);
     }
-  }, [newUpdatedData, pagination]);
+  }, [newUpdatedData, pagination?.totalPages, pagination?.currentPage]);
 
   // resting the table data after every page change
   useEffect(() => {

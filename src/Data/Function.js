@@ -58,12 +58,7 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
         // decrypting the user data and setting data
         dispatch(handleNavigateLoad(true));
         dispatch(handleSetToken({ token: response?.token }));
-        // dispatch(
-        //   handleSetToken({
-        //     token: response?.token,
-        //     refreshToken: response?.refreshToken,
-        //   })
-        // );
+
         dispatch(handleSignIn(response?.data));
         const userType = response?.data?.userType?.toLowerCase();
         navigate(userType === "manager" ? "/all-bookings" : "/dashboard");
@@ -115,22 +110,6 @@ const fetchDashboardData = async (
         payments: paymentResponse?.data,
       }),
     );
-    // } else {
-    //   const graphData = await getData(
-    //     `/getGraphData${roleBaseFilter}${
-    //       roleBaseFilter ? "&" : "?"
-    //     }monthYear=${currentMonthAndYear}`,
-    //     token
-    //   );
-    //   if (graphData?.status === 200) {
-    //     dispatch(
-    //       handleDashboardData({
-    //         dashboard: dasboardDataCount?.dashboard,
-    //         payments: graphData?.data,
-    //       })
-    //     );
-    //   }
-    // }
   } catch (error) {
     dispatch(resetDashboardData());
     handleAsyncError(dispatch, error?.message);
@@ -214,49 +193,20 @@ const fetchVehicleMasterWithPagination = debounce(
       const response = await getFullData(dynamicEndpoint, token);
       if (response?.status == 200) {
         dispatch(fetchVehicleMasterData(response?.data));
-      } else {
-        dispatch(fetchVehicleEnd());
       }
+      // else {
+      //   dispatch(fetchVehicleEnd());
+      // }
     } catch (error) {
       dispatch(fetchVehicleEnd());
       handleAsyncError(dispatch, error?.message);
+    } finally {
+      dispatch(fetchVehicleEnd());
     }
   },
   50,
 );
 
-// const fetchVehicleMasterById = debounce(
-//   async (dispatch, id, token, endpoint, secondEndpoint = "") => {
-//     try {
-//       dispatch(fetchVehicleStart());
-//       const response = await getData(
-//         `${endpoint}${
-//           location.pathname !== "/profile" && endpoint.includes("?userId")
-//             ? ""
-//             : "?_id="
-//         }${id}`,
-//         token
-//       );
-//       if (response?.status == 200) {
-//         if (secondEndpoint !== "") {
-//           const timeLineResponse = await getData(
-//             `${secondEndpoint}?bookingId=${response?.data[0]?.bookingId}`,
-//             token
-//           );
-//           dispatch(addTimeLineData(timeLineResponse?.data));
-//         }
-//         dispatch(fetchVehicleMasterData(response?.data));
-//       } else {
-//         dispatch(fetchVehicleMasterData([]));
-//         dispatch(fetchVehicleEnd());
-//       }
-//     } catch (error) {
-//       dispatch(fetchVehicleEnd());
-//       handleAsyncError(dispatch, error?.message);
-//     }
-//   },
-//   50
-// );
 const fetchVehicleMasterById = debounce(
   async (
     dispatch,
@@ -305,11 +255,13 @@ const fetchVehicleMasterById = debounce(
         dispatch(fetchVehicleMasterData(response.data));
       } else {
         dispatch(fetchVehicleMasterData([]));
-        dispatch(fetchVehicleEnd());
+        // dispatch(fetchVehicleEnd());
       }
     } catch (error) {
       dispatch(fetchVehicleEnd());
       handleAsyncError(dispatch, error?.message);
+    } finally {
+      dispatch(fetchVehicleEnd());
     }
   },
   50,

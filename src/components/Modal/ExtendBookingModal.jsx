@@ -26,7 +26,7 @@ import TextArea from "../../components/InputAndDropdown/TextArea";
 const ExtendBookingModal = ({ bookingData }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
   const { token, loggedInRole, currentUser } = useSelector(
-    (state) => state.user
+    (state) => state.user,
   );
   const [plan, setPlan] = useState({ data: null, loading: false });
   const [isPlanApplied, setIsPlanApplied] = useState(false);
@@ -62,13 +62,13 @@ const ExtendBookingModal = ({ bookingData }) => {
         `/getAllVehiclesAvailable?_id=${
           bookingData?.vehicleTableId?._id
         }&BookingStartDateAndTime=${addOneMinute(
-          bookingData?.BookingEndDateAndTime
+          bookingData?.BookingEndDateAndTime,
         ).replace(".000Z", "Z")}&BookingEndDateAndTime=${newDate}`,
-        token
+        token,
       );
       if (isVehicleFree?.status === 200) {
         setFreeVehicle(
-          isVehicleFree?.data?.length > 0 ? isVehicleFree?.data[0] : null
+          isVehicleFree?.data?.length > 0 ? isVehicleFree?.data[0] : null,
         );
         if (isVehicleFree?.data?.length === 0) {
           handleAsyncError(dispatch, isVehicleFree?.message);
@@ -87,7 +87,7 @@ const ExtendBookingModal = ({ bookingData }) => {
             : null;
         handleAsyncError(
           dispatch,
-          customMessage !== null ? customMessage : isVehicleFree?.message
+          customMessage !== null ? customMessage : isVehicleFree?.message,
         );
       }
     } catch (error) {
@@ -117,7 +117,7 @@ const ExtendBookingModal = ({ bookingData }) => {
     }
 
     const newStartDate = addOneMinute(
-      bookingData?.BookingEndDateAndTime
+      bookingData?.BookingEndDateAndTime,
     ).replace(".000Z", "Z");
 
     const extendAmountList = bookingData?.bookingPrice?.extendAmount || [];
@@ -202,7 +202,7 @@ const ExtendBookingModal = ({ bookingData }) => {
           extensionNote,
           data,
         },
-        token
+        token,
       );
       if (order?.success) {
         setExtensionDays(0);
@@ -222,7 +222,7 @@ const ExtendBookingModal = ({ bookingData }) => {
           const { contact, firstName, managerContact, ...reduxData } = data;
           if (extensionNote !== null) {
             dispatch(
-              handleUpdateExtendVehicle({ ...reduxData, notes: extensionNote })
+              handleUpdateExtendVehicle({ ...reduxData, notes: extensionNote }),
             );
           } else {
             dispatch(handleUpdateExtendVehicle(reduxData));
@@ -233,9 +233,10 @@ const ExtendBookingModal = ({ bookingData }) => {
           extensionMode === "cash"
             ? "Ride extended successfully"
             : "Extend Request Placed successfully",
-          "success"
+          "success",
         );
         handleCloseModal();
+        event.target.reset();
         return;
       } else {
         return handleAsyncError(dispatch, order?.message);
@@ -285,7 +286,7 @@ const ExtendBookingModal = ({ bookingData }) => {
       const hasPlan =
         plan?.data?.length > 0
           ? plan?.data?.filter(
-              (plan) => Number(plan?.planDuration) === Number(extensionDays)
+              (plan) => Number(plan?.planDuration) === Number(extensionDays),
             )
           : [];
 
@@ -301,7 +302,7 @@ const ExtendBookingModal = ({ bookingData }) => {
       ) {
         const addonResult = calculateTotalAddOnPrice(
           bookingData?.bookingPrice?.extraAddonDetails,
-          extensionDays
+          extensionDays,
         );
         totalAddonAmount = addonResult?.totalAddonAmount || 0;
         totalAddonTax = addonResult?.totalAddonTax || 0;
@@ -346,14 +347,14 @@ const ExtendBookingModal = ({ bookingData }) => {
 
     if (extendPrice > 0) {
       const taxPercentage = Number(
-        freeVehicle?.vehicleMasterData?.gstPercentage || 0
+        freeVehicle?.vehicleMasterData?.gstPercentage || 0,
       );
       tax = calculateTax(Number(extendPrice), taxPercentage);
     }
 
     if (addOnPrice > 0) {
       const addonGstPercentage = Number(
-        freeVehicle?.stationData?.extraAddOn?.[0]?.gstPercentage || 0
+        freeVehicle?.stationData?.extraAddOn?.[0]?.gstPercentage || 0,
       );
       addonTax = calculateTax(Number(addOnPrice), addonGstPercentage);
     }
@@ -368,7 +369,7 @@ const ExtendBookingModal = ({ bookingData }) => {
   // through this we are disabling the extension util previous one is completed
   const isDisabled =
     (!["paid", "partiallyPay", "partially_paid"].includes(
-      bookingData?.paymentStatus
+      bookingData?.paymentStatus,
     ) &&
       true) ||
     (bookingData?.bookingPrice?.extendAmount &&
@@ -430,7 +431,7 @@ const ExtendBookingModal = ({ bookingData }) => {
                   Current End Date:
                 </span>
                 {formatFullDateAndTime(
-                  addOneMinute(bookingData?.BookingEndDateAndTime)
+                  addOneMinute(bookingData?.BookingEndDateAndTime),
                 )}
               </p>
             </div>

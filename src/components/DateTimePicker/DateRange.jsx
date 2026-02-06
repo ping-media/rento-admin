@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DatePicker from "./DateTimePicker";
 import { parse } from "date-fns";
 import { format } from "date-fns-tz";
-import { formatDate, formatTimeWithoutSeconds } from "../../utils/index";
+import { formatDate } from "../../utils/index";
 
 // getting current date and time in input format
 const formattedDate = (addDays = 0) => {
@@ -23,6 +23,34 @@ const formattedDate = (addDays = 0) => {
 const formatIntoISO = (input) => {
   const parsedDate = parse(input, "dd MMM, yyyy h:mm a", new Date());
   return format(parsedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'", { timeZone: "UTC" });
+};
+
+const formatTimeWithoutSeconds = (timeStr) => {
+  const [time, period] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+
+  // Convert to 24-hour format
+  if (period === "PM" && hours !== 12) {
+    hours += 12;
+  } else if (period === "AM" && hours === 12) {
+    hours = 0;
+  }
+
+  // Round up to next 30-minute slot
+  if (minutes > 0 && minutes <= 30) {
+    minutes = 30;
+  } else if (minutes > 30) {
+    hours = (hours + 1) % 24;
+    minutes = 0;
+  }
+
+  // Convert back to 12-hour format
+  let formattedHour = hours % 12;
+  formattedHour = formattedHour === 0 ? 12 : formattedHour;
+  const formattedMinutes = minutes === 0 ? "00" : "30";
+  const formattedPeriod = hours >= 12 ? "PM" : "AM";
+
+  return `${formattedHour}:${formattedMinutes} ${formattedPeriod}`;
 };
 
 export const DateRange = ({
@@ -80,6 +108,7 @@ export const DateRange = ({
           setValueChanger={setPickupDate}
           setTimeValueChanger={setPickupTime}
           setISOValue={setBookingStartDate}
+          setDropTimeValueChanger={setDropoffTime}
           name={pickupName}
         />
 

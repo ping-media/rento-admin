@@ -2,7 +2,7 @@ import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleRideEndModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postData } from "../../Data/index";
 import {
@@ -13,11 +13,13 @@ import {
   formatDateToISO,
   formatPrice,
   getDurationInDaysAndHours,
+  hasUnpaid,
   newGetDurationInDaysAndHours,
 } from "../../utils/index";
 import { useDebounce } from "../../utils/Helper/debounce";
 import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
 import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
+import { tableIcons } from "../../Data/Icons";
 
 const RideEndModal = ({ id }) => {
   const { isRideEndModalActive } = useSelector((state) => state.sideBar);
@@ -37,6 +39,10 @@ const RideEndModal = ({ id }) => {
   const [refundAmount, setRefundAmount] = useState(0);
   const meterDebounceValue = useDebounce(EndMeterReading, 300);
   const dispatch = useDispatch();
+
+  const booking = useMemo(() => vehicleMaster?.[0] ?? null, [vehicleMaster]);
+
+  if (!booking) return null;
 
   const calculateLateFeeBeforeRidend = () => {
     const {
@@ -183,7 +189,7 @@ const RideEndModal = ({ id }) => {
     if (endRide === 0 && EndMeterReading === 0 && oldMeterReading === 0)
       return handleAsyncError(dispatch, "all fields required.");
 
-    if (vehicleMaster[0]?.bookingStatus === "completed")
+    if (booking?.bookingStatus === "completed")
       return handleAsyncError(dispatch, "Ride Already Completed!.Refresh Page");
 
     if (lateFees?.lateFeeBasedOnKM > 0 || lateFees?.lateFeeBasedOnHour > 0) {
@@ -196,14 +202,14 @@ const RideEndModal = ({ id }) => {
     setFormLoading(true);
     try {
       let data = {
-        _id: vehicleMaster[0]?._id,
-        userId: vehicleMaster[0]?.userId?._id,
+        _id: booking?._id,
+        userId: booking?.userId?._id,
         startMeterReading: oldMeterReading,
         endMeterReading: EndMeterReading,
         rideEndDate: formatDateToISO(new Date()).replace(".000Z", "Z"),
         rideOtp: endRide,
         rideStatus: "completed",
-        bookingId: vehicleMaster[0]?.bookingId,
+        bookingId: booking?.bookingId,
         lateFeeBasedOnHour: Number(lateFees?.lateFeeBasedOnHour) || 0,
         lateFeeBasedOnKM: Number(lateFees?.lateFeeBasedOnKM) || 0,
         additionalPrice: Number(additionalPrice),
@@ -217,7 +223,7 @@ const RideEndModal = ({ id }) => {
       // adding refund amount if greater than 0
       // if (
       //   formatDateToISO(new Date()).replace(".000Z", "Z") <
-      //   vehicleMaster[0]?.BookingEndDateAndTime
+      //   booking?.BookingEndDateAndTime
       // ) {
       //   data = {
       //     ...data,
@@ -270,8 +276,8 @@ const RideEndModal = ({ id }) => {
   useEffect(() => {
     if (vehiclePickupImage !== null) {
       setOldMeterReading(vehiclePickupImage[0]?.startMeterReading);
-    } else if (vehicleMaster[0]?.pickupImage !== null) {
-      setOldMeterReading(vehicleMaster[0]?.pickupImage?.startMeterReading);
+    } else if (booking?.pickupImage !== null) {
+      setOldMeterReading(booking?.pickupImage?.startMeterReading);
     }
   }, [vehiclePickupImage, vehicleMaster]);
 
@@ -280,6 +286,10 @@ const RideEndModal = ({ id }) => {
     SetEndRide(0);
     dispatch(toggleRideEndModal());
   };
+
+  const hasPendingPayments =
+    hasUnpaid(booking?.bookingPrice?.diffAmount) ||
+    hasUnpaid(booking?.bookingPrice?.extendAmount);
 
   return (
     <div
@@ -298,31 +308,21 @@ const RideEndModal = ({ id }) => {
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
             disabled={formLoading || false}
           >
-            <svg
-              className="w-5 h-5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              ></path>
-            </svg>
+            {tableIcons?.X}
           </button>
         </div>
 
         <div className="p-6 pt-2 text-center">
           {/* if payment are pending this message will be show  */}
-          {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
-            vehicleMaster[0]?.bookingPrice?.diffAmount?.every(
+          {/* {((booking?.bookingPrice?.diffAmount &&
+            booking?.bookingPrice?.diffAmount?.every(
               (item) => item.status === "paid",
             ) === false) ||
-            (vehicleMaster[0]?.bookingPrice?.extendAmount &&
-              vehicleMaster[0]?.bookingPrice?.extendAmount?.every(
+            (booking?.bookingPrice?.extendAmount &&
+              booking?.bookingPrice?.extendAmount?.every(
                 (item) => item.status === "paid",
-              ) === false)) && (
+              ) === false)) && ( */}
+          {hasPendingPayments && (
             <p className="italic text-xs lg:text-sm my-2 text-red-300 font-bold text-left">
               Warning: Some payments are pending. Please clear them before
               ending your ride.
@@ -335,7 +335,7 @@ const RideEndModal = ({ id }) => {
                 <span className="font-semibold">Start Meter Reading:</span>{" "}
                 {oldMeterReading}
               </p>
-              {lateFees?.lateFeeBasedOnKM > 0 && (
+              {lateFees?.lateFeeBasedOnKM >= 0 && (
                 <div className="text-theme mb-1 flex items-center">
                   <span className="font-semibold text-gray-400">
                     {/* late Fee Based On KM: */}
@@ -353,7 +353,7 @@ const RideEndModal = ({ id }) => {
                   />
                 </div>
               )}
-              {lateFees?.lateFeeBasedOnHour > 0 && (
+              {lateFees?.lateFeeBasedOnHour >= 0 && (
                 <div className="text-theme flex items-center">
                   <span className="font-semibold text-gray-400 mb-2">
                     {/* late Fee Based On Hour: */}
@@ -371,21 +371,8 @@ const RideEndModal = ({ id }) => {
                   />
                 </div>
               )}
-              {(lateFees?.lateFeeBasedOnKM > 0 ||
-                lateFees?.lateFeeBasedOnHour > 0) && (
-                <p className="text-theme border-t">
-                  <span className="font-semibold text-gray-400">
-                    Total Late Fee:
-                  </span>{" "}
-                  ₹
-                  {formatPrice(
-                    Number(lateFees?.lateFeeBasedOnHour) +
-                      Number(lateFees?.lateFeeBasedOnKM),
-                  )}
-                </p>
-              )}
 
-              {refundAmount > 0 && (
+              {refundAmount >= 0 && (
                 <div className="text-theme mb-1 flex items-center mt-2">
                   <span className="font-semibold text-gray-400">
                     Refund Amount:
@@ -394,8 +381,23 @@ const RideEndModal = ({ id }) => {
                     value={Number(refundAmount)}
                     setValue={(e) => setRefundAmount(e.target.value)}
                     type={"number"}
+                    isnormal
                   />
                 </div>
+              )}
+
+              {(lateFees?.lateFeeBasedOnKM > 0 ||
+                lateFees?.lateFeeBasedOnHour > 0) && (
+                <p className="text-theme border-t">
+                  <span className="font-semibold text-gray-400">
+                    Total Late Charges:
+                  </span>{" "}
+                  ₹
+                  {formatPrice(
+                    Number(lateFees?.lateFeeBasedOnHour) +
+                      Number(lateFees?.lateFeeBasedOnKM),
+                  )}
+                </p>
               )}
             </div>
             <div className="mb-2">

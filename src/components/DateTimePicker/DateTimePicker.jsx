@@ -1,13 +1,41 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { formatDate, formatTimeWithoutSeconds } from "../../utils/index";
+import { formatDate } from "../../utils/index";
 import { parse } from "date-fns";
 import { format } from "date-fns-tz";
 
 const formatIntoISO = (input) => {
   const parsedDate = parse(input, "dd MMM, yyyy h:mm a", new Date());
   return format(parsedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'", { timeZone: "UTC" });
+};
+
+const formatTimeWithoutSeconds = (timeStr) => {
+  const [time, period] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+
+  // Convert to 24-hour format
+  if (period === "PM" && hours !== 12) {
+    hours += 12;
+  } else if (period === "AM" && hours === 12) {
+    hours = 0;
+  }
+
+  // Round up to next 30-minute slot
+  if (minutes > 0 && minutes <= 30) {
+    minutes = 30;
+  } else if (minutes > 30) {
+    hours = (hours + 1) % 24;
+    minutes = 0;
+  }
+
+  // Convert back to 12-hour format
+  let formattedHour = hours % 12;
+  formattedHour = formattedHour === 0 ? 12 : formattedHour;
+  const formattedMinutes = minutes === 0 ? "00" : "30";
+  const formattedPeriod = hours >= 12 ? "PM" : "AM";
+
+  return `${formattedHour}:${formattedMinutes} ${formattedPeriod}`;
 };
 
 const DatePicker = ({
@@ -17,21 +45,40 @@ const DatePicker = ({
   timeValue,
   setTimeValueChanger,
   setISOValue,
+  setDropTimeValueChanger,
 }) => {
   const datePickerRef = useRef(null);
   const timePickerRef = useRef(null);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState("bottom");
 
-  const availableTimes = [];
-  for (let hour = 0; hour < 24; hour++) {
-    const period = hour < 12 ? "AM" : "PM";
-    const adjustedHour = hour % 12 === 0 ? 12 : hour % 12;
-    const hourString = adjustedHour;
-    const minuteString = "00";
-    const timeString = `${hourString}:${minuteString} ${period}`;
-    availableTimes.push(timeString);
-  }
+  // const availableTimes = [];
+
+  // for (let hour = 0; hour < 24; hour++) {
+  //   const period = hour < 12 ? "AM" : "PM";
+  //   const adjustedHour = hour % 12 === 0 ? 12 : hour % 12;
+  //   const hourString = adjustedHour;
+  //   const minuteString = "00";
+  //   const timeString = `${hourString}:${minuteString} ${period}`;
+  //   availableTimes.push(timeString);
+  // }
+
+  const availableTimes = useMemo(() => {
+    const times = [];
+
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const period = hour < 12 ? "AM" : "PM";
+        const adjustedHour = hour % 12 === 0 ? 12 : hour % 12;
+        const hourString = adjustedHour;
+        const minuteString = minute < 10 ? `0${minute}` : minute;
+        const timeString = `${hourString}:${minuteString} ${period}`;
+
+        times.push(timeString);
+      }
+    }
+    return times;
+  }, [value]);
 
   const handleDateSelect = (date) => {
     if (!date) return;
@@ -52,6 +99,8 @@ const DatePicker = ({
       const isoValue = formatIntoISO(combinedDateTime);
       setISOValue(isoValue);
     }
+
+    setDropTimeValueChanger?.(time);
 
     setCalendarVisible(false);
   };

@@ -37,7 +37,7 @@ export const BookingPlan = ({ duration, setDuration }) => {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []);
 
   return (
     <div className="w-full my-2">

@@ -875,8 +875,12 @@ const isValidIndianMobile = (value) => {
   return /^[6-9]\d{9}$/.test(String(value));
 };
 
+const hasUnpaid = (list) =>
+  list?.some((item) => item?.status !== "paid") ?? false;
+
 export {
   formatDate,
+  hasUnpaid,
   useIsMobile,
   millisecToReadableFormat,
   timeStampUserFormated,

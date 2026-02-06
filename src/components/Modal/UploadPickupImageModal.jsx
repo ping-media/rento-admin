@@ -454,10 +454,8 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                   isLabel={false}
                 />
               </div>
-            </div>
 
-            {/* adding altContact and address fields  */}
-            <div className="flex items-center flex-wrap gap-4 mb-3">
+              {/* adding altContact and address fields  */}
               <div className="w-full lg:w-[48%]">
                 <Input
                   type="number"
@@ -476,6 +474,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
                 />
               </div>
             </div>
+
             <button
               className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-theme/60"
               type="submit"

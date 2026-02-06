@@ -32,8 +32,6 @@ const VehicleMaster = () => {
     //this is  for usertype
     if (location.pathname === "/all-users") return "userType=customer";
     if (location.pathname === "/all-managers") return "userType=manager";
-    // this is for user role
-    // if (loggedInRole !== "" && loggedInRole === "manager") {
     if (loggedInRole === "manager" && userStation?.stationId) {
       return `stationId=${userStation?.stationId}`;
     }
@@ -79,7 +77,6 @@ const VehicleMaster = () => {
     page,
     limit,
     searchBasedOnPage,
-    searchType,
     vehiclesFilter,
     filters,
   ]);
@@ -88,37 +85,6 @@ const VehicleMaster = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData, refresh]);
-
-  // useEffect(() => {
-  //   if (!tempLoading?.loading && deletevehicleId === "") {
-  //     fetchVehicleMasterWithPagination(
-  //       dispatch,
-  //       token,
-  //       endPointBasedOnURL[location.pathname.replace("/", "")],
-  //       searchTerm,
-  //       page,
-  //       limit,
-  //       searchBasedOnPage,
-  //       searchType,
-  //       vehiclesFilter,
-  //       filters,
-  //     );
-  //   }
-  // }, [
-  //   location.pathname,
-  //   deletevehicleId,
-  //   page,
-  //   limit,
-  //   searchTerm,
-  //   tempLoading?.loading,
-  //   dispatch,
-  //   token,
-  //   endPointBasedOnURL,
-  //   searchBasedOnPage,
-  //   refresh,
-  //   vehiclesFilter,
-  //   filters,
-  // ]);
 
   // clear data after page change
   useEffect(() => {
@@ -152,13 +118,9 @@ const VehicleMaster = () => {
       <FilterSideBar />
       {showAddVehicleModal && <AddVehicleForServiceModal />}
       {showVehicleStationModal && <VehicleStationModal />}
-      {/* {location.pathname === "/all-vehicles" && <AddVehicleForServiceModal />}
-      {location.pathname === "/vehicle-master" && <VehicleStationModal />} */}
 
       {/* table data  */}
       <CustomTableComponent
-        // Data={vehicleMaster?.data}
-        // pagination={vehicleMaster?.pagination}
         Data={vehicleData}
         pagination={paginationData}
         searchTermQuery={searchTerm}
