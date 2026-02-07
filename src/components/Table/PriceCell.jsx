@@ -12,24 +12,28 @@ const PriceCell = ({ item, column }) => {
       ? item[column]?.discountTotalPrice
       : item[column]?.totalPrice;
 
+  // extend booking
   const extendPrice = useMemo(() => {
-    if (!item.bookingPrice?.extendAmount?.length) return null;
+    if (!item.bookingPrice?.extendAmount?.length > 0) return 0;
+
     return item.bookingPrice.extendAmount.reduce((sum, extend) => {
       if (extend?.status === "paid") {
         return (
           sum +
           Number(extend?.amount || 0) +
-          Number(extend?.addOnAmount || 0) +
+          // Number(extend?.addOnAmount || 0) +
           Number(extend?.tax || 0) +
           Number(extend?.addonTax || 0)
         );
       }
       return sum;
     }, 0);
-  }, [item.bookingPrice?.extendAmount]);
+  }, [item?.bookingPrice?.extendAmount]);
 
+  // change vehicle
   const diffPrice = useMemo(() => {
-    if (!item.bookingPrice?.diffAmount?.length) return null;
+    if (!item.bookingPrice?.diffAmount?.length > 0) return 0;
+
     return item.bookingPrice.diffAmount.reduce((sum, diff) => {
       if (diff?.status === "paid") {
         if (diff?.refundAmount > 0) {
@@ -39,7 +43,7 @@ const PriceCell = ({ item, column }) => {
       }
       return sum;
     }, 0);
-  }, [item.bookingPrice?.diffAmount]);
+  }, [item?.bookingPrice?.diffAmount]);
 
   const lateFeeBasedOnHour = !isNaN(
     Number(item.bookingPrice?.lateFeeBasedOnHour),
@@ -51,17 +55,33 @@ const PriceCell = ({ item, column }) => {
     ? Number(item.bookingPrice?.lateFeeBasedOnKM)
     : 0;
 
-  const newBookingPrice =
-    extendPrice !== null &&
-    !isNaN(extendPrice) &&
-    diffPrice !== null &&
-    !isNaN(diffPrice)
-      ? Number(extendPrice) +
-        Number(diffPrice) +
-        Number(bookingPrice) +
-        lateFeeBasedOnHour +
-        lateFeeBasedOnKM
-      : bookingPrice;
+  const newBookingPrice = useMemo(() => {
+    return (
+      (Number(bookingPrice) || 0) +
+      (Number(extendPrice) || 0) +
+      (Number(diffPrice) || 0) +
+      (Number(lateFeeBasedOnHour) || 0) +
+      (Number(lateFeeBasedOnKM) || 0)
+    );
+  }, [
+    bookingPrice,
+    extendPrice,
+    diffPrice,
+    lateFeeBasedOnHour,
+    lateFeeBasedOnKM,
+  ]);
+
+  // const newBookingPrice =
+  //   extendPrice !== null &&
+  //   !isNaN(extendPrice) &&
+  //   diffPrice !== null &&
+  //   !isNaN(diffPrice)
+  //     ? Number(extendPrice) +
+  //       Number(diffPrice) +
+  //       Number(bookingPrice) +
+  //       lateFeeBasedOnHour +
+  //       lateFeeBasedOnKM
+  //     : bookingPrice;
 
   // payment price
   const paymentPrice =

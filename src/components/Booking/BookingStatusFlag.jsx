@@ -21,17 +21,17 @@ const BookingStatusFlag = ({ title, rides, flag }) => {
             (rides[flag] === "completed" && "bg-green-500 bg-opacity-80") ||
             (rides[flag] === "extended" && "bg-green-500 bg-opacity-80") ||
             (rides[flag] === "ongoing" && "bg-orange-600 bg-opacity-80")
-          } text-gray-100 px-4 py-1 rounded-full cursor-pointer capitalize ml-2`}
+          } text-white px-4 py-1 rounded-full cursor-pointer capitalize ml-2`}
         >
           {flag === "bookingStatus"
             ? rides[flag] === "done"
               ? "Confirmed"
               : rides[flag].replace("_", " ")
             : flag === "rideStatus"
-            ? rides[flag] === "pending"
-              ? "Not Started"
-              : rides[flag].replace("_", " ")
-            : rides[flag].replace("_", " ")}
+              ? rides[flag] === "pending"
+                ? "Not Started"
+                : rides[flag].replace("_", " ")
+              : rides[flag].replace("_", " ")}
         </span>
       </p>
     </>

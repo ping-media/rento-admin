@@ -1,5 +1,5 @@
 import React from "react";
-import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
+import { formatPrice } from "../../utils/index";
 
 const ExtendSummary = ({
   appliedPlans,
@@ -16,6 +16,10 @@ const ExtendSummary = ({
     daysBreakdown?.length > 0
       ? daysBreakdown?.filter((day) => day.isWeekend === false)
       : [];
+
+  const isAddOnTaxApplicable = Number(item?.addonTax ?? 0) > 0;
+  const addOnAmount =
+    Number(item?.addOnAmount ?? 0) + Number(item?.addonTax ?? 0);
 
   return (
     <div className="p-2 mb-2 rounded-md bg-theme/10">
@@ -37,7 +41,7 @@ const ExtendSummary = ({
             ₹
             {formatPrice(
               item?.amount +
-                (Number(item?.addOnAmount) || 0) +
+                // (Number(item?.addOnAmount) || 0) +
                 (Number(item?.tax) || 0) +
                 (Number(item?.addonTax) || 0),
             )}
@@ -84,9 +88,15 @@ const ExtendSummary = ({
       </div>
 
       <div className="text-xs">
-        {item?.addOnAmount > 0 ? (
+        {addOnAmount > 0 ? (
           <p className="text-xs">
-            <span className="mr-1">Addon:</span>₹{item?.addOnAmount}
+            <span className="mr-1">
+              Addon{isAddOnTaxApplicable ? "(include GST)" : ""}:
+            </span>
+            ₹{addOnAmount}{" "}
+            {isAddOnTaxApplicable ? (
+              <span className="mr-1">+ {item?.addonTax}</span>
+            ) : null}
           </p>
         ) : null}
       </div>
@@ -109,6 +119,8 @@ const RideSummary = ({
       ? daysBreakdown?.filter((day) => day.isWeekend === false)
       : [];
 
+  const isDiscountApplied = item.isDiscountZero || item.discountTotalPrice > 0;
+
   return (
     <div className="p-2 mb-2 rounded-md bg-theme/10">
       <div className="w-full flex items-center justify-between">
@@ -124,9 +136,16 @@ const RideSummary = ({
           </div>
         </div>
         <div>
-          <span className="text-sm font-bold text-theme ml-1">
+          <span
+            className={`text-sm font-bold text-theme ml-1 ${isDiscountApplied ? "line-through font-medium" : "font-bold"}`}
+          >
             ₹{formatPrice(item?.totalPrice)}
           </span>
+          {isDiscountApplied && (
+            <span className="text-sm font-bold text-theme ml-1">
+              ₹{formatPrice(item.discountTotalPrice)}
+            </span>
+          )}
           {item?.status === "unpaid" && (
             <span
               className={`text-sm font-bold ${

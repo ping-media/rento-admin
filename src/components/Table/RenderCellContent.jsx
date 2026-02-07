@@ -3,11 +3,10 @@ import {
   formatFullDateAndTime,
   formatNumber,
   formatPrice,
-  formatTimeStampToDate,
   formatTimeStampToDateNew,
 } from "../../utils/index";
 
-const RenderCellContent = (column, value, item) => {
+const RenderCellContent = (column, value, item, location) => {
   if (!value && value !== 0) return "";
 
   if (

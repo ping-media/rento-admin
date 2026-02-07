@@ -15,7 +15,9 @@ const Input = ({
   onChangeFun,
   onChangeFilterFun,
   dateToBeAdd,
+  DBDateToBeAdd,
   setDateChange,
+  setDBDateChange,
   isModalClose,
   isCouponInput = false,
   name,
@@ -59,6 +61,13 @@ const Input = ({
       dateToBeAdd &&
       onChangeFun(dateToBeAdd, Number(e.target.value));
     setDateChange && setDateChange(newDate);
+
+    // for db dates
+    if (setDBDateChange && DBDateToBeAdd && onChangeFun) {
+      const newDBDate = onChangeFun(DBDateToBeAdd, Number(e.target.value));
+      setDBDateChange(newDBDate);
+    }
+
     // this is to change the date based on filters
     onChangeFilterFun && setIsDebounceValue(e.target.value);
   };

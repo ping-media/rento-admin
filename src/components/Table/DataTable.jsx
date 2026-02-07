@@ -307,13 +307,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-300">
-                      <TableDataLoading
-                      // tableHeaderCount={
-                      //   (location.pathname === "/all-vehicles"
-                      //     ? Columns?.length + 2
-                      //     : Columns?.length + 1) || 7
-                      // }
-                      />
+                      <TableDataLoading />
                     </tbody>
                   </table>
                 ) : (
@@ -329,19 +323,10 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-300">
-                      {/* dataLoading ? (
-                      <TableDataLoading
-                        tableHeaderCount={
-                          (location.pathname == "/all-vehicles"
-                            ? Columns?.length + 2
-                            : Columns?.length + 1) || 7
-                        }
-                      />
-                    ) : */}
                       {newUpdatedData?.length > 0 ? (
                         newUpdatedData.map((item, index) => (
                           <tr
-                            className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"
+                            className={`bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] ${location.pathname === "/payments" ? "" : "cursor-pointer"}`}
                             key={`row-${item._id}-${index}`}
                             onClick={() => handleViewData(item)}
                           >
@@ -510,6 +495,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     column,
                                     item[column],
                                     item,
+                                    location,
                                   )}
                                 </td>
                               );

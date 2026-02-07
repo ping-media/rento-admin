@@ -13,7 +13,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
     { BookingStartDateAndTime: "Pick Up" },
     { BookingEndDateAndTime: "Drop Off" },
     { paymentgatewayOrderId: "Payment Order ID" },
-    { utrNumber: "UTR Number" },
+    { rrnNumber: "RRN Number" },
     { bookingPrice: "Price" },
   ];
 

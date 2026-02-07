@@ -41,6 +41,7 @@ const ExtendBookingModal = ({ bookingData }) => {
   const [selectedPlan, setSelectedPlan] = useState([]);
   const [appliedPlans, setAppliedPlans] = useState([]);
   const [newDate, setNewDate] = useState("");
+  const [newBookingEndDateAndTime, setNewBookingEndDateAndTime] = useState("");
   const [priceLoading, setPriceLoading] = useState(false);
   const [displayTax, setDisplayTax] = useState({
     tax: 0,
@@ -150,8 +151,10 @@ const ExtendBookingModal = ({ bookingData }) => {
     let data = {
       _id: bookingData?._id,
       vehicleTableId: bookingData?.vehicleTableId?._id,
-      BookingStartDateAndTime: newStartDate,
-      BookingEndDateAndTime: newDate,
+      BookingStartDateAndTime: bookingData?.BookingEndDateAndTime,
+      BookingEndDateAndTime: newBookingEndDateAndTime,
+      // BookingStartDateAndTime: newStartDate,
+      // BookingEndDateAndTime: newDate,
       bookingPrice: bookingData?.bookingPrice,
       extendBooking: bookingData?.extendBooking,
       oldBookings: {
@@ -168,8 +171,10 @@ const ExtendBookingModal = ({ bookingData }) => {
         addonTax: finalAddonTax,
         originalBookingEndDateAndTime:
           bookingData?.BookingEndDateAndTime.replace(".000Z", "Z"),
-        BookingStartDateAndTime: newStartDate,
-        bookingEndDateAndTime: newDate,
+        // BookingStartDateAndTime: newStartDate,
+        // bookingEndDateAndTime: newDate,
+        BookingStartDateAndTime: bookingData?.BookingEndDateAndTime,
+        BookingEndDateAndTime: newBookingEndDateAndTime,
         daysBreakdown: daysBreakdown || [],
         package: selectedPlan || [],
         appliedPlans: appliedPlans || [],
@@ -181,6 +186,9 @@ const ExtendBookingModal = ({ bookingData }) => {
       },
       bookingStatus: "extended",
     };
+
+    // console.log(data);
+    // return;
 
     try {
       setFormLoading(true);
@@ -207,6 +215,7 @@ const ExtendBookingModal = ({ bookingData }) => {
       if (order?.success) {
         setExtensionDays(0);
         setNewDate("");
+        setNewBookingEndDateAndTime("");
         const timeLineData = order?.timeLine || null;
         if (timeLineData !== null) {
           dispatch(updateTimeLineData(timeLineData));
@@ -277,6 +286,7 @@ const ExtendBookingModal = ({ bookingData }) => {
   const handleCloseModal = () => {
     setExtensionDays(0);
     setNewDate("");
+    setNewBookingEndDateAndTime("");
     dispatch(toggleBookingExtendModal());
   };
 
@@ -430,9 +440,10 @@ const ExtendBookingModal = ({ bookingData }) => {
                 <span className="font-semibold text-black mr-1">
                   Current End Date:
                 </span>
-                {formatFullDateAndTime(
+                {formatFullDateAndTime(bookingData?.BookingEndDateAndTime)}
+                {/* {formatFullDateAndTime(
                   addOneMinute(bookingData?.BookingEndDateAndTime),
-                )}
+                )} */}
               </p>
             </div>
             <div className="mb-2">
@@ -442,7 +453,9 @@ const ExtendBookingModal = ({ bookingData }) => {
                 setValueChange={setExtensionDays}
                 onChangeFun={addDaysToDate}
                 dateToBeAdd={addOneMinute(bookingData?.BookingEndDateAndTime)}
+                DBDateToBeAdd={bookingData?.BookingEndDateAndTime}
                 setDateChange={setNewDate}
+                setDBDateChange={setNewBookingEndDateAndTime}
                 isModalClose={isBookingExtendModalActive}
               />
             </div>
@@ -570,9 +583,12 @@ const ExtendBookingModal = ({ bookingData }) => {
                   <span className="font-semibold text-black not-italic mr-1">
                     New End Date:
                   </span>
-                  {newDate !== ""
-                    ? formatFullDateAndTime(newDate)
+                  {newBookingEndDateAndTime !== ""
+                    ? formatFullDateAndTime(newBookingEndDateAndTime)
                     : "(Enter number of days to view the new date)"}
+                  {/* {newDate !== ""
+                    ? formatFullDateAndTime(newDate)
+                    : "(Enter number of days to view the new date)"} */}
                 </p>
               </div>
               <div className={`mb-2`}>

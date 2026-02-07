@@ -77,27 +77,6 @@ const RideEndModal = ({ id }) => {
     }
 
     // CASE 2: Close between start & end → per-day refund
-    // else if (nowDate > bookingStartDate && nowDate < bookingEndDate) {
-    //   const bookingDuration = getDurationInDaysAndHours(
-    //     BookingStartDateAndTime,
-    //     BookingEndDateAndTime
-    //   );
-
-    //   const totalDays = Number(bookingDuration?.days || 0);
-
-    //   if (totalDays > 0) {
-    //     const perDayPrice = totalPrice / totalDays;
-
-    //     const usedDays = getDurationInDaysAndHours(
-    //       BookingStartDateAndTime,
-    //       nowIso
-    //     ).days;
-
-    //     const remainingDays = Math.max(0, totalDays - usedDays);
-
-    //     refundAmount = Math.round(remainingDays * perDayPrice);
-    //   }
-    // }
     else if (nowDate > bookingStartDate && nowDate < bookingEndDate) {
       const totalDurationDays = getDurationInDaysAndHours(
         BookingStartDateAndTime,
