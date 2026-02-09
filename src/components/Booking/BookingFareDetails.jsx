@@ -75,6 +75,7 @@ const BookingFareDetails = ({ rides }) => {
                   key !== "additionFeePaymentMethod" &&
                   key !== "additionalPrice" &&
                   key !== "refundAmount" &&
+                  key !== "rrnNumber" &&
                   // !(key === "extraAddonPrice" && value === 0)
                   key !== "extraAddonPrice" &&
                   key !== "daysBreakdown" &&
