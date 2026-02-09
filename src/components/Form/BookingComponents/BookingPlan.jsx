@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
 import { useDispatch } from "react-redux";
 import { getData } from "../../../Data/index";
@@ -24,7 +24,8 @@ export const BookingPlan = ({ duration, setDuration }) => {
           planName: "1 day",
           planDuration: 1,
         };
-        setPlans([defaultPlan, ...response?.data]);
+        const dbPlans = response?.data ?? [];
+        setPlans([defaultPlan, ...dbPlans]);
       } else {
         handleAsyncError(dispatch, response?.message);
       }

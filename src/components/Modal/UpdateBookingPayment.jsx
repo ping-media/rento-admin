@@ -92,7 +92,7 @@ const UpdateBookingPayment = ({ id }) => {
       const For =
         paymentFor === "extendVehicle" ? "extendAmount" : "diffAmount";
       let updateData = paymentRecord.find(
-        (item) => item.id === Number(paymentRecordId)
+        (item) => item.id === Number(paymentRecordId),
       );
       if (updateData) {
         updateData.status = "paid";
@@ -107,7 +107,7 @@ const UpdateBookingPayment = ({ id }) => {
         bookingPrice: {
           ...vehicleMaster[0].bookingPrice,
           [For]: vehicleMaster[0]?.bookingPrice?.[For]?.map((item) =>
-            item.id === updateData.id ? updateData : item
+            item.id === updateData.id ? updateData : item,
           ) || [updateData],
         },
         _id: id,
@@ -132,7 +132,7 @@ const UpdateBookingPayment = ({ id }) => {
         handleAsyncError(
           dispatch,
           "Payment record save successfully",
-          "success"
+          "success",
         );
         // updating the timeline for booking
         const timeLineData = {
@@ -156,7 +156,7 @@ const UpdateBookingPayment = ({ id }) => {
       if (isUpdate !== true)
         return handleAsyncError(
           dispatch,
-          "unable to update the booking payment! try again"
+          "unable to update the booking payment! try again",
         );
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
@@ -223,7 +223,7 @@ const UpdateBookingPayment = ({ id }) => {
               <SelectDropDown
                 item={"Payment Record Id"}
                 options={paymentRecord?.filter(
-                  (record) => record?.status !== "paid"
+                  (record) => record?.status !== "paid",
                 )}
                 setIsLocationSelected={setPaymentRecordId}
                 isSearchEnable={false}
@@ -246,7 +246,7 @@ const UpdateBookingPayment = ({ id }) => {
             </div>
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full flex items-center justify-center"
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full items-center justify-center"
               disabled={formLoading}
             >
               {!formLoading ? (

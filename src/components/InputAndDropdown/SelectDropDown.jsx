@@ -27,7 +27,7 @@ const SelectDropDown = ({
   const title = {
     stationId: "Station",
     locationId: pathname?.endsWith("all-bookings/add-new")
-      ? "Cities"
+      ? "City"
       : "Location",
     userId: "User",
     vehicleMasterId: "Vehicle",
