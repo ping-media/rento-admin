@@ -8,7 +8,7 @@ export const OrderSummaryList = () => {
 
   if (!booking) return null;
 
-  const isExtension = booking?.bookingPrice?.extendAmount?.length > 0 ?? false;
+  const isExtension = booking?.bookingPrice?.extendAmount?.length > 0 || false;
   return (
     <div>
       {booking?.bookingPrice && (
