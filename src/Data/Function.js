@@ -266,6 +266,7 @@ const fetchVehicleMasterById = debounce(
   },
   50,
 );
+
 const handleCreateAndUpdateVehicle = async (
   event,
   dispatch,
@@ -523,7 +524,7 @@ const handleLogoutUser = (dispatch) => {
   dispatch(toggleClearModals());
 };
 
-const handleDeleteAndEditAllData = async (
+const handleDeleteAndEditAllData = async ({
   data,
   operation,
   handleAsyncError,
@@ -535,13 +536,13 @@ const handleDeleteAndEditAllData = async (
   token,
   handleIsHeaderChecked,
   handleCloseModal,
-) => {
+}) => {
   dispatch(changeTempLoadingTrue(operation));
   try {
     const response = await postData("/updateMultipleVehicles", data, token);
     if (response?.status == 200) {
       dispatch(removeTempIds());
-      dispatch(restvehicleMaster());
+      restvehicleMaster && dispatch(restvehicleMaster());
       handleIsHeaderChecked && dispatch(handleIsHeaderChecked(false));
       handleAsyncError(dispatch, response?.message, "success");
       handleCloseModal && handleCloseModal();

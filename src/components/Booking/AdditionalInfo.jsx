@@ -1,10 +1,5 @@
 import { useSelector } from "react-redux";
-import ExtraAmount from "./ExtraAmount";
-import {
-  // formatNumber,
-  formatPrice,
-  getDurationInDays,
-} from "../../utils/index";
+import { formatPrice, getDurationInDays } from "../../utils/index";
 import CopyButton from "../Buttons/CopyButton";
 import { ExtendSummary, RideSummary } from "./RideSummary";
 import { useEffect, useReducer } from "react";
@@ -96,7 +91,7 @@ const AdditionalInfo = () => {
         {((diffAmount !== null && diffAmount?.rideStatus === false) ||
           vehicleMaster[0]?.rideStatus !== "ongoing") && (
           <div className="w-full flex items-center justify-between">
-            <p className="font-semibold mr-1">Start OTP:</p>
+            <p className="mr-1">Start OTP:</p>
             <p className="flex items-center">
               {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
               <CopyButton
@@ -107,7 +102,7 @@ const AdditionalInfo = () => {
         )}
         {vehicleMaster[0]?.vehicleBasic?.endRide > 0 && (
           <div className="w-full flex items-center justify-between">
-            <p className="font-semibold mr-1">End OTP:</p>
+            <p className="mr-1">End OTP:</p>
             <p className="flex items-center">
               {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
               <CopyButton
@@ -121,9 +116,7 @@ const AdditionalInfo = () => {
       {diffAmount !== null && diffAmount?.refundAmount > 0 && (
         <div className="mt-1 mb-2.5">
           <div className="w-full flex items-center justify-between text-sm  uppercase">
-            <p className="font-semibold mr-1 capitalize">
-              Change Vehicle Refund Amount:
-            </p>
+            <p className="mr-1 capitalize">Change Vehicle Refund Amount:</p>
             <p className="text-theme font-semibold">
               ₹
               {formatPrice(
@@ -137,13 +130,13 @@ const AdditionalInfo = () => {
       )}
       <div className="mt-1 mb-2.5">
         <div className="w-full flex items-center justify-between text-sm  mb-1">
-          <p className="font-semibold mr-1">Free Limit:</p>
+          <p className="mr-1">Free Limit:</p>
           <p>
-            {vehicleMaster[0]?.vehicleBasic?.freeLimit ? freeLimit : "--"} KM
+            {vehicleMaster[0]?.vehicleBasic?.freeLimit ? freeLimit : "--"} Km
           </p>
         </div>
         <div className="w-full flex items-center justify-between text-sm  mb-1">
-          <p className="font-semibold mr-1">Extra KM Charge:</p>
+          <p className="mr-1">Extra Km Charge:</p>
           <p>
             {vehicleMaster[0]?.vehicleBasic?.extraKmCharge ? (
               <>
@@ -161,18 +154,18 @@ const AdditionalInfo = () => {
             )}
           </p>
         </div>
-        <div className="w-full flex items-center justify-between text-sm ">
-          <p className="font-semibold mr-1">Booked From:</p>
+        <div className="w-full flex items-center justify-between text-sm mb-1">
+          <p className="mr-1">Booked From:</p>
           <p>
             {vehicleMaster[0]?.bookedFrom === "web"
-              ? "WEBSITE"
+              ? "Website"
               : vehicleMaster[0]?.bookedFrom === "admin"
-                ? "ADMIN"
-                : "APP" || "--"}
+                ? "Admin"
+                : "App" || "--"}
           </p>
         </div>
         <div className="w-full flex items-center justify-between text-sm ">
-          <p className="font-semibold mr-1">Payment Method:</p>
+          <p className="mr-1">Payment Method:</p>
           <p>
             {vehicleMaster?.[0]?.paymentMethod === "partiallyPay"
               ? "Partially Pay"
@@ -201,7 +194,7 @@ const AdditionalInfo = () => {
           vehicleMaster[0]?.rideStatus === "completed" ? (
             <div>
               <p className="w-full flex items-center justify-between text-sm text-theme">
-                <span className="mr-1 font-semibold">Late Hour Charges:</span>₹
+                <span className="mr-1">Late Hour Charges:</span>₹
                 {formatPrice(
                   Number(
                     vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnHour || 0,
@@ -209,13 +202,13 @@ const AdditionalInfo = () => {
                 )}
               </p>
               <p className="w-full flex items-center justify-between text-sm text-theme">
-                <span className="mr-1 font-semibold">Late KM Charges:</span>₹
+                <span className="mr-1">Late KM Charges:</span>₹
                 {formatPrice(
                   Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM || 0),
                 )}
               </p>
               <p className="w-full flex items-center justify-between text-sm text-theme">
-                <span className="mr-1 font-semibold">Other Charges:</span>₹
+                <span className="mr-1">Other Charges:</span>₹
                 {formatPrice(
                   Number(vehicleMaster[0]?.bookingPrice?.additionalPrice || 0),
                 )}

@@ -14,7 +14,7 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 const AddonModal = () => {
   const dispatch = useDispatch();
   const { isStationAndVehicleModalActive } = useSelector(
-    (state) => state.sideBar
+    (state) => state.sideBar,
   );
   const { tempData } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
@@ -42,7 +42,7 @@ const AddonModal = () => {
       const response = await postData(
         `/updateVehicleMasterwithVehicles?_id=${tempData._id}`,
         newData,
-        token
+        token,
       );
 
       if (response.success) {
@@ -51,7 +51,7 @@ const AddonModal = () => {
             id: tempData._id,
             newStatus: tempData.status,
             flag: "status",
-          })
+          }),
         );
         setSelectedStation([]);
         dispatch(addOrRemoveTempData(null));
@@ -133,7 +133,7 @@ const AddonModal = () => {
                   ?.filter((station) => station?.status !== "inactive")
                   ?.map((item, index) => {
                     const isChecked = selectedStation.some(
-                      (i) => i._id === item._id
+                      (i) => i._id === item._id,
                     );
                     return (
                       <div
@@ -180,7 +180,7 @@ const AddonModal = () => {
             </div>
             <button
               type="submit"
-              className="bg-theme px-4 py-2 mt-3 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/60 w-full flex items-center justify-center outline-none"
+              className="bg-theme px-4 py-2 mt-3 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/60 w-full items-center justify-center outline-none"
               disabled={formLoading}
             >
               {!formLoading ? (

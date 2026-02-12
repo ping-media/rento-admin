@@ -31,9 +31,9 @@ const BulkActionButtons = () => {
       deleteRec: true,
     };
 
-    return handleDeleteAndEditAllData(
+    return handleDeleteAndEditAllData({
       data,
-      "delete",
+      operation: "delete",
       handleAsyncError,
       changeTempLoadingTrue,
       changeTempLoadingFalse,
@@ -41,8 +41,8 @@ const BulkActionButtons = () => {
       removeTempIds,
       restvehicleMaster,
       token,
-      handleIsHeaderChecked
-    );
+      handleIsHeaderChecked,
+    });
   };
 
   return (

@@ -5,18 +5,22 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postData } from "../../Data";
 import { updateStationPayment } from "../../Redux/VehicleSlice/VehicleSlice";
 
-const Switch = ({ value = false, id, keyName }) => {
+const Switch = ({ value = false, id, keyName, onClose }) => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
   const [isActive, setIsActive] = useState(
-    value === "active" || value === true
+    value === "active" || value === true,
   );
 
   const handleChange = async () => {
-    if (!id || !keyName) return;
-
     const newValue = !isActive;
+    if (onClose && typeof onClose === "function") {
+      setIsActive(newValue);
+      onClose();
+    }
+
+    if (!id || !keyName) return;
 
     try {
       setLoading(true);
@@ -28,7 +32,7 @@ const Switch = ({ value = false, id, keyName }) => {
           key: keyName,
           value: newValue,
         },
-        token
+        token,
       );
 
       if (!response?.success) {
@@ -41,7 +45,7 @@ const Switch = ({ value = false, id, keyName }) => {
         updateStationPayment({
           keyName,
           value: newValue,
-        })
+        }),
       );
 
       // Optimistically update UI

@@ -21,12 +21,12 @@ const AddonModal = () => {
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
   const [selectedAddOns, setSelectedAddOns] = useState(
-    vehicleMaster[0]?.bookingPrice?.extraAddonDetails || []
+    vehicleMaster[0]?.bookingPrice?.extraAddonDetails || [],
   );
 
   const extraAddOn =
     vehicleMaster[0]?.stationData?.extraAddOn?.filter(
-      (addon) => addon?.status !== "inactive"
+      (addon) => addon?.status !== "inactive",
     ) || [];
 
   //   updating the booking or Reschedule the booking
@@ -51,14 +51,14 @@ const AddonModal = () => {
 
       const bookingDuration = getDurationBetweenDates(
         booking?.BookingStartDateAndTime,
-        booking?.BookingEndDateAndTime
+        booking?.BookingEndDateAndTime,
       );
 
       const uniqueAddOns = [];
 
       selectedAddOns.filter((item) => {
         const exists = booking?.bookingPrice?.extraAddonDetails?.some(
-          (existing) => existing._id === item._id
+          (existing) => existing._id === item._id,
         );
         if (!exists) {
           uniqueAddOns.push(item);
@@ -73,7 +73,7 @@ const AddonModal = () => {
 
       const { totalAddonAmount, totalAddonTax } = calculateTotalAddOnPrice(
         uniqueAddOns,
-        bookingDuration?.days
+        bookingDuration?.days,
       );
 
       const data = {
@@ -146,7 +146,7 @@ const AddonModal = () => {
               {extraAddOn?.length > 0 ? (
                 extraAddOn?.map((item, index) => {
                   const isChecked = selectedAddOns.some(
-                    (i) => i._id === item._id
+                    (i) => i._id === item._id,
                   );
                   return (
                     <div
@@ -182,7 +182,7 @@ const AddonModal = () => {
             </div>
             <button
               type="submit"
-              className="bg-theme px-4 py-2 mt-3 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full flex items-center justify-center outline-none"
+              className="bg-theme px-4 py-2 mt-3 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full items-center justify-center outline-none"
               disabled={formLoading || extraAddOn?.length === 0}
             >
               {!formLoading ? "Add Add-On" : <Spinner message={"loading..."} />}

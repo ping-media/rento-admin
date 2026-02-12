@@ -34,6 +34,7 @@ const UpdateBookingPayment = ({ id }) => {
         const paymentRecord = [];
         vehicleMaster[0]?.bookingPrice?.extendAmount?.map((item) => {
           paymentRecord.push({
+            ...item,
             id: item?.id,
             title: item?.title,
             BookingStartDateAndTime: item?.BookingStartDateAndTime,
@@ -56,6 +57,7 @@ const UpdateBookingPayment = ({ id }) => {
         const paymentRecord = [];
         vehicleMaster[0]?.bookingPrice?.diffAmount?.map((item) => {
           paymentRecord.push({
+            ...item,
             id: item?.id,
             title: item?.title,
             amount: item?.amount,
@@ -94,6 +96,7 @@ const UpdateBookingPayment = ({ id }) => {
       let updateData = paymentRecord.find(
         (item) => item.id === Number(paymentRecordId),
       );
+
       if (updateData) {
         updateData.status = "paid";
         if (!updateData.hasOwnProperty("paymentMethod")) {
@@ -125,7 +128,7 @@ const UpdateBookingPayment = ({ id }) => {
         };
       }
 
-      // return console.log(updateData, data);
+      // return console.log(data);
 
       const isUpdate = await cancelBookingById(id, data, token);
       if (isUpdate === true) {
