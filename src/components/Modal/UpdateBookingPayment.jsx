@@ -128,9 +128,28 @@ const UpdateBookingPayment = ({ id }) => {
         };
       }
 
-      // return console.log(data);
+      let finalData = data;
+      let endpoint = "/createBooking";
+      let paidFor = paymentFor === "extendVehicle" ? "extension" : "change";
 
-      const isUpdate = await cancelBookingById(id, data, token);
+      // changing the payload when updating the payment for extend
+      if (paymentFor === "extendVehicle") {
+        const { Note, bookingPrice, _id, ...rest } = data;
+        const newData = bookingPrice?.extendAmount?.find(
+          (e) => e.id === paymentRecordId,
+        );
+        finalData = {
+          ...(Note ? { Note } : {}),
+          data: newData,
+          extendId: paymentRecordId,
+          _id,
+        };
+
+        endpoint = "/confirm-extend-booking";
+      }
+      // return console.log(finalData);
+
+      const isUpdate = await cancelBookingById(id, finalData, token, endpoint);
       if (isUpdate === true) {
         handleAsyncError(
           dispatch,
@@ -142,7 +161,7 @@ const UpdateBookingPayment = ({ id }) => {
           currentBooking_id: id,
           timeLine: [
             {
-              title: "Payment Updated",
+              title: `${paidFor} Payment Updated`,
               date: Date.now(),
               paymentAmount: updateData?.amount,
               paymentMode: result?.PaymentMode || "",
