@@ -39,7 +39,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         vehicleMaster,
         isLocationSelected,
         setStationData,
-        token
+        token,
       );
     }
   }, [isLocationSelected, vehicleMaster]);
@@ -55,7 +55,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             getData(endPointBasedOnKey[planUrl], token),
             getData(
               `${endPointBasedOnKey[vehicleMasterUrl]}?fetchAll=true`,
-              token
+              token,
             ),
             getData(`${endPointBasedOnKey[locationUrl]}?fetchAll=true`, token),
           ]);
@@ -74,7 +74,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         setFormLoading(false);
       }
     },
-    [token]
+    [token],
   );
 
   useEffect(() => {
@@ -116,7 +116,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               <SelectDropDown
                 item={"locationId"}
                 options={collectedData?.locationId?.filter(
-                  (location) => location?.locationStatus !== "inactive"
+                  (location) => location?.locationStatus !== "inactive",
                 )}
                 value={id && vehicleMaster[0]?.locationId}
                 setIsLocationSelected={setIsLocationSelected}
@@ -138,7 +138,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
                 options={
                   stationData &&
                   stationData.filter(
-                    (station) => station?.status !== "inactive"
+                    (station) => station?.status !== "inactive",
                   )
                 }
                 value={id && vehicleMaster[0]?.stationId}
@@ -278,7 +278,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               require={true}
             />
           </div>
-          <div className="w-full lg:w-[48%]">
+          {/* <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"condition"}
               options={["new", "old"]}
@@ -295,7 +295,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               require={true}
               isSearchEnable={false}
             />
-          </div>
+          </div> */}
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"vehicleStatus"}

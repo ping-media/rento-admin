@@ -300,9 +300,17 @@ const handleCreateAndUpdateVehicle = async (
   if (id) {
     result = Object.assign(result, { _id: id });
   }
+
   if (tempIds && tempIds.length > 0) {
     result = Object.assign(result, { vehiclePlan: tempIds });
     dispatch(removeTempIds());
+  }
+
+  if (location?.pathname?.includes("/all-vehicles/")) {
+    result = Object.assign(result, {
+      condition: "new",
+      vehicleBookingStatus: "available",
+    });
   }
 
   // if someone bymistake pass brand in vehicleName too in that case remove the brand from vehicleName
