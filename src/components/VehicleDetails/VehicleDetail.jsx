@@ -135,7 +135,7 @@ const VehicleDetail = () => {
               <MaintenanceTable />
             </Suspense>
 
-            <div className="mb-2">
+            <div className="mt-3 mb-2">
               <h2 className="text-lg font-medium">
                 Individual Vehicle Details
               </h2>

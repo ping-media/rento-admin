@@ -15,7 +15,12 @@ const VehicleGroupUpdate = ({ vehicleName, stationId }) => {
 
     setLoading(true);
     try {
-      const endpoint = `/getAllVehiclesIdsData?vehicleName=${vehicleName}&stationId=${stationId}`;
+      // Using URLSearchParams to handle special characters like +, (, ), spaces etc.
+      const params = new URLSearchParams();
+      if (vehicleName) params.append("vehicleName", vehicleName);
+      if (stationId) params.append("stationId", stationId);
+
+      const endpoint = `/getAllVehiclesIdsData?${params.toString()}`;
 
       const response = await getData(endpoint, token);
       if (response.status == 200) {
@@ -28,7 +33,6 @@ const VehicleGroupUpdate = ({ vehicleName, stationId }) => {
       }
     } catch (error) {
       console.log("Unable to fetch vehicle data", error);
-      setLoading(false);
     } finally {
       setLoading(false);
     }
