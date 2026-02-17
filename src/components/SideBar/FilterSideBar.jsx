@@ -7,11 +7,12 @@ import PreLoader from "../../components/Skeleton/PreLoader";
 import { resetVehiclesFilter } from "../../Redux/PaginationSlice/PaginationSlice";
 import { useClickOutside } from "../../utils/Helper/useClickOutside";
 import useSidebarFilter from "../../hooks/use-sidebar-filter";
+import StationFilter from "./StationFilter";
 
-const FilterSideBar = () => {
+const FilterSideBar = ({ stationId, setStationId }) => {
   const dispatch = useDispatch();
   const { isFilterOpen } = useSelector((state) => state.sideBar);
-  // const { loggedInRole } = useSelector((state) => state.user);
+  const { loggedInRole } = useSelector((state) => state.user);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
   const {
     filterMenuList,
@@ -21,12 +22,10 @@ const FilterSideBar = () => {
     loading,
     formLoading,
     activeFilterName,
-    stationName,
-    setStationName,
   } = useSidebarFilter();
   const [menuList, setMenuList] = useState([]);
   const [filterState, setFilterState] = useState(
-    activeFilterName !== "" ? activeFilterName : "All Bookings"
+    activeFilterName !== "" ? activeFilterName : "All Bookings",
   );
   const sideBarRef = useRef(null);
   const currentSearchTermRef = useRef("");
@@ -38,7 +37,7 @@ const FilterSideBar = () => {
         dispatch(toggleFilterSideBar());
       }
     },
-    isFilterOpen
+    isFilterOpen,
   );
 
   // change the data based on page
@@ -55,8 +54,12 @@ const FilterSideBar = () => {
       currentSearchTermRef.current = searchTag;
       searchDataBasedOnFilters(searchTag, title);
     },
-    [searchDataBasedOnFilters]
+    [searchDataBasedOnFilters],
   );
+
+  if (loading) {
+    return <PreLoader />;
+  }
 
   return (
     <div
@@ -64,7 +67,7 @@ const FilterSideBar = () => {
         isFilterOpen ? "bg-black bg-opacity-50" : "hidden"
       } transition-all duration-300 ease-in-out`}
     >
-      {loading && <PreLoader />}
+      {/* {loading && <PreLoader />} */}
       <div
         ref={sideBarRef}
         className={`shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200 w-full lg:w-[22%] lg:float-right ${
@@ -103,28 +106,32 @@ const FilterSideBar = () => {
         >
           {location.pathname !== "/all-vehicles" && (
             <>
-              {/* {loggedInRole && (
-                <div className="mt-2 mb-5">
-                  <div className="flex gap-2 items-center">
-                    <div className="flex-1">
-                      <label
-                        htmlFor="stationName"
-                        className="block text-gray-800 font-semibold text-sm capitalize text-left"
-                      >
-                        Station Name
-                      </label>
+              {loggedInRole === "admin" && (
+                <StationFilter
+                  stationId={stationId}
+                  setStationId={setStationId}
+                />
+                // <div className="mt-2 mb-5">
+                //   <div className="flex gap-2 items-center">
+                //     <div className="flex-1">
+                //       <label
+                //         htmlFor="stationName"
+                //         className="block text-gray-800 font-semibold text-sm capitalize text-left"
+                //       >
+                //         Station Name
+                //       </label>
 
-                      <input
-                        id="stationName"
-                        value={stationName}
-                        placeholder="Enter Station Name..."
-                        onChange={(e) => setStationName(e.target.value)}
-                        className="block w-full mt-2 px-5 py-3 rounded-md ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none relative disabled:bg-gray-400/20 disabled:bg-opacity-20"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )} */}
+                //       <input
+                //         id="stationName"
+                //         value={stationName}
+                //         placeholder="Enter Station Name..."
+                //         onChange={(e) => setStationName(e.target.value)}
+                //         className="block w-full mt-2 px-5 py-3 rounded-md ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none relative disabled:bg-gray-400/20 disabled:bg-opacity-20"
+                //       />
+                //     </div>
+                //   </div>
+                // </div>
+              )}
               {/* filter options  */}
               <ul className="leading-10 flex flex-col gap-3">
                 {menuList &&

@@ -61,7 +61,7 @@ const BookingTimeLine = () => {
                       item?.title?.includes("Changed")
                     ) ? (
                       <>
-                        <h3 className="mb-1 font-bold text-gray-800 text-sm">
+                        <h3 className="mb-1 font-semibold capitalize text-gray-800 text-sm">
                           {item?.title}
                         </h3>
 

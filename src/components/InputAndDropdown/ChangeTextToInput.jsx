@@ -4,6 +4,8 @@ import React, { useState } from "react";
 
 const ChangeTextToInput = ({ value, setValue, type }) => {
   const [isEdit, setIsEdit] = useState(false);
+  const defaultValue = isEdit ? value : value === 0 ? "" : value;
+
   return (
     <>
       {!isEdit ? (
@@ -20,8 +22,10 @@ const ChangeTextToInput = ({ value, setValue, type }) => {
       ) : (
         <input
           type={type}
-          value={value === 0 ? "" : value}
+          // value={value === 0 ? "" : value}
+          value={defaultValue}
           onChange={setValue}
+          onFocus={(e) => e.target.select()}
           onBlur={() => setIsEdit(false)}
           onKeyDown={(e) => {
             if (e.key === "Enter") setIsEdit(false);

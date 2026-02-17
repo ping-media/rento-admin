@@ -145,6 +145,7 @@ const fetchVehicleMasterWithPagination = debounce(
     searchType,
     vehiclesFilter,
     filters,
+    stationId,
   ) => {
     try {
       dispatch(fetchVehicleStart());
@@ -161,8 +162,22 @@ const fetchVehicleMasterWithPagination = debounce(
 
       let dynamicEndpoint = `${endpoint}?page=${currentPage}&limit=${limit}`;
 
-      if (filters !== null && filters !== " ") {
+      // if (filters !== null && filters !== " ") {
+      if (filters && filters?.trim() !== "") {
         dynamicEndpoint = `${endpoint}?${filters}&page=${currentPage}&limit=${limit}`;
+
+        if (stationId && stationId?.trim() !== "") {
+          dynamicEndpoint += `&stationId=${stationId}`;
+        }
+      }
+
+      // if station id is present
+      if (stationId && stationId?.trim() !== "") {
+        dynamicEndpoint = `${endpoint}?&stationId=${stationId}&page=${currentPage}&limit=${limit}`;
+
+        if (filters && filters?.trim() !== "") {
+          dynamicEndpoint += `&${filters}`;
+        }
       }
 
       if (

@@ -41,14 +41,24 @@ const RenderCellContent = (column, value, item, location) => {
   if (location.pathname === "/all-bookings" && column.includes("DateAndTime")) {
     let newValue = value;
     if (column === "BookingEndDateAndTime") {
-      const extendData =
-        item.bookingPrice?.extendAmount?.length > 0
-          ? item.bookingPrice?.extendAmount
+      const bookingPrice = item.bookingPrice ?? null;
+      if (bookingPrice === null) return "--";
+
+      const extension =
+        bookingPrice?.extendAmount?.length > 0
+          ? bookingPrice?.extendAmount
           : null;
-      const extendBookingDate =
-        extendData != null
-          ? extendData[extendData?.length - 1]?.bookingEndDateAndTime
-          : null;
+
+      const isLastExtensionPaid = extension
+        ? extension[extension.length - 1]?.status === "paid"
+        : false;
+
+      const extendBookingDate = isLastExtensionPaid
+        ? extension[extension?.length - 1]?.bookingEndDateAndTime
+        : null;
+      // extension !== null
+      //   ? extension[extension?.length - 1]?.bookingEndDateAndTime
+      //   : null;
 
       if (extendBookingDate !== null && extendBookingDate !== undefined) {
         newValue = extendBookingDate;

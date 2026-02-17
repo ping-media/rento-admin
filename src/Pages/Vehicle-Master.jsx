@@ -1,4 +1,4 @@
-import { lazy, useCallback, useEffect, useMemo } from "react";
+import { lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVehicleMasterWithPagination } from "../Data/Function";
 import { endPointBasedOnURL } from "../Data/commonData";
@@ -18,6 +18,7 @@ const VehicleStationModal = lazy(
 );
 
 const VehicleMaster = () => {
+  const [stationId, setStationId] = useState("");
   const { vehicleMaster, deletevehicleId, tempLoading, loading, refresh } =
     useSelector((state) => state.vehicles);
   const { page, limit, searchTerm, searchType, vehiclesFilter, filters } =
@@ -65,6 +66,7 @@ const VehicleMaster = () => {
         searchType,
         vehiclesFilter,
         filters,
+        stationId,
       );
     }
   }, [
@@ -79,6 +81,7 @@ const VehicleMaster = () => {
     searchBasedOnPage,
     vehiclesFilter,
     filters,
+    stationId,
   ]);
 
   // Fetch data effect
@@ -115,7 +118,7 @@ const VehicleMaster = () => {
   return (
     <>
       {/* filters and sorting  */}
-      <FilterSideBar />
+      <FilterSideBar stationId={stationId} setStationId={setStationId} />
       {showAddVehicleModal && <AddVehicleForServiceModal />}
       {showVehicleStationModal && <VehicleStationModal />}
 

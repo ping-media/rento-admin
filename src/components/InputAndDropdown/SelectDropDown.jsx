@@ -16,6 +16,7 @@ const SelectDropDown = ({
   isSearchEnable = true,
   zIndex = "z-10",
   setCity,
+  isLabel = true,
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
   const [openDirection, setOpenDirection] = useState("bottom");
@@ -149,16 +150,18 @@ const SelectDropDown = ({
 
   return (
     <div className="w-full" ref={dropdownRef}>
-      <label
-        htmlFor={item}
-        className="block text-gray-800 font-semibold text-sm capitalize text-left"
-      >
-        Select{" "}
-        {placeholder ||
-          camelCaseToSpaceSeparated(title[item]) ||
-          camelCaseToSpaceSeparated(item)}
-        {require && <span className="ml-1 text-red-500">*</span>}
-      </label>
+      {isLabel && (
+        <label
+          htmlFor={item}
+          className="block text-gray-800 font-semibold text-sm capitalize text-left"
+        >
+          Select{" "}
+          {placeholder ||
+            camelCaseToSpaceSeparated(title[item]) ||
+            camelCaseToSpaceSeparated(item)}
+          {require && <span className="ml-1 text-red-500">*</span>}
+        </label>
+      )}
       <input type="hidden" name={item} value={inputSelect} />
       <div className="mt-2 relative">
         <div

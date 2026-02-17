@@ -16,15 +16,11 @@ const useSidebarFilter = () => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [stationName, setStationName] = useState("");
-  const {
-    page,
-    limit,
-    vehiclesFilter,
-    activeFilterName,
-    // stationName: GlobalSearchTerm,
-  } = useSelector((state) => state.pagination);
+  const { page, limit, vehiclesFilter, activeFilterName } = useSelector(
+    (state) => state.pagination,
+  );
   const { token, loggedInRole, userStation } = useSelector(
-    (state) => state.user
+    (state) => state.user,
   );
   const dispatch = useDispatch();
 
@@ -137,7 +133,7 @@ const useSidebarFilter = () => {
   const searchDataBasedOnFilters = async (
     searchTerm,
     title,
-    isMobile = false
+    isMobile = false,
   ) => {
     try {
       setLoading(true);
@@ -172,13 +168,13 @@ const useSidebarFilter = () => {
                 }${searchTerm}&page=${page}&limit=${limit}`
               : `/getBooking?${StationId}&page=${page}&limit=${limit}`
             : searchTerm
-            ? `/getBooking?${
-                searchTerm?.includes("Status=") ||
-                searchTerm.includes("isCash=")
-                  ? ""
-                  : "search="
-              }${searchTerm}&page=${page}&limit=${limit}`
-            : `/getBooking?page=${page}&limit=${limit}`;
+              ? `/getBooking?${
+                  searchTerm?.includes("Status=") ||
+                  searchTerm.includes("isCash=")
+                    ? ""
+                    : "search="
+                }${searchTerm}&page=${page}&limit=${limit}`
+              : `/getBooking?page=${page}&limit=${limit}`;
       } else {
         endpoint = searchTerm
           ? `/getAllUsers?${
@@ -216,7 +212,8 @@ const useSidebarFilter = () => {
     const formData = new FormData(event.target);
     let result = Object.fromEntries(formData.entries());
 
-    if (!result.vehicleName && !result.stationName) {
+    // if (!result.vehicleName && !result.stationName) {
+    if (!result.vehicleName && !result.stationId) {
       handleAsyncError(dispatch, "Atleast add one field in order filter data.");
       return;
     }
@@ -241,7 +238,7 @@ const useSidebarFilter = () => {
     } catch (error) {
       handleAsyncError(
         dispatch,
-        "Unable to find vehicle with filters!. try again"
+        "Unable to find vehicle with filters!. try again",
       );
       return;
     } finally {
