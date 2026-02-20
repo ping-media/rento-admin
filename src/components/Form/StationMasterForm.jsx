@@ -27,11 +27,11 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const fetchCollectedData = async (locationUrl, stationUrl) => {
     const locationResponse = await getData(
       `${endPointBasedOnKey[locationUrl]}?fetchAll=true`,
-      token
+      token,
     );
     const stationResponse = await getData(
       `${endPointBasedOnKey[stationUrl]}?fetchAll=true`,
-      token
+      token,
     );
 
     if (locationResponse && stationResponse) {
@@ -74,7 +74,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               <SelectDropDown
                 item={"locationId"}
                 options={collectedData?.locationId?.filter(
-                  (location) => location?.locationStatus !== "inactive"
+                  (location) => location?.locationStatus !== "inactive",
                 )}
                 value={id && vehicleMaster[0]?.locationId}
                 setCity={setCityValue}
@@ -205,10 +205,10 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
         </div>
       </form>
 
-      <PaymentToggler />
+      {id && <PaymentToggler />}
 
       {/* addon form  */}
-      <GeneralAddOn />
+      {id && <GeneralAddOn />}
     </>
   ) : (
     <PreLoader />

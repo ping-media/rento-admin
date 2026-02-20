@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useIsMobile } from "../../utils";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { menuList } from "./menuList";
 import SideBarDropDown from "./SideBarDropDown";
 import rentoLogo from "../../assets/logo/rento-full-red.png";
@@ -20,7 +20,29 @@ const SideBar = () => {
         dispatch(toggleSideBar());
       }
     }
-  }, [location.pathname]);
+  }, [location.pathname, isMobile, is_open, dispatch]);
+
+  const filteredMenu = useMemo(() => {
+    return menuList
+      .filter((item) => item.roles?.includes(loggedInRole))
+      .map((item) => {
+        if (!item.nestedLink) return item;
+
+        return {
+          ...item,
+          nestedLink: item.nestedLink.filter((nestedItem) =>
+            nestedItem.roles?.includes(loggedInRole),
+          ),
+        };
+      });
+  }, [loggedInRole]);
+
+  const isActiveRoute = (item) => {
+    return (
+      location.pathname.includes(item?.menuLink?.toLowerCase()) ||
+      location.pathname.includes(item?.moreLink?.toLowerCase())
+    );
+  };
 
   return (
     <div className="shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200">
@@ -47,6 +69,7 @@ const SideBar = () => {
           </svg>
         </button>
       </div>
+
       <div className="py-[0.5rem]">
         <div className="h-14 lg:h-16">
           <img
@@ -62,71 +85,46 @@ const SideBar = () => {
         style={{ height: "calc(100vh - 88px)" }}
       >
         <ul className="leading-9">
-          {menuList
-            .filter((item) => {
-              if (item.roles?.includes(loggedInRole)) {
-                if (item.nestedLink) {
-                  item.nestedLink = item.nestedLink.filter((nestedItem) =>
-                    nestedItem.roles?.includes(loggedInRole)
-                  );
-                }
-                return true;
-              }
-              return false;
-            })
-            .map((item, index) => {
-              if (item.nestedLink) {
-                return <SideBarDropDown item={item} key={index} />;
-              } else {
-                return (
-                  <Link
-                    to={`${item?.menuLink}`}
-                    key={index}
-                    onClick={() => {
-                      if (isMobile) {
-                        dispatch(toggleSideBar());
-                      }
-                    }}
+          {filteredMenu.map((item, index) => {
+            if (item.nestedLink) {
+              return <SideBarDropDown item={item} key={index} />;
+            }
+            const active = isActiveRoute(item);
+
+            return (
+              <Link
+                to={`${item?.menuLink}`}
+                key={index}
+                onClick={() => {
+                  if (isMobile) {
+                    dispatch(toggleSideBar());
+                  }
+                }}
+              >
+                <li
+                  className={`px-4 py-1.5 group capitalize text-sm ${
+                    active ? "bg-theme text-white" : "hover:bg-theme"
+                  } transition duration-300 ease-in-out rounded-md flex items-center gap-1 mb-2 dark:text-gray-100`}
+                >
+                  <div
+                    className={`w-7 h-7 group-hover:text-gray-100 text-sm ${
+                      active ? "text-white" : ""
+                    }`}
                   >
-                    <li
-                      className={`px-4 py-1.5 group capitalize text-sm ${
-                        location.pathname.includes(
-                          item?.menuLink.toLowerCase()
-                        ) ||
-                        location.pathname.includes(
-                          item?.moreLink?.toLowerCase()
-                        )
-                          ? "bg-theme text-gray-100"
-                          : ""
-                      } hover:bg-theme transition duration-300 ease-in-out rounded-md flex items-center gap-1 mb-2 dark:text-gray-100`}
-                    >
-                      <div
-                        className={`w-7 h-7 group-hover:text-gray-100 text-sm ${
-                          location.pathname.includes(
-                            item?.menuLink?.toLowerCase()
-                          ) ||
-                          location.pathname.includes(
-                            item?.moreLink?.toLowerCase()
-                          )
-                            ? "text-gray-100"
-                            : ""
-                        }`}
-                      >
-                        {/* menuItem icon  */}
-                        {item?.menuImg}
-                      </div>
-                      <span className="group-hover:text-gray-100">
-                        {item?.menuTitle}
-                      </span>
-                    </li>
-                  </Link>
-                );
-              }
-            })}
+                    {/* menuItem icon  */}
+                    {item?.menuImg}
+                  </div>
+                  <span className="group-hover:text-white">
+                    {item?.menuTitle}
+                  </span>
+                </li>
+              </Link>
+            );
+          })}
         </ul>
       </div>
     </div>
   );
 };
 
-export default SideBar;
+export default React.memo(SideBar);

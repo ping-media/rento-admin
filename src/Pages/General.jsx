@@ -9,7 +9,7 @@ const General = () => {
   return (
     <>
       <div className="flex items-center flex-wrap justify-between">
-        <h1 className="text-2xl uppercase font-bold text-theme mb-5">
+        <h1 className="text-2xl captialize font-bold text-theme mb-5">
           Settings
         </h1>
         <div className="w-full md:w-2/5 lg:w-1/3">

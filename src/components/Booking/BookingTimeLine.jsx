@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import { useSelector } from "react-redux";
 import CopyButton from "../../components/Buttons/CopyButton";
@@ -7,13 +7,42 @@ import {
   formatPrice,
   millisecToReadableFormat,
 } from "../../utils/index";
+import { tableIcons } from "../../Data/Icons";
+import Tooltip from "../../components/Tooltip/Tooltip";
+const BookingTimelineNoteModal = lazy(
+  () => import("../../components/Modal/BookingTimelineNoteModal"),
+);
 
 const BookingTimeLine = () => {
   const { timeLineData } = useSelector((state) => state.vehicles);
   const [loading] = useState(false);
+  // modal state
+  const [open, setOpen] = useState(false);
+  const [timelineIndex, setTimelineIndex] = useState(null);
+
+  const handleOpenNote = (index) => {
+    if (typeof index !== "number") return;
+
+    setOpen(true);
+    setTimelineIndex(index);
+  };
+
+  const handleCloseNote = () => {
+    setOpen(false);
+    setTimelineIndex(null);
+  };
 
   return (
     <>
+      <Suspense fallback={<PreLoader />}>
+        <BookingTimelineNoteModal
+          open={open}
+          setOpen={handleCloseNote}
+          _id={timeLineData?._id ?? ""}
+          index={timelineIndex}
+        />
+      </Suspense>
+
       <div className="container mx-auto py-4">
         {loading && <PreLoader />}
         <div className="relative wrap overflow-hidden">
@@ -61,9 +90,11 @@ const BookingTimeLine = () => {
                       item?.title?.includes("Changed")
                     ) ? (
                       <>
-                        <h3 className="mb-1 font-semibold capitalize text-gray-800 text-sm">
-                          {item?.title}
-                        </h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold capitalize text-gray-800 text-sm">
+                            {item?.title}
+                          </h3>
+                        </div>
 
                         {item?.bookingEndDateAndTime && (
                           <p className="text-gray-700 leading-tight text-sm">
@@ -133,7 +164,17 @@ const BookingTimeLine = () => {
                           <>
                             {isBothDatesChange && (
                               <p className="text-gray-800 leading-tight text-xs">
-                                Booking Date(s) changes to
+                                Booking Duration changes to
+                                <br />
+                                <span className="font-semibold">
+                                  {item?.newStartDate
+                                    ? formatFullDateAndTime(item.newStartDate)
+                                    : "--"}{" "}
+                                  -{" "}
+                                  {item?.newEndDate
+                                    ? formatFullDateAndTime(item.newEndDate)
+                                    : "--"}
+                                </span>
                               </p>
                             )}
                             {item?.newStartDate && !isBothDatesChange && (
@@ -153,22 +194,47 @@ const BookingTimeLine = () => {
                       </>
                     ) : (
                       <div>
-                        <h3
-                          className={`mb-1 font-bold text-gray-800 text-sm flex justify-start`}
-                        >
-                          {item?.title === "Booking Extended by User"
-                            ? "Extension by User"
-                            : item?.title === "Booking Extended by Admin"
-                              ? "Extension by Admin"
-                              : item?.title}
-                          {item?.extended !== true &&
-                            item?.PaymentLink &&
-                            item?.PaymentLink !== "" && (
-                              <span className="ml-1">
-                                <CopyButton textToCopy={item?.PaymentLink} />
-                              </span>
-                            )}
-                        </h3>
+                        <div className="mb-1 flex items-center gap-2">
+                          <h3
+                            className={`font-bold text-gray-800 text-sm flex justify-start`}
+                          >
+                            {item?.title === "Booking Extended by User"
+                              ? "Extension by User"
+                              : item?.title === "Booking Extended by Admin"
+                                ? "Extension by Admin"
+                                : item?.title}
+                            {item?.extended !== true &&
+                              item?.PaymentLink &&
+                              item?.PaymentLink !== "" && (
+                                <span className="ml-1">
+                                  <CopyButton textToCopy={item?.PaymentLink} />
+                                </span>
+                              )}
+                          </h3>
+                          {/* add note button if note is there than data  */}
+                          {!item?.PaymentLink && (
+                            <>
+                              {(!item?.notes || item.notes.length === 0) && (
+                                <AddNoteBtn
+                                  onClick={() => handleOpenNote(index)}
+                                />
+                              )}
+
+                              {item?.notes?.length === 1 && (
+                                <Tooltip
+                                  underLine={false}
+                                  buttonMessage="(?)"
+                                  tooltipData={
+                                    <>
+                                      {item.notes[0]?.value} |{" "}
+                                      {item.notes[0]?.key}
+                                    </>
+                                  }
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
                         {!item?.refundAmount ||
                         (item?.refundAmount && item?.refundAmount === 0) ? (
                           <>
@@ -242,3 +308,14 @@ const BookingTimeLine = () => {
 };
 
 export default BookingTimeLine;
+
+const AddNoteBtn = ({ onClick }) => (
+  <button
+    type="button"
+    className="cursor-pointer bg-theme"
+    title="add note"
+    onClick={onClick}
+  >
+    {tableIcons.add}
+  </button>
+);

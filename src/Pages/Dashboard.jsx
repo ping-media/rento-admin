@@ -23,10 +23,10 @@ const Dashboard = () => {
   const defaultMonth = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
   const { dasboardDataCount, loading } = useSelector(
-    (state) => state.dashboard
+    (state) => state.dashboard,
   );
   const { token, loggedInRole, userStation } = useSelector(
-    (state) => state.user
+    (state) => state.user,
   );
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
@@ -46,7 +46,7 @@ const Dashboard = () => {
       roleBaseFilter,
       navigate,
       currentMonth,
-      dasboardDataCount
+      dasboardDataCount,
     );
   }, [token, loggedInRole, currentMonth]);
 
@@ -80,7 +80,7 @@ const Dashboard = () => {
 
   const barChartData = useMemo(
     () => dasboardDataCount?.payments,
-    [dasboardDataCount]
+    [dasboardDataCount],
   );
 
   if (!token || loading || !dasboardDataCount?.dashboard) {
@@ -92,7 +92,7 @@ const Dashboard = () => {
   return (
     <>
       <div className="w-full flex items-center justify-between">
-        <h1 className="text-2xl uppercase font-bold text-theme mb-5">
+        <h1 className="text-2xl captialize font-bold text-theme mb-5">
           Dashboard
         </h1>
         <CustomMonthDropdown

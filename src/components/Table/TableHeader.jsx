@@ -34,6 +34,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           />
         </th>
       )}
+
       <th
         scope="col"
         className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"

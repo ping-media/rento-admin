@@ -8,8 +8,10 @@ import { resetVehiclesFilter } from "../../Redux/PaginationSlice/PaginationSlice
 import { useClickOutside } from "../../utils/Helper/useClickOutside";
 import useSidebarFilter from "../../hooks/use-sidebar-filter";
 import StationFilter from "./StationFilter";
+import { useLocation } from "react-router-dom";
 
 const FilterSideBar = ({ stationId, setStationId }) => {
+  const location = useLocation();
   const dispatch = useDispatch();
   const { isFilterOpen } = useSelector((state) => state.sideBar);
   const { loggedInRole } = useSelector((state) => state.user);
@@ -106,32 +108,33 @@ const FilterSideBar = ({ stationId, setStationId }) => {
         >
           {location.pathname !== "/all-vehicles" && (
             <>
-              {loggedInRole === "admin" && (
-                <StationFilter
-                  stationId={stationId}
-                  setStationId={setStationId}
-                />
-                // <div className="mt-2 mb-5">
-                //   <div className="flex gap-2 items-center">
-                //     <div className="flex-1">
-                //       <label
-                //         htmlFor="stationName"
-                //         className="block text-gray-800 font-semibold text-sm capitalize text-left"
-                //       >
-                //         Station Name
-                //       </label>
+              {loggedInRole === "admin" &&
+                location.pathname === "/all-bookings" && (
+                  <StationFilter
+                    stationId={stationId}
+                    setStationId={setStationId}
+                  />
+                  // <div className="mt-2 mb-5">
+                  //   <div className="flex gap-2 items-center">
+                  //     <div className="flex-1">
+                  //       <label
+                  //         htmlFor="stationName"
+                  //         className="block text-gray-800 font-semibold text-sm capitalize text-left"
+                  //       >
+                  //         Station Name
+                  //       </label>
 
-                //       <input
-                //         id="stationName"
-                //         value={stationName}
-                //         placeholder="Enter Station Name..."
-                //         onChange={(e) => setStationName(e.target.value)}
-                //         className="block w-full mt-2 px-5 py-3 rounded-md ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none relative disabled:bg-gray-400/20 disabled:bg-opacity-20"
-                //       />
-                //     </div>
-                //   </div>
-                // </div>
-              )}
+                  //       <input
+                  //         id="stationName"
+                  //         value={stationName}
+                  //         placeholder="Enter Station Name..."
+                  //         onChange={(e) => setStationName(e.target.value)}
+                  //         className="block w-full mt-2 px-5 py-3 rounded-md ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none relative disabled:bg-gray-400/20 disabled:bg-opacity-20"
+                  //       />
+                  //     </div>
+                  //   </div>
+                  // </div>
+                )}
               {/* filter options  */}
               <ul className="leading-10 flex flex-col gap-3">
                 {menuList &&

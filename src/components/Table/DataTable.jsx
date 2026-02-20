@@ -73,7 +73,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   useEffect(() => {
     setColumns([]);
     setNewUpdatedData([]);
-  }, [location.href]);
+    setSortedData([]);
+  }, [location.pathname]);
+  // useEffect(() => {
+  //   setColumns([]);
+  //   setNewUpdatedData([]);
+  // }, [location.href]);
 
   // Sorting function
   const sortData = (key) => {
@@ -95,7 +100,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
 
   // for table header
   const getTableHeader = (Data) => {
-    if (Data.length == 0) return;
+    // if (Data.length == 0) return;
+    if (!Data || Data.length === 0) {
+      setColumns([]); // explicitly reset headers
+      return;
+    }
+
     const keys = Object.keys(Data[0]);
 
     let filteredKeys = keys.filter(
@@ -596,8 +606,8 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
         >
           {!dataLoading && Data ? (
             newUpdatedData && newUpdatedData.length > 0 ? (
-              newUpdatedData.map((item) => (
-                <BookingCard item={item} key={item?._id} />
+              newUpdatedData.map((item, index) => (
+                <BookingCard item={item} key={index} />
               ))
             ) : (
               <div className="flex flex-col items-center justify-center h-52 bg-white rounded-xl shadow-xl">

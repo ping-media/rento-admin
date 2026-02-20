@@ -96,7 +96,7 @@ const CreateNewAndUpdateForm = () => {
             {tableIcons?.backArrow}
           </button>
           {/* heading render dynamically based on url  */}
-          <h1 className="text-xl lg:text-2xl uppercase font-bold text-theme">
+          <h1 className="text-xl lg:text-2xl capitalize font-bold text-theme">
             {location.pathname.includes("/all-bookings/")
               ? `${id ? "Edit" : "Create"} Booking${
                   id ? `: #${vehicleMaster[0]?.bookingId}` : ""

@@ -4,12 +4,28 @@ import { tableIcons } from "../../Data/Icons";
 import { getFullData } from "../../Data/index";
 import { useDispatch, useSelector } from "react-redux";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import {
-  formatFullDateAndTime,
-  getDurationBetweenDates,
-} from "../../utils/index";
 import Spinner from "../../components/Spinner/Spinner";
 import { useLocation } from "react-router-dom";
+import { transformUsers } from "./data/user";
+import { transformBookings } from "./data/booking";
+
+const EXPORT_CONFIG = {
+  "/all-users": {
+    endpoint: "/getAllUsers?userType=customer&page=1&limit=1000",
+    reportName: "Customers",
+    transform: transformUsers,
+  },
+  "/all-bookings": {
+    endpoint: "/getBooking?&page=1&limit=1000",
+    reportName: "Booking",
+    transform: transformBookings,
+  },
+  // "/all-vehicles": {
+  //   endpoint: "/getAllVehiclesData?page=1&limit=1000",
+  //   reportName: "Vehicles",
+  //   transform: transformBookings,
+  // },
+};
 
 const ExportButton = () => {
   const { pathname } = useLocation();
@@ -17,130 +33,36 @@ const ExportButton = () => {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
+  const config = EXPORT_CONFIG[pathname];
+
+  if (!config) return null;
+
   const handleExport = async () => {
     try {
       setLoading(true);
 
-      const endpoint =
-        pathname === "/all-users"
-          ? "/getAllUsers?userType=customer&page=1&limit=1000"
-          : "/getBooking?&page=1&limit=1000";
-
-      const response = await getFullData(endpoint, token);
+      const response = await getFullData(config.endpoint, token);
 
       if (response?.status !== 200) {
         handleAsyncError(dispatch, "Unable to get data! try again");
         return;
       }
 
-      const data = response?.data?.data || [];
-      const reportName = pathname === "/all-users" ? "User" : "Booking";
+      const rawData = response?.data?.data || [];
+      const exportData = config.transform(rawData);
 
-      const exportData = data.map((item) => {
-        if (pathname === "/all-bookings") {
-          // --- handle booking end date from extend ---
-          const extendAmount = item.bookingPrice?.extendAmount || [];
-          let BookingEndDateAndTime = item?.BookingEndDateAndTime;
+      if (!exportData.length) return;
 
-          if (extendAmount.length > 0) {
-            const lastExtend = extendAmount[extendAmount.length - 1];
-            if (lastExtend?.bookingEndDateAndTime) {
-              BookingEndDateAndTime = lastExtend.bookingEndDateAndTime;
-            }
-          }
+      const now = new Date();
+      const timestamp = now
+        .toISOString() // → "2025-09-18T06:12:34.567Z"
+        .replace(/T/, "_") // → "2025-09-18_06:12:34.567Z"
+        .replace(/\..+/, ""); // → "2025-09-18_06:12:34"
 
-          // --- duration ---
-          let Duration = "";
-          if (item?.BookingStartDateAndTime && BookingEndDateAndTime) {
-            const { days, hours } = getDurationBetweenDates(
-              item?.BookingStartDateAndTime,
-              BookingEndDateAndTime
-            );
-            Duration = `${days} days ${hours > 0 ? `${hours} hours` : ""}`;
-          }
-
-          // --- prices ---
-          const bookingPrice =
-            item?.bookingPrice?.isDiscountZero === true ||
-            (item?.bookingPrice?.discountTotalPrice &&
-              item?.bookingPrice?.discountTotalPrice !== 0)
-              ? item?.bookingPrice?.discountTotalPrice
-              : item?.bookingPrice?.totalPrice;
-
-          const extendPrice = extendAmount.reduce((sum, extend) => {
-            if (extend?.status === "paid") {
-              return (
-                sum +
-                Number(extend?.amount || 0) +
-                Number(extend?.addOnAmount || 0) +
-                Number(extend?.tax || 0) +
-                Number(extend?.addonTax || 0)
-              );
-            }
-            return sum;
-          }, 0);
-
-          const diffAmount = item.bookingPrice?.diffAmount || [];
-          const diffPrice = diffAmount.reduce((sum, diff) => {
-            if (diff?.status === "paid") {
-              const debit = Number(diff?.amount || 0);
-              const credit = Number(diff?.refundAmount || 0);
-              return sum + (debit - credit);
-            }
-            return sum;
-          }, 0);
-
-          const newBookingPrice = bookingPrice + extendPrice + diffPrice;
-
-          // --- final row object ---
-          return {
-            BookingId: item?.bookingId,
-            PickupDateAndTime:
-              item?.BookingStartDateAndTime &&
-              formatFullDateAndTime(item?.BookingStartDateAndTime),
-            DropDateAndTime: formatFullDateAndTime(BookingEndDateAndTime),
-            Duration,
-            CustomerName: item?.userId?.fullName || "--",
-            CustomerNumber: item?.userId?.contact || "--",
-            AltCustomerNumber: item?.userId?.altContact || "--",
-            CustomerEmail: item?.userId?.email || "--",
-            VehicleModel: `${item?.vehicleBrand || "--"} ${
-              item?.vehicleName || ""
-            }`,
-            VehicleNumber: item?.vehicleBasic?.vehicleNumber,
-            TotalAmount: newBookingPrice,
-            PaymentStatus: item.paymentStatus,
-            BookingStatus:
-              item?.bookingStatus === "done"
-                ? "confirmed"
-                : item?.bookingStatus,
-            RideStatus: item?.rideStatus,
-          };
-        } else if (pathname === "/all-users") {
-          return {
-            FullName: `${item?.firstName || "--"} ${item?.lastName || ""}`,
-            CustomerNumber: item?.contact || "--",
-            AltCustomerNumber: item?.altContact || "--",
-            Email: item?.email || "--",
-            CreatedAt: item?.createdAt
-              ? formatFullDateAndTime(item?.createdAt)
-              : "--",
-          };
-        }
-      });
-
-      if (exportData.length > 0) {
-        const now = new Date();
-        const timestamp = now
-          .toISOString() // → "2025-09-18T06:12:34.567Z"
-          .replace(/T/, "_") // → "2025-09-18_06:12:34.567Z"
-          .replace(/\..+/, ""); // → "2025-09-18_06:12:34"
-
-        exportToExcel(
-          exportData,
-          `RentoBikes_${reportName}_Report_${timestamp}`
-        );
-      }
+      exportToExcel(
+        exportData,
+        `RentoBikes_${config.reportName}_Report_${timestamp}`,
+      );
     } catch (error) {
       console.error(error?.message);
       handleAsyncError(dispatch, "Unable to generate excel sheet! try again");

@@ -4,11 +4,47 @@ import { tableIcons } from "../../Data/Icons";
 import BulkActionButtons from "./BulkActionButtons";
 import { toggleFilterSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { bookingSearchList } from "../../Data/commonData";
 import { handleChangeSearchType } from "../../Redux/PaginationSlice/PaginationSlice";
 import useSidebarFilter from "../../hooks/use-sidebar-filter";
 import ExportButton from "../../components/ExcelExport/ExportButton";
+
+const ROUTE_TITLES = {
+  "/station-master": "Stations",
+  "/all-users": "Customers",
+  "/all-plans": "Plan Master",
+  "/all-vehicles": "Vehicles",
+  "/all-bookings": "Bookings",
+  "/all-coupons": "Coupons",
+  "/all-managers": "Managers",
+  "/location-master": "Cities",
+  "/all-invoices": "Invoices",
+};
+
+const FILTER_ENABLED_ROUTES = [
+  "/all-users",
+  "/all-managers",
+  "/all-bookings",
+  "/all-vehicles",
+];
+
+const NO_ADD_BUTTON_ROUTES = ["/payments", "/all-invoices", "/users-documents"];
+
+export function getPageTitle(pathname, activeFilterName) {
+  // Special dynamic case
+  if (pathname.includes("/all-bookings") && activeFilterName) {
+    return activeFilterName;
+  }
+
+  // Exact match override
+  if (ROUTE_TITLES[pathname]) {
+    return ROUTE_TITLES[pathname];
+  }
+
+  // Default fallback
+  return formatPathNameToTitle(pathname);
+}
 
 const TablePageHeader = ({
   inputSearchQuery,
@@ -22,58 +58,44 @@ const TablePageHeader = ({
   const { loggedInRole } = useSelector((state) => state.user);
   const { searchDataBasedOnFilters, loading } = useSidebarFilter();
   const dispatch = useDispatch();
-  const [count, setCount] = useState(0);
+
+  const pageTitle = getPageTitle(pathname, activeFilterName);
+
+  const isBookings = pathname === "/all-bookings";
+  const showAddButton = !NO_ADD_BUTTON_ROUTES.includes(pathname);
+  const showFilters = FILTER_ENABLED_ROUTES.includes(pathname);
+  const showExport =
+    loggedInRole === "admin" &&
+    ["/all-bookings", "/all-users"].includes(pathname);
+
+  const filterCount = useMemo(() => {
+    let count = 0;
+    if (vehiclesFilter.vehicleName) count++;
+    if (vehiclesFilter.search) count++;
+    if (vehiclesFilter.maintenanceType) count++;
+    return count;
+  }, [vehiclesFilter]);
 
   // stopping to reload the page
   const handleControlSubmit = (e) => {
     e.preventDefault();
   };
 
-  useEffect(() => {
-    let newCount = 0;
-
-    if (vehiclesFilter.vehicleName !== "") newCount += 1;
-    if (vehiclesFilter.search !== "") newCount += 1;
-    if (vehiclesFilter.maintenanceType !== "") newCount += 1;
-
-    setCount(newCount);
-  }, [vehiclesFilter]);
-
   // for clearing the input state
   useEffect(() => {
-    const nextPath = window.location.pathname;
-    const isGoingToDetails = nextPath.includes("/details");
-
-    if (!isGoingToDetails) {
+    if (!pathname.includes("/details")) {
       setInputSearchQuery("");
     }
-  }, [location.pathname]);
+  }, [pathname, setInputSearchQuery]);
 
   return (
     <div className="flex items-center flex-wrap justify-between gap-2 w-full">
       <div className="flex items-center justify-between lg:justify-start gap-2">
-        <h1 className="text-xl xl:text-2xl uppercase font-bold text-theme">
-          {location.pathname === "/station-master"
-            ? formatPathNameToTitle(location.pathname).replace(" Master", "s")
-            : location.pathname === "/all-users"
-              ? "All Customers"
-              : location.pathname === "/all-plans"
-                ? "Plan Master"
-                : location.pathname === "/location-master"
-                  ? "Cities"
-                  : location.pathname.includes("/all-bookings") &&
-                      activeFilterName !== null
-                    ? activeFilterName
-                    : formatPathNameToTitle(location.pathname)}
+        <h1 className="text-xl xl:text-2xl capitalize font-bold text-theme">
+          {pageTitle}
         </h1>
-        {!(
-          (
-            location.pathname == "/payments" ||
-            location.pathname == "/all-invoices" ||
-            location.pathname == "/users-documents"
-          )
-          // location.pathname == "/all-users"
-        ) && (
+
+        {showAddButton && (
           <Link
             className="bg-theme font-semibold text-gray-100 px-2.5 py-1 lg:py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
             to={location.pathname != "/all-pickup-image" ? "add-new" : "#"}
@@ -83,8 +105,9 @@ const TablePageHeader = ({
           </Link>
         )}
         {/* this button is to perform bulk action */}
-        {location?.pathname === "/all-vehicles" && <BulkActionButtons />}
+        {pathname === "/all-vehicles" && <BulkActionButtons />}
       </div>
+
       {!(location.pathname == "/users-documents") && (
         <div className="flex items-center flex-wrap lg:flex-nowrap gap-2">
           <div className="w-full bg-white rounded-md shadow-lg">
@@ -101,7 +124,8 @@ const TablePageHeader = ({
                 onChange={(e) => setInputSearchQuery(e.target.value)}
                 autoComplete="off"
               />
-              {location.pathname !== "/all-bookings" && (
+              {/* {location.pathname !== "/all-bookings" && ( */}
+              {!isBookings && (
                 <button
                   type="submit"
                   className="bg-gray-800 text-white rounded-md px-3 py-1 lg:px-4 lg:py-1 ml-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50"
@@ -109,12 +133,9 @@ const TablePageHeader = ({
                   {tableIcons.search}
                 </button>
               )}
-              {location.pathname === "/all-bookings" && (
-                <div
-                  className={`${
-                    location.pathname === "/all-bookings" ? "" : ""
-                  } bg-gray-800 text-white rounded-md p-2 lg:px-2 lg:py-1 ml-1 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50`}
-                >
+
+              {isBookings && (
+                <div className="bg-gray-800 text-white rounded-md p-2 lg:px-2 lg:py-1 ml-1 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50">
                   <div className="inset-y-0 w-full my-auto h-4 lg:h-6 flex items-center pr-2 relative">
                     <select
                       className="text-sm lg:text-md outline-none rounded-lg h-full px-2 cursor-pointer font-semibold tracking-wide bg-transparent"
@@ -139,21 +160,9 @@ const TablePageHeader = ({
               )}
             </form>
           </div>
-          {/* refresh button  */}
-          {/* <button
-            className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 flex items-center transition-all duration-200 ease-in"
-            title="Refresh"
-            onClick={() => dispatch(toggleRefresh())}
-          >
-            {tableIcons?.refresh}{" "}
-            <span className="block ml-1 lg:hidden text-sm">Refresh</span>
-          </button> */}
 
           {/* export to excel button  */}
-          {loggedInRole === "admin" &&
-            ["/all-bookings", "/all-users"].includes(pathname) && (
-              <ExportButton data={bookingData} />
-            )}
+          {showExport && <ExportButton data={bookingData} />}
 
           {/* most used filters button */}
           <button
@@ -184,19 +193,16 @@ const TablePageHeader = ({
           >
             Pending Drops
           </button>
-          {/* all filters list button  */}
-          {(location.pathname === "/all-users" ||
-            location.pathname === "/all-managers" ||
-            location.pathname === "/all-bookings" ||
-            location.pathname === "/all-vehicles") && (
+
+          {showFilters && (
             <button
               className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-1.5 lg:p-2.5 flex items-center transition-all duration-200 ease-in relative"
               title="filters"
               onClick={() => dispatch(toggleFilterSideBar())}
             >
-              {count > 0 && (
+              {filterCount > 0 && (
                 <span className="text-sm absolute -top-3 -right-2 bg-theme text-white w-7 h-7 p-1 rounded-full">
-                  {count}
+                  {filterCount}
                 </span>
               )}
               {tableIcons?.filter} <span className="ml-1">Filters</span>

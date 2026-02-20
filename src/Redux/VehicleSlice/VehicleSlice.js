@@ -63,6 +63,19 @@ const vehicleSlice = createSlice({
         timeLine: [...(state.timeLineData?.timeLine || []), ...timeLine],
       };
     },
+    updateTimeLineNoteData: (state, action) => {
+      const { note, index } = action.payload;
+
+      const item = state.timeLineData.timeLine[index];
+
+      if (!item) return; // guard against bad index
+
+      if (!Array.isArray(item.notes)) {
+        item.notes = [];
+      }
+
+      item.notes.push(note);
+    },
     addNewMaintenanceData: (state, action) => {
       state.maintenanceData.data = [
         action.payload,
@@ -86,7 +99,7 @@ const vehicleSlice = createSlice({
         state.vehicleMaster[0].extraAddOn = payload;
       } else {
         const index = currentAddOns.findIndex(
-          (item) => item._id === payload._id
+          (item) => item._id === payload._id,
         );
         if (index !== -1) {
           currentAddOns[index] = payload;
@@ -101,7 +114,7 @@ const vehicleSlice = createSlice({
       if (state.vehicleMaster.length > 0) {
         state.vehicleMaster[0].extraAddOn =
           state.vehicleMaster[0].extraAddOn.filter(
-            (item) => String(item._id) !== String(idToRemove)
+            (item) => String(item._id) !== String(idToRemove),
           );
       }
     },
@@ -115,7 +128,7 @@ const vehicleSlice = createSlice({
     handleUpdateFlags: (state, action) => {
       const data = action.payload;
       const updatedData = state.vehicleMaster.map((item) =>
-        item._id === data._id ? { ...item, ...data } : item
+        item._id === data._id ? { ...item, ...data } : item,
       );
       state.vehicleMaster = updatedData;
     },
@@ -152,7 +165,7 @@ const vehicleSlice = createSlice({
     handleUpdateAddonStatus: (state, action) => {
       const { id, newStatus } = action.payload;
       const data = state?.vehicleMaster?.[0]?.extraAddOn?.find(
-        (item) => item._id === id
+        (item) => item._id === id,
       );
       if (data) {
         data.status = newStatus;
@@ -175,15 +188,15 @@ const vehicleSlice = createSlice({
           ...state.vehicleMaster[0]?.bookingPrice,
           extendAmount: [
             ...(Array.isArray(
-              state.vehicleMaster[0]?.bookingPrice?.extendAmount
+              state.vehicleMaster[0]?.bookingPrice?.extendAmount,
             )
               ? state.vehicleMaster[0].bookingPrice.extendAmount
               : []),
             ...(Array.isArray(extendAmount)
               ? extendAmount
               : extendAmount
-              ? [extendAmount]
-              : []),
+                ? [extendAmount]
+                : []),
           ],
         },
         extendBooking: {
@@ -194,8 +207,8 @@ const vehicleSlice = createSlice({
             ...(Array.isArray(oldBookings)
               ? oldBookings
               : oldBookings
-              ? [oldBookings]
-              : []),
+                ? [oldBookings]
+                : []),
           ],
         },
         ...(notes && {
@@ -289,7 +302,7 @@ const vehicleSlice = createSlice({
               ...(planPrice !== undefined && { planPrice }),
               ...(kmLimit !== undefined && { kmLimit }),
             }
-          : item
+          : item,
       );
     },
 
@@ -310,7 +323,7 @@ const vehicleSlice = createSlice({
     removeSingleMaintenanceIdsById: (state, action) => {
       const idToRemove = action.payload;
       state.maintenanceIds = state.maintenanceIds.filter(
-        (item) => item !== idToRemove
+        (item) => item !== idToRemove,
       );
     },
     removeSingleTempIdById: (state, action) => {
@@ -493,5 +506,6 @@ export const {
   updateStationAddon,
   updateStationPayment,
   removeStationAddOn,
+  updateTimeLineNoteData,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

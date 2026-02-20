@@ -66,7 +66,7 @@ const menuList = [
   },
   {
     menuImg: <LoyaltyOutlinedIcon />,
-    menuTitle: "All Coupons",
+    menuTitle: "Coupons",
     menuLink: "/all-coupons",
     roles: ["admin"],
   },

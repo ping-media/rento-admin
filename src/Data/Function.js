@@ -58,10 +58,13 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
         // decrypting the user data and setting data
         dispatch(handleNavigateLoad(true));
         dispatch(handleSetToken({ token: response?.token }));
+        // dispatch(handleSetToken({ token: response?.accessToken }));
 
         dispatch(handleSignIn(response?.data));
+
         const userType = response?.data?.userType?.toLowerCase();
         navigate(userType === "manager" ? "/all-bookings" : "/dashboard");
+
         handleAsyncError(dispatch, "Login Successfully", "success");
       } else {
         handleAsyncError(dispatch, "Login failed! try again");
