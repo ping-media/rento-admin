@@ -8,6 +8,7 @@ import Spinner from "../../components/Spinner/Spinner";
 import { useLocation } from "react-router-dom";
 import { transformUsers } from "./data/user";
 import { transformBookings } from "./data/booking";
+import { transformVehicles } from "./data/vehicle";
 
 const EXPORT_CONFIG = {
   "/all-users": {
@@ -20,11 +21,11 @@ const EXPORT_CONFIG = {
     reportName: "Booking",
     transform: transformBookings,
   },
-  // "/all-vehicles": {
-  //   endpoint: "/getAllVehiclesData?page=1&limit=1000",
-  //   reportName: "Vehicles",
-  //   transform: transformBookings,
-  // },
+  "/all-vehicles": {
+    endpoint: "/getAllVehiclesData?page=1&limit=1000",
+    reportName: "Vehicles",
+    transform: transformVehicles,
+  },
 };
 
 const ExportButton = () => {

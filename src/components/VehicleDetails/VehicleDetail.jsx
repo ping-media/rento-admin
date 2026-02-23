@@ -143,10 +143,8 @@ const VehicleDetail = () => {
 
             <Suspense fallback={null}>
               <VehicleGroupUpdate
-                {...{
-                  vehicleName: vehicle?.vehicleName,
-                  stationId: vehicle?.stationId,
-                }}
+                vehicleName={vehicle?.vehicleName}
+                stationId={vehicle?.stationId}
               />
             </Suspense>
           </div>

@@ -3,7 +3,6 @@ import BarChart from "../components/charts/BarChart";
 import InfoCard from "../components/Dashboard/InfoCard";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDashboardData } from "../Data/Function";
-import PreLoader from "../components/Skeleton/PreLoader";
 import {
   BookOnlineRounded,
   AccountBalanceRounded,
@@ -17,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { monthNames } from "../Data/commonData";
 import CustomMonthDropdown from "../components/DropDown/CustomDropDown";
 import { tableIcons } from "../Data/Icons";
+import DashboardSeleton from "../components/Skeleton/dashboard/DashboardSeleton";
 
 const Dashboard = () => {
   const now = new Date();
@@ -84,7 +84,7 @@ const Dashboard = () => {
   );
 
   if (!token || loading || !dasboardDataCount?.dashboard) {
-    return <PreLoader />;
+    return <DashboardSeleton />;
   }
 
   if (!dataCountResult?.length) return <NotFound />;

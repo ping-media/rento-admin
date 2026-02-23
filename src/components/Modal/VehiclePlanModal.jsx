@@ -1,5 +1,13 @@
 import React from "react";
-import { formatNumber, formatPrice } from "../../utils";
+import { formatNumber } from "../../utils";
+import { useMemo } from "react";
+
+const HEADERS = [
+  { key: "planName", label: "Plan Name" },
+  { key: "planPrice", label: "Price" },
+  { key: "kmLimit", label: "KM Limit" },
+  { key: "planDuration", label: "Duration (Days)" },
+];
 
 const VehiclePlanModal = ({
   isPlanModalActive = false,
@@ -8,6 +16,15 @@ const VehiclePlanModal = ({
   title = "Vehicle Package List",
 }) => {
   if (!isPlanModalActive) return null;
+
+  const hasData = planData.length > 0;
+
+  // sorting based on duration in ascending order
+  const sortedPlans = useMemo(() => {
+    return [...planData].sort(
+      (a, b) => Number(a.planDuration) - Number(b.planDuration),
+    );
+  }, [planData]);
 
   return (
     <div className="fixed z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4">
@@ -37,7 +54,7 @@ const VehiclePlanModal = ({
         </div>
 
         <div className="overflow-y-auto flex-1 p-4 pt-2">
-          {planData?.length === 0 ? (
+          {!hasData ? (
             <p className="text-center text-gray-500 italic">
               No plans available.
             </p>
@@ -47,37 +64,36 @@ const VehiclePlanModal = ({
                 {/* TABLE HEAD */}
                 <thead className="bg-gray-100 sticky top-0 z-10">
                   <tr>
-                    <th className="px-3 py-2 text-left">Plan Name</th>
-                    <th className="px-3 py-2 text-center">Duration</th>
-                    <th className="px-3 py-2 text-center">KM Limit</th>
-                    <th className="px-3 py-2 text-right">Price</th>
+                    {HEADERS.map((col) => (
+                      <th key={col.key} className="px-2.5 py-2 text-center">
+                        {col.label}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
 
                 {/* TABLE BODY */}
                 <tbody>
-                  {planData.map((plan) => (
+                  {sortedPlans.map((plan) => (
                     <tr
                       key={plan._id}
                       className="border-t hover:bg-gray-50 transition"
                     >
-                      <td className="px-3 py-2 font-medium capitalize">
-                        {plan.planName}
-                      </td>
+                      {HEADERS.map((col) => {
+                        const value = plan[col.key];
 
-                      <td className="px-3 py-2 text-center">
-                        {plan.planDuration}
-                      </td>
-
-                      <td className="px-3 py-2 text-center">
-                        {formatNumber(
-                          Number(isNaN(plan.kmLimit) ? 0 : plan.kmLimit),
-                        )}
-                      </td>
-
-                      <td className="px-3 py-2 text-right font-semibold text-theme">
-                        ₹{formatPrice(plan.planPrice)}
-                      </td>
+                        return (
+                          <td
+                            className={`px-2.5 py-2 font-normal capitalize text-center ${col.key === "planPrice" ? "text-theme font-medium" : ""}`}
+                            key={col.key}
+                          >
+                            {col.key === "planPrice" && "₹"}
+                            {typeof value === "number"
+                              ? formatNumber(value)
+                              : (value ?? "--")}
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>

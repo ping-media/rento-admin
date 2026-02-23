@@ -66,7 +66,7 @@ const TablePageHeader = ({
   const showFilters = FILTER_ENABLED_ROUTES.includes(pathname);
   const showExport =
     loggedInRole === "admin" &&
-    ["/all-bookings", "/all-users"].includes(pathname);
+    ["/all-bookings", "/all-users", "/all-vehicles"].includes(pathname);
 
   const filterCount = useMemo(() => {
     let count = 0;

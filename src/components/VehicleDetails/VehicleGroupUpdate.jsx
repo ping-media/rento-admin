@@ -62,6 +62,7 @@ const VehicleGroupUpdate = ({ vehicleName, stationId }) => {
             {/* TABLE HEAD */}
             <thead className="bg-gray-100 sticky top-0 z-10">
               <tr>
+                <th className="px-3 py-2 text-left">SL No.</th>
                 <th className="px-3 py-2 text-left">Vehicle Number</th>
                 <th className="px-3 py-2 text-center">Station Name</th>
                 {/* <th className="px-3 py-2 text-center">Odometer Reading</th> */}
@@ -70,11 +71,14 @@ const VehicleGroupUpdate = ({ vehicleName, stationId }) => {
 
             {/* TABLE BODY */}
             <tbody>
-              {allVehicles.map((vehicle) => (
+              {allVehicles.map((vehicle, index) => (
                 <tr
                   key={vehicle._id}
                   className="border-t hover:bg-gray-50 transition"
                 >
+                  <td className="px-3 py-2 font-medium uppercase">
+                    {index + 1}.
+                  </td>
                   <td className="px-3 py-2 font-medium uppercase">
                     {vehicle.vehicleNumber}
                   </td>
