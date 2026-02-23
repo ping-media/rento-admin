@@ -153,6 +153,7 @@ const BookingDetailsButton = ({
       )}
 
       {booking?.bookingStatus !== "canceled" &&
+        booking?.rideStatus !== "completed" &&
         // booking?.rideStatus === "pending" &&
         loggedInRole === "admin" && (
           <Button

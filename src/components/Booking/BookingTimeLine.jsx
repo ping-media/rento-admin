@@ -255,10 +255,10 @@ const BookingTimeLine = () => {
                           </>
                         ) : null}
 
-                        {Number(item?.refundAmount || 0) > 0 ? (
+                        {Number(item?.refundAmount ?? 0) > 0 ? (
                           <>
                             <p className="text-gray-700 leading-tight text-md font-semibold">
-                              ₹{formatPrice(item.refundAmount || 0)}
+                              ₹{formatPrice(item?.refundAmount ?? 0)}
                             </p>
                             <p className="text-sm lg:text-xs text-theme">
                               Amount Refunded
@@ -297,6 +297,7 @@ const BookingTimeLine = () => {
               );
             })}
         </div>
+
         {!loading && timeLineData?.length === 0 && (
           <p className="italic text-md text-center my-2 text-gray-400">
             No TimeLine Found.

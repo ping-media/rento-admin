@@ -121,6 +121,9 @@ const RideSummary = ({
 
   const isDiscountApplied = item.isDiscountZero || item.discountTotalPrice > 0;
 
+  const bookingDuration =
+    mainBookingDuration || (weekDays?.length ?? 0) + (weekend?.length ?? 0);
+
   return (
     <div className="p-2 mb-2 rounded-md bg-theme/10">
       <div className="w-full flex items-center justify-between">
@@ -131,7 +134,7 @@ const RideSummary = ({
             </span>
             <span className="text-sm font-semibold mx-1">:</span>
             <span className="text-sm font-semibold">
-              {mainBookingDuration} Day(s)
+              {bookingDuration} Day(s)
             </span>
           </div>
         </div>

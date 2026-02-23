@@ -42,6 +42,11 @@ const RenderCellContent = (column, value, item, location) => {
     let newValue = value;
     if (column === "BookingEndDateAndTime") {
       const bookingPrice = item.bookingPrice ?? null;
+      const preCloseData = item?.extendBooking ?? null;
+      const bookingStatus = item?.bookingStatus;
+
+      const isExtended = bookingStatus === "extended";
+
       if (bookingPrice === null) return "--";
 
       const extension =
@@ -60,8 +65,14 @@ const RenderCellContent = (column, value, item, location) => {
       //   ? extension[extension?.length - 1]?.bookingEndDateAndTime
       //   : null;
 
-      if (extendBookingDate !== null && extendBookingDate !== undefined) {
+      if (
+        isExtended &&
+        extendBookingDate !== null &&
+        extendBookingDate !== undefined
+      ) {
         newValue = extendBookingDate;
+      } else if (preCloseData !== null && preCloseData?.originalEndDate) {
+        newValue = preCloseData.originalEndDate;
       }
     }
     const full = formatFullDateAndTime(newValue);

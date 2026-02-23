@@ -49,6 +49,37 @@ const priceReducer = (_, action) => {
   return Math.max(total, 0); // safety
 };
 
+const getTotalRefund = (bookingPrice) => {
+  if (!bookingPrice) return 0;
+
+  let totalRefund = 0;
+
+  //  Main booking refund
+  if (Number(bookingPrice.refundAmount) > 0) {
+    totalRefund += Number(bookingPrice.refundAmount);
+  }
+
+  //  Diff refund
+  if (Array.isArray(bookingPrice.diffAmount)) {
+    bookingPrice.diffAmount.forEach((item) => {
+      if (item.status === "paid" && Number(item.refundAmount) > 0) {
+        totalRefund += Number(item.refundAmount);
+      }
+    });
+  }
+
+  //  Extension refund
+  if (Array.isArray(bookingPrice.extendAmount)) {
+    bookingPrice.extendAmount.forEach((item) => {
+      if (item.status === "paid" && Number(item.refundAmount) > 0) {
+        totalRefund += Number(item.refundAmount);
+      }
+    });
+  }
+
+  return totalRefund;
+};
+
 const AdditionalInfo = () => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [totalPrice, calculateTotal] = useReducer(priceReducer, 0);
@@ -83,6 +114,12 @@ const AdditionalInfo = () => {
 
     calculateTotal({ payload: bookingPrice });
   }, [bookingPrice]);
+
+  const refundAmount = getTotalRefund(bookingPrice);
+  const finalRefundAmount = refundAmount > 0 ? refundAmount : null;
+
+  const finalTotalPrice =
+    refundAmount !== null ? totalPrice - refundAmount : totalPrice;
 
   return (
     <>
@@ -278,9 +315,21 @@ const AdditionalInfo = () => {
         </div>
       </div> */}
 
-      <div className="flex items-center justify-between border-t-2 mt-5 pt-2.5">
-        <h2 className="md:text-base font-medium">Total Price:</h2>
-        <p className="text-theme font-semibold">₹{formatPrice(totalPrice)}</p>
+      <div className="flex flex-col gap-2 border-t-2 mt-5 pt-2.5">
+        {finalRefundAmount !== null && (
+          <div className="flex items-center justify-between">
+            <h2 className="md:text-base font-normal">Refund Price:</h2>
+            <p className="text-theme font-semibold">
+              - ₹{formatPrice(finalRefundAmount)}
+            </p>
+          </div>
+        )}
+        <div className="flex items-center justify-between">
+          <h2 className="md:text-base font-medium">Total Price:</h2>
+          <p className="text-theme font-semibold">
+            ₹{formatPrice(finalTotalPrice)}
+          </p>
+        </div>
       </div>
     </>
   );

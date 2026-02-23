@@ -2,14 +2,7 @@ import BookingDetail from "../components/Booking/BookingDetail";
 import { useParams } from "react-router-dom";
 import { toggleDeleteModal } from "../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 import PreLoader from "../components/Skeleton/PreLoader";
 import { cancelBookingById, fetchVehicleMasterById } from "../Data/Function";
@@ -46,33 +39,43 @@ const BookingDetails = () => {
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
   const dispatch = useDispatch();
 
-  const bookingId = useMemo(() => id?.split("_")[0], [id]);
+  // const bookingId = useMemo(() => id?.split("_")[0], [id]);
+  const bookingId = id?.split("_")[0];
   const booking = vehicleMaster?.[0];
 
   // through this we are fetching single vehicle data
-  const fetchSingleVehicleDetails = useCallback(async () => {
-    if (id) {
-      fetchVehicleMasterById(
-        dispatch,
-        bookingId,
-        token,
-        "/getBookings",
-        "/getTimelineData",
-        "/getBookings",
-      );
-    }
-  }, [bookingId, id, token]);
+  // const fetchSingleVehicleDetails = useCallback(async () => {
+  //   if (id) {
+  //     fetchVehicleMasterById(
+  //       dispatch,
+  //       bookingId,
+  //       token,
+  //       "/getBookings",
+  //       "/getTimelineData",
+  //       "/getBookings",
+  //     );
+  //   }
+  // }, [bookingId, id, token]);
 
   useEffect(() => {
-    fetchSingleVehicleDetails();
+    if (!bookingId || !token) return;
+
+    fetchVehicleMasterById(
+      dispatch,
+      bookingId,
+      token,
+      "/getBookings",
+      "/getTimelineData",
+      "/getBookings",
+    );
 
     return () => {
       dispatch(resetUserRideInfo());
     };
-  }, []);
+  }, [bookingId, token, dispatch]);
 
   // // for opening cancel model
-  const handleCancelBooking = async () => {
+  const handleCancelBooking = useCallback(async () => {
     // this is for firstTime to active modal
     if (!isDeleteModalActive) return dispatch(toggleDeleteModal());
     // this to cancel booking
@@ -140,7 +143,15 @@ const BookingDetails = () => {
         "Note should be between 10 to 35 characters",
       );
     }
-  };
+  }, [
+    isDeleteModalActive,
+    Note,
+    booking,
+    bookingId,
+    token,
+    currentUser,
+    dispatch,
+  ]);
 
   if (loading || !booking) return <PreLoader />;
 
@@ -194,7 +205,8 @@ const BookingDetails = () => {
             padding="p-2"
           />
         </div>
-        <BookingDetail pickupImagesLoading={false} tabs={tab} />
+
+        <BookingDetail tabs={tab} booking={booking} />
       </div>
     </>
   );

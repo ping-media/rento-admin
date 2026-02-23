@@ -1,16 +1,21 @@
-import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+import React from "react";
 import { ExtendSummary, RideSummary } from "../RideSummary";
 
-export const OrderSummaryList = () => {
-  const { vehicleMaster } = useSelector((state) => state.vehicles);
-  const booking = useMemo(() => vehicleMaster?.[0] ?? null, [vehicleMaster]);
-
+export const OrderSummaryList = React.memo((booking) => {
   if (!booking) return null;
 
-  const isExtension = booking?.bookingPrice?.extendAmount?.length > 0 || false;
+  const extendList = booking?.bookingPrice?.extendAmount ?? [];
+  const hasExtension = extendList.length > 0;
+
   return (
     <div>
+      {/* <Suspense fallback={null}>
+        <EditBookingAndExtensionModal
+          open={openEditModal}
+          onClose={setOpenEditModal}
+        />
+      </Suspense> */}
+
       {booking?.bookingPrice && (
         <RideSummary
           daysBreakdown={booking?.bookingPrice?.daysBreakdown}
@@ -19,9 +24,10 @@ export const OrderSummaryList = () => {
         />
       )}
 
-      {booking?.bookingId && isExtension && (
+      {/* {booking?.bookingId && isExtension && ( */}
+      {hasExtension && (
         <ul className="leading-6 lg:leading-7 list-disc">
-          {booking.bookingPrice.extendAmount.map((item) => (
+          {extendList.map((item) => (
             <li className="flex flex-col" key={item.id}>
               <ExtendSummary
                 daysBreakdown={item?.daysBreakdown ?? []}
@@ -34,4 +40,4 @@ export const OrderSummaryList = () => {
       )}
     </div>
   );
-};
+});
