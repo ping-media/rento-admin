@@ -19,6 +19,17 @@ const ExtendBookingModal = lazy(
 const buildBookingData = (booking) => {
   if (!booking) return null;
   const vm = booking;
+  const isExtended = vm?.bookingStatus === "extended" ?? false;
+
+  const rawBookingEndDateAndTime =
+    (vm?.extendBooking?.oldBooking?.length > 0 &&
+      vm?.extendBooking?.oldBooking[0]?.BookingEndDateAndTime) ||
+    vm?.BookingEndDateAndTime;
+
+  const BookingEndDateAndTime = !isExtended
+    ? vm?.extendBooking?.originalEndDate || rawBookingEndDateAndTime
+    : rawBookingEndDateAndTime;
+
   return {
     user: [
       {
@@ -57,15 +68,16 @@ const buildBookingData = (booking) => {
       },
       {
         key: "Booking End",
-        value: `${
-          vm &&
-          formatFullDateAndTime(
-            vm?.extendBooking?.originalEndDate ||
-              (vm?.extendBooking?.oldBooking?.length > 0 &&
-                vm?.extendBooking?.oldBooking[0]?.BookingEndDateAndTime) ||
-              vm?.BookingEndDateAndTime,
-          )
-        }`,
+        value: `${vm && formatFullDateAndTime(BookingEndDateAndTime)}`,
+        // value: `${
+        //   vm &&
+        //   formatFullDateAndTime(
+        //     vm?.extendBooking?.originalEndDate ||
+        //       (vm?.extendBooking?.oldBooking?.length > 0 &&
+        //         vm?.extendBooking?.oldBooking[0]?.BookingEndDateAndTime) ||
+        //       vm?.BookingEndDateAndTime,
+        //   )
+        // }`,
       },
       {
         key: "Start Odometer Reading",
