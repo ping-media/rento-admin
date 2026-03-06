@@ -122,6 +122,8 @@ const RescheduleModal = () => {
         handleAsyncError(dispatch, "Reschedule Successfully", "success");
         dispatch(updateBookingDates(data));
         dispatch(toggleRescheduleModal());
+      } else {
+        handleAsyncError(dispatch, response?.message);
       }
     } catch (error) {
       console.warn("Error while updating booking", error?.message);

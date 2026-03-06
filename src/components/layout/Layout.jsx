@@ -41,7 +41,7 @@ const Layout = () => {
   const { is_open } = useSelector((state) => state.sideBar);
   const [validateLoading, setValidateLoading] = useState(false);
   const { currentUser, token, user, loading } = useSelector(
-    (state) => state.user
+    (state) => state.user,
   );
   const location = useLocation();
 
@@ -54,7 +54,7 @@ const Layout = () => {
       } else if (response.success === false) {
         handleAsyncError(
           dispatch,
-          "Unable to Load General Settings! try refresh page"
+          "Unable to Load General Settings! try refresh page",
         );
       }
     } finally {
@@ -84,7 +84,7 @@ const Layout = () => {
           token,
           handleLogoutUser,
           dispatch,
-          handleVerifyLoading
+          handleVerifyLoading,
         );
       } finally {
         setValidateLoading(false);
@@ -124,7 +124,7 @@ const Layout = () => {
         {!is_open && (
           <div
             className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-            onClick={() => dispatch(closeSideBar())}
+            // onClick={() => dispatch(closeSideBar())}
           />
         )}
 

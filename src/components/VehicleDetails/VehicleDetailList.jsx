@@ -63,6 +63,7 @@ const VehicleDetailList = ({ vehicle }) => {
           onClose={setIsPlanModalOpen}
           planData={selectedPlans ?? []}
           title={ModalTitle}
+          image={vehicle?.vehicleImage ?? ""}
         />
       </Suspense>
 

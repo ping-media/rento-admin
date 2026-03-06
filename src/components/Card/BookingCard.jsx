@@ -69,17 +69,34 @@ const BookingCard = ({ item }) => {
         </div>
         {/* vehicle booking */}
         <div className="flex items-center mb-2">
-          <div className="flex-1 flex gap-1">
-            <div className="w-20 h-20">
+          <div className="flex-1 flex justify-center items-center gap-2">
+            {/* image here  */}
+            <div className="w-24 h-20">
               <img
                 src={item?.vehicleImage}
                 className="w-full h-full object-contain"
                 alt={item?.vehicleName}
               />
             </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="w-full flex justify-end text-right">
+                  <p className="max-w-[120px] truncate capitalize">
+                    {item?.vehicleName}
+                  </p>
+                </div>
+
+                <h2 className="uppercase text-base font-semibold">
+                  ({item?.vehicleBasic?.vehicleNumber})
+                </h2>
+              </div>
+
+              <p className="capitalize">{item.stationName}</p>
+            </div>
           </div>
           <div className="flex-1">
-            <div className="text-right">
+            {/* <div className="text-right">
               <h2 className="uppercase text-base font-semibold">
                 {item?.vehicleBasic?.vehicleNumber}
               </h2>
@@ -88,7 +105,7 @@ const BookingCard = ({ item }) => {
                   {item?.vehicleName}
                 </p>
               </div>
-            </div>
+            </div> */}
             <p className="text-right text-theme font-bold mb-2">
               ₹{formatPrice(newBookingPrice)}
               {/* {item?.bookingPrice?.discountTotalPrice &&
@@ -97,7 +114,7 @@ const BookingCard = ({ item }) => {
                 : formatPrice(item?.bookingPrice?.totalPrice)} */}
             </p>
 
-            <p className="text-right capitalize">{item.stationName}</p>
+            {/* <p className="text-right capitalize">{item.stationName}</p> */}
           </div>
         </div>
         {/* user info booking */}
@@ -124,9 +141,10 @@ const BookingCard = ({ item }) => {
             </Link>
           </p>
         </div>
+
         {/* time between booking  */}
-        <div className="mb-1">
-          <p className="flex items-center mb-1">
+        <div className="flex flex-wrap items-center justify-between mb-1">
+          <p className="flex items-center">
             {tableIcons?.dateCalender}{" "}
             <span className="ml-1">
               {item?.BookingStartDateAndTime &&

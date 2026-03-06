@@ -62,7 +62,7 @@ const VehicleGroupUpdate = ({ vehicleName, stationId }) => {
             {/* TABLE HEAD */}
             <thead className="bg-gray-100 sticky top-0 z-10">
               <tr>
-                <th className="px-3 py-2 text-left">SL No.</th>
+                <th className="px-3 py-2 text-left">SL</th>
                 <th className="px-3 py-2 text-left">Vehicle Number</th>
                 <th className="px-3 py-2 text-center">Station Name</th>
                 {/* <th className="px-3 py-2 text-center">Odometer Reading</th> */}

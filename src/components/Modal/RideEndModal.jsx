@@ -132,10 +132,10 @@ const RideEndModal = ({ id }) => {
       Number(meterDebounceValue) - Number(oldMeterReading),
     );
 
-    const unpaidExtends =
-      bookingPrice?.extendAmount?.filter((b) => b.status === "unpaid") || [];
+    const paidExtends =
+      bookingPrice?.extendAmount?.filter((b) => b.status === "paid") || [];
 
-    const extendKmLimit = unpaidExtends.reduce(
+    const extendKmLimit = paidExtends.reduce(
       (sum, e) => sum + Number(e?.freeLimit || 0),
       0,
     );

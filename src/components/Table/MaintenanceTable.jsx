@@ -17,10 +17,34 @@ import {
 import DropDownComponent from "../../components/DropDown/DropDownComponent";
 import Pagination from "../../components/Pagination/Pagination";
 import ViewModal from "../../components/Modal/ViewModal";
+import { formatInTimeZone } from "date-fns-tz";
+
+// const formatDateTimeIN = (timestring) =>
+//   formatInTimeZone(
+//     new Date(timestring),
+//     "Asia/Kolkata",
+//     "MMM dd, yyyy, hh:mm a",
+//   );
+const formatDateTimeIN = (timestring) => {
+  if (!timestring) return { date: "NA", time: "NA" };
+
+  const date = formatInTimeZone(
+    new Date(timestring),
+    "Asia/Kolkata",
+    "MMM dd, yyyy",
+  );
+  const time = formatInTimeZone(
+    new Date(timestring),
+    "Asia/Kolkata",
+    "hh:mm a",
+  );
+
+  return { date, time };
+};
 
 const MaintenanceTable = () => {
   const { vehicleMaster, loading, maintenanceData } = useSelector(
-    (state) => state.vehicles
+    (state) => state.vehicles,
   );
   const [isActive, setIsActive] = useState(false);
   const [viewData, setViewData] = useState(null);
@@ -38,7 +62,7 @@ const MaintenanceTable = () => {
         dispatch(startMaintenanceLoading());
         const response = await getData(
           `/maintenanceVehicle?vehicleTableId=${vehicleMaster[0]?._id}&page=${currentPage}&limit=${limit}`,
-          token
+          token,
         );
         if (response?.status === 200) {
           dispatch(addMaintenanceData(response));
@@ -102,7 +126,7 @@ const MaintenanceTable = () => {
     } catch (error) {
       handleAsyncError(
         dispatch,
-        "Unable to update maintenance records! try again."
+        "Unable to update maintenance records! try again.",
       );
     } finally {
       setModifyingVehicleId(null);
@@ -150,49 +174,63 @@ const MaintenanceTable = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-300 ">
                   {maintenanceData?.data?.length > 0 ? (
-                    maintenanceData?.data?.map((item, index) => (
-                      <tr
-                        className="bg-white transition-all duration-500 hover:bg-gray-50"
-                        key={index}
-                        onClick={() => handleView(item?._id)}
-                      >
-                        <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ">
-                          {item?.startDate
-                            ? formatFullDateAndTime(item?.startDate)
-                            : "NA"}
-                        </td>
-                        <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
-                          {item?.endDate
-                            ? formatFullDateAndTime(item?.endDate)
-                            : "NA"}
-                        </td>
-                        <td className="p-2.5 max-w-24 truncate text-sm leading-6 font-medium text-gray-900 capitalize">
-                          {item?.reason}
-                        </td>
-                        <td className="p-2.5 whitespace-nowrap text-sm items-center">
-                          <button
-                            type="button"
-                            className={`p-1 rounded-full bg-white group transition-all duration-500 flex item-center ${
-                              isVehicleUnblocked(item?._id) ||
-                              modifyingVehicleId === item?._id
-                                ? "opacity-50 cursor-not-allowed"
-                                : "hover:text-white hover:bg-theme"
-                            }`}
-                            onClick={() => unblockVehicles(item?._id)}
-                            disabled={
-                              isVehicleUnblocked(item?._id) ||
-                              modifyingVehicleId === item?._id
-                            }
-                          >
-                            {modifyingVehicleId === item?._id ? (
-                              <Spinner />
-                            ) : (
-                              tableIcons?.unBlock
-                            )}
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                    maintenanceData?.data?.map((item, index) => {
+                      const { date: StartDate, time: StartTime } =
+                        item?.startDate && formatDateTimeIN(item?.startDate);
+                      const { date: EndDate, time: EndTime } =
+                        item?.endDate && formatDateTimeIN(item?.endDate);
+                      return (
+                        <tr
+                          className="bg-white transition-all duration-500 hover:bg-gray-50"
+                          key={index}
+                          onClick={() => handleView(item?._id)}
+                        >
+                          <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ">
+                            {StartDate ?? "NA"},
+                            <br />
+                            {StartTime ?? "NA"}
+                            {/* {item?.startDate
+                              ? formatDateTimeIN(item?.startDate)
+                              : // ? formatFullDateAndTime(item?.startDate)
+                                "NA"} */}
+                          </td>
+                          <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
+                            {EndDate ?? "NA"},
+                            <br />
+                            {EndTime ?? "NA"}
+                            {/* {item?.endDate
+                              ? formatDateTimeIN(item?.endDate)
+                              : // ? formatFullDateAndTime(item?.endDate)
+                                "NA"} */}
+                          </td>
+                          <td className="p-2.5 max-w-24 truncate text-sm leading-6 font-medium text-gray-900 capitalize">
+                            {item?.reason}
+                          </td>
+                          <td className="p-2.5 whitespace-nowrap text-sm items-center">
+                            <button
+                              type="button"
+                              className={`p-1 rounded-full bg-white group transition-all duration-500 flex item-center ${
+                                isVehicleUnblocked(item?._id) ||
+                                modifyingVehicleId === item?._id
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : "hover:text-white hover:bg-theme"
+                              }`}
+                              onClick={() => unblockVehicles(item?._id)}
+                              disabled={
+                                isVehicleUnblocked(item?._id) ||
+                                modifyingVehicleId === item?._id
+                              }
+                            >
+                              {modifyingVehicleId === item?._id ? (
+                                <Spinner />
+                              ) : (
+                                tableIcons?.unBlock
+                              )}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr className="bg-white transition-all duration-500 hover:bg-gray-50">
                       <td

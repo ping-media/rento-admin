@@ -19,7 +19,7 @@ const ExtendBookingModal = lazy(
 const buildBookingData = (booking) => {
   if (!booking) return null;
   const vm = booking;
-  const isExtended = vm?.bookingStatus === "extended" ?? false;
+  const isExtended = vm?.bookingStatus === "extended" || false;
 
   const rawBookingEndDateAndTime =
     (vm?.extendBooking?.oldBooking?.length > 0 &&

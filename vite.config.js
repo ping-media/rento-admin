@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
       exclude: ["redux-persist"],
     },
     server: {
+      port: 5174,
       proxy: {
         "/api": {
           target: "https://maps.googleapis.com",

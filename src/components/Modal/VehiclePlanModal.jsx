@@ -14,6 +14,7 @@ const VehiclePlanModal = ({
   onClose,
   planData = [],
   title = "Vehicle Package List",
+  image = "",
 }) => {
   if (!isPlanModalActive) return null;
 
@@ -54,6 +55,16 @@ const VehiclePlanModal = ({
         </div>
 
         <div className="overflow-y-auto flex-1 p-4 pt-2">
+          {image?.trim() !== "" && (
+            <div className="w-full h-32 md:h-40 border mb-3.5 md:mb-5">
+              <img
+                src={image}
+                alt={title}
+                className="w-full h-full object-contain"
+                loading="lazy"
+              />
+            </div>
+          )}
           {!hasData ? (
             <p className="text-center text-gray-500 italic">
               No plans available.
@@ -65,7 +76,10 @@ const VehiclePlanModal = ({
                 <thead className="bg-gray-100 sticky top-0 z-10">
                   <tr>
                     {HEADERS.map((col) => (
-                      <th key={col.key} className="px-2.5 py-2 text-center">
+                      <th
+                        key={col.key}
+                        className="px-2.5 py-2 text-center truncate max-w-24 md:max-w-auto"
+                      >
                         {col.label}
                       </th>
                     ))}

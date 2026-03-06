@@ -4,16 +4,23 @@ import userImage from "../../assets/logo/user.png";
 import { toggleSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { tableIcons } from "../../Data/Icons";
 import HeaderMenuList from "./HeaderMenuList";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import BackButton from "../../components/Buttons/BackButton";
+import TitleAndButton from "./TitleAndButton";
 
 const Header = () => {
+  const { id } = useParams();
   const [isVisible, setIsVisible] = useState(false);
   const dispatch = useDispatch();
   const adminRef = useRef(null);
   const { loggedInRole, userStation } = useSelector((state) => state.user);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const location = useLocation();
+
+  const isIDBasedPage =
+    (id ?? "")?.trim() !== "" ||
+    location.pathname.includes("/add-new") ||
+    location.pathname === "/dashboard";
 
   //for dropdown menu
   useEffect(() => {
@@ -68,6 +75,9 @@ const Header = () => {
               <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
           </button>
+
+          {!isIDBasedPage && <TitleAndButton className="flex md:hidden" />}
+
           {/* for showing booking id in sidebar  */}
           {location.pathname.includes("/all-bookings/details/") && (
             <>
