@@ -69,7 +69,7 @@ const TablePageHeader = ({
                 type="text"
                 placeholder="Search Here.."
                 name="searchQuery"
-                className="w-full rounded-md p-3 lg:px-2 lg:py-1.5 focus:outline-none focus:border-transparent"
+                className="w-full rounded-md p-2.5 lg:px-2 lg:py-1.5 focus:outline-none focus:border-transparent"
                 value={inputSearchQuery}
                 onChange={(e) => setInputSearchQuery(e.target.value)}
                 autoComplete="off"

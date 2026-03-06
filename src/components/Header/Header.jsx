@@ -8,6 +8,8 @@ import { useLocation, useParams } from "react-router-dom";
 import BackButton from "../../components/Buttons/BackButton";
 import TitleAndButton from "./TitleAndButton";
 
+const NON_TITLE_PAGE = ["/dashboard", "/profile", "/settings"];
+
 const Header = () => {
   const { id } = useParams();
   const [isVisible, setIsVisible] = useState(false);
@@ -20,7 +22,7 @@ const Header = () => {
   const isIDBasedPage =
     (id ?? "")?.trim() !== "" ||
     location.pathname.includes("/add-new") ||
-    location.pathname === "/dashboard";
+    NON_TITLE_PAGE.some((page) => location.pathname.startsWith(page));
 
   //for dropdown menu
   useEffect(() => {
