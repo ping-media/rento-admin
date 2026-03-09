@@ -1,54 +1,69 @@
-import React, { useState, useMemo, useCallback } from "react";
-import ReactQuill from "react-quill";
+import React, { useMemo } from "react";
+import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { TAB_LIST } from "../../Pages/General";
 import Spinner from "../../components/Spinner/Spinner";
+import usePolicy from "../../hooks/use-policy";
 
-// Toolbar without image support
+const BlockEmbed = Quill.import("blots/block/embed");
+
+class DividerBlot extends BlockEmbed {
+  static blotName = "divider";
+  static tagName = "hr";
+}
+
+Quill.register(DividerBlot);
+
+// Toolbar
 const modules = {
-  toolbar: [
-    [{ header: [1, 2, 3, false] }],
-    [{ font: [] }],
-    [{ size: ["small", false, "large", "huge"] }],
-    ["bold", "italic", "underline", "strike"],
-    [{ color: [] }, { background: [] }],
-    [{ script: "sub" }, { script: "super" }],
-    [{ list: "ordered" }, { list: "bullet" }],
-    [{ indent: "-1" }, { indent: "+1" }],
-    [{ align: [] }],
-    ["link"],
-    ["clean"],
-  ],
+  toolbar: {
+    container: [
+      [{ header: [1, 2, 3, false] }],
+      [{ font: [] }],
+      [{ size: ["small", false, "large", "huge"] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ color: [] }, { background: [] }],
+      [{ script: "sub" }, { script: "super" }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link"],
+      ["divider"],
+      ["clean"],
+    ],
+    handlers: {
+      divider: function () {
+        const range = this.quill.getSelection(true);
+        this.quill.insertEmbed(range.index, "divider", true);
+        this.quill.setSelection(range.index + 1);
+      },
+    },
+  },
 };
+// const modules = {
+//   toolbar: [
+//     [{ header: [1, 2, 3, false] }],
+//     [{ font: [] }],
+//     [{ size: ["small", false, "large", "huge"] }],
+//     ["bold", "italic", "underline", "strike"],
+//     [{ color: [] }, { background: [] }],
+//     [{ script: "sub" }, { script: "super" }],
+//     [{ list: "ordered" }, { list: "bullet" }],
+//     [{ indent: "-1" }, { indent: "+1" }],
+//     [{ align: [] }],
+//     ["link"],
+//     ["clean"],
+//   ],
+// };
 
 const PolicyEditor = ({ tab }) => {
-  const [content, setContent] = useState({
-    term_condition: "",
-    privacy_policy: "",
-    refund_policy: "",
-  });
-  const [loading, setLoading] = useState(false);
+  const { content, setContent, loading, fetching, error, updatePolicy } =
+    usePolicy(tab);
 
   // Get current page title
   const pageTitle = useMemo(() => {
     return TAB_LIST?.find((t) => t.id === tab);
   }, [tab]);
-
-  // Current editor value
-  const editorValue = useMemo(() => {
-    return content?.[tab] ?? "";
-  }, [content, tab]);
-
-  // Update only current tab content
-  const handleChange = useCallback(
-    (value) => {
-      setContent((prev) => ({
-        ...prev,
-        [tab]: value,
-      }));
-    },
-    [tab],
-  );
 
   return (
     <>
@@ -57,25 +72,32 @@ const PolicyEditor = ({ tab }) => {
       </h2>
 
       <div className="w-full">
-        <ReactQuill
-          theme="snow"
-          value={editorValue}
-          onChange={handleChange}
-          modules={modules}
-          style={{ height: "400px", marginBottom: "50px" }}
-        />
+        {fetching ? (
+          <div className="h-[400px] flex items-center justify-center">
+            <Spinner />
+          </div>
+        ) : (
+          <ReactQuill
+            theme="snow"
+            value={content}
+            onChange={setContent}
+            modules={modules}
+            style={{ height: "400px", marginBottom: "50px" }}
+          />
+        )}
 
         <Button
+          onClick={updatePolicy}
           label={
             loading ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <Spinner /> updating
               </div>
             ) : (
               "update"
             )
           }
-          disabled={loading}
+          disabled={loading || fetching}
         />
       </div>
     </>
@@ -84,9 +106,10 @@ const PolicyEditor = ({ tab }) => {
 
 export default React.memo(PolicyEditor);
 
-const Button = ({ label = "update", disabled = false }) => (
+const Button = ({ label = "update", disabled = false, onClick }) => (
   <button
     type="submit"
+    onClick={onClick}
     className="bg-theme w-full p-3 md:px-4 md:py-3 rounded-md text-white disabled:bg-theme/80 uppercase text-sm md:text-base"
     disabled={disabled}
   >

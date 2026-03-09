@@ -7,14 +7,14 @@ import PolicyEditor from "../components/general/PolicyEditor";
 const COMPONENTS = {
   general: WebsiteForm,
   others: OthersForm,
-  term_condition: PolicyEditor,
+  terms_and_conditions: PolicyEditor,
   privacy_policy: PolicyEditor,
   refund_policy: PolicyEditor,
 };
 
 export const TAB_LIST = [
   { id: "general", title: "General" },
-  { id: "term_condition", title: "Terms & Condition" },
+  { id: "terms_and_conditions", title: "Terms & Condition" },
   { id: "privacy_policy", title: "Privacy Policy" },
   { id: "refund_policy", title: "Refund Policy" },
   { id: "others", title: "Banners" },

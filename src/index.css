@@ -6,13 +6,13 @@
 /* setting font for different screen size for  responsive layout */
 @media (max-width: 1366px) {
   html {
-    font-size: 15px;
+    font-size: 16px;
   }
 }
 
 @media (max-width: 1280px) {
   html {
-    font-size: 14px;
+    font-size: 15px;
   }
 }
 
@@ -180,4 +180,17 @@ table.dataTable tbody tr:hover {
   display: block !important;
   opacity: 1;
   visibility: visible;
+}
+
+/* reactquill button icon  */
+.ql-divider::before {
+  content: "—";
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.ql-editor hr {
+  border: none;
+  border-top: 1px solid #d1d5db;
+  margin: 20px 0;
 }

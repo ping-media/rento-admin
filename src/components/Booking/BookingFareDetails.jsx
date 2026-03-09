@@ -7,9 +7,6 @@ import Tooltip from "../../components/Tooltip/Tooltip";
 import { renderTooltipBreakdown } from "../../utils/Helper/Helper";
 
 const BookingFareDetails = ({ rides }) => {
-  // --- handle booking end date from extend ---
-  // const extendAmount = rides.bookingPrice?.extendAmount || [];
-
   // --- prices ---
   const bookingPrice =
     rides?.bookingPrice?.isDiscountZero === true ||
@@ -17,21 +14,6 @@ const BookingFareDetails = ({ rides }) => {
       rides?.bookingPrice?.discountTotalPrice !== 0)
       ? rides?.bookingPrice?.discountTotalPrice
       : rides?.bookingPrice?.totalPrice;
-
-  // const extendPrice = extendAmount.reduce((sum, extend) => {
-  //   if (extend?.status === "paid") {
-  //     return (
-  //       sum +
-  //       Number(extend?.amount || 0) +
-  //       Number(extend?.addOnAmount || 0) +
-  //       Number(extend?.tax || 0) +
-  //       Number(extend?.addonTax || 0)
-  //     );
-  //   }
-  //   return sum;
-  // }, 0);
-
-  // const newBookingPrice = bookingPrice;
 
   return (
     <>

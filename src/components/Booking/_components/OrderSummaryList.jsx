@@ -1,21 +1,14 @@
 import React from "react";
 import { ExtendSummary, RideSummary } from "../RideSummary";
 
-export const OrderSummaryList = React.memo((booking) => {
+export const OrderSummaryList = React.memo(({ booking }) => {
   if (!booking) return null;
 
   const extendList = booking?.bookingPrice?.extendAmount ?? [];
   const hasExtension = extendList.length > 0;
 
   return (
-    <div>
-      {/* <Suspense fallback={null}>
-        <EditBookingAndExtensionModal
-          open={openEditModal}
-          onClose={setOpenEditModal}
-        />
-      </Suspense> */}
-
+    <>
       {booking?.bookingPrice && (
         <RideSummary
           daysBreakdown={booking?.bookingPrice?.daysBreakdown}
@@ -38,6 +31,6 @@ export const OrderSummaryList = React.memo((booking) => {
           ))}
         </ul>
       )}
-    </div>
+    </>
   );
 });

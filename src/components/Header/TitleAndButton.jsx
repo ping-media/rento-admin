@@ -50,7 +50,7 @@ const TitleAndButton = ({ className = "flex" }) => {
 
       {showAddButton && (
         <Link
-          className="bg-theme font-semibold text-gray-100 p-3 lg:px-2.5 lg:py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
+          className="bg-theme font-semibold text-gray-100 p-2.5 lg:px-2.5 lg:py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
           to={
             location.pathname !== "/all-pickup-image"
               ? `${location.pathname}/add-new`

@@ -59,7 +59,7 @@ const CustomerSection = ({ booking, data, tab, tabs, setTab }) => {
         <div className="border px-2 rounded-md my-4 py-2 lg:hidden w-full mt-8">
           <h2 className="text-md text-gray-600 font-bold mb-2">Ride Summary</h2>
 
-          <OrderSummaryList />
+          <OrderSummaryList booking={booking} />
         </div>
 
         {/* timeline list   */}

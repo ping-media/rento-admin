@@ -53,7 +53,7 @@ const StatusChange = ({ item, column }) => {
         ></circle>
       </svg>
       <span
-        className={`font-medium text-xs ${
+        className={`font-medium text-sm md:text-xs ${
           item[column] === "active" ||
           item[column] === "available" ||
           item[column] === "done" ||
