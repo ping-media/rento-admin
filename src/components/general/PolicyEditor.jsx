@@ -40,21 +40,6 @@ const modules = {
     },
   },
 };
-// const modules = {
-//   toolbar: [
-//     [{ header: [1, 2, 3, false] }],
-//     [{ font: [] }],
-//     [{ size: ["small", false, "large", "huge"] }],
-//     ["bold", "italic", "underline", "strike"],
-//     [{ color: [] }, { background: [] }],
-//     [{ script: "sub" }, { script: "super" }],
-//     [{ list: "ordered" }, { list: "bullet" }],
-//     [{ indent: "-1" }, { indent: "+1" }],
-//     [{ align: [] }],
-//     ["link"],
-//     ["clean"],
-//   ],
-// };
 
 const PolicyEditor = ({ tab }) => {
   const { content, setContent, loading, fetching, error, updatePolicy } =

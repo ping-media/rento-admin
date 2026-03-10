@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { getData, postData } from "../Data";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 
 const usePolicy = (type) => {
   const { token } = useSelector((state) => state.user);
@@ -8,6 +9,7 @@ const usePolicy = (type) => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState(null);
+  const dispatch = useDispatch();
 
   const cache = useRef({});
 
@@ -28,6 +30,10 @@ const usePolicy = (type) => {
     } catch (err) {
       if (err.response?.status === 404) {
         setContent(""); // No policy yet, not an error
+        handleAsyncError(
+          dispatch,
+          err?.response?.message ?? "Unable to fetch policy! try again",
+        );
       } else {
         setError(err.response?.data?.message ?? "Failed to fetch policy");
       }
@@ -42,8 +48,10 @@ const usePolicy = (type) => {
       setLoading(true);
       setError(null);
       await postData(`/all-policy`, { type, content }, token);
+      handleAsyncError(dispatch, "policy update successfully.", "success");
     } catch (err) {
       setError(err.response?.data?.message ?? "Failed to update policy");
+      handleAsyncError(dispatch, "Unable to update policy! try again");
     } finally {
       setLoading(false);
     }
