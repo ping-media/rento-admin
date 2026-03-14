@@ -42,7 +42,7 @@ const modules = {
 };
 
 const PolicyEditor = ({ tab }) => {
-  const { content, setContent, loading, fetching, error, updatePolicy } =
+  const { content, setContent, loading, fetching, updatePolicy } =
     usePolicy(tab);
 
   // Get current page title

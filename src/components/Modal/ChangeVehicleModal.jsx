@@ -36,18 +36,18 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const extendBookings =
     bookingData?.bookingPrice?.extendAmount?.length > 0
       ? bookingData?.bookingPrice?.extendAmount?.filter(
-          (extend) => extend?.status === "paid"
+          (extend) => extend?.status === "paid",
         )
       : [];
 
   const extendBookingDuration = extendBookings.reduce(
     (sum, extend) => sum + Number(extend?.extendDuration || 0),
-    0
+    0,
   );
 
   const extendBookingTotal = extendBookings.reduce(
     (sum, extend) => sum + Number(extend?.amount || 0),
-    0
+    0,
   );
 
   //   for fetching vehicle based on  dynamic date and time
@@ -62,6 +62,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
         if (vehiclesFilter?.bookingVehicleName !== "") {
           endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&search=${vehiclesFilter?.bookingVehicleName}&BookingStartDateAndTime=${bookingData?.BookingStartDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=100`;
         }
+
         const response = await getData(endpoint, token);
         if (response?.status === 200) {
           setFreeVehicles(response?.data);
@@ -78,7 +79,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
               : null;
           return handleAsyncError(
             dispatch,
-            customMessage !== null ? customMessage : response?.message
+            customMessage !== null ? customMessage : response?.message,
           );
         }
       } catch (error) {
@@ -92,7 +93,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
   //   selecting and making the data for updating booking
   const handleChangeSelectedVehicle = (vehicleId) => {
     const changeToNewVehicle = freeVehicles?.find(
-      (item) => item?._id == vehicleId
+      (item) => item?._id === vehicleId,
     );
 
     // getting start date whether according to extend or first booking
@@ -103,12 +104,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
     // calculating the duration
     const daysLeft = getDurationInDays(
       currentDateAndTime?.slice(0, 10),
-      endDate?.slice(0, 10)
+      endDate?.slice(0, 10),
     );
 
     const totalBookingDuration = getDurationInDays(
       startDate?.slice(0, 10),
-      endDate?.slice(0, 10)
+      endDate?.slice(0, 10),
     );
 
     const data = {
@@ -148,6 +149,10 @@ const ChangeVehicleModal = ({ bookingData }) => {
 
     if (!selectedVehicle)
       return handleAsyncError(dispatch, "unable to change vehicle! try again.");
+
+    // console.log(selectedVehicle);
+    // return;
+
     try {
       setFormLoading(true);
       const response = await postData("/vehicleChange", selectedVehicle, token);
@@ -303,7 +308,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
                     <li className={`capitalize font-semibold`}>
                       Booking Price: ₹{" "}
                       {formatPrice(
-                        selectedVehicle?.newVehicleData?.totalRentalCost
+                        selectedVehicle?.newVehicleData?.totalRentalCost,
                       )}
                     </li>
                     <li className={`capitalize font-semibold`}>
@@ -312,7 +317,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
                         selectedVehicle?.newVehicleData?.totalRentalCost +
                           (bookingData?.bookingPrice?.extraAddonPrice || 0) +
                           (selectedVehicle?.newVehicleData?.tax || 0) +
-                          (bookingData?.bookingPrice?.addonTax || 0)
+                          (bookingData?.bookingPrice?.addonTax || 0),
                       )}
                     </li>
                   </ul>

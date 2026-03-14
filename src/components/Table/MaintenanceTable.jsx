@@ -82,6 +82,7 @@ const MaintenanceTable = () => {
     "Starting Date",
     "Ending Date",
     "Reason",
+    // "Status",
     "Action",
   ];
 
@@ -206,6 +207,17 @@ const MaintenanceTable = () => {
                           <td className="p-2.5 max-w-24 truncate text-sm leading-6 font-medium text-gray-900 capitalize">
                             {item?.reason}
                           </td>
+                          {/* <td className="p-2.5 whitespace-nowrap max-w-24 truncate text-sm leading-6 font-medium text-gray-900 capitalize">
+                            <p
+                              className={`flex items-center gap-1 ${
+                                item?.status === "active"
+                                  ? "text-green-500"
+                                  : "text-red-500/90"
+                              }`}
+                            >
+                              {item?.status}
+                            </p>
+                          </td> */}
                           <td className="p-2.5 whitespace-nowrap text-sm items-center">
                             <button
                               type="button"
