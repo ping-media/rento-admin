@@ -6,6 +6,7 @@ import { tableIcons } from "../../Data/Icons";
 const Input = ({
   item,
   value = "",
+  defaultValue = "",
   type = "text",
   disabled = false,
   require = false,
@@ -35,7 +36,7 @@ const Input = ({
   btnDisable,
   ...rest
 }) => {
-  const [inputValue, setInputValue] = useState(value);
+  const [inputValue, setInputValue] = useState(value || defaultValue || "");
   // for debouncing state
   const [isDebounceValue, setIsDebounceValue] = useState("");
   const debouncedDate = useDebounce(isDebounceValue, 500);
@@ -100,8 +101,15 @@ const Input = ({
 
   // for updating the value
   useEffect(() => {
-    setInputValue(value);
-  }, [value]);
+    if (value !== undefined && value !== "") {
+      setInputValue(value);
+    } else if (defaultValue !== undefined) {
+      setInputValue(defaultValue);
+    }
+  }, [value, defaultValue]);
+  // useEffect(() => {
+  //   setInputValue(value);
+  // }, [value]);
 
   // Prevent increment and decrement via arrow keys
   const handleKeyDown = (e) => {

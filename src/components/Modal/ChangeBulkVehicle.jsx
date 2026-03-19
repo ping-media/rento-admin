@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleVehicleUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
@@ -15,7 +15,11 @@ import { handleDeleteAndEditAllData } from "../../Data/Function";
 import { getData } from "../../Data/index";
 import Spinner from "../../components/Spinner/Spinner";
 
-const ChangeBulkVehicle = ({ selectedVehicleIds = [], isRest = true }) => {
+const ChangeBulkVehicle = ({
+  selectedVehicleIds = [],
+  vehicle = null,
+  isRest = true,
+}) => {
   const { isVehicleUpdateModalActive } = useSelector((state) => state.sideBar);
   const { tempIds, tempLoading } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
@@ -185,7 +189,27 @@ const ChangeBulkVehicle = ({ selectedVehicleIds = [], isRest = true }) => {
     return;
   };
 
-  if (!isVehicleUpdateModalActive) return;
+  const { vehiclePlan, daily } = useMemo(() => {
+    if (!vehicle) return { vehiclePlan: [], daily: {} };
+
+    const vehiclePlan = vehicle?.vehiclePlan ?? [];
+    const daily = {
+      perdaycost: vehicle?.perDayCost ?? 0,
+      freeKms: vehicle?.freeKms ?? 0,
+    };
+
+    return { vehiclePlan, daily };
+  }, [vehicle]);
+
+  const vehiclePlanMap = useMemo(() => {
+    if (!vehiclePlan?.length) return {};
+    return vehiclePlan.reduce((acc, curr) => {
+      acc[curr._id] = curr;
+      return acc;
+    }, {});
+  }, [vehiclePlan]);
+
+  if (!isVehicleUpdateModalActive) return null;
 
   return (
     <div
@@ -229,9 +253,15 @@ const ChangeBulkVehicle = ({ selectedVehicleIds = [], isRest = true }) => {
               <Input
                 placeholder="Per Day Cost"
                 item={"perDayCost"}
+                defaultValue={daily?.perdaycost || ""}
                 type="number"
               />
-              <Input placeholder="Km Limit" item={"freeKms"} type="number" />
+              <Input
+                placeholder="Km Limit"
+                item={"freeKms"}
+                defaultValue={daily?.freeKms || ""}
+                type="number"
+              />
             </div>
 
             <div className="mb-2">
@@ -250,11 +280,15 @@ const ChangeBulkVehicle = ({ selectedVehicleIds = [], isRest = true }) => {
                       <Input
                         placeholder={plan.planName}
                         item={plan._id}
+                        defaultValue={
+                          vehiclePlanMap?.[plan._id]?.planPrice || ""
+                        }
                         type="number"
                       />
                       <Input
                         placeholder={"km Limit"}
                         item={`${plan._id}_limit`}
+                        defaultValue={vehiclePlanMap?.[plan._id]?.kmLimit || ""}
                         type="number"
                       />
                     </div>
@@ -283,7 +317,7 @@ const ChangeBulkVehicle = ({ selectedVehicleIds = [], isRest = true }) => {
                 formLoading || planMasterLoading || tempLoading?.loading
               }
             >
-              {!formLoading || !tempLoading?.loading ? (
+              {!formLoading ? (
                 "Update vehicle"
               ) : (
                 <Spinner message={"loading..."} />

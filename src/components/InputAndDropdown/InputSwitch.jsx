@@ -39,8 +39,8 @@ const InputSwitch = ({ value, id, addonId }) => {
         location?.pathname === "/location-master"
           ? "locationStatus"
           : location?.pathname === "/station-master"
-          ? "status"
-          : "vehicleStatus";
+            ? "status"
+            : "vehicleStatus";
       // creating endpoint dynamically
       const endpoint = addonId
         ? `/createStation?id=${id}&addonId=${addonId}`
@@ -49,24 +49,24 @@ const InputSwitch = ({ value, id, addonId }) => {
       const data = addonId
         ? { _id: id, addonId, status: newStatus }
         : location?.pathname === "/location-master"
-        ? { _id: id, locationStatus: newStatus }
-        : location?.pathname === "/station-master"
-        ? { _id: id, status: newStatus }
-        : { _id: id, vehicleStatus: newStatus };
+          ? { _id: id, locationStatus: newStatus }
+          : location?.pathname === "/station-master"
+            ? { _id: id, status: newStatus }
+            : { _id: id, vehicleStatus: newStatus };
 
       const response = await postData(endpoint, data, token);
-
-      if (addonId) {
-        dispatch(
-          handleUpdateAddonStatus({ id: addonId, newStatus: newStatus })
-        );
-      } else {
-        dispatch(handleUpdateStatus({ id: id, newStatus: newStatus, flag }));
-      }
 
       if (response?.status !== 200) {
         setLoading(false);
         return handleAsyncError(dispatch, response?.message);
+      }
+
+      if (addonId) {
+        dispatch(
+          handleUpdateAddonStatus({ id: addonId, newStatus: newStatus }),
+        );
+      } else {
+        dispatch(handleUpdateStatus({ id: id, newStatus: newStatus, flag }));
       }
     } catch (error) {
       console.log(error);

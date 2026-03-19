@@ -128,7 +128,7 @@ const SelectDropDownVehicle = ({
               onClick={(e) => e.stopPropagation()}
               className="w-full px-3 py-2 border-b border-gray-200 outline-none text-sm"
             />
-            {options?.length ? (
+            {/* {options?.length ? (
               options.map((opt) => (
                 <div
                   key={opt._id}
@@ -138,6 +138,49 @@ const SelectDropDownVehicle = ({
                   {opt.vehicleNumber} | {opt.vehicleName}
                 </div>
               ))
+            ) : (
+              <div className="px-4 py-2 text-gray-500 text-sm">
+                No options found
+              </div>
+            )} */}
+
+            {options?.length ? (
+              options.map((opt) => {
+                const isBooked = opt?.vehicleStatus === "booked";
+                const isMaintenance = opt?.vehicleStatus === "maintenance";
+                const isUnavailable = isBooked || isMaintenance;
+
+                return (
+                  <div
+                    key={opt._id}
+                    onClick={() => !isUnavailable && handleOptionClick(opt)}
+                    className={`px-4 py-2 text-sm capitalize flex items-center justify-between gap-2
+          ${
+            isUnavailable
+              ? "cursor-not-allowed opacity-60 bg-gray-50"
+              : "hover:bg-gray-100 cursor-pointer"
+          }`}
+                  >
+                    <span>
+                      {opt.vehicleNumber} | {opt.vehicleName}
+                    </span>
+
+                    {isMaintenance && (
+                      <span className="text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                        Maintenance
+                      </span>
+                    )}
+                    {isBooked && (
+                      <span className="text-xs font-semibold text-red-600 bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                        Booked{" "}
+                        {opt?.bookingConflict?.bookingId
+                          ? `#${opt.bookingConflict.bookingId}`
+                          : ""}
+                      </span>
+                    )}
+                  </div>
+                );
+              })
             ) : (
               <div className="px-4 py-2 text-gray-500 text-sm">
                 No options found

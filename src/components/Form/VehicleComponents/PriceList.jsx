@@ -42,8 +42,8 @@ const PriceList = ({
             return (
               <React.Fragment key={index}>
                 <li className="capitalize">
-                  Extend Ride: ₹{formatPrice(extendBooking?.amount)} X{" "}
-                  {extendBooking?.duration} day(s)
+                  Extend Ride: ₹{formatPrice(extendBooking?.amount)}
+                  {/* ({extendBooking?.duration} day(s)) */}
                 </li>
                 <li className="capitalize font-semibold">
                   Total Price: ₹{formatPrice(value + extendBooking?.amount)}
@@ -69,12 +69,12 @@ const PriceList = ({
                 ? key === "rentAmount" &&
                   bookingData?.bookingPrice?.isPackageApplied
                   ? `${formatPrice(
-                      bookingData?.bookingPrice?.bookingPrice || 0
+                      bookingData?.bookingPrice?.bookingPrice || 0,
                     )}`
                   : formatPrice(value)
                 : extendBooking && key === "totalPrice"
-                ? formatPrice(value + extendBooking?.amount || 0)
-                : formatPrice(value)}
+                  ? formatPrice(value + extendBooking?.amount || 0)
+                  : formatPrice(value)}
             </li>
           );
         } else {

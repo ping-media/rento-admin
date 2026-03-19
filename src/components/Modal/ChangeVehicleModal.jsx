@@ -16,6 +16,7 @@ import {
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import SelectDropDownVehicle from "../../components/InputAndDropdown/SelectDropDownVehicle";
 import PriceList from "../../components/Form/VehicleComponents/PriceList";
+import NewVehiclePreview from "./_components/NewVehiclePreview";
 
 const ChangeVehicleModal = ({ bookingData }) => {
   const dispatch = useDispatch();
@@ -29,9 +30,14 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const { token } = useSelector((state) => state.user);
   // const [payableAmount, setPayableAmount] = useState(0);
   const [vehicleId, setVehicleId] = useState("");
+  const [previewData, setPreviewData] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(false);
 
   const isGSTActive =
     bookingData?.stationData?.isGstActive === "active" ? true : false || false;
+
+  const currentDateAndTime = formatDateToISOWithoutSecond(new Date());
 
   const extendBookings =
     bookingData?.bookingPrice?.extendAmount?.length > 0
@@ -57,10 +63,12 @@ const ChangeVehicleModal = ({ bookingData }) => {
     (async () => {
       try {
         setVehicleLoading(true);
-        let endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&BookingStartDateAndTime=${bookingData?.BookingStartDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=25`;
+        let endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&BookingStartDateAndTime=${currentDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=25`;
+        // let endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&BookingStartDateAndTime=${bookingData?.BookingStartDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=25`;
 
         if (vehiclesFilter?.bookingVehicleName !== "") {
-          endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&search=${vehiclesFilter?.bookingVehicleName}&BookingStartDateAndTime=${bookingData?.BookingStartDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=100`;
+          endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&search=${vehiclesFilter?.bookingVehicleName}&BookingStartDateAndTime=${currentDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=100`;
+          // endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&search=${vehiclesFilter?.bookingVehicleName}&BookingStartDateAndTime=${bookingData?.BookingStartDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=100`;
         }
 
         const response = await getData(endpoint, token);
@@ -91,47 +99,144 @@ const ChangeVehicleModal = ({ bookingData }) => {
   }, [isChangeVehicleModalActive, vehiclesFilter]);
 
   //   selecting and making the data for updating booking
-  const handleChangeSelectedVehicle = (vehicleId) => {
-    const changeToNewVehicle = freeVehicles?.find(
-      (item) => item?._id === vehicleId,
-    );
+  // const handleChangeSelectedVehicle = (vehicleId) => {
+  //   const changeToNewVehicle = freeVehicles?.find(
+  //     (item) => item?._id === vehicleId,
+  //   );
 
-    // getting start date whether according to extend or first booking
-    const currentDateAndTime = formatDateToISOWithoutSecond(new Date());
-    const startDate = bookingData?.BookingStartDateAndTime;
-    const endDate = bookingData?.BookingEndDateAndTime;
+  //   // getting start date whether according to extend or first booking
+  //   const startDate = bookingData?.BookingStartDateAndTime;
+  //   const endDate = bookingData?.BookingEndDateAndTime;
 
-    // calculating the duration
-    const daysLeft = getDurationInDays(
-      currentDateAndTime?.slice(0, 10),
-      endDate?.slice(0, 10),
-    );
+  //   // calculating the duration
+  //   const daysLeft = getDurationInDays(
+  //     currentDateAndTime?.slice(0, 10),
+  //     endDate?.slice(0, 10),
+  //   );
 
-    const totalBookingDuration = getDurationInDays(
-      startDate?.slice(0, 10),
-      endDate?.slice(0, 10),
-    );
+  //   const totalBookingDuration = getDurationInDays(
+  //     startDate?.slice(0, 10),
+  //     endDate?.slice(0, 10),
+  //   );
 
-    const data = {
-      booking_id: bookingData?._id,
-      newVehicleData: changeToNewVehicle,
-      daysLeft,
-      totalBookingDuration,
-    };
+  //   // --- Build segments ---
 
-    // setting new payable amount for user
-    const oldBookingPrice = bookingData?.bookingPrice;
-    let total =
-      changeToNewVehicle?.totalRentalCost +
-      (oldBookingPrice?.extraAddonPrice || 0);
+  //   // Base: use original booking's appliedPlan to find matching plan in new vehicle
+  //   // const originalAppliedPlan = bookingData?.bookingPrice?.appliedPlan || [];
 
-    if (isGSTActive) {
-      total +=
-        (changeToNewVehicle?.tax || 0) + (oldBookingPrice?.addonTax || 0);
+  //   // const baseNewVehiclePlanPrice =
+  //   //   originalAppliedPlan.length > 0
+  //   //     ? originalAppliedPlan.reduce((sum, applied) => {
+  //   //         const matchingPlan = changeToNewVehicle?.vehiclePlan?.find(
+  //   //           (p) => p.planDuration === applied.days,
+  //   //         );
+  //   //         // if matching plan found use its price × count, else fallback to perDayCost
+  //   //         return (
+  //   //           sum +
+  //   //           (matchingPlan
+  //   //             ? matchingPlan.planPrice * applied.count
+  //   //             : changeToNewVehicle?.perDayCost * applied.days * applied.count)
+  //   //         );
+  //   //       }, 0)
+  //   //     : changeToNewVehicle?.perDayCost *
+  //   //       (totalBookingDuration - extendBookingDuration);
+
+  //   // const basePlanDays = totalBookingDuration - extendBookingDuration;
+
+  //   // const segments = {
+  //   //   base: {
+  //   //     planDays: basePlanDays,
+  //   //     planPrice: baseNewVehiclePlanPrice,
+  //   //   },
+  //   // };
+
+  //   // // Extension: if booking has paid extensions, find matching plan in new vehicle
+  //   // if (extendBookings.length > 0) {
+  //   //   const lastExtension = extendBookings[extendBookings.length - 1];
+  //   //   const extDays = Number(lastExtension?.extendDuration || 0);
+  //   //   const extAppliedPlans = lastExtension?.appliedPlans || [];
+
+  //   //   const extNewVehiclePlanPrice =
+  //   //     extAppliedPlans.length > 0
+  //   //       ? extAppliedPlans.reduce((sum, applied) => {
+  //   //           const matchingPlan = changeToNewVehicle?.vehiclePlan?.find(
+  //   //             (p) => p.planDuration === applied.days,
+  //   //           );
+  //   //           return (
+  //   //             sum +
+  //   //             (matchingPlan
+  //   //               ? matchingPlan.planPrice * applied.count
+  //   //               : changeToNewVehicle?.perDayCost *
+  //   //                 applied.days *
+  //   //                 applied.count)
+  //   //           );
+  //   //         }, 0)
+  //   //       : changeToNewVehicle?.perDayCost * extDays; // fallback
+
+  //   //   segments.extension = {
+  //   //     planDays: extDays,
+  //   //     planPrice: extNewVehiclePlanPrice,
+  //   //   };
+  //   // }
+
+  //   // --- End segments ---
+
+  //   // const data = {
+  //   //   booking_id: bookingData?._id,
+  //   //   newVehicleData: { ...changeToNewVehicle, segments },
+  //   //   daysLeft,
+  //   //   totalBookingDuration,
+  //   // };
+  //   const data = {
+  //     booking_id: bookingData?._id,
+  //     newVehicleData: changeToNewVehicle,
+  //     daysLeft,
+  //     totalBookingDuration,
+  //   };
+
+  //   // setting new payable amount for user
+  //   // const oldBookingPrice = bookingData?.bookingPrice;
+  //   // let total =
+  //   //   changeToNewVehicle?.totalRentalCost +
+  //   //   (oldBookingPrice?.extraAddonPrice || 0);
+
+  //   // if (isGSTActive) {
+  //   //   total +=
+  //   //     (changeToNewVehicle?.tax || 0) + (oldBookingPrice?.addonTax || 0);
+  //   // }
+
+  //   // setPayableAmount(oldBookingPrice?.totalPrice - total);
+  //   return setSelectedVehicle(data);
+  // };
+  const handleChangeSelectedVehicle = async (vehicleId) => {
+    if (!vehicleId) return;
+
+    try {
+      setPreviewLoading(true);
+      setPreviewData(null);
+
+      const response = await postData(
+        "/vehicleChangePreview",
+        { booking_id: bookingData?._id, newVehicleTableId: vehicleId },
+        token,
+      );
+
+      if (response?.success) {
+        setPreviewData(response.data);
+        setSelectedVehicle({
+          booking_id: bookingData?._id,
+          newVehicleTableId: vehicleId,
+        });
+      } else {
+        handleAsyncError(dispatch, response?.message);
+        setSelectedVehicle(null);
+      }
+    } catch (error) {
+      handleAsyncError(dispatch, error?.message);
+      setSelectedVehicle(null);
+    } finally {
+      setPreviewLoading(false);
     }
-
-    // setPayableAmount(oldBookingPrice?.totalPrice - total);
-    return setSelectedVehicle(data);
   };
 
   useEffect(() => {
@@ -141,42 +246,77 @@ const ChangeVehicleModal = ({ bookingData }) => {
   }, [vehicleId]);
 
   // apply vehicle for Maintenance
+  // const handleChangeVehicle = async (event) => {
+  //   event.preventDefault();
+  //   // const formData = new FormData(event.target);
+  //   // const otp = formData.get("OTP");
+  //   // if (!otp) return handleAsyncError(dispatch, "Please provide otp first!");
+
+  //   if (!selectedVehicle)
+  //     return handleAsyncError(dispatch, "unable to change vehicle! try again.");
+
+  //   // console.log(selectedVehicle);
+  //   // return;
+
+  //   try {
+  //     setFormLoading(true);
+  //     const response = await postData("/vehicleChange", selectedVehicle, token);
+  //     if (response?.success) {
+  //       if (response?.data && vehicleMaster) {
+  //         const newData = {
+  //           ...response?.data,
+  //           userId: {
+  //             ...vehicleMaster[0]?.userId,
+  //           },
+  //         };
+  //         dispatch(handleChangesAfterVehicleChange(newData));
+  //       }
+  //       // for updating timeline redux data
+  //       if (response?.timeLine) {
+  //         dispatch(updateTimeLineData(response.timeLine));
+  //       }
+  //       handleAsyncError(dispatch, "vehicle Change Successfully", "success");
+  //       return dispatch(toggleChangeVehicleModal());
+  //     } else {
+  //       handleAsyncError(dispatch, response?.message);
+  //     }
+  //   } catch (error) {
+  //     return handleAsyncError(dispatch, error?.message);
+  //   } finally {
+  //     setFormLoading(false);
+  //   }
+  // };
   const handleChangeVehicle = async (event) => {
     event.preventDefault();
-    // const formData = new FormData(event.target);
-    // const otp = formData.get("OTP");
-    // if (!otp) return handleAsyncError(dispatch, "Please provide otp first!");
 
     if (!selectedVehicle)
-      return handleAsyncError(dispatch, "unable to change vehicle! try again.");
-
-    // console.log(selectedVehicle);
-    // return;
+      return handleAsyncError(dispatch, "Unable to change vehicle! try again.");
 
     try {
       setFormLoading(true);
-      const response = await postData("/vehicleChange", selectedVehicle, token);
+      const response = await postData(
+        "/vehicleChangeNew",
+        selectedVehicle,
+        token,
+      );
       if (response?.success) {
         if (response?.data && vehicleMaster) {
           const newData = {
             ...response?.data,
-            userId: {
-              ...vehicleMaster[0]?.userId,
-            },
+            userId: { ...vehicleMaster[0]?.userId },
           };
           dispatch(handleChangesAfterVehicleChange(newData));
         }
-        // for updating timeline redux data
         if (response?.timeLine) {
           dispatch(updateTimeLineData(response.timeLine));
         }
-        handleAsyncError(dispatch, "vehicle Change Successfully", "success");
+        handleAsyncError(dispatch, "Vehicle changed successfully", "success");
         return dispatch(toggleChangeVehicleModal());
       } else {
         handleAsyncError(dispatch, response?.message);
       }
     } catch (error) {
-      return handleAsyncError(dispatch, error?.message);
+      handleAsyncError(dispatch, error?.message);
     } finally {
       setFormLoading(false);
     }
@@ -205,6 +345,9 @@ const ChangeVehicleModal = ({ bookingData }) => {
   useEffect(() => {
     if (!isChangeVehicleModalActive) {
       setSelectedVehicle(null);
+      setPreviewData(null); // ADD
+      setVehicleId(""); // ADD
+      setShowBreakdown(false); //ADD
     }
   }, [isChangeVehicleModalActive]);
 
@@ -212,6 +355,9 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const handleCloseModal = async () => {
     setFreeVehicles([]);
     setSelectedVehicle(null);
+    setPreviewData(null); // ADD
+    setVehicleId(""); // ADD
+    setShowBreakdown(false); //ADD
     return dispatch(toggleChangeVehicleModal());
   };
 
@@ -223,6 +369,15 @@ const ChangeVehicleModal = ({ bookingData }) => {
     ]?.status === "unpaid"
       ? true
       : false;
+
+  const lastVehicleChange = bookingData?.bookingPrice?.diffAmount
+    ?.filter((d) => d.title === "changedVehicle" && d.newVehicleSnapshot)
+    ?.at(-1);
+
+  const currentVehicleActualCost = lastVehicleChange
+    ? Number(lastVehicleChange.newVehicleSnapshot.rentalCost || 0) +
+      Number(lastVehicleChange.newVehicleSnapshot.tax || 0)
+    : null;
 
   return (
     <div
@@ -276,6 +431,51 @@ const ChangeVehicleModal = ({ bookingData }) => {
                 </p>
               </div>
               <ul className="leading-7 text-left mb-1">
+                {lastVehicleChange ? (
+                  // Show actual current vehicle cost from last change snapshot
+                  <>
+                    <li className="font-semibold">
+                      Booking Price: ₹{" "}
+                      {formatPrice(
+                        lastVehicleChange.newVehicleSnapshot.rentalCost,
+                      )}
+                    </li>
+                    {lastVehicleChange.newVehicleSnapshot.tax > 0 && (
+                      <li className="font-semibold">
+                        Tax: ₹{" "}
+                        {formatPrice(lastVehicleChange.newVehicleSnapshot.tax)}
+                      </li>
+                    )}
+                    <li className="font-semibold">
+                      Total Price: ₹ {formatPrice(currentVehicleActualCost)}
+                    </li>
+                    {extendBookingDuration > 0 && (
+                      <li className="font-semibold">
+                        Extend Ride: ₹ {formatPrice(extendBookingTotal)}
+                        {/* {extendBookingDuration} Day(s) */}
+                      </li>
+                    )}
+                  </>
+                ) : (
+                  // No previous vehicle change — show original bookingPrice as before
+                  <PriceList
+                    options={[
+                      "bookingPrice",
+                      "discountTotalPrice",
+                      "extraAddonPrice",
+                      "tax",
+                      "totalPrice",
+                    ]}
+                    extendBooking={{
+                      duration: extendBookingDuration,
+                      amount: extendBookingTotal,
+                    }}
+                    bookingData={bookingData}
+                    isGSTActive={isGSTActive}
+                  />
+                )}
+              </ul>
+              {/* <ul className="leading-7 text-left mb-1">
                 <PriceList
                   options={[
                     "bookingPrice",
@@ -291,8 +491,8 @@ const ChangeVehicleModal = ({ bookingData }) => {
                   bookingData={bookingData}
                   isGSTActive={isGSTActive}
                 />
-              </ul>
-              {selectedVehicle !== null && (
+              </ul> */}
+              {/* {selectedVehicle !== null && (
                 <>
                   <div className="flex items-center justify-between border-t border-gray-600/20 pt-1">
                     <h2 className="text-left font-semibold">
@@ -322,6 +522,19 @@ const ChangeVehicleModal = ({ bookingData }) => {
                     </li>
                   </ul>
                 </>
+              )} */}
+              {previewLoading && (
+                <div className="flex items-center justify-center py-2">
+                  <Spinner textColor="black" message={"Calculating price..."} />
+                </div>
+              )}
+
+              {previewData !== null && !previewLoading && (
+                <NewVehiclePreview
+                  previewData={previewData}
+                  showBreakdown={showBreakdown}
+                  setShowBreakdown={setShowBreakdown}
+                />
               )}
             </div>
             <div className="text-left mb-2">

@@ -1,10 +1,16 @@
 import { useSelector } from "react-redux";
 import { getData } from "../../Data/index";
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import MaintenanceTableSkeleton from "../../components/Skeleton/MaintenanceTableSkeleton";
 import ChangeBulkVehicle from "../../components/Modal/ChangeBulkVehicle";
 
-const VehicleGroupUpdate = ({ vehicleName, stationId }) => {
+const VehicleGroupUpdate = ({ vehicleName, stationId, vehicle }) => {
   const { token } = useSelector((state) => state.user);
   const [allVehicles, setAllVehicles] = useState([]);
   const [vehicleIds, setVehicleIds] = useState([]);
@@ -49,7 +55,11 @@ const VehicleGroupUpdate = ({ vehicleName, stationId }) => {
   return (
     <>
       <Suspense fallback={null}>
-        <ChangeBulkVehicle selectedVehicleIds={vehicleIds} isRest={false} />
+        <ChangeBulkVehicle
+          selectedVehicleIds={vehicleIds}
+          vehicle={vehicle}
+          isRest={false}
+        />
       </Suspense>
 
       {allVehicles?.length === 0 ? (

@@ -145,6 +145,7 @@ const VehicleDetail = () => {
               <VehicleGroupUpdate
                 vehicleName={vehicle?.vehicleName}
                 stationId={vehicle?.stationId}
+                vehicle={vehicle}
               />
             </Suspense>
           </div>

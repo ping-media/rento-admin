@@ -127,10 +127,10 @@ const BookingStepOne = ({
               ? `stationId=${userStation?.stationId}`
               : `stationId=${stationId}`;
 
-          let endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&page=1&limit=50`;
+          let endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&includeUnavailable=true&page=1&limit=50`;
 
           if (vehiclesFilter?.bookingVehicleName !== "") {
-            endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&search=${vehiclesFilter?.bookingVehicleName}&page=1&limit=50`;
+            endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&search=${vehiclesFilter?.bookingVehicleName}&includeUnavailable=true&page=1&limit=50`;
           }
 
           const response = await getData(endpoint);

@@ -39,23 +39,8 @@ const BookingDetails = () => {
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
   const dispatch = useDispatch();
 
-  // const bookingId = useMemo(() => id?.split("_")[0], [id]);
   const bookingId = id?.split("_")[0];
   const booking = vehicleMaster?.[0];
-
-  // through this we are fetching single vehicle data
-  // const fetchSingleVehicleDetails = useCallback(async () => {
-  //   if (id) {
-  //     fetchVehicleMasterById(
-  //       dispatch,
-  //       bookingId,
-  //       token,
-  //       "/getBookings",
-  //       "/getTimelineData",
-  //       "/getBookings",
-  //     );
-  //   }
-  // }, [bookingId, id, token]);
 
   useEffect(() => {
     if (!bookingId || !token) return;
