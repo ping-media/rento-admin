@@ -294,11 +294,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
 
     try {
       setFormLoading(true);
-      const response = await postData(
-        "/vehicleChangeNew",
-        selectedVehicle,
-        token,
-      );
+      const response = await postData("/vehicleChange", selectedVehicle, token);
       if (response?.success) {
         if (response?.data && vehicleMaster) {
           const newData = {
