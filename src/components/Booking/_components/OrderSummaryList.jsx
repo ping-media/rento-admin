@@ -1,11 +1,19 @@
 import React from "react";
 import { ExtendSummary, RideSummary } from "../RideSummary";
+import { getDurationInDays } from "../../../utils";
 
 export const OrderSummaryList = React.memo(({ booking }) => {
   if (!booking) return null;
 
   const extendList = booking?.bookingPrice?.extendAmount ?? [];
   const hasExtension = extendList.length > 0;
+
+  const startDate = booking?.BookingStartDateAndTime;
+  const endDate = hasExtension
+    ? booking?.bookingPrice?.extendAmount[0]?.BookingStartDateAndTime
+    : booking?.BookingEndDateAndTime;
+
+  const mainBookingDuration = getDurationInDays(startDate, endDate);
 
   return (
     <>
@@ -14,6 +22,7 @@ export const OrderSummaryList = React.memo(({ booking }) => {
           daysBreakdown={booking?.bookingPrice?.daysBreakdown}
           appliedPlans={booking?.bookingPrice?.appliedPlan}
           item={booking?.bookingPrice}
+          mainBookingDuration={mainBookingDuration}
         />
       )}
 
@@ -25,6 +34,7 @@ export const OrderSummaryList = React.memo(({ booking }) => {
               <ExtendSummary
                 daysBreakdown={item?.daysBreakdown ?? []}
                 appliedPlans={item?.appliedPlans ?? []}
+                bookingDuration={item?.extendDuration || 0}
                 item={item}
               />
             </li>

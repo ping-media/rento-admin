@@ -5,10 +5,15 @@ const NewVehiclePreview = ({
   previewData,
   showBreakdown,
   setShowBreakdown,
+  addonDetails,
+  extraAddonPrice,
+  addonTax,
 }) => {
   return (
     <>
-      <div className="flex items-center justify-between border-t border-gray-600/20 pt-1">
+      <div
+        className={`flex items-center justify-between pt-1 ${!showBreakdown ? "border-t border-gray-600/20" : ""}`}
+      >
         <h2 className="text-left font-semibold">New Vehicle Info</h2>
         <p className="text-sm capitalize">
           {previewData?.newVehicle?.vehicleNumber}(
@@ -117,6 +122,33 @@ const NewVehiclePreview = ({
                     </span>
                   </li>
                 ))}
+
+                {/* Addon charges */}
+                {addonDetails?.length > 0 && extraAddonPrice > 0 && (
+                  <>
+                    <li className="font-semibold text-gray-600 mt-1">
+                      Add-on Charges:
+                    </li>
+                    {addonDetails.map((addon, i) => (
+                      <li key={i} className="pl-2 flex justify-between">
+                        <span className="capitalize">{addon.name}</span>
+                        <span className="font-semibold">
+                          ₹ {formatPrice(extraAddonPrice)}
+                        </span>
+                      </li>
+                    ))}
+                    {addonTax > 0 && (
+                      <li className="pl-2 flex justify-between">
+                        <span>
+                          Addon GST ({addonDetails[0]?.gstPercentage}%)
+                        </span>
+                        <span className="font-semibold">
+                          ₹ {formatPrice(addonTax)}
+                        </span>
+                      </li>
+                    )}
+                  </>
+                )}
               </>
             )}
 
@@ -132,7 +164,7 @@ const NewVehiclePreview = ({
 
             {/* Total */}
             <li className="flex justify-between border-t border-gray-400/30 pt-1 font-semibold">
-              <span>Total</span>
+              <span>Total (vehicle only)</span>
               <span>
                 ₹{" "}
                 {formatPrice(
@@ -141,6 +173,30 @@ const NewVehiclePreview = ({
                 )}
               </span>
             </li>
+            {extraAddonPrice > 0 && (
+              <li className="flex justify-between font-semibold text-gray-600">
+                <span>Total (with addons)</span>
+                <span>
+                  ₹{" "}
+                  {formatPrice(
+                    previewData?.newVehicle?.totalRentalCost +
+                      (previewData?.newVehicle?.tax || 0) +
+                      extraAddonPrice +
+                      addonTax,
+                  )}
+                </span>
+              </li>
+            )}
+            {/* <li className="flex justify-between border-t border-gray-400/30 pt-1 font-semibold">
+              <span>Total</span>
+              <span>
+                ₹{" "}
+                {formatPrice(
+                  previewData?.newVehicle?.totalRentalCost +
+                    (previewData?.newVehicle?.tax || 0),
+                )}
+              </span>
+            </li> */}
           </ul>
 
           <button

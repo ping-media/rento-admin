@@ -265,7 +265,9 @@ const ChangeVehicleModal = ({ bookingData }) => {
           )}
           <form onSubmit={handleChangeVehicle}>
             <div className="w-full bg-gray-300 rounded-lg bg-opacity-75 py-2 px-2.5 mb-2">
-              <div className="flex flex-wrap items-center justify-between">
+              <div
+                className={`flex flex-wrap items-center justify-between ${showBreakdown ? "hidden" : ""}`}
+              >
                 <h2 className="text-left font-semibold">
                   Current Vehicle Info
                 </h2>
@@ -274,7 +276,9 @@ const ChangeVehicleModal = ({ bookingData }) => {
                   {`${bookingData?.vehicleBrand} ${bookingData?.vehicleName}`})
                 </p>
               </div>
-              <ul className="leading-7 text-left mb-1">
+              <ul
+                className={`leading-7 text-left mb-1 ${showBreakdown ? "hidden" : ""}`}
+              >
                 {lastVehicleChange ? (
                   // Show actual current vehicle cost from last change snapshot
                   <>
@@ -319,6 +323,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
                   />
                 )}
               </ul>
+
               {previewLoading && (
                 <div className="flex items-center justify-center py-2">
                   <Spinner textColor="black" message={"Calculating price..."} />
@@ -330,6 +335,13 @@ const ChangeVehicleModal = ({ bookingData }) => {
                   previewData={previewData}
                   showBreakdown={showBreakdown}
                   setShowBreakdown={setShowBreakdown}
+                  addonDetails={
+                    bookingData?.bookingPrice?.extraAddonDetails || []
+                  }
+                  extraAddonPrice={
+                    bookingData?.bookingPrice?.extraAddonPrice || 0
+                  }
+                  addonTax={bookingData?.bookingPrice?.addonTax || 0}
                 />
               )}
             </div>
