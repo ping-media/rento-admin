@@ -378,17 +378,19 @@ const ExtendBookingModal = ({ bookingData }) => {
 
   // through this we are disabling the extension util previous one is completed
   const isDisabled =
-    (!["paid", "partiallyPay", "partially_paid"].includes(
-      bookingData?.paymentStatus,
-    ) &&
-      true) ||
-    (bookingData?.bookingPrice?.extendAmount &&
-      bookingData?.bookingPrice?.extendAmount?.length > 0 &&
-      bookingData?.bookingPrice?.extendAmount[
-        bookingData?.bookingPrice?.extendAmount?.length - 1
-      ]?.status === "unpaid")
-      ? true
-      : false;
+    loggedInRole === "admin"
+      ? false
+      : (!["paid", "partiallyPay", "partially_paid"].includes(
+            bookingData?.paymentStatus,
+          ) &&
+            true) ||
+          (bookingData?.bookingPrice?.extendAmount &&
+            bookingData?.bookingPrice?.extendAmount?.length > 0 &&
+            bookingData?.bookingPrice?.extendAmount[
+              bookingData?.bookingPrice?.extendAmount?.length - 1
+            ]?.status === "unpaid")
+        ? true
+        : false;
 
   if (plan?.loading) {
     return <PreLoader />;

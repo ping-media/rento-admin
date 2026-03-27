@@ -263,6 +263,14 @@ const ChangeVehicleModal = ({ bookingData }) => {
               update the pending payment in order to change vehicle.
             </p>
           )}
+          {previewData?.isVehicleConflicted && (
+            <p className="text-left text-xs lg:text-sm text-yellow-500 italic mb-2">
+              <span className="font-bold mr-1">Warning:</span>
+              This vehicle is already booked (ID:{" "}
+              {previewData?.conflictingBookingId}). Proceeding will assign it to
+              this booking as well.
+            </p>
+          )}
           <form onSubmit={handleChangeVehicle}>
             <div className="w-full bg-gray-300 rounded-lg bg-opacity-75 py-2 px-2.5 mb-2">
               <div

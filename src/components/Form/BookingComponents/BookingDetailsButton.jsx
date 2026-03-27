@@ -152,7 +152,8 @@ const BookingDetailsButton = ({
         />
       )}
 
-      {booking?.bookingStatus !== "canceled" &&
+      {/* for now disabling the reschudle option as it is making conflict  */}
+      {/* {booking?.bookingStatus !== "canceled" &&
         booking?.rideStatus !== "completed" &&
         // booking?.rideStatus === "pending" &&
         loggedInRole === "admin" && (
@@ -160,7 +161,7 @@ const BookingDetailsButton = ({
             title={"Reschedule"}
             fn={() => dispatch(toggleRescheduleModal())}
           />
-        )}
+        )} */}
 
       {booking?.bookingStatus !== "canceled" &&
         booking?.rideStatus === "pending" &&
