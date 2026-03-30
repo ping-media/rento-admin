@@ -13,7 +13,10 @@ import { useNavigate } from "react-router-dom";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
 import { isValidIndianMobile } from "../../utils";
 
-const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
+const UploadPickupImageModal = ({
+  isBookingIdPresent = false,
+  onVehicleChange = null,
+}) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const { token, loggedInRole } = useSelector((state) => state.user);
   const { tempVehicleData, vehicleMaster } = useSelector(
@@ -207,6 +210,7 @@ const UploadPickupImageModal = ({ isBookingIdPresent = false }) => {
           others: null,
         });
         setImageUrl([]);
+        onVehicleChange && onVehicleChange();
         dispatch(togglePickupImageModal());
 
         if (isChange) {

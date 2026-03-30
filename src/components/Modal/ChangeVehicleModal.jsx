@@ -6,18 +6,18 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { formatDateToISOWithoutSecond, formatPrice } from "../../utils/index";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import Spinner from "../../components/Spinner/Spinner";
-import {
-  handleChangesAfterVehicleChange,
-  updateTimeLineData,
-} from "../../Redux/VehicleSlice/VehicleSlice";
+// import {
+//   handleChangesAfterVehicleChange,
+//   updateTimeLineData,
+// } from "../../Redux/VehicleSlice/VehicleSlice";
 import SelectDropDownVehicle from "../../components/InputAndDropdown/SelectDropDownVehicle";
 import PriceList from "../../components/Form/VehicleComponents/PriceList";
 import NewVehiclePreview from "./_components/NewVehiclePreview";
 
-const ChangeVehicleModal = ({ bookingData }) => {
+const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
   const dispatch = useDispatch();
   const { isChangeVehicleModalActive } = useSelector((state) => state.sideBar);
-  const { vehicleMaster } = useSelector((state) => state.vehicles);
+  // const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
@@ -144,16 +144,17 @@ const ChangeVehicleModal = ({ bookingData }) => {
       setFormLoading(true);
       const response = await postData("/vehicleChange", selectedVehicle, token);
       if (response?.success) {
-        if (response?.data && vehicleMaster) {
-          const newData = {
-            ...response?.data,
-            userId: { ...vehicleMaster[0]?.userId },
-          };
-          dispatch(handleChangesAfterVehicleChange(newData));
-        }
-        if (response?.timeLine) {
-          dispatch(updateTimeLineData(response.timeLine));
-        }
+        // if (response?.data && vehicleMaster) {
+        //   const newData = {
+        //     ...response?.data,
+        //     userId: { ...vehicleMaster[0]?.userId },
+        //   };
+        //   dispatch(handleChangesAfterVehicleChange(newData));
+        // }
+        // if (response?.timeLine) {
+        //   dispatch(updateTimeLineData(response.timeLine));
+        // }
+        onVehicleChange && onVehicleChange();
         handleAsyncError(dispatch, "Vehicle changed successfully", "success");
         return dispatch(toggleChangeVehicleModal());
       } else {

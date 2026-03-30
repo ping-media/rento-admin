@@ -37,6 +37,9 @@ const BookingDetails = () => {
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [Note, setNote] = useState("");
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
+
+  // using to refresh the data after vehicle change or any update in booking details
+  const [isRefresh, setIsRefresh] = useState(false);
   const dispatch = useDispatch();
 
   const bookingId = id?.split("_")[0];
@@ -57,7 +60,7 @@ const BookingDetails = () => {
     return () => {
       dispatch(resetUserRideInfo());
     };
-  }, [bookingId, token, dispatch]);
+  }, [bookingId, token, dispatch, isRefresh]);
 
   // // for opening cancel model
   const handleCancelBooking = useCallback(async () => {
@@ -157,7 +160,10 @@ const BookingDetails = () => {
           setValueChange={setNote}
         />
         {/* pickupImage & start ride modal */}
-        <UploadPickupImageModal isBookingIdPresent={!!bookingId} />
+        <UploadPickupImageModal
+          isBookingIdPresent={!!bookingId}
+          onVehicleChange={() => setIsRefresh((prev) => !prev)}
+        />
         <RescheduleModal />
         <AddonModal />
         {/* update bookingpayment modal */}
@@ -191,7 +197,11 @@ const BookingDetails = () => {
           />
         </div>
 
-        <BookingDetail tabs={tab} booking={booking} />
+        <BookingDetail
+          tabs={tab}
+          booking={booking}
+          onVehicleChange={() => setIsRefresh((prev) => !prev)}
+        />
       </div>
     </>
   );

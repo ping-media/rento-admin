@@ -119,7 +119,7 @@ const buildBookingData = (booking) => {
   };
 };
 
-const BookingDetail = ({ tabs, booking }) => {
+const BookingDetail = ({ tabs, booking, onVehicleChange = null }) => {
   const [tab, setTab] = useState("booking");
 
   if (!booking) return <DetailsSkeleton />;
@@ -133,7 +133,10 @@ const BookingDetail = ({ tabs, booking }) => {
   return (
     <>
       <Suspense fallback={null}>
-        <ChangeVehicleModal bookingData={booking} />
+        <ChangeVehicleModal
+          bookingData={booking}
+          onVehicleChange={onVehicleChange}
+        />
         <ExtendBookingModal bookingData={booking} />
       </Suspense>
 
