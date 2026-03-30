@@ -25,9 +25,9 @@ const priceReducer = (_, action) => {
         if (item.amount > 0) {
           total += Number(item.amount);
         }
-        if (item.refundAmount > 0) {
-          total -= Number(item.refundAmount);
-        }
+        // if (item.refundAmount > 0) {
+        //   total -= Number(item.refundAmount);
+        // }
       }
     });
   }
