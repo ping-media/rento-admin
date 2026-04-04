@@ -156,6 +156,10 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "extraAddOn",
           "transactionType",
           "payments",
+          "deletedAt",
+          "deletionReason",
+          "isDeleted",
+          "addresses",
         ].includes(key),
     );
 

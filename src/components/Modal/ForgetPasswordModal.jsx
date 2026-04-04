@@ -27,7 +27,7 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
         return handleAsyncError(
           dispatch,
           "Password Successfully Changed",
-          "success"
+          "success",
         );
       } else {
         return handleAsyncError(dispatch, response?.message);
@@ -55,7 +55,7 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
       token,
       dispatch,
       handleAsyncError,
-      setOtpLoading
+      setOtpLoading,
     );
   };
 
@@ -110,6 +110,7 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
                 item={"password_For"}
                 placeholder={"new password"}
                 type="password"
+                isPassword
                 require={true}
               />
             </div>
@@ -137,7 +138,7 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
             )}
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 flex items-center w-full justify-center"
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 items-center w-full justify-center"
               disabled={formLoading}
             >
               {!formLoading ? `Submit` : <Spinner message={"loading..."} />}
