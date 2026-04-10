@@ -6,7 +6,7 @@ import {
   toggleBookingExtendModal,
   toggleChangeVehicleModal,
   togglePickupImageModal,
-  toggleRescheduleModal,
+  // toggleRescheduleModal,
   toggleRideEndModal,
 } from "../../../Redux/SideBarSlice/SideBarSlice";
 import GenerateInvoiceButton from "../../Table/GenerateInvoiceButton";
@@ -94,66 +94,70 @@ const BookingDetailsButton = ({
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {/* for starting & completing ride  */}
-      {isStartRideVisible && (
-        <Button
-          title={
-            booking?.rideStatus === "completed" ? "Ride Finished" : "Start Ride"
-          }
-          fn={handleStartRideAndAddImages}
-          disable={
-            booking?.bookingStatus === "canceled" ||
-            booking?.rideStatus === "completed"
-          }
-        />
-      )}
-      {/* for completing ride  */}
-      {booking?.rideStatus === "ongoing" && !isChange && (
-        <Button
-          title={"End Ride"}
-          fn={() => dispatch(toggleRideEndModal())}
-          disable={
-            booking?.rideStatus === "pending" ||
-            booking?.bookingStatus === "canceled"
-          }
-          loading={vehicleLoading}
-        />
-      )}
+    // <div className="flex flex-wrap gap-2">
+    <div className="overflow-hidden pb-0">
+      <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide bg-white -mb-4 pb-4">
+        {/* for starting & completing ride  */}
+        {isStartRideVisible && (
+          <Button
+            title={
+              booking?.rideStatus === "completed"
+                ? "Ride Finished"
+                : "Start Ride"
+            }
+            fn={handleStartRideAndAddImages}
+            disable={
+              booking?.bookingStatus === "canceled" ||
+              booking?.rideStatus === "completed"
+            }
+          />
+        )}
+        {/* for completing ride  */}
+        {booking?.rideStatus === "ongoing" && !isChange && (
+          <Button
+            title={"End Ride"}
+            fn={() => dispatch(toggleRideEndModal())}
+            disable={
+              booking?.rideStatus === "pending" ||
+              booking?.bookingStatus === "canceled"
+            }
+            loading={vehicleLoading}
+          />
+        )}
 
-      {/* for cancel ride */}
-      {((loggedInRole === "admin" && booking?.rideStatus !== "completed") ||
-        !(
-          booking?.bookingStatus == "canceled" ||
-          booking?.rideStatus == "ongoing" ||
+        {/* for cancel ride */}
+        {((loggedInRole === "admin" && booking?.rideStatus !== "completed") ||
+          !(
+            booking?.bookingStatus == "canceled" ||
+            booking?.rideStatus == "ongoing" ||
+            booking?.rideStatus == "completed"
+          )) && (
+          <Button
+            title={"Cancel Ride"}
+            fn={() => handleCancelBooking()}
+            disable={
+              booking?.bookingStatus === "canceled" ||
+              (loggedInRole !== "admin" &&
+                (booking?.bookingStatus === "canceled" ||
+                  booking?.rideStatus === "ongoing" ||
+                  booking?.rideStatus === "completed"))
+            }
+          />
+        )}
+        {/* for extend booking  */}
+        {!(
+          booking?.bookingStatus === "canceled" ||
+          booking?.bookingStatus === "completed" ||
           booking?.rideStatus == "completed"
-        )) && (
-        <Button
-          title={"Cancel Ride"}
-          fn={() => handleCancelBooking()}
-          disable={
-            booking?.bookingStatus === "canceled" ||
-            (loggedInRole !== "admin" &&
-              (booking?.bookingStatus === "canceled" ||
-                booking?.rideStatus === "ongoing" ||
-                booking?.rideStatus === "completed"))
-          }
-        />
-      )}
-      {/* for extend booking  */}
-      {!(
-        booking?.bookingStatus === "canceled" ||
-        booking?.bookingStatus === "completed" ||
-        booking?.rideStatus == "completed"
-      ) && (
-        <Button
-          title={"Extend Ride"}
-          fn={() => dispatch(toggleBookingExtendModal())}
-        />
-      )}
+        ) && (
+          <Button
+            title={"Extend Ride"}
+            fn={() => dispatch(toggleBookingExtendModal())}
+          />
+        )}
 
-      {/* for now disabling the reschudle option as it is making conflict  */}
-      {/* {booking?.bookingStatus !== "canceled" &&
+        {/* for now disabling the reschudle option as it is making conflict  */}
+        {/* {booking?.bookingStatus !== "canceled" &&
         booking?.rideStatus !== "completed" &&
         // booking?.rideStatus === "pending" &&
         loggedInRole === "admin" && (
@@ -163,44 +167,45 @@ const BookingDetailsButton = ({
           />
         )} */}
 
-      {booking?.bookingStatus !== "canceled" &&
-        booking?.rideStatus === "pending" &&
-        loggedInRole === "admin" && (
-          <Button title={"Add-On"} fn={() => dispatch(toggleAddonModal())} />
+        {booking?.bookingStatus !== "canceled" &&
+          booking?.rideStatus === "pending" &&
+          loggedInRole === "admin" && (
+            <Button title={"Add-On"} fn={() => dispatch(toggleAddonModal())} />
+          )}
+
+        {!(
+          booking?.rideStatus === "completed" ||
+          booking?.bookingStatus === "canceled"
+        ) && (
+          <button
+            className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-1 disabled:bg-theme/75"
+            type="button"
+            onClick={() => dispatch(toggleChangeVehicleModal())}
+          >
+            Change Vehicle
+          </button>
         )}
 
-      {!(
-        booking?.rideStatus === "completed" ||
-        booking?.bookingStatus === "canceled"
-      ) && (
-        <button
-          className="text-sm font-medium bg-theme text-gray-100 px-1.5 rounded shadow-md py-1 disabled:bg-theme/75"
-          type="button"
-          onClick={() => dispatch(toggleChangeVehicleModal())}
-        >
-          Change Vehicle
-        </button>
-      )}
+        <Button
+          title={"Send Reminder"}
+          fn={handleSendRemainder}
+          disable={
+            booking?.bookingStatus === "canceled" ||
+            booking?.rideStatus === "completed"
+          }
+          loading={reminderLoading}
+          customLoadingMessage="sending"
+        />
 
-      <Button
-        title={"Send Reminder"}
-        fn={handleSendRemainder}
-        disable={
-          booking?.bookingStatus === "canceled" ||
-          booking?.rideStatus === "completed"
-        }
-        loading={reminderLoading}
-        customLoadingMessage="sending"
-      />
-
-      {booking?.bookingStatus !== "canceled" &&
-        booking?.paymentStatus !== "pending" && (
-          <GenerateInvoiceButton
-            item={booking}
-            loadingStates={loadingStates}
-            setLoadingStates={setLoadingStates}
-          />
-        )}
+        {booking?.bookingStatus !== "canceled" &&
+          booking?.paymentStatus !== "pending" && (
+            <GenerateInvoiceButton
+              item={booking}
+              loadingStates={loadingStates}
+              setLoadingStates={setLoadingStates}
+            />
+          )}
+      </div>
     </div>
   );
 };

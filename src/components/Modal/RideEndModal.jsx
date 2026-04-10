@@ -11,6 +11,7 @@ import {
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import {
   formatDateToISO,
+  formatNumber,
   formatPrice,
   getDurationInDaysAndHours,
   hasUnpaid,
@@ -41,6 +42,32 @@ const RideEndModal = ({ id }) => {
   const dispatch = useDispatch();
 
   const booking = useMemo(() => vehicleMaster?.[0] ?? null, [vehicleMaster]);
+
+  const pickupData = useMemo(() => {
+    const vehiclePickupImageData =
+      vehiclePickupImage?.[0]?.data?.updatedData ?? [];
+    const vehicleMasterPickupImageData =
+      vehicleMaster?.[0]?.pickupImage?.data?.updatedData ?? [];
+
+    return vehiclePickupImageData.length > 0
+      ? vehiclePickupImageData
+      : vehicleMasterPickupImageData.length > 0
+        ? vehicleMasterPickupImageData
+        : [];
+  }, [vehiclePickupImage, vehicleMaster]);
+
+  const previousVehiclesKm = useMemo(() => {
+    return pickupData.reduce((sum, entry) => {
+      const ran = Math.max(
+        0,
+        Number(entry.oldVehicleEndMeterReading || 0) -
+          Number(entry.startMeterReading || 0),
+      );
+      return sum + ran;
+    }, 0);
+  }, [pickupData]);
+
+  const hasVehicleChanges = pickupData.length > 0;
 
   if (!booking) return null;
 
@@ -127,10 +154,18 @@ const RideEndModal = ({ id }) => {
     /* ---------------------------------
      KM LATE FEE
      --------------------------------- */
-    const totalDrivenKm = Math.max(
+    const currentVehicleKm = Math.max(
       0,
       Number(meterDebounceValue) - Number(oldMeterReading),
     );
+
+    // 👇 Add KMs from all previous vehicles before the change
+    const totalDrivenKm = currentVehicleKm + previousVehiclesKm;
+
+    // const totalDrivenKm = Math.max(
+    //   0,
+    //   Number(meterDebounceValue) - Number(oldMeterReading),
+    // );
 
     const paidExtends =
       bookingPrice?.extendAmount?.filter((b) => b.status === "paid") || [];
@@ -279,7 +314,7 @@ const RideEndModal = ({ id }) => {
       <div className="relative top-20 md:top-14 mx-auto shadow-xl rounded-md bg-white max-w-lg">
         <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
-            Finish Ride
+            End Ride
           </h2>
           <button
             onClick={handleCloseModal}
@@ -291,138 +326,229 @@ const RideEndModal = ({ id }) => {
           </button>
         </div>
 
-        <div className="p-6 pt-2 text-center">
-          {/* if payment are pending this message will be show  */}
-          {/* {((booking?.bookingPrice?.diffAmount &&
-            booking?.bookingPrice?.diffAmount?.every(
-              (item) => item.status === "paid",
-            ) === false) ||
-            (booking?.bookingPrice?.extendAmount &&
-              booking?.bookingPrice?.extendAmount?.every(
-                (item) => item.status === "paid",
-              ) === false)) && ( */}
-          {hasPendingPayments && (
-            <p className="italic text-xs lg:text-sm my-2 text-red-300 font-bold text-left">
-              Warning: Some payments are pending. Please clear them before
-              ending your ride.
-            </p>
-          )}
-          {/* end ride form */}
-          <form onSubmit={handleEndBooking}>
-            <div className="mb-2 text-left">
-              <p className="text-gray-400 mb-1">
-                <span className="font-semibold">Start Meter Reading:</span>{" "}
-                {oldMeterReading}
+        <div className="p-6 lg:p-4 pt-0 text-center">
+          <div className="lg:h-[30rem] overflow-y-scroll px-0">
+            {/* if payment are pending this message will be show  */}
+            {hasPendingPayments && (
+              <p className="italic text-sm my-2 text-red-300 font-bold text-left">
+                Warning: Some payments are pending. Please clear them before
+                ending your ride.
               </p>
-              {lateFees?.lateFeeBasedOnKM >= 0 && (
-                <div className="text-theme mb-1 flex items-center">
-                  <span className="font-semibold text-gray-400">
-                    {/* late Fee Based On KM: */}
-                    Extra KM Charge:
-                  </span>{" "}
-                  <ChangeTextToInput
-                    value={Number(lateFees?.lateFeeBasedOnKM)}
-                    setValue={(e) =>
-                      setLateFees({
-                        ...lateFees,
-                        lateFeeBasedOnKM: e.target.value,
-                      })
-                    }
-                    type={"number"}
-                  />
-                </div>
-              )}
-              {lateFees?.lateFeeBasedOnHour >= 0 && (
-                <div className="text-theme flex items-center">
-                  <span className="font-semibold text-gray-400 mb-2">
-                    {/* late Fee Based On Hour: */}
-                    Extra Hour Charge:
-                  </span>{" "}
-                  <ChangeTextToInput
-                    value={Number(lateFees?.lateFeeBasedOnHour)}
-                    setValue={(e) =>
-                      setLateFees({
-                        ...lateFees,
-                        lateFeeBasedOnHour: e.target.value,
-                      })
-                    }
-                    type={"number"}
-                  />
-                </div>
-              )}
+            )}
 
-              {refundAmount >= 0 && (
-                <div className="text-theme mb-1 flex items-center mt-2">
-                  <span className="font-semibold text-gray-400">
-                    Refund Amount:
-                  </span>{" "}
-                  <ChangeTextToInput
-                    value={Number(refundAmount)}
-                    setValue={(e) => setRefundAmount(e.target.value)}
-                    type={"number"}
-                    isnormal
-                  />
-                </div>
-              )}
+            {/* show distance breakdown if there are vehicle changes during the ride  */}
+            {hasVehicleChanges && (
+              <div className="text-left mb-5">
+                <h3 className="font-semibold text-lg text-gray-600 mb-2">
+                  Distance Breakdown:
+                </h3>
 
-              {(lateFees?.lateFeeBasedOnKM > 0 ||
-                lateFees?.lateFeeBasedOnHour > 0) && (
-                <p className="text-theme border-t">
-                  <span className="font-semibold text-gray-400">
-                    Total Late Charges:
-                  </span>{" "}
-                  ₹
-                  {formatPrice(
-                    Number(lateFees?.lateFeeBasedOnHour) +
-                      Number(lateFees?.lateFeeBasedOnKM),
-                  )}
-                </p>
-              )}
-            </div>
-            <div className="mb-2">
-              <Input
-                item={"endMeterReading"}
-                setValueChange={SetEndMeterReading}
-                type="number"
-                require={true}
-              />
-            </div>
-            <div className="mb-2">
-              <Input
-                item={"additionalPrice"}
-                setValueChange={setAdditionalPrice}
-                value={0}
-                type="number"
-              />
-            </div>
-            {(lateFees?.lateFeeBasedOnKM > 0 ||
-              lateFees?.lateFeeBasedOnHour > 0) && (
-              <div className="text-left mb-2">
-                <SelectDropDown
-                  options={["cash"]}
-                  value="cash"
-                  item="PaymentMode"
-                  require={true}
-                  isSearchEnable={false}
-                />
+                {/* Previous vehicles from updatedData */}
+                {/* {(vehiclePickupImage?.[0]?.data?.updatedData ?? []).map( */}
+                {pickupData.map((entry, index) => {
+                  const driven = Math.max(
+                    0,
+                    Number(entry.oldVehicleEndMeterReading || 0) -
+                      Number(entry.startMeterReading || 0),
+                  );
+                  return (
+                    <div key={index} className="mb-3 border-b pb-2">
+                      <p className="font-semibold text-medium text-gray-700">
+                        {entry.vehicleNumber}:
+                      </p>
+                      <p className="text-base text-gray-500">
+                        End reading: {entry.oldVehicleEndMeterReading} Km
+                      </p>
+                      <p className="text-base text-gray-500">
+                        Start reading: {entry.startMeterReading} Km
+                      </p>
+                      <p className="text-base text-gray-500">
+                        Distance driven: {driven} Km
+                      </p>
+                    </div>
+                  );
+                })}
+
+                {/* Current vehicle */}
+                <div className="mb-3 border-b pb-2">
+                  <p className="font-semibold text-medium text-gray-700">
+                    {booking?.vehicleBasic?.vehicleNumber}:
+                  </p>
+                  <p className="text-base text-gray-500">
+                    End reading: {EndMeterReading || "—"} Km
+                  </p>
+                  <p className="text-base text-gray-500">
+                    Start reading: {oldMeterReading} Km
+                  </p>
+                  <p className="text-base text-gray-500">
+                    Distance driven:{" "}
+                    {Math.max(
+                      0,
+                      Number(EndMeterReading || 0) - Number(oldMeterReading),
+                    )}{" "}
+                    Km
+                  </p>
+                </div>
+
+                {/* Totals */}
+                <div className="mt-2">
+                  <p className="font-bold text-base text-gray-700">
+                    Total Km driven:{" "}
+                    {Math.max(
+                      0,
+                      Number(EndMeterReading || 0) - Number(oldMeterReading),
+                    ) + previousVehiclesKm}{" "}
+                    Km
+                  </p>
+                  <p className="font-bold text-base text-gray-700">
+                    Km limit:{" "}
+                    {Number(booking?.vehicleBasic?.freeLimit || 0) +
+                      (
+                        booking?.bookingPrice?.extendAmount?.filter(
+                          (e) => e.status === "paid",
+                        ) || []
+                      ).reduce((s, e) => s + Number(e?.freeLimit || 0), 0)}{" "}
+                    Km
+                  </p>
+                  <p className="font-bold text-base text-gray-700">
+                    Extra Km:{" "}
+                    {Math.max(
+                      0,
+                      Math.max(
+                        0,
+                        Number(EndMeterReading || 0) - Number(oldMeterReading),
+                      ) +
+                        previousVehiclesKm -
+                        (Number(booking?.vehicleBasic?.freeLimit || 0) +
+                          (
+                            booking?.bookingPrice?.extendAmount?.filter(
+                              (e) => e.status === "paid",
+                            ) || []
+                          ).reduce((s, e) => s + Number(e?.freeLimit || 0), 0)),
+                    )}{" "}
+                    Km
+                  </p>
+                </div>
               </div>
             )}
-            <div className="mb-2">
-              <Input
-                item={"OTP"}
-                setValueChange={SetEndRide}
-                type="number"
-                require={true}
-              />
-            </div>
-            <button
-              type="submit"
-              className="mt-2 text-center bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/60 w-full items-center justify-center"
-              disabled={formLoading || endRide === 0}
-            >
-              {!formLoading ? "End Ride" : <Spinner message={"loading..."} />}
-            </button>
-          </form>
+
+            {/* end-ride form */}
+            <form onSubmit={handleEndBooking}>
+              <div className="mb-2 text-left">
+                {/* <p className="text-gray-700 mb-1">
+                  <span className="font-semibold">Start Meter Reading:</span>{" "}
+                  {formatNumber(Number(oldMeterReading))} km
+                </p> */}
+                {lateFees?.lateFeeBasedOnKM >= 0 && (
+                  <div className="text-theme mb-1 flex items-center">
+                    <span className="font-semibold text-base text-gray-700 mr-1">
+                      {/* late Fee Based On KM: */}
+                      Extra KM Charge:
+                    </span>{" "}
+                    <ChangeTextToInput
+                      value={Number(lateFees?.lateFeeBasedOnKM)}
+                      setValue={(e) =>
+                        setLateFees({
+                          ...lateFees,
+                          lateFeeBasedOnKM: e.target.value,
+                        })
+                      }
+                      type={"number"}
+                    />
+                  </div>
+                )}
+                {lateFees?.lateFeeBasedOnHour >= 0 && (
+                  <div className="text-theme flex items-center">
+                    <span className="font-semibold text-base text-gray-700 mr-1 mb-2">
+                      {/* late Fee Based On Hour: */}
+                      Extra Hour Charge:
+                    </span>{" "}
+                    <ChangeTextToInput
+                      value={Number(lateFees?.lateFeeBasedOnHour)}
+                      setValue={(e) =>
+                        setLateFees({
+                          ...lateFees,
+                          lateFeeBasedOnHour: e.target.value,
+                        })
+                      }
+                      type={"number"}
+                    />
+                  </div>
+                )}
+
+                {refundAmount >= 0 && (
+                  <div className="text-theme mb-1 flex items-center mt-2">
+                    <span className="font-semibold text-base text-gray-700 mr-1">
+                      Refund Amount:
+                    </span>
+                    <ChangeTextToInput
+                      value={Number(refundAmount)}
+                      setValue={(e) => setRefundAmount(e.target.value)}
+                      type={"number"}
+                      isnormal
+                    />
+                  </div>
+                )}
+
+                {(lateFees?.lateFeeBasedOnKM > 0 ||
+                  lateFees?.lateFeeBasedOnHour > 0) && (
+                  <p className="text-theme border-t">
+                    <span className="font-semibold text-base text-gray-700">
+                      Total Late Charges:
+                    </span>{" "}
+                    ₹
+                    {formatPrice(
+                      Number(lateFees?.lateFeeBasedOnHour) +
+                        Number(lateFees?.lateFeeBasedOnKM),
+                    )}
+                  </p>
+                )}
+              </div>
+              <div className="mb-2">
+                <Input
+                  item={"endMeterReading"}
+                  setValueChange={SetEndMeterReading}
+                  type="number"
+                  require={true}
+                />
+              </div>
+              <div className="mb-2">
+                <Input
+                  item={"additionalPrice"}
+                  setValueChange={setAdditionalPrice}
+                  value={0}
+                  type="number"
+                />
+              </div>
+              {(lateFees?.lateFeeBasedOnKM > 0 ||
+                lateFees?.lateFeeBasedOnHour > 0) && (
+                <div className="text-left mb-2">
+                  <SelectDropDown
+                    options={["cash"]}
+                    value="cash"
+                    item="PaymentMode"
+                    require={true}
+                    isSearchEnable={false}
+                  />
+                </div>
+              )}
+              <div className="mb-2">
+                <Input
+                  item={"OTP"}
+                  setValueChange={SetEndRide}
+                  type="number"
+                  require={true}
+                />
+              </div>
+              <button
+                type="submit"
+                className="mt-2 text-center bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/60 w-full items-center justify-center"
+                disabled={formLoading || endRide === 0}
+              >
+                {!formLoading ? "End Ride" : <Spinner message={"loading..."} />}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

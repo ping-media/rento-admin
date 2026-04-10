@@ -17,6 +17,14 @@
 }
 
 /* Sidebar Scrollbar Styling */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .sidebar-scroll::-webkit-scrollbar {
   width: 8px;
   transition: opacity 0.3s ease;
