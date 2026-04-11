@@ -80,7 +80,9 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
 
           const customMessage =
             vehicleData !== null
-              ? `${vehicleData?.reason} and booking id is ${vehicleData?.bookingId}`
+              ? vehicleData?.bookingId?.trim() !== ""
+                ? `${vehicleData?.reason} and booking id is ${vehicleData?.bookingId}`
+                : vehicleData?.reason
               : null;
           return handleAsyncError(
             dispatch,
