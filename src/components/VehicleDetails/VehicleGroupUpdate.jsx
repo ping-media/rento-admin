@@ -1,19 +1,24 @@
 import { useSelector } from "react-redux";
 import { getData } from "../../Data/index";
-import React, {
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import MaintenanceTableSkeleton from "../../components/Skeleton/MaintenanceTableSkeleton";
 import ChangeBulkVehicle from "../../components/Modal/ChangeBulkVehicle";
+import VehicleTable from "./VehicleTable";
 
-const VehicleGroupUpdate = ({ vehicleName, stationId, vehicle }) => {
+const VehicleGroupUpdate = ({
+  vehicleName,
+  stationId,
+  vehicle,
+  maintenanceVehicleId,
+  setMaintenanceVehicleId,
+  isMaintenanceAdd,
+}) => {
   const { token } = useSelector((state) => state.user);
   const [allVehicles, setAllVehicles] = useState([]);
+  // for vehicle price update in bulk
   const [vehicleIds, setVehicleIds] = useState([]);
+  // for adding maintenance records in bulk
+  // const [maintenanceVehicleId, setMaintenanceVehicleId] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const FetchVehiclesId = useCallback(async () => {
@@ -48,7 +53,34 @@ const VehicleGroupUpdate = ({ vehicleName, stationId, vehicle }) => {
     if (!vehicleName && !stationId) return;
 
     FetchVehiclesId();
-  }, [vehicleName, stationId]);
+  }, [vehicleName, stationId, isMaintenanceAdd]);
+
+  const isAllSelected =
+    allVehicles.length > 0 &&
+    maintenanceVehicleId.length === allVehicles.length;
+
+  const isIndeterminate =
+    maintenanceVehicleId.length > 0 &&
+    maintenanceVehicleId.length < allVehicles.length;
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setMaintenanceVehicleId([]);
+    } else {
+      const allIds = allVehicles.map((v) => v._id);
+      setMaintenanceVehicleId(allIds);
+    }
+  };
+
+  const handleSelect = (id) => {
+    setMaintenanceVehicleId((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((vehicleId) => vehicleId !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
 
   if (loading) return <MaintenanceTableSkeleton rows={2} />;
 
@@ -67,43 +99,15 @@ const VehicleGroupUpdate = ({ vehicleName, stationId, vehicle }) => {
           No Vehicle Data Found.
         </p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-gray-200 rounded-md overflow-hidden">
-            {/* TABLE HEAD */}
-            <thead className="bg-gray-100 sticky top-0 z-10">
-              <tr>
-                <th className="px-3 py-2 text-left">SL</th>
-                <th className="px-3 py-2 text-left">Vehicle Number</th>
-                <th className="px-3 py-2 text-center">Station Name</th>
-                {/* <th className="px-3 py-2 text-center">Odometer Reading</th> */}
-              </tr>
-            </thead>
-
-            {/* TABLE BODY */}
-            <tbody>
-              {allVehicles.map((vehicle, index) => (
-                <tr
-                  key={vehicle._id}
-                  className="border-t hover:bg-gray-50 transition"
-                >
-                  <td className="px-3 py-2 font-medium uppercase">
-                    {index + 1}.
-                  </td>
-                  <td className="px-3 py-2 font-medium uppercase">
-                    {vehicle.vehicleNumber}
-                  </td>
-
-                  <td className="px-3 py-2 text-center capitalize">
-                    {vehicle.stationName}
-                  </td>
-
-                  {/* <td className="px-3 py-2 text-center capitalize">
-                    {vehicle.OdometerReading ?? "--"}
-                  </td> */}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="overflow-x-auto h-full md:h-[30rem] md:overflow-y-auto">
+          <VehicleTable
+            allVehicles={allVehicles}
+            maintenanceVehicleId={maintenanceVehicleId}
+            handleSelect={handleSelect}
+            handleSelectAll={handleSelectAll}
+            isAllSelected={isAllSelected}
+            isIndeterminate={isIndeterminate}
+          />
         </div>
       )}
     </>

@@ -23,27 +23,27 @@ const BulkActionButtons = () => {
   };
 
   //   delete data in bulk
-  const handleDeleteAll = () => {
-    if (!tempIds)
-      return handleAsyncError(dispatch, "unable to get Ids! try again.");
-    const data = {
-      vehicleIds: tempIds,
-      deleteRec: true,
-    };
+  // const handleDeleteAll = () => {
+  //   if (!tempIds)
+  //     return handleAsyncError(dispatch, "unable to get Ids! try again.");
+  //   const data = {
+  //     vehicleIds: tempIds,
+  //     deleteRec: true,
+  //   };
 
-    return handleDeleteAndEditAllData({
-      data,
-      operation: "delete",
-      handleAsyncError,
-      changeTempLoadingTrue,
-      changeTempLoadingFalse,
-      dispatch,
-      removeTempIds,
-      restvehicleMaster,
-      token,
-      handleIsHeaderChecked,
-    });
-  };
+  //   return handleDeleteAndEditAllData({
+  //     data,
+  //     operation: "delete",
+  //     handleAsyncError,
+  //     changeTempLoadingTrue,
+  //     changeTempLoadingFalse,
+  //     dispatch,
+  //     removeTempIds,
+  //     restvehicleMaster,
+  //     token,
+  //     handleIsHeaderChecked,
+  //   });
+  // };
 
   return (
     <>
@@ -68,7 +68,7 @@ const BulkActionButtons = () => {
                 ? "Edit All"
                 : "Edit"}
             </button>
-            <button
+            {/* <button
               className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap disabled:bg-gray-400"
               onClick={handleDeleteAll}
               disabled={
@@ -82,7 +82,7 @@ const BulkActionButtons = () => {
               ) : (
                 "Delete"
               )}
-            </button>
+            </button> */}
           </>
         )}
     </>

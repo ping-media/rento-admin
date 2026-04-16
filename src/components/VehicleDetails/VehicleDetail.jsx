@@ -28,6 +28,9 @@ const VehicleDetail = () => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
   const [collectedData, setCollectedData] = useState(null);
+  // for adding maintenance records in bulk
+  const [maintenanceVehicleId, setMaintenanceVehicleId] = useState([]);
+  const [isMaintenanceAdd, setIsMaintenanceAdd] = useState(false);
 
   const fetchCollectedData = async (stationUrl, vehicleMaster) => {
     const vehicleResponse = await getData(vehicleMaster, token);
@@ -88,7 +91,11 @@ const VehicleDetail = () => {
   return (
     <>
       <Suspense fallback={null}>
-        <AddVehicleForServiceModal />
+        <AddVehicleForServiceModal
+          vehiclesId={maintenanceVehicleId}
+          isMaintenanceAdd={isMaintenanceAdd}
+          setIsMaintenanceAdd={setIsMaintenanceAdd}
+        />
       </Suspense>
 
       <VehicleDetailHeader />
@@ -145,6 +152,9 @@ const VehicleDetail = () => {
               <VehicleGroupUpdate
                 vehicleName={vehicle?.vehicleName}
                 stationId={vehicle?.stationId}
+                maintenanceVehicleId={maintenanceVehicleId}
+                setMaintenanceVehicleId={setMaintenanceVehicleId}
+                isMaintenanceAdd={isMaintenanceAdd}
                 vehicle={vehicle}
               />
             </Suspense>

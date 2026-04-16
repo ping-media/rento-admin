@@ -221,7 +221,7 @@ const ChangeBulkVehicle = ({
         {/* Header */}
         <div className="flex justify-between border-b p-2 sticky top-0 bg-white z-10">
           <h2 className="text-theme font-semibold text-lg uppercase">
-            Update Vehicles
+            Update Price
           </h2>
           <button
             onClick={handleCloseModal}
@@ -247,7 +247,14 @@ const ChangeBulkVehicle = ({
         </div>
 
         {/* Scrollable content */}
-        <div className="overflow-y-auto px-6 py-4 flex-1">
+        <div className="overflow-y-auto px-4 2xl:px-6 py-2.5 flex-1">
+          {selectedVehicleIds?.length > 0 && (
+            <div className="pb-2 border-b mb-2">
+              <span className="text-md text-left font-normal text-theme border px-2 py-0.5 rounded-full border-theme bg-theme/10">
+                {selectedVehicleIds?.length} Vehicles Selected
+              </span>
+            </div>
+          )}
           <form onSubmit={handleChangeVehicle}>
             <div className="mb-2 flex items-center gap-2">
               <Input
@@ -318,7 +325,7 @@ const ChangeBulkVehicle = ({
               }
             >
               {!formLoading ? (
-                "Update vehicle"
+                "Update Price"
               ) : (
                 <Spinner message={"loading..."} />
               )}

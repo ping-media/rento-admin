@@ -31,7 +31,7 @@ const VehicleDetailHeader = () => {
           onClick={() => dispatch(toggleVehicleUpdateModal())}
         >
           {tableIcons["common-edit"]}
-          Update Prices
+          Bulk Edit Price
         </button>
 
         <button

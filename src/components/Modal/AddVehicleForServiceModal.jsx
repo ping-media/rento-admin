@@ -5,8 +5,6 @@ import { formatLocalTimeIntoISO } from "../../utils/index";
 import { postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import Spinner from "../../components/Spinner/Spinner";
-// import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
-// import { blockReasonList } from "../../Data/commonData";
 import {
   addNewMaintenanceData,
   handleMaintenanceLoading,
@@ -15,12 +13,17 @@ import {
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { useParams } from "react-router-dom";
 
-const AddVehicleForServiceModal = ({ loading }) => {
+const AddVehicleForServiceModal = ({
+  loading,
+  vehiclesId = [],
+  isMaintenanceAdd,
+  setIsMaintenanceAdd,
+}) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const { isVehicleForServiceActive } = useSelector((state) => state.sideBar);
   const { blockVehicleId, maintenanceLoading } = useSelector(
-    (state) => state.vehicles
+    (state) => state.vehicles,
   );
   const { token } = useSelector((state) => state.user);
 
@@ -29,6 +32,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     let vehicleTableId = blockVehicleId;
+    // on vehicle details page if vehiclesId is coming than take those ids otherwise take id from params
     if (location?.pathname.includes("/all-vehicles/details/") && id) {
       vehicleTableId = id;
     }
@@ -48,31 +52,52 @@ const AddVehicleForServiceModal = ({ loading }) => {
       return;
     }
 
-    const data = {
-      vehicleTableId,
+    let data = {
+      // vehicleTableId,
       startDate,
       endDate,
       reason,
     };
 
+    if (location?.pathname.includes("/all-vehicles/details/") && id) {
+      data = {
+        ...data,
+        ...(Array.isArray(vehiclesId) && vehiclesId?.length > 0
+          ? { vehicleTableIds: vehiclesId } // bulk
+          : { vehicleTableId }), // single
+      };
+    } else {
+      data = {
+        ...data,
+        vehicleTableId,
+      };
+    }
+
     if (!data)
       return handleAsyncError(
         dispatch,
-        "unable to apply for maintenance! try again."
+        "unable to apply for maintenance! try again.",
       );
+
+    // console.log("data to send", data);
+    // return;
 
     try {
       dispatch(handleMaintenanceLoading(true));
-      const response = await postData(
-        `/maintenanceVehicle?vehicleTableId=${vehicleTableId}&startDate=${startDate}&endDate=${endDate}`,
-        data,
-        token
-      );
+      // `/maintenanceVehicle?vehicleTableId=${vehicleTableId}&startDate=${startDate}&endDate=${endDate}`
+      const response = await postData(`/maintenanceVehicle`, data, token);
       if (response?.status === 200) {
         dispatch(toggleVehicleServiceModal());
         dispatch(removeBlockVehicleId());
         if (location.pathname.includes("/all-vehicles/details/")) {
-          dispatch(addNewMaintenanceData(data));
+          setIsMaintenanceAdd(!isMaintenanceAdd);
+          // only update the redux if current vehicle is add for maintenance
+          if (
+            data?.vehicleTableId === id ||
+            data?.vehicleTableIds?.includes(id)
+          ) {
+            dispatch(addNewMaintenanceData(data));
+          }
         } else {
           dispatch(toggleRefresh());
         }
@@ -95,7 +120,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
     >
       <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-lg">
         <div className="flex justify-between border-b p-2">
-          <h2 className="text-theme font-semibold text-lg uppercase">
+          <h2 className="text-theme font-semibold text-lg capitalize">
             Shedule Maintenance
           </h2>
           <button
@@ -121,6 +146,13 @@ const AddVehicleForServiceModal = ({ loading }) => {
 
         <div className="p-6 pt-2 text-center">
           <form onSubmit={handleSendVehicleToService}>
+            {vehiclesId?.length > 0 && (
+              <div className="pb-2 border-b mb-2 text-left">
+                <span className="text-md text-left font-normal text-theme border px-2 py-0.5 rounded-full border-theme bg-theme/10">
+                  {vehiclesId?.length} Vehicles Selected
+                </span>
+              </div>
+            )}
             <div className="mb-2">
               <Input
                 item={"startDate"}
@@ -142,6 +174,7 @@ const AddVehicleForServiceModal = ({ loading }) => {
                 item={"reason"}
                 require={true}
                 isModalClose={isVehicleForServiceActive}
+                isCapital={false}
               />
             </div>
             {/* <div className="text-left mb-2">

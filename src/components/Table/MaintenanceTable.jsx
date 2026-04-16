@@ -17,27 +17,13 @@ import {
 import DropDownComponent from "../../components/DropDown/DropDownComponent";
 import Pagination from "../../components/Pagination/Pagination";
 import ViewModal from "../../components/Modal/ViewModal";
-import { formatInTimeZone } from "date-fns-tz";
 
-// const formatDateTimeIN = (timestring) =>
-//   formatInTimeZone(
-//     new Date(timestring),
-//     "Asia/Kolkata",
-//     "MMM dd, yyyy, hh:mm a",
-//   );
 const formatDateTimeIN = (timestring) => {
   if (!timestring) return { date: "NA", time: "NA" };
+  const fullDateTime = formatFullDateAndTime(timestring);
 
-  const date = formatInTimeZone(
-    new Date(timestring),
-    "Asia/Kolkata",
-    "MMM dd, yyyy",
-  );
-  const time = formatInTimeZone(
-    new Date(timestring),
-    "Asia/Kolkata",
-    "hh:mm a",
-  );
+  const date = `${fullDateTime.split(",")[0].trim()}, ${fullDateTime.split(",")[1].trim()}`;
+  const time = `${fullDateTime.split(",")[2].trim()}`;
 
   return { date, time };
 };
@@ -177,9 +163,12 @@ const MaintenanceTable = () => {
                   {maintenanceData?.data?.length > 0 ? (
                     maintenanceData?.data?.map((item, index) => {
                       const { date: StartDate, time: StartTime } =
-                        item?.startDate && formatDateTimeIN(item?.startDate);
+                        (item?.startDate &&
+                          formatDateTimeIN(item?.startDate)) ||
+                        {};
                       const { date: EndDate, time: EndTime } =
-                        item?.endDate && formatDateTimeIN(item?.endDate);
+                        (item?.endDate && formatDateTimeIN(item?.endDate)) ||
+                        {};
                       return (
                         <tr
                           className="bg-white transition-all duration-500 hover:bg-gray-50"
@@ -232,9 +221,16 @@ const MaintenanceTable = () => {
                                 isVehicleUnblocked(item?._id) ||
                                 modifyingVehicleId === item?._id
                               }
+                              title={
+                                item?.status === "active"
+                                  ? "unblock vehicle"
+                                  : ""
+                              }
                             >
                               {modifyingVehicleId === item?._id ? (
                                 <Spinner />
+                              ) : item?.status === "active" ? (
+                                tableIcons?.lock
                               ) : (
                                 tableIcons?.unBlock
                               )}

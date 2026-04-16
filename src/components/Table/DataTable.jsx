@@ -160,6 +160,10 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "deletionReason",
           "isDeleted",
           "addresses",
+          "radiusKm",
+          "latitude",
+          "longitude",
+          "lastLocation",
         ].includes(key),
     );
 

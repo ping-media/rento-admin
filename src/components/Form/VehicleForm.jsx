@@ -84,7 +84,16 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   return (!formLoading && vehicleMaster?.length === 1) ||
     collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
-      <div className={`border-b-2 ${!id ? "mb-5" : "pb-5 mb-5"}`}>
+      {!id && (
+        <div className={`border-b-2 mb-5`}>
+          <h2 className="font-bold">Select Package</h2>
+
+          <div className="w-full pb-2">
+            <VehiclePlan collectedData={collectedData} data={null} />
+          </div>
+        </div>
+      )}
+      {/* <div className={`border-b-2 ${!id ? "mb-5" : "pb-5 mb-5"}`}>
         <h2 className="font-bold">
           {!id
             ? "Select Package"
@@ -101,7 +110,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             }
           />
         </div>
-      </div>
+      </div> */}
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
         <>
