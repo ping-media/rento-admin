@@ -153,15 +153,28 @@ const fetchVehicleMasterWithPagination = debounce(
     try {
       dispatch(fetchVehicleStart());
 
+      // const shouldResetPage =
+      //   isSearchTermPresent ||
+      //   searchBasedOnFilter !== "" ||
+      //   (vehiclesFilter &&
+      //     (vehiclesFilter.vehicleName !== "" ||
+      //       vehiclesFilter.search !== "" ||
+      //       vehiclesFilter.maintenanceType !== ""));
       const shouldResetPage =
-        isSearchTermPresent ||
-        searchBasedOnFilter !== "" ||
-        (vehiclesFilter &&
-          (vehiclesFilter.vehicleName !== "" ||
-            vehiclesFilter.search !== "" ||
-            vehiclesFilter.maintenanceType !== ""));
+        Boolean(isSearchTermPresent?.trim()) ||
+        (searchBasedOnFilter?.trim() &&
+          !["userType=customer", "userType=manager"].includes(
+            searchBasedOnFilter,
+          )) ||
+        Boolean(
+          vehiclesFilter &&
+          (vehiclesFilter.vehicleName?.trim() ||
+            vehiclesFilter.search?.trim() ||
+            vehiclesFilter.maintenanceType?.trim()),
+        );
 
       const currentPage = shouldResetPage ? 1 : page;
+      // console.log("PAGE DEBUG =>", { page, currentPage });
 
       let dynamicEndpoint = `${endpoint}?page=${currentPage}&limit=${limit}`;
 
@@ -176,7 +189,8 @@ const fetchVehicleMasterWithPagination = debounce(
 
       // if station id is present
       if (stationId && stationId?.trim() !== "") {
-        dynamicEndpoint = `${endpoint}?&stationId=${stationId}&page=${currentPage}&limit=${limit}`;
+        dynamicEndpoint += `&stationId=${stationId}`;
+        // dynamicEndpoint = `${endpoint}?&stationId=${stationId}&page=${currentPage}&limit=${limit}`;
 
         if (filters && filters?.trim() !== "") {
           dynamicEndpoint += `&${filters}`;
@@ -188,7 +202,8 @@ const fetchVehicleMasterWithPagination = debounce(
         vehiclesFilter.search !== "" &&
         vehiclesFilter.maintenanceType !== ""
       ) {
-        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&filteredVehicles?.length&page=${currentPage}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
+        // dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&filteredVehicles?.length&page=${currentPage}&limit=${limit}`;
       } else if (
         vehiclesFilter.vehicleName !== "" ||
         vehiclesFilter.search !== ""
@@ -196,7 +211,8 @@ const fetchVehicleMasterWithPagination = debounce(
         dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
       } else if (vehiclesFilter.maintenanceType !== "") {
         dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
-      } else if (isSearchTermPresent !== null) {
+        // } else if (isSearchTermPresent !== null) {
+      } else if (isSearchTermPresent && isSearchTermPresent.trim() !== "") {
         if (searchType !== "all") {
           dynamicEndpoint = `${endpoint}?${searchType}=${isSearchTermPresent}&page=${currentPage}&limit=${limit}`;
         } else if (searchBasedOnFilter === "") {
@@ -207,6 +223,8 @@ const fetchVehicleMasterWithPagination = debounce(
       } else if (searchBasedOnFilter !== "") {
         dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
       }
+
+      // console.log("FINAL ENDPOINT =>", dynamicEndpoint);
 
       const response = await getFullData(dynamicEndpoint, token);
       if (response?.status == 200) {

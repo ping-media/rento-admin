@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { userType, userTypeWithoutAdmin } from "../../Data/commonData";
+// import { useParams } from "react-router-dom";
+// import { userType, userTypeWithoutAdmin } from "../../Data/commonData";
 import UserDocuments from "./User Components/UserDocuments";
 import { useEffect, useState } from "react";
 import { getData } from "../../Data/index";
@@ -9,6 +9,8 @@ import {
   resetUserRideInfo,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import CustomerForm from "./User Components/CustomerForm";
+import LocationCard from "../Card/LocationCard";
+import AddressCard from "../Card/AddressCard";
 
 const UserForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -52,6 +54,14 @@ const UserForm = ({ handleFormSubmit, loading }) => {
     (vehicleMaster || isAddUsers) && (
       <>
         <CustomerForm {...{ ridesLoading, handleFormSubmit, loading }} />
+
+        {/* user location     */}
+        {!isAddUsers && vehicleMaster?.lastLocation && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-5">
+            <LocationCard {...vehicleMaster.lastLocation} />
+            <AddressCard {...vehicleMaster.address} />
+          </div>
+        )}
 
         {/* for showing user documents  */}
         {!isAddUsers &&

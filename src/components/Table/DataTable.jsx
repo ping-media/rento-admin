@@ -164,6 +164,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "latitude",
           "longitude",
           "lastLocation",
+          "idProof",
         ].includes(key),
     );
 
@@ -362,7 +363,15 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
                               key={`slNo-${index}`}
                             >
-                              {index + 1 < 10 ? `0${index + 1}` : index + 1}
+                              {/* {index + 1 < 10 ? `0${index + 1}` : index + 1} */}
+                              {(pagination?.currentPage - 1) * limit +
+                                index +
+                                1 <
+                              10
+                                ? `0${(pagination?.currentPage - 1) * limit + index + 1}`
+                                : (pagination?.currentPage - 1) * limit +
+                                  index +
+                                  1}
                             </td>
                             {/* Main columns render - filtering out status and special columns */}
                             {Columns.filter(

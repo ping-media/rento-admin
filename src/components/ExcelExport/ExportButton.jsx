@@ -17,7 +17,7 @@ const EXPORT_CONFIG = {
     transform: transformUsers,
   },
   "/all-bookings": {
-    endpoint: "/getBooking?&page=1&limit=1000",
+    endpoint: "/getBooking?page=1&limit=1000",
     reportName: "Booking",
     transform: transformBookings,
   },
@@ -32,6 +32,7 @@ const ExportButton = () => {
   const { pathname } = useLocation();
   const { token } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const dispatch = useDispatch();
 
   const config = EXPORT_CONFIG[pathname];
@@ -42,14 +43,76 @@ const ExportButton = () => {
     try {
       setLoading(true);
 
-      const response = await getFullData(config.endpoint, token);
+      const baseUrl = config.endpoint.split("?")[0];
+      const existingParams = new URLSearchParams(
+        config.endpoint.split("?")[1] || "",
+      );
 
-      if (response?.status !== 200) {
+      const limit = 500;
+      const concurrency = 3; // safe parallel requests
+      let allData = [];
+
+      // First call (to get totalPages)
+      const firstParams = new URLSearchParams(existingParams);
+      firstParams.set("page", 1);
+      firstParams.set("limit", limit);
+
+      const firstRes = await getFullData(`${baseUrl}?${firstParams}`, token);
+
+      if (firstRes?.status !== 200) {
         handleAsyncError(dispatch, "Unable to get data! try again");
         return;
       }
 
-      const rawData = response?.data?.data || [];
+      const totalPages = firstRes?.data?.pagination?.totalPages || 1;
+      allData = [...(firstRes?.data?.data || [])];
+      setProgress({ current: 0, total: totalPages * limit });
+
+      // Prepare remaining pages
+      const remainingPages = Array.from(
+        { length: totalPages - 1 },
+        (_, i) => i + 2,
+      );
+
+      // Process in batches (avoids API overload)
+      for (let i = 0; i < remainingPages.length; i += concurrency) {
+        const batch = remainingPages.slice(i, i + concurrency);
+
+        const requests = batch.map((page) => {
+          const params = new URLSearchParams(existingParams);
+          params.set("page", page);
+          params.set("limit", limit);
+
+          return getFullData(`${baseUrl}?${params}`, token);
+        });
+
+        const responses = await Promise.all(requests);
+
+        let tempCount = 0;
+
+        responses.forEach((res) => {
+          if (res?.status === 200) {
+            const data = res?.data?.data || [];
+            allData.push(...data);
+            tempCount += data?.length;
+          }
+        });
+
+        setProgress((prev) => ({
+          ...prev,
+          current: prev.current + tempCount,
+        }));
+      }
+
+      // const response = await getFullData(config.endpoint, token);
+
+      // if (response?.status !== 200) {
+      //   handleAsyncError(dispatch, "Unable to get data! try again");
+      //   return;
+      // }
+
+      // const rawData = response?.data?.data || [];
+      const rawData = allData;
       const exportData = config.transform(rawData);
 
       if (!exportData.length) return;
@@ -72,6 +135,10 @@ const ExportButton = () => {
     }
   };
 
+  // const percent = progress.total
+  //   ? Math.floor((progress.current / progress.total) * 100)
+  //   : 0;
+
   return (
     <button
       onClick={handleExport}
@@ -79,8 +146,44 @@ const ExportButton = () => {
       disabled={loading}
     >
       {!loading ? <>{tableIcons?.download} CSV</> : <Spinner />}
+      {/* {!loading ? (
+        <>{tableIcons?.download} CSV</>
+      ) : (
+        <CircularProgress progress={percent} />
+      )} */}
     </button>
   );
 };
 
 export default ExportButton;
+
+// const CircularProgress = ({ progress = 0, size = 18, stroke = 2 }) => {
+//   const radius = (size - stroke) / 2;
+//   const circumference = 2 * Math.PI * radius;
+//   const offset = circumference - (progress / 100) * circumference;
+
+//   return (
+//     <svg width={size} height={size}>
+//       <circle
+//         cx={size / 2}
+//         cy={size / 2}
+//         r={radius}
+//         stroke="#e5e7eb"
+//         strokeWidth={stroke}
+//         fill="none"
+//       />
+//       <circle
+//         cx={size / 2}
+//         cy={size / 2}
+//         r={radius}
+//         stroke="#DE2A1B"
+//         strokeWidth={stroke}
+//         fill="none"
+//         strokeDasharray={circumference}
+//         strokeDashoffset={offset}
+//         strokeLinecap="round"
+//         style={{ transition: "stroke-dashoffset 0.3s ease" }}
+//       />
+//     </svg>
+//   );
+// };
