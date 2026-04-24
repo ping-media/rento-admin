@@ -6,7 +6,7 @@ import {
 import { fetchUserDataBasedOnQuery } from "../../Data/Function";
 import { Add, Close } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 const UserSearchInput = ({
   token,
@@ -15,9 +15,10 @@ const UserSearchInput = ({
   selectedUsers,
   setSelectedUsers,
   timeoutRef, // pass useRef from modal
+  dispatch,
+  handleAsyncError,
   required = false,
 }) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { tempVehicleData } = useSelector((state) => state.vehicles);
 
@@ -47,6 +48,15 @@ const UserSearchInput = ({
       dispatch(removeTempVehicleData());
       return;
     }
+    // Check mobile token
+    if (!user?.mobileToken) {
+      handleAsyncError(
+        dispatch,
+        `${user.firstName} ${user.lastName} has no mobile token`,
+      );
+      return;
+    }
+
     setSelectedUsers((prev) => [...prev, user]);
     setInputValue("");
     dispatch(removeTempVehicleData());

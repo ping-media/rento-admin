@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
 import UserSearchInput from "../components/InputAndDropdown/UserSearchInput";
 import { postData } from "../Data/index";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../components/Spinner/Spinner";
+import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 
 const Notification = () => {
   const { token } = useSelector((state) => state.user);
@@ -12,6 +13,7 @@ const Notification = () => {
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const dispatch = useDispatch();
   const timeoutRef = useRef(null); // debounce ref passed to child
 
   const handleSubmit = async (e) => {
@@ -68,6 +70,8 @@ const Notification = () => {
             selectedUsers={selectedUsers}
             setSelectedUsers={setSelectedUsers}
             timeoutRef={timeoutRef}
+            dispatch={dispatch}
+            handleAsyncError={handleAsyncError}
             required
           />
 
