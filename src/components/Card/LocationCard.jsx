@@ -3,9 +3,26 @@ import L from "leaflet";
 
 const LocationCard = ({ latitude, longitude, capturedAt }) => {
   if (latitude === null || longitude === null || capturedAt === null)
-    return null;
+    return (
+      <div className="bg-white rounded-lg shadow-md w-full max-w-md mx-auto flex flex-col">
+        <div className="p-3 border-b font-semibold text-sm">User Location</div>
+        <div className="flex items-center justify-center h-full md:h-48 mb-5 text-sm text-gray-500">
+          Last location not found.
+        </div>
+      </div>
+    );
 
-  const formattedTime = new Date(capturedAt).toLocaleString();
+  // const formattedTime = new Date(capturedAt).toLocaleString();
+  const formattedTime = new Date(capturedAt)
+    .toLocaleString("en-US", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(" at", ":");
 
   const customIcon = new L.Icon({
     iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",

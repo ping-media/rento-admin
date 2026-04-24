@@ -8,7 +8,12 @@ import { useLocation, useParams } from "react-router-dom";
 import BackButton from "../../components/Buttons/BackButton";
 import TitleAndButton from "./TitleAndButton";
 
-const NON_TITLE_PAGE = ["/dashboard", "/profile", "/settings"];
+const NON_TITLE_PAGE = [
+  "/dashboard",
+  "/notifications",
+  "/profile",
+  "/settings",
+];
 
 const Header = () => {
   const { id } = useParams();

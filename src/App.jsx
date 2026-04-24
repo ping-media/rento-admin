@@ -20,6 +20,11 @@ const VehicleDetails = lazy(() =>
     default: module.VehicleDetails,
   })),
 );
+const Notification = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.Notification,
+  })),
+);
 const BookingDetails = lazy(() =>
   import("./Pages/index").then((module) => ({
     default: module.BookingDetails,
@@ -152,6 +157,19 @@ const App = () => {
                     isLoading={verifyLoading}
                   >
                     <VehicleMaster />
+                  </PrivateRouteBasedOnUser>
+                }
+              />
+              <Route
+                path="notifications"
+                exact
+                element={
+                  <PrivateRouteBasedOnUser
+                    allowedRoles={["admin", "manager"]}
+                    userRole={loggedInRole}
+                    isLoading={verifyLoading}
+                  >
+                    <Notification />
                   </PrivateRouteBasedOnUser>
                 }
               />

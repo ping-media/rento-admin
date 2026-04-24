@@ -1,8 +1,8 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { tableIcons } from "../../Data/Icons";
 import { toggleFilterSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { bookingSearchList } from "../../Data/commonData";
 import { handleChangeSearchType } from "../../Redux/PaginationSlice/PaginationSlice";
 import useSidebarFilter from "../../hooks/use-sidebar-filter";
@@ -25,6 +25,7 @@ const TablePageHeader = ({
   const { pathname } = useLocation();
   const { loggedInRole } = useSelector((state) => state.user);
   const { searchDataBasedOnFilters, loading } = useSidebarFilter();
+  const [isNotification, setNotification] = useState(false);
   const dispatch = useDispatch();
 
   const isBookings = pathname === "/all-bookings";
@@ -113,6 +114,17 @@ const TablePageHeader = ({
 
           {/* export to excel button  */}
           {showExport && <ExportButton data={bookingData} />}
+
+          {location.pathname === "/all-users" && (
+            <Link
+              className="flex border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
+              title="Send push notification"
+              to={"/notifications"}
+            >
+              {tableIcons.bellAlert}{" "}
+              <span className="block md:hidden ml-1">Push Notification</span>
+            </Link>
+          )}
 
           {/* most used filters button */}
           <button
