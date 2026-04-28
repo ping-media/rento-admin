@@ -31,7 +31,7 @@ const GeneralSlice = createSlice({
     },
     removeGeneralTestimonial: (state, action) => {
       state.general.testimonial = state.general.testimonial.filter(
-        (t) => t._id !== action.payload
+        (t) => t._id !== action.payload,
       );
     },
     updateGeneralInfo: (state, action) => {
@@ -42,6 +42,7 @@ const GeneralSlice = createSlice({
         email: newInfo.email?.trim() || currentInfo.email,
         contact: newInfo.contact || currentInfo.contact,
         waContact: newInfo.waContact || currentInfo.waContact,
+        altContact: newInfo.altContact || currentInfo.altContact,
         address: newInfo.address?.trim() || currentInfo.address,
         socialmedia: {
           facebook:
@@ -67,7 +68,7 @@ const GeneralSlice = createSlice({
     },
     removeGeneralSlides: (state, action) => {
       state.general.slides = state.general.slides.filter(
-        (s) => s._id !== action.payload
+        (s) => s._id !== action.payload,
       );
     },
     updateGSTStatus: (state, action) => {
@@ -79,7 +80,7 @@ const GeneralSlice = createSlice({
     removeAddOnData: (state, action) => {
       const idToRemove = action.payload;
       state.extraAddOn.data = state.extraAddOn.data.filter(
-        (item) => item._id !== idToRemove
+        (item) => item._id !== idToRemove,
       );
     },
     stopLoading: (state) => {

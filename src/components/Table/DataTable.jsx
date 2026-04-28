@@ -165,6 +165,8 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "longitude",
           "lastLocation",
           "idProof",
+          "priority",
+          "weekendPriceType",
         ].includes(key),
     );
 

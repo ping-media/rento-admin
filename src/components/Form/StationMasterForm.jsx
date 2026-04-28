@@ -12,17 +12,21 @@ import { formatHourToTime } from "../../utils/index";
 import GoogleSearchLocation from "../../components/InputAndDropdown/GoogleSearchLocation";
 import GeneralAddOn from "../../components/general/GeneralAddOn";
 import PaymentToggler from "../station/PaymentToggler";
+import DatePicker from "../../components/DateTimePicker/DateTimePicker";
 
 const StationMasterForm = ({ handleFormSubmit, loading }) => {
+  const { id } = useParams();
+  const { token } = useSelector((state) => state.user);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [collectedData, setCollectedData] = useState(null);
   const [zipCodeValue, setZipcodeValue] = useState(null);
+  // station open and close time
+  const [openStationTime, setOpenStationTime] = useState(null);
+  const [closeStationTime, setCloseStationTime] = useState(null);
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [mapUrl, setMapUrl] = useState("");
   const [cityValue, setCityValue] = useState("");
-  const { token } = useSelector((state) => state.user);
-  const { id } = useParams();
 
   const fetchCollectedData = async (locationUrl, stationUrl) => {
     const locationResponse = await getData(
@@ -46,6 +50,22 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
     fetchCollectedData("locationId", "stationId");
   }, []);
 
+  // updating the station opening and closing time here
+  useEffect(() => {
+    if (id) {
+      if (vehicleMaster?.[0]?.openStartTime) {
+        const stationOpenTime = formatHourToTime(
+          vehicleMaster[0].openStartTime,
+        );
+        setOpenStationTime(stationOpenTime);
+      }
+      if (vehicleMaster?.[0]?.openEndTime) {
+        const stationCloseTime = formatHourToTime(vehicleMaster[0].openEndTime);
+        setCloseStationTime(stationCloseTime);
+      }
+    }
+  }, [id, vehicleMaster?.[0]?.openStartTime, vehicleMaster?.[0]?.openEndTime]);
+
   if (vehicleMaster?.length === 0) {
     return <PreLoader />;
   }
@@ -54,9 +74,9 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
     <>
       {/* station form  */}
       <form onSubmit={handleFormSubmit} className="mb-5">
-        <p className="text-xs mt-1 text-gray-500 font-semibold italic mb-1">
+        {/* <p className="text-xs mt-1 text-gray-500 font-semibold italic mb-1">
           Note: (Always add time in round, Like 10:00 AM, 11:00 AM etc.)
-        </p>
+        </p> */}
 
         <div className="flex flex-wrap gap-4">
           <>
@@ -83,24 +103,36 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               />
             </div>
             <div className="w-full lg:w-[48%]">
-              <Input
+              <TimePicker
+                label="Select Station Open Time"
+                timeValue={openStationTime}
+                setValueChange={setOpenStationTime}
+                item="openStartTime"
+              />
+              {/* <Input
                 item={"openStartTime"}
                 type="time"
                 value={id && formatHourToTime(vehicleMaster[0]?.openStartTime)}
                 require={true}
                 placeholder={"Select Station Open Time"}
                 isFull={false}
-              />
+              /> */}
             </div>
             <div className="w-full lg:w-[48%]">
-              <Input
+              <TimePicker
+                label="Select Station Close Time"
+                timeValue={closeStationTime}
+                setValueChange={setCloseStationTime}
+                item="openEndTime"
+              />
+              {/* <Input
                 item={"openEndTime"}
                 type="time"
                 value={id && formatHourToTime(vehicleMaster[0]?.openEndTime)}
                 require={true}
                 placeholder={"Select Station Close Time"}
                 isFull={false}
-              />
+              /> */}
             </div>
             <div className="w-full lg:w-[48%]">
               <Input
@@ -158,9 +190,9 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
             </div>
             <div className="w-full lg:w-[48%]">
               <SelectDropDown
-                item={"isGstActive"}
-                options={["active", "inactive"]}
-                value={id && vehicleMaster[0]?.isGstActive}
+                item={"weekendPriceType"}
+                options={["percentage", "fixed"]}
+                value={id && vehicleMaster[0]?.weekendPriceType}
                 isSearchEnable={false}
                 require={true}
               />
@@ -170,6 +202,15 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
                 item={"weekendPercentage"}
                 value={id && vehicleMaster[0]?.weekendPercentage}
                 type="number"
+                require={true}
+              />
+            </div>
+            <div className="w-full lg:w-[48%]">
+              <SelectDropDown
+                item={"isGstActive"}
+                options={["active", "inactive"]}
+                value={id && vehicleMaster[0]?.isGstActive}
+                isSearchEnable={false}
                 require={true}
               />
             </div>
@@ -216,3 +257,31 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
 };
 
 export default StationMasterForm;
+
+const TimePicker = ({
+  label,
+  timeValue,
+  setValueChange,
+  item,
+  isRequire = true,
+}) => {
+  return (
+    <div className="w-full relative">
+      <label
+        htmlFor={"openStartTime"}
+        className="block text-gray-800 font-semibold text-sm capitalize text-left"
+      >
+        {label} {isRequire && <span className="text-red-500">*</span>}
+      </label>
+      <div className="mt-2">
+        <DatePicker
+          timeValue={timeValue}
+          setTimeValueChanger={setValueChange}
+          name={item}
+          timeOnly
+          hourlyOnly
+        />
+      </div>
+    </div>
+  );
+};

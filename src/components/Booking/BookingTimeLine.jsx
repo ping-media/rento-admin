@@ -202,7 +202,9 @@ const BookingTimeLine = () => {
                               ? "Extension by User"
                               : item?.title === "Booking Extended by Admin"
                                 ? "Extension by Admin"
-                                : item?.title}
+                                : item?.title === "Booking Extended by Manager"
+                                  ? "Extension by Manager"
+                                  : item?.title}
                             {item?.extended !== true &&
                               item?.PaymentLink &&
                               item?.PaymentLink !== "" && (

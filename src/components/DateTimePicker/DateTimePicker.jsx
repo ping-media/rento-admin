@@ -10,6 +10,14 @@ const formatIntoISO = (input) => {
   return format(parsedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'", { timeZone: "UTC" });
 };
 
+const to24Hour = (timeStr) => {
+  const [time, period] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+  if (period === "PM" && hours !== 12) hours += 12;
+  else if (period === "AM" && hours === 12) hours = 0;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+};
+
 const formatTimeWithoutSeconds = (timeStr) => {
   const [time, period] = timeStr.split(" ");
   let [hours, minutes] = time.split(":").map(Number);
@@ -46,39 +54,44 @@ const DatePicker = ({
   setTimeValueChanger,
   setISOValue,
   setDropTimeValueChanger,
+  timeOnly = false,
+  hourlyOnly = false,
 }) => {
   const datePickerRef = useRef(null);
   const timePickerRef = useRef(null);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState("bottom");
 
-  // const availableTimes = [];
+  // const availableTimes = useMemo(() => {
+  //   const times = [];
 
-  // for (let hour = 0; hour < 24; hour++) {
-  //   const period = hour < 12 ? "AM" : "PM";
-  //   const adjustedHour = hour % 12 === 0 ? 12 : hour % 12;
-  //   const hourString = adjustedHour;
-  //   const minuteString = "00";
-  //   const timeString = `${hourString}:${minuteString} ${period}`;
-  //   availableTimes.push(timeString);
-  // }
+  //   for (let hour = 0; hour < 24; hour++) {
+  //     for (let minute = 0; minute < 60; minute += 30) {
+  //       const period = hour < 12 ? "AM" : "PM";
+  //       const adjustedHour = hour % 12 === 0 ? 12 : hour % 12;
+  //       const hourString = adjustedHour;
+  //       const minuteString = minute < 10 ? `0${minute}` : minute;
+  //       const timeString = `${hourString}:${minuteString} ${period}`;
+
+  //       times.push(timeString);
+  //     }
+  //   }
+  //   return times;
+  // }, [value]);
 
   const availableTimes = useMemo(() => {
     const times = [];
-
     for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
+      const steps = hourlyOnly ? [0] : [0, 30]; // <-- only change here
+      for (let minute of steps) {
         const period = hour < 12 ? "AM" : "PM";
         const adjustedHour = hour % 12 === 0 ? 12 : hour % 12;
-        const hourString = adjustedHour;
         const minuteString = minute < 10 ? `0${minute}` : minute;
-        const timeString = `${hourString}:${minuteString} ${period}`;
-
-        times.push(timeString);
+        times.push(`${adjustedHour}:${minuteString} ${period}`);
       }
     }
     return times;
-  }, [value]);
+  }, [value, hourlyOnly]);
 
   const handleDateSelect = (date) => {
     if (!date) return;
@@ -137,7 +150,7 @@ const DatePicker = ({
   }, [calendarVisible]);
 
   useEffect(() => {
-    if (calendarVisible && timePickerRef.current) {
+    if (calendarVisible && timePickerRef.current && timeValue) {
       const activeButton = timePickerRef.current.querySelector(".active");
       if (activeButton) {
         timePickerRef.current.scrollTop =
@@ -163,23 +176,54 @@ const DatePicker = ({
               stroke="currentColor"
               className="w-5 h-5"
             >
-              <path
+              {timeOnly ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                />
+              )}
+              {/* <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-              />
+              /> */}
             </svg>
           </span>
           <input
             type="text"
             className="outline-none w-full cursor-pointer"
-            placeholder="Select date & time"
-            value={`${formatDate(new Date(value))} ${formatTimeWithoutSeconds(
-              timeValue,
-            )}`}
-            name={name}
+            placeholder={timeOnly ? "Select time" : "Select date & time"}
+            value={
+              timeOnly
+                ? timeValue
+                  ? formatTimeWithoutSeconds(timeValue)
+                  : ""
+                : `${formatDate(new Date(value))} ${formatTimeWithoutSeconds(timeValue)}`
+            }
+            name={!timeOnly ? name : undefined}
             readOnly
+            // placeholder="Select date & time"
+            // value={`${formatDate(new Date(value))} ${formatTimeWithoutSeconds(
+            //   timeValue,
+            // )}`}
+            // name={name}
           />
+          {timeOnly && (
+            <input // hidden input carries 24hr value on form submit
+              type="hidden"
+              name={name}
+              value={
+                timeValue ? to24Hour(formatTimeWithoutSeconds(timeValue)) : ""
+              }
+            />
+          )}
         </div>
         <span>
           <svg
@@ -203,24 +247,27 @@ const DatePicker = ({
             dropdownPosition === "top" ? "bottom-full mb-2" : "top-full"
           }`}
         >
-          {/* Calendar */}
-          <div className="w-2/3 border-r pr-1">
-            <DayPicker
-              selected={new Date(value)}
-              onSelect={handleDateSelect}
-              // disabled={{ before: new Date(value) }}
-              mode="single"
-              modifiersClassNames={{
-                selected: "bg-theme text-white rounded-full",
-                today: "text-red-500",
-                disabled: "text-gray-400",
-              }}
-              className="w-full overflow-hidden"
-            />
-          </div>
+          {/* Calendar — hidden in timeOnly mode */}
+          {!timeOnly && (
+            <div className="w-2/3 border-r pr-1">
+              <DayPicker
+                selected={new Date(value)}
+                onSelect={handleDateSelect}
+                // disabled={{ before: new Date(value) }}
+                mode="single"
+                modifiersClassNames={{
+                  selected: "bg-theme text-white rounded-full",
+                  today: "text-red-500",
+                  disabled: "text-gray-400",
+                }}
+                className="w-full overflow-hidden"
+              />
+            </div>
+          )}
 
           {/* Time Picker */}
-          <div className="w-1/3 pl-1">
+          {/* <div className="w-1/3 pl-1"> */}
+          <div className={timeOnly ? "w-full" : "w-1/3 pl-1"}>
             <div className="text-center font-semibold">Time</div>
             <div ref={timePickerRef} className="overflow-y-auto max-h-48">
               {availableTimes.map((time, index) => (
@@ -228,7 +275,7 @@ const DatePicker = ({
                   key={index}
                   type="button"
                   className={`block w-full text-left p-2 rounded-md disabled:text-gray-400 ${
-                    time === formatTimeWithoutSeconds(timeValue)
+                    timeValue && time === formatTimeWithoutSeconds(timeValue)
                       ? "bg-red-500 text-white active"
                       : "hover:bg-red-100"
                   }`}
