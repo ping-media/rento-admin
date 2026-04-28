@@ -202,7 +202,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
                 item={"weekendPercentage"}
                 value={id && vehicleMaster[0]?.weekendPercentage}
                 type="number"
-                placeholder="Enter Weekend Amount or Percentage"
+                placeholder="Weekend Amount or Percentage"
                 require={true}
               />
             </div>
