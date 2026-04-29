@@ -7,6 +7,15 @@ import Spinner from "../../Spinner/Spinner";
 import { userType, userTypeWithoutAdmin } from "../../../Data/commonData";
 import UserRideTimeLine from "../../Booking/UserRideTimeLine";
 import PreLoader from "../../Skeleton/PreLoader";
+import { format, parseISO } from "date-fns";
+
+const formatDateTime = (isoString) => {
+  if (!isoString) return null;
+
+  const date = parseISO(isoString);
+
+  return format(date, "dd MMM yyyy, hh:mm a");
+};
 
 const CustomerForm = ({ ridesLoading, handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -17,19 +26,26 @@ const CustomerForm = ({ ridesLoading, handleFormSubmit, loading }) => {
   const isAdmin = loggedInRole === "admin";
   const USER_ROLE = isAdmin ? userType : userTypeWithoutAdmin;
 
+  const userCreatedAt =
+    vehicleMaster?.[0]?.userId?.createdAt ||
+    vehicleMaster?.userId?.createdAt ||
+    vehicleMaster?.[0]?.createdAt ||
+    vehicleMaster?.createdAt ||
+    "";
+
   const isAddCustomer = location.pathname.endsWith("/all-users/add-new");
 
   const isAllCustomerEditable = useMemo(() => {
-    location.pathname.includes("/all-users/") &&
-      id !== undefined &&
-      id?.trim() !== "";
+    const sanitizeId = id && id.trim() !== "";
+    return location.pathname.includes("/all-users/") && sanitizeId;
   }, [id, location.pathname]);
+
+  console.log(userCreatedAt);
 
   return (
     <>
       <div
         className={`${
-          // location.pathname.includes("/all-users/")
           isAllCustomerEditable
             ? "flex items-center flex-wrap lg:items-start lg:grid lg:grid-cols-2 gap-2"
             : ""
@@ -51,6 +67,14 @@ const CustomerForm = ({ ridesLoading, handleFormSubmit, loading }) => {
           className="mb-5 w-full lg:flex-1 order-1"
           onSubmit={handleFormSubmit}
         >
+          {userCreatedAt && userCreatedAt?.trim() !== "" && (
+            <div className="mb-5">
+              <p>
+                <span className="font-semibold">User Created at:</span>{" "}
+                {formatDateTime(userCreatedAt)}
+              </p>
+            </div>
+          )}
           <div className="flex flex-wrap gap-4">
             <>
               <div className="w-full lg:w-[48%]">

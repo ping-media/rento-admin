@@ -1,6 +1,4 @@
 import { useDispatch, useSelector } from "react-redux";
-// import { useParams } from "react-router-dom";
-// import { userType, userTypeWithoutAdmin } from "../../Data/commonData";
 import UserDocuments from "./User Components/UserDocuments";
 import { useEffect, useState } from "react";
 import { getData } from "../../Data/index";
@@ -24,7 +22,11 @@ const UserForm = ({ handleFormSubmit, loading }) => {
 
   useEffect(() => {
     if (location.pathname?.includes("/all-users/") && !loading) {
-      const userId = vehicleMaster?._id || vehicleMaster?.[0]?._id;
+      const isDocuments =
+        (vehicleMaster?.[0]?.files || vehicleMaster?.files || [])?.length > 0;
+      const userId = isDocuments
+        ? vehicleMaster?.[0]?.userId?._id || vehicleMaster?.userId?._id
+        : vehicleMaster?._id || vehicleMaster?.[0]?._id;
 
       if (userId) {
         (async () => {
@@ -47,7 +49,8 @@ const UserForm = ({ handleFormSubmit, loading }) => {
         dispatch(resetUserRideInfo());
       };
     }
-  }, [loading, vehicleMaster?._id || vehicleMaster?.[0]?._id]);
+    // }, [loading, vehicleMaster?._id, vehicleMaster?.[0]?._id]);
+  }, [loading, vehicleMaster]);
 
   // (vehicleMaster || location.pathname.endsWith("all-managers/add-new")) && (
   return (

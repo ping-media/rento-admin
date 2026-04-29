@@ -92,7 +92,7 @@ const States = [
 ];
 
 const userType = ["customer", "manager", "admin"];
-const userTypeWithoutAdmin = ["customer", "manager", "admin"];
+const userTypeWithoutAdmin = ["customer", "manager"];
 
 // brands
 const vehicleBrands = [

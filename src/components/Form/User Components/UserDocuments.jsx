@@ -36,9 +36,9 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
   };
 
   return (
-    <div>
+    <div className="w-full">
       {!location.pathname.includes("/all-bookings/details/") && (
-        <div className="flex items-center justify-between">
+        <div className="flex w-full items-center justify-between">
           <h2 className="mb-2 uppercase text-theme font-bold text-lg">
             User Documents ({data?.length || 0})
           </h2>
@@ -56,7 +56,7 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
       {(loading || hookLoading) && <PreLoader />}
 
       <div
-        className="flex items-center gap-2 flex-wrap"
+        className="flex items-center gap-2 flex-wrap mx-auto"
         id="user-documents-gallery"
       >
         {data ? (
@@ -65,7 +65,7 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
               {dataId ? (
                 <PhotoView
                   item={item}
-                  className="w-52 max-h-40"
+                  className="w-42 md:w-52 max-h-40"
                   uniqueId="user-documents-gallery"
                   variant={"full"}
                   deleteFn={handleDeleteDocument}
