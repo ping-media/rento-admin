@@ -167,6 +167,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "idProof",
           "priority",
           "weekendPriceType",
+          "isUnderMaintenance",
         ].includes(key),
     );
 

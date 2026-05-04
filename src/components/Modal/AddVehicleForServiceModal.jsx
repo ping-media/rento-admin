@@ -16,6 +16,7 @@ import { useParams } from "react-router-dom";
 const AddVehicleForServiceModal = ({
   loading,
   vehiclesId = [],
+  setMaintenanceVehicleId,
   isMaintenanceAdd,
   setIsMaintenanceAdd,
 }) => {
@@ -87,6 +88,7 @@ const AddVehicleForServiceModal = ({
       // `/maintenanceVehicle?vehicleTableId=${vehicleTableId}&startDate=${startDate}&endDate=${endDate}`
       const response = await postData(`/maintenanceVehicle`, data, token);
       if (response?.status === 200) {
+        setMaintenanceVehicleId && setMaintenanceVehicleId([]);
         dispatch(toggleVehicleServiceModal());
         dispatch(removeBlockVehicleId());
         if (location.pathname.includes("/all-vehicles/details/")) {
@@ -96,7 +98,7 @@ const AddVehicleForServiceModal = ({
             data?.vehicleTableId === id ||
             data?.vehicleTableIds?.includes(id)
           ) {
-            dispatch(addNewMaintenanceData(data));
+            dispatch(addNewMaintenanceData({ ...data, isActive: true }));
           }
         } else {
           dispatch(toggleRefresh());

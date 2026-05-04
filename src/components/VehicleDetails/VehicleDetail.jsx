@@ -93,6 +93,7 @@ const VehicleDetail = () => {
       <Suspense fallback={null}>
         <AddVehicleForServiceModal
           vehiclesId={maintenanceVehicleId}
+          setMaintenanceVehicleId={setMaintenanceVehicleId}
           isMaintenanceAdd={isMaintenanceAdd}
           setIsMaintenanceAdd={setIsMaintenanceAdd}
         />

@@ -82,10 +82,15 @@ const ExtendBookingModal = ({ bookingData }) => {
             ? isVehicleFree.unavailabilityReasons[0]
             : null;
 
+        const isBooked = vehicleData !== null && !vehicleData?.bookingId;
+
         const customMessage =
           vehicleData !== null
-            ? `${vehicleData?.reason} and booking id is ${vehicleData?.bookingId}`
+            ? !isBooked
+              ? `${vehicleData?.reason} and booking id is ${vehicleData?.bookingId}`
+              : vehicleData?.reason
             : null;
+
         handleAsyncError(
           dispatch,
           customMessage !== null ? customMessage : isVehicleFree?.message,

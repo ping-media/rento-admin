@@ -10,7 +10,15 @@ const VehicleDetailList = ({ vehicle }) => {
 
   if (Object.keys(vehicle) === 0) return null;
 
-  const excludedKeys = ["id", "_v", "At", "Id", "Image", "maintenance"];
+  const excludedKeys = [
+    "id",
+    "_v",
+    "At",
+    "Id",
+    "Image",
+    "maintenance",
+    "isUnderMaintenance",
+  ];
   const filteredEntries = useMemo(() => {
     return Object.entries(vehicle).filter(
       ([key]) => !excludedKeys.some((exclude) => key.includes(exclude)),

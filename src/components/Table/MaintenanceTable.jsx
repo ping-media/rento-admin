@@ -36,25 +36,40 @@ const MaintenanceTable = () => {
   const [viewData, setViewData] = useState(null);
   const { token } = useSelector((state) => state.user);
   const [modifyingVehicleId, setModifyingVehicleId] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ open: false, id: null });
   const showRecordsOptions = [25, 50, 100, 200, 500];
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(25);
   const dispatch = useDispatch();
 
+  const fetchMaintenanceData = async () => {
+    dispatch(startMaintenanceLoading());
+    const response = await getData(
+      `/maintenanceVehicle?vehicleTableId=${vehicleMaster[0]?._id}&page=${currentPage}&limit=${limit}`,
+      token,
+    );
+    if (response?.status === 200) {
+      dispatch(addMaintenanceData(response));
+    } else {
+      dispatch(resetMaintenanceData());
+    }
+  };
+
   // maintenanceData
   useEffect(() => {
     if (!loading && vehicleMaster?.length > 0) {
       (async () => {
-        dispatch(startMaintenanceLoading());
-        const response = await getData(
-          `/maintenanceVehicle?vehicleTableId=${vehicleMaster[0]?._id}&page=${currentPage}&limit=${limit}`,
-          token,
-        );
-        if (response?.status === 200) {
-          dispatch(addMaintenanceData(response));
-        } else {
-          dispatch(resetMaintenanceData());
-        }
+        await fetchMaintenanceData();
+        // dispatch(startMaintenanceLoading());
+        // const response = await getData(
+        //   `/maintenanceVehicle?vehicleTableId=${vehicleMaster[0]?._id}&page=${currentPage}&limit=${limit}`,
+        //   token,
+        // );
+        // if (response?.status === 200) {
+        //   dispatch(addMaintenanceData(response));
+        // } else {
+        //   dispatch(resetMaintenanceData());
+        // }
       })();
     }
 
@@ -68,28 +83,30 @@ const MaintenanceTable = () => {
     "Starting Date",
     "Ending Date",
     "Reason",
-    // "Status",
     "Action",
   ];
 
-  const isVehicleUnblocked = (id) => {
-    const currentDateAndTime = new Date();
-    const endDate = formatLocalTimeIntoISO(currentDateAndTime);
+  // const isVehicleUnblocked = (id) => {
+  //   const currentDateAndTime = new Date();
+  //   const endDate = formatLocalTimeIntoISO(currentDateAndTime);
 
-    const hasActiveMaintenance = maintenanceData?.data?.some((m) => {
-      return m._id === id && m.endDate < endDate;
-    });
+  //   console.log(endDate);
 
-    return hasActiveMaintenance;
-  };
+  //   const hasActiveMaintenance = maintenanceData?.data?.some((m) => {
+  //     return m._id === id && m.endDate < endDate;
+  //   });
+
+  //   return hasActiveMaintenance;
+  // };
 
   // unblock maintenance
+
   const unblockVehicles = async (id) => {
     const currentDateAndTime = new Date();
     const endDate = formatLocalTimeIntoISO(currentDateAndTime);
 
     const hasActiveMaintenance = maintenanceData?.data?.some((m) => {
-      return m._id === id && m.endDate > endDate;
+      return m._id === id && m.isActive === true; // use backend flag
     });
 
     if (!hasActiveMaintenance)
@@ -105,8 +122,9 @@ const MaintenanceTable = () => {
       setModifyingVehicleId(id);
       const response = await postData("/maintenanceVehicle", data, token);
       if (response.success === true) {
-        dispatch(updateMaintenanceData(endDate));
+        // dispatch(updateMaintenanceData(endDate));
         handleAsyncError(dispatch, response?.message, "success");
+        await fetchMaintenanceData();
       } else {
         handleAsyncError(dispatch, response?.message);
       }
@@ -119,6 +137,41 @@ const MaintenanceTable = () => {
       setModifyingVehicleId(null);
     }
   };
+  // const unblockVehicles = async (id) => {
+  //   const currentDateAndTime = new Date();
+  //   const endDate = formatLocalTimeIntoISO(currentDateAndTime);
+
+  //   const hasActiveMaintenance = maintenanceData?.data?.some((m) => {
+  //     return m._id === id && m.endDate > endDate;
+  //   });
+
+  //   if (!hasActiveMaintenance)
+  //     return handleAsyncError(dispatch, "No Active Maintenance found");
+
+  //   const data = {
+  //     maintenanceId: id,
+  //     vehicleTableId: vehicleMaster[0]?._id,
+  //     endDate: endDate,
+  //   };
+
+  //   try {
+  //     setModifyingVehicleId(id);
+  //     const response = await postData("/maintenanceVehicle", data, token);
+  //     if (response.success === true) {
+  //       dispatch(updateMaintenanceData(endDate));
+  //       handleAsyncError(dispatch, response?.message, "success");
+  //     } else {
+  //       handleAsyncError(dispatch, response?.message);
+  //     }
+  //   } catch (error) {
+  //     handleAsyncError(
+  //       dispatch,
+  //       "Unable to update maintenance records! try again.",
+  //     );
+  //   } finally {
+  //     setModifyingVehicleId(null);
+  //   }
+  // };
 
   const handleView = (id) => {
     const data = maintenanceData?.data?.filter((d) => d._id === id);
@@ -137,6 +190,38 @@ const MaintenanceTable = () => {
           {...viewData}
         />
       )}
+
+      {/* confirmation modal  */}
+      {confirmModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-md shadow-xl p-6 w-80 flex flex-col gap-4">
+            <h2 className="text-base font-semibold text-gray-800">
+              Unblock Vehicle
+            </h2>
+            <p className="text-sm text-gray-500">
+              Are you sure you want to unblock this vehicle from maintenance?
+            </p>
+            <div className="flex justify-end gap-3 mt-2">
+              <button
+                className="px-4 py-1.5 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
+                onClick={() => setConfirmModal({ open: false, id: null })}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-1.5 rounded-lg bg-theme text-white text-sm hover:opacity-90"
+                onClick={() => {
+                  unblockVehicles(confirmModal.id);
+                  setConfirmModal({ open: false, id: null });
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className=" overflow-x-auto">
         <div className="min-w-full inline-block align-middle">
           <div className="overflow-hidden">
@@ -179,57 +264,69 @@ const MaintenanceTable = () => {
                             {StartDate ?? "NA"},
                             <br />
                             {StartTime ?? "NA"}
-                            {/* {item?.startDate
-                              ? formatDateTimeIN(item?.startDate)
-                              : // ? formatFullDateAndTime(item?.startDate)
-                                "NA"} */}
                           </td>
                           <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
                             {EndDate ?? "NA"},
                             <br />
                             {EndTime ?? "NA"}
-                            {/* {item?.endDate
-                              ? formatDateTimeIN(item?.endDate)
-                              : // ? formatFullDateAndTime(item?.endDate)
-                                "NA"} */}
                           </td>
                           <td className="p-2.5 max-w-24 truncate text-sm leading-6 font-medium text-gray-900 capitalize">
                             {item?.reason}
                           </td>
-                          {/* <td className="p-2.5 whitespace-nowrap max-w-24 truncate text-sm leading-6 font-medium text-gray-900 capitalize">
-                            <p
-                              className={`flex items-center gap-1 ${
-                                item?.status === "active"
-                                  ? "text-green-500"
-                                  : "text-red-500/90"
-                              }`}
-                            >
-                              {item?.status}
-                            </p>
-                          </td> */}
                           <td className="p-2.5 whitespace-nowrap text-sm items-center">
                             <button
                               type="button"
                               className={`p-1 rounded-full bg-white group transition-all duration-500 flex item-center ${
-                                isVehicleUnblocked(item?._id) ||
+                                !item?.isActive ||
                                 modifyingVehicleId === item?._id
                                   ? "opacity-50 cursor-not-allowed"
                                   : "hover:text-white hover:bg-theme"
                               }`}
-                              onClick={() => unblockVehicles(item?._id)}
+                              // className={`p-1 rounded-full bg-white group transition-all duration-500 flex item-center ${
+                              //   isVehicleUnblocked(item?._id) ||
+                              //   modifyingVehicleId === item?._id
+                              //     ? "opacity-50 cursor-not-allowed"
+                              //     : "hover:text-white hover:bg-theme"
+                              // }`}
+                              // onClick={() => unblockVehicles(item?._id)}
+                              onClick={(e) => {
+                                e.stopPropagation(); // prevent row click (handleView) from firing
+                                if (
+                                  !item?.isActive ||
+                                  modifyingVehicleId === item?._id
+                                )
+                                  return;
+                                setConfirmModal({ open: true, id: item?._id });
+                              }}
                               disabled={
-                                isVehicleUnblocked(item?._id) ||
+                                !item?.isActive ||
                                 modifyingVehicleId === item?._id
                               }
                               title={
-                                item?.status === "active"
-                                  ? "unblock vehicle"
-                                  : ""
+                                item?.isActive
+                                  ? "Vehicle currently under maintenance"
+                                  : "Unblock vehicle"
                               }
+                              // disabled={
+                              //   isVehicleUnblocked(item?._id) ||
+                              //   modifyingVehicleId === item?._id
+                              // }
+                              // title={
+                              //   item?.status === "active"
+                              //     ? "unblock vehicle"
+                              //     : ""
+                              // }
                             >
-                              {modifyingVehicleId === item?._id ? (
+                              {/* {modifyingVehicleId === item?._id ? (
                                 <Spinner />
                               ) : item?.status === "active" ? (
+                                tableIcons?.lock
+                              ) : (
+                                tableIcons?.unBlock
+                              )} */}
+                              {modifyingVehicleId === item?._id ? (
+                                <Spinner />
+                              ) : item?.isActive ? (
                                 tableIcons?.lock
                               ) : (
                                 tableIcons?.unBlock
