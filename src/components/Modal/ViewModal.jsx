@@ -6,12 +6,17 @@ const ViewModal = ({ isActive, setIsActive, startDate, endDate, reason }) => {
       className={`fixed ${
         !isActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
+      onClick={() => setIsActive(false)}
     >
-      <div className="relative top-40 mx-auto shadow-xl rounded-md bg-white max-w-md">
+      <div
+        className="relative top-40 mx-auto shadow-xl rounded-md bg-white max-w-md"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center border-b justify-end p-1">
           <h4 className="text-lg font-semibold text-theme">Maintenance</h4>
           <button
-            onClick={() => setIsActive(!isActive)}
+            // onClick={() => setIsActive(!isActive)}
+            onClick={() => setIsActive(false)}
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
           >
@@ -33,11 +38,11 @@ const ViewModal = ({ isActive, setIsActive, startDate, endDate, reason }) => {
         <div className="p-4 pt-1">
           <p className="text-sm mb-1">
             <span className="font-semibold">Start:</span>{" "}
-            {formatFullDateAndTime(startDate)}
+            {startDate && formatFullDateAndTime(startDate)}
           </p>
           <p className="text-sm mb-1">
             <span className="font-semibold">End:</span>{" "}
-            {formatFullDateAndTime(endDate)}
+            {endDate && formatFullDateAndTime(endDate)}
           </p>
           <p className="w-full h-full overflow-hidden">
             <span className="font-semibold mr-1">Reason:</span>

@@ -140,8 +140,10 @@ const VehicleDetail = () => {
             </div>
 
             <Suspense fallback={<MaintenanceTableSkeleton />}>
-              <MaintenanceTable />
+              <MaintenanceTable isMaintenanceAdd={isMaintenanceAdd} />
             </Suspense>
+
+            <div className="w-full h-[0.1rem] my-5 bg-gray-300" />
 
             <div className="mt-3 mb-2">
               <h2 className="text-lg font-medium">

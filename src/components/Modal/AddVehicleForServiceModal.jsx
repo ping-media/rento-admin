@@ -94,12 +94,12 @@ const AddVehicleForServiceModal = ({
         if (location.pathname.includes("/all-vehicles/details/")) {
           setIsMaintenanceAdd(!isMaintenanceAdd);
           // only update the redux if current vehicle is add for maintenance
-          if (
-            data?.vehicleTableId === id ||
-            data?.vehicleTableIds?.includes(id)
-          ) {
-            dispatch(addNewMaintenanceData({ ...data, isActive: true }));
-          }
+          // if (
+          //   data?.vehicleTableId === id ||
+          //   data?.vehicleTableIds?.includes(id)
+          // ) {
+          //   dispatch(addNewMaintenanceData({ ...data, isActive: true }));
+          // }
         } else {
           dispatch(toggleRefresh());
         }
