@@ -188,7 +188,7 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
         isOpen={isActive && viewData !== null}
         onClose={() => setIsActive(false)}
         title="Maintenance Details"
-        className="p-3"
+        className="p-4 w-full max-w-xl"
       >
         <div className="flex flex-col gap-2">
           <p className="text-sm">
@@ -199,10 +199,21 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
             <span className="font-semibold">End:</span>{" "}
             {viewData?.endDate && formatFullDateAndTime(viewData.endDate)}
           </p>
-          <p className="text-sm">
+          <div className="text-sm">
+            <span className="font-semibold">Reason:</span>
+
+            <div className="mt-1 max-h-40 overflow-y-auto rounded-md border bg-gray-50 p-2">
+              <span className="capitalize break-all whitespace-pre-wrap">
+                {viewData?.reason}
+              </span>
+            </div>
+          </div>
+          {/* <p className="text-sm">
             <span className="font-semibold">Reason:</span>{" "}
-            <span className="capitalize">{viewData?.reason}</span>
-          </p>
+            <span className="capitalize break-words whitespace-pre-wrap">
+              {viewData?.reason}
+            </span>
+          </p> */}
         </div>
       </ConfirmModal>
 
@@ -492,7 +503,7 @@ const ConfirmModal = ({
   onClose,
   title,
   children,
-  className = "p-6",
+  className = "p-6 max-w-sm",
 }) => {
   if (!isOpen) return null;
   return (
@@ -501,7 +512,7 @@ const ConfirmModal = ({
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-md shadow-xl ${className} w-80 flex flex-col gap-4`}
+        className={`bg-white rounded-md shadow-xl overflow-hidden ${className} flex flex-col gap-4`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">

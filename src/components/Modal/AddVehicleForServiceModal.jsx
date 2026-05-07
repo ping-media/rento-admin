@@ -41,6 +41,14 @@ const AddVehicleForServiceModal = ({
     startDate = formatLocalTimeIntoISO(startDate);
     let endDate = formData.get("endDate");
     endDate = formatLocalTimeIntoISO(endDate);
+
+    if (new Date(endDate) <= new Date(startDate)) {
+      return handleAsyncError(
+        dispatch,
+        "End date & time must be greater than start date & time.",
+      );
+    }
+
     let reason = formData.get("reason")?.toLowerCase();
 
     if (vehicleTableId === "") {
