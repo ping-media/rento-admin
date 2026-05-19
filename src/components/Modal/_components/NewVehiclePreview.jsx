@@ -8,6 +8,8 @@ const NewVehiclePreview = ({
   addonDetails,
   extraAddonPrice,
   addonTax,
+  pendingPayment = 0,
+  effectivePaid = 0,
 }) => {
   return (
     <>
@@ -53,7 +55,7 @@ const NewVehiclePreview = ({
             </li>
           </ul>
 
-          <div className="mt-1 border-t border-gray-600/20 flex flex-wrap md:flex-nowrap items-center justify-between pt-1">
+          {/* <div className="mt-1 border-t border-gray-600/20 flex flex-wrap md:flex-nowrap items-center justify-between pt-1">
             {previewData?.priceSummary?.isFreeSwap && (
               <p className="text-left text-sm font-semibold text-green-600">
                 Free Change — no payment required
@@ -64,6 +66,50 @@ const NewVehiclePreview = ({
                 Extra payment required: ₹{" "}
                 {formatPrice(previewData?.priceSummary?.difference)}
               </p>
+            )}
+            {previewData?.priceSummary?.isRefund && (
+              <p className="text-left text-sm font-semibold text-yellow-600">
+                Refund to customer: ₹{" "}
+                {formatPrice(previewData?.priceSummary?.difference)}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowBreakdown(true)}
+              className="text-sm text-theme underline mt-1"
+            >
+              View price breakdown
+            </button>
+          </div> */}
+          {/* <div className="mt-1 border-t border-gray-600/20 flex flex-wrap md:flex-nowrap items-center justify-between pt-1"> */}
+          <div className="mt-1 border-t border-gray-600/20 flex flex-col pt-1">
+            {previewData?.priceSummary?.isFreeSwap && effectivePaid === 0 && (
+              <p className="text-left text-sm font-semibold text-blue-600">
+                No payment made yet — new price ₹{" "}
+                {formatPrice(previewData?.priceSummary?.newRemainingCost)} will
+                apply at collection.
+              </p>
+            )}
+            {previewData?.priceSummary?.isFreeSwap && effectivePaid > 0 && (
+              <p className="text-left text-sm font-semibold text-green-600">
+                Free Change — no payment required
+              </p>
+            )}
+            {previewData?.priceSummary?.isExtraPayment &&
+              effectivePaid === 0 && (
+                <p className="text-left text-sm font-semibold text-red-600">
+                  Amount to collect: ₹ {formatPrice(pendingPayment)}
+                </p>
+              )}
+            {previewData?.priceSummary?.isExtraPayment && effectivePaid > 0 && (
+              <div className="text-left text-sm">
+                <p className="font-semibold text-gray-600">
+                  Already paid: ₹ {formatPrice(effectivePaid)}
+                </p>
+                <p className="font-semibold text-red-600">
+                  Remaining to pay: ₹ {formatPrice(pendingPayment)}
+                </p>
+              </div>
             )}
             {previewData?.priceSummary?.isRefund && (
               <p className="text-left text-sm font-semibold text-yellow-600">

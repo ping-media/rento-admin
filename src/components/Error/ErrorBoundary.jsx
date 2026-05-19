@@ -15,6 +15,12 @@ class ErrorBoundary extends React.Component {
     console.error("Caught error:", error, errorInfo);
   }
 
+  resetErrorBoundary = () => {
+    if (this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  };
+
   render() {
     if (this.state.hasError) {
       return (
@@ -36,4 +42,16 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default ErrorBoundary;
+export default React.forwardRef((props, ref) => {
+  const boundaryRef = React.useRef();
+
+  React.useImperativeHandle(ref, () => ({
+    resetErrorBoundary: () => {
+      boundaryRef.current?.resetErrorBoundary();
+    },
+  }));
+
+  return <ErrorBoundary {...props} ref={boundaryRef} />;
+});
+
+// export default ErrorBoundary;

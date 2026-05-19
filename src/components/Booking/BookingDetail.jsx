@@ -64,11 +64,11 @@ const buildBookingData = (booking) => {
       // },
       {
         key: "Booking Start",
-        value: `${formatFullDateAndTime(vm?.BookingStartDateAndTime)}`,
+        value: `${vm?.BookingStartDateAndTime && formatFullDateAndTime(vm?.BookingStartDateAndTime)}`,
       },
       {
         key: "Booking End",
-        value: `${vm && formatFullDateAndTime(BookingEndDateAndTime)}`,
+        value: `${BookingEndDateAndTime && formatFullDateAndTime(BookingEndDateAndTime)}`,
         // value: `${
         //   vm &&
         //   formatFullDateAndTime(
@@ -113,7 +113,7 @@ const buildBookingData = (booking) => {
       },
       {
         key: "Extended Till",
-        value: `${formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
+        value: `${vm?.BookingEndDateAndTime && formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
       },
     ],
   };

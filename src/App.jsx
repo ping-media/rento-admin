@@ -4,7 +4,7 @@ import PreLoader from "./components/Skeleton/PreLoader";
 import { lazy, Suspense } from "react";
 import PrivateRouteBasedOnUser from "./components/layout/PrivateRouteBasedOnUser";
 import { useSelector } from "react-redux";
-import ErrorBoundary from "./components/Error/ErrorBoundary";
+import ErrorBoundaryWrapper from "./components/Error/ErrorBoundaryWrapper";
 
 const Dashboard = lazy(() =>
   import("./Pages/index").then((module) => ({ default: module.Dashboard })),
@@ -72,10 +72,10 @@ const App = () => {
   const { loggedInRole, verifyLoading } = useSelector((state) => state.user);
 
   return (
-    <ErrorBoundary>
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
+    <BrowserRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
+      <ErrorBoundaryWrapper>
         <Suspense fallback={<PreLoader />}>
           <Routes>
             <Route path="/" exact element={<Login />} />
@@ -597,8 +597,8 @@ const App = () => {
             </Route>
           </Routes>
         </Suspense>
-      </BrowserRouter>
-    </ErrorBoundary>
+      </ErrorBoundaryWrapper>
+    </BrowserRouter>
   );
 };
 

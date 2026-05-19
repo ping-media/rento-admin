@@ -5,7 +5,6 @@ import { tableIcons } from "../../../Data/Icons";
 import { deleteDataById } from "../../../Data/index";
 import { handleUpdateImageData } from "../../../Redux/VehicleSlice/VehicleSlice";
 import "photoswipe/style.css";
-import PreLoader from "../../../components/Skeleton/PreLoader";
 import { Link, useParams } from "react-router-dom";
 import PhotoView from "./PhotoView";
 
@@ -35,6 +34,27 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
     }
   };
 
+  if (loading || hookLoading) {
+    return (
+      <div className="w-full">
+        <div className="flex items-center gap-2 flex-wrap mx-auto">
+          {[...Array(3)].map((_, index) => (
+            <div
+              key={index}
+              className="relative w-42 md:w-52 h-40 rounded-md overflow-hidden border border-gray-200 bg-gray-100 animate-pulse"
+            >
+              {/* image skeleton */}
+              <div className="w-full h-full bg-gray-300" />
+
+              {/* delete button skeleton */}
+              <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-gray-200 border border-gray-300" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       {!location.pathname.includes("/all-bookings/details/") && (
@@ -42,6 +62,7 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
           <h2 className="mb-2 uppercase text-theme font-bold text-lg">
             User Documents ({data?.length || 0})
           </h2>
+
           {data?.length < 5 && (
             <Link
               className="bg-theme px-4 py-2 rounded-lg text-gray-100 flex items-center hover:bg-theme-dark transition duration-200 ease-in-out"
@@ -53,14 +74,13 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
           )}
         </div>
       )}
-      {(loading || hookLoading) && <PreLoader />}
 
       <div
         className="flex items-center gap-2 flex-wrap mx-auto"
         id="user-documents-gallery"
       >
-        {data ? (
-          data?.map((item) => (
+        {(data ?? []).length > 0 ? (
+          (data ?? []).map((item) => (
             <React.Fragment key={item?._id}>
               {dataId ? (
                 <PhotoView
@@ -82,7 +102,7 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
             </React.Fragment>
           ))
         ) : (
-          <p className="italic text-sm my-2 text-gray-400">
+          <p className="italic text-base text-center w-full my-2 text-gray-400">
             No documents found.
           </p>
         )}

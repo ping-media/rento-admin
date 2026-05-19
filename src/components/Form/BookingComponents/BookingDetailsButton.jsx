@@ -6,6 +6,7 @@ import {
   toggleBookingExtendModal,
   toggleChangeVehicleModal,
   togglePickupImageModal,
+  toggleRescheduleModal,
   // toggleRescheduleModal,
   toggleRideEndModal,
 } from "../../../Redux/SideBarSlice/SideBarSlice";
@@ -157,15 +158,15 @@ const BookingDetailsButton = ({
         )}
 
         {/* for now disabling the reschudle option as it is making conflict  */}
-        {/* {booking?.bookingStatus !== "canceled" &&
-        booking?.rideStatus !== "completed" &&
-        // booking?.rideStatus === "pending" &&
-        loggedInRole === "admin" && (
-          <Button
-            title={"Reschedule"}
-            fn={() => dispatch(toggleRescheduleModal())}
-          />
-        )} */}
+        {booking?.bookingStatus !== "canceled" &&
+          booking?.rideStatus !== "completed" &&
+          // booking?.rideStatus === "pending" &&
+          loggedInRole === "admin" && (
+            <Button
+              title={"Reschedule"}
+              fn={() => dispatch(toggleRescheduleModal())}
+            />
+          )}
 
         {booking?.bookingStatus !== "canceled" &&
           booking?.rideStatus === "pending" &&

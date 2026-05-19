@@ -16,7 +16,7 @@ const PriceList = ({
           return null;
         }
 
-        if (!bookingData?.bookingPrice[key]) {
+        if (!bookingData?.bookingPrice?.[key]) {
           return null;
         }
 

@@ -6,7 +6,7 @@ import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
 import Spinner from "../../Spinner/Spinner";
 import { userType, userTypeWithoutAdmin } from "../../../Data/commonData";
 import UserRideTimeLine from "../../Booking/UserRideTimeLine";
-import PreLoader from "../../Skeleton/PreLoader";
+// import PreLoader from "../../Skeleton/PreLoader";
 import { format, parseISO } from "date-fns";
 
 const formatDateTime = (isoString) => {
@@ -17,12 +17,13 @@ const formatDateTime = (isoString) => {
   return format(date, "dd MMM yyyy, hh:mm a");
 };
 
-const CustomerForm = ({ ridesLoading, handleFormSubmit, loading }) => {
+const CustomerForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { loggedInRole } = useSelector((state) => state.user);
   const { id } = useParams();
   const location = useLocation();
 
+  const isProfile = location.pathname === "/profile";
   const isAdmin = loggedInRole === "admin";
   const USER_ROLE = isAdmin ? userType : userTypeWithoutAdmin;
 
@@ -40,8 +41,6 @@ const CustomerForm = ({ ridesLoading, handleFormSubmit, loading }) => {
     return location.pathname.includes("/all-users/") && sanitizeId;
   }, [id, location.pathname]);
 
-  console.log(userCreatedAt);
-
   return (
     <>
       <div
@@ -51,23 +50,25 @@ const CustomerForm = ({ ridesLoading, handleFormSubmit, loading }) => {
             : ""
         }`}
       >
-        {/* {location.pathname.includes("/all-users/") && */}
-        {isAllCustomerEditable &&
-          (!ridesLoading ? (
+        {/* (!ridesLoading ? ( */}
+        {
+          isAllCustomerEditable && (
             <div className="w-full lg:flex-1 order-2">
               <h2 className="text-lg text-theme font-semibold uppercase">
                 Rides History
               </h2>
               <UserRideTimeLine />
             </div>
-          ) : (
-            <PreLoader />
-          ))}
+          )
+          // ) : (
+          //   <PreLoader />
+          // ))
+        }
         <form
           className="mb-5 w-full lg:flex-1 order-1"
           onSubmit={handleFormSubmit}
         >
-          {userCreatedAt && userCreatedAt?.trim() !== "" && (
+          {userCreatedAt && userCreatedAt?.trim() !== "" && !isProfile && (
             <div className="mb-5">
               <p>
                 <span className="font-semibold">User Created at:</span>{" "}

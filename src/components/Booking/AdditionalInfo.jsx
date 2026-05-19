@@ -110,7 +110,7 @@ const AdditionalInfo = () => {
     Number(booking?.vehicleBasic?.freeLimit) + Number(extendBookingLimit);
 
   useEffect(() => {
-    if (!bookingPrice) return null;
+    if (!bookingPrice) return;
 
     calculateTotal({ payload: bookingPrice });
   }, [bookingPrice]);

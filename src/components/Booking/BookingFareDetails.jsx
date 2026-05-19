@@ -19,7 +19,7 @@ const BookingFareDetails = ({ rides }) => {
     <>
       {rides && (
         <>
-          {rides?.bookingPrice.isPackageApplied && (
+          {rides?.bookingPrice?.isPackageApplied && (
             <div className="text-gray-500 mb-1.5">
               <span className="font-bold">Package:</span>
               {`(${getDurationInDays(
@@ -33,7 +33,7 @@ const BookingFareDetails = ({ rides }) => {
             </div>
           )}
           <ul className="w-full leading-8 mb-2">
-            {Object.entries(rides?.bookingPrice)
+            {Object.entries(rides?.bookingPrice || {})
               .filter(
                 ([key]) =>
                   key !== "totalPrice" &&
@@ -184,8 +184,7 @@ const BookingFareDetails = ({ rides }) => {
                   );
                 }
               })}
-
-            {/* discount price  */}
+            {/* discount price */}
             {rides?.bookingPrice?.discountPrice > 0 && (
               <li
                 className={`flex items-center justify-between mt-1 my-1 ${
@@ -203,7 +202,6 @@ const BookingFareDetails = ({ rides }) => {
                 </p>
               </li>
             )}
-
             {/* user paid */}
             {rides?.bookingPrice?.userPaid > 0 &&
               rides?.paymentStatus !== "pending" && (
@@ -235,16 +233,14 @@ const BookingFareDetails = ({ rides }) => {
                   </li>
                 </>
               )}
-
-            {/* total price  */}
+            {/* total price */}
             <li className="flex items-center justify-between mt-1 border-t-2 pt-2 my-2">
               <p className="text-sm capitalize text-left">Total Price</p>
               <p className="text-sm font-extrabold text-right text-theme">
                 {`₹${formatPrice(bookingPrice || 0)}`}
               </p>
             </li>
-
-            {/* refunded amount  */}
+            {/* refunded amount */}
             <li className="pt-1 mt-1 border-t-2">
               <div className="flex items-center">
                 <p className="text-sm capitalize text-left mr-1">

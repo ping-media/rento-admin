@@ -153,6 +153,8 @@ const modifyUrl = (url) => {
 };
 
 const formatFullDateAndTime = (dateString) => {
+  if (!dateString) return "--";
+
   const date = new Date(dateString);
 
   // Format the date using Intl.DateTimeFormat with short month format
@@ -511,6 +513,7 @@ const calculatePriceForExtendBooking = (
 };
 
 const addOneMinute = (dateTimeString) => {
+  if (!dateTimeString) return "--";
   // Parse the input date-time string into a Date object
   const date = new Date(dateTimeString);
 

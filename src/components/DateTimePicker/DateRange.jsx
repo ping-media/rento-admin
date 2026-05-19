@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import DatePicker from "./DateTimePicker";
 import { parse } from "date-fns";
 import { format } from "date-fns-tz";
@@ -71,18 +71,92 @@ export const DateRange = ({
   const [dropoffTime, setDropoffTime] = useState(
     new Date().toLocaleTimeString(),
   );
+  const prevPickupRef = useRef({ date: pickupDate, time: pickupTime });
 
   // Update dropoff date when duration changes
+  // Update dropoff date when duration changes — based on pickup date, not today
   useEffect(() => {
-    setDropoffDate(formattedDate(duration));
-  }, [duration]);
+    const formattedPickup = `${formatDate(pickupDate)} ${formatTimeWithoutSeconds(pickupTime)}`;
+    const pickupParsed = parse(
+      formattedPickup,
+      "dd MMM, yyyy h:mm a",
+      new Date(),
+    );
 
-  //   updating the parent state with prefill values
+    if (!isNaN(pickupParsed)) {
+      const newDropoff = new Date(pickupParsed);
+      newDropoff.setDate(newDropoff.getDate() + duration);
+
+      setDropoffDate(
+        newDropoff.toLocaleDateString("en-US", {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }),
+      );
+
+      // Keep same time as pickup
+      const newHours = newDropoff.getHours();
+      const newMinutes = newDropoff.getMinutes();
+      const period = newHours >= 12 ? "PM" : "AM";
+      const h12 = newHours % 12 === 0 ? 12 : newHours % 12;
+      const mm = newMinutes === 0 ? "00" : "30";
+      setDropoffTime(`${h12}:${mm} ${period}`);
+    }
+  }, [duration]);
+  // useEffect(() => {
+  //   setDropoffDate(formattedDate(duration));
+  // }, [duration]);
+
+  // Sync dropoff when pickup changes (maintain duration gap)
+  useEffect(() => {
+    const prev = prevPickupRef.current;
+    const dateChanged = prev.date !== pickupDate;
+    const timeChanged = prev.time !== pickupTime;
+
+    if (dateChanged || timeChanged) {
+      // Parse current pickup into a Date object
+      const formattedPickup = `${formatDate(pickupDate)} ${formatTimeWithoutSeconds(pickupTime)}`;
+      const pickupParsed = parse(
+        formattedPickup,
+        "dd MMM, yyyy h:mm a",
+        new Date(),
+      );
+
+      if (!isNaN(pickupParsed)) {
+        // Add duration days to get new dropoff
+        const newDropoff = new Date(pickupParsed);
+        newDropoff.setDate(newDropoff.getDate() + duration);
+
+        // Sync dropoff date string
+        setDropoffDate(
+          newDropoff.toLocaleDateString("en-US", {
+            weekday: "short",
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }),
+        );
+
+        // Sync dropoff time string (same time as pickup)
+        const newHours = newDropoff.getHours();
+        const newMinutes = newDropoff.getMinutes();
+        const period = newHours >= 12 ? "PM" : "AM";
+        const h12 = newHours % 12 === 0 ? 12 : newHours % 12;
+        const mm = newMinutes === 0 ? "00" : "30";
+        setDropoffTime(`${h12}:${mm} ${period}`);
+      }
+
+      prevPickupRef.current = { date: pickupDate, time: pickupTime };
+    }
+  }, [pickupDate, pickupTime]);
+
+  // Update parent state
   useEffect(() => {
     if (!setBookingStartDate || !setBookingEndDate) return;
 
     const combinedPickupDateTime = `${formatDate(pickupDate)} ${formatTimeWithoutSeconds(pickupTime)}`;
-
     const combinedDropoffDateTime = `${formatDate(dropoffDate)} ${formatTimeWithoutSeconds(dropoffTime)}`;
 
     setBookingStartDate(formatIntoISO(combinedPickupDateTime));
@@ -95,6 +169,25 @@ export const DateRange = ({
     setBookingStartDate,
     setBookingEndDate,
   ]);
+
+  //   updating the parent state with prefill values
+  // useEffect(() => {
+  //   if (!setBookingStartDate || !setBookingEndDate) return;
+
+  //   const combinedPickupDateTime = `${formatDate(pickupDate)} ${formatTimeWithoutSeconds(pickupTime)}`;
+
+  //   const combinedDropoffDateTime = `${formatDate(dropoffDate)} ${formatTimeWithoutSeconds(dropoffTime)}`;
+
+  //   setBookingStartDate(formatIntoISO(combinedPickupDateTime));
+  //   setBookingEndDate(formatIntoISO(combinedDropoffDateTime));
+  // }, [
+  //   pickupDate,
+  //   pickupTime,
+  //   dropoffDate,
+  //   dropoffTime,
+  //   setBookingStartDate,
+  //   setBookingEndDate,
+  // ]);
 
   return (
     <>

@@ -51,6 +51,10 @@ const ExtendBookingModal = ({ bookingData }) => {
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
 
+  if (!bookingData) {
+    return null;
+  }
+
   const taxStatus =
     (bookingData && bookingData?.stationData?.isGstActive === "inactive"
       ? false
@@ -447,10 +451,8 @@ const ExtendBookingModal = ({ bookingData }) => {
                 <span className="font-semibold text-black mr-1">
                   Current End Date:
                 </span>
-                {formatFullDateAndTime(bookingData?.BookingEndDateAndTime)}
-                {/* {formatFullDateAndTime(
-                  addOneMinute(bookingData?.BookingEndDateAndTime),
-                )} */}
+                {bookingData?.BookingEndDateAndTime &&
+                  formatFullDateAndTime(bookingData.BookingEndDateAndTime)}
               </p>
             </div>
             <div className="mb-2">

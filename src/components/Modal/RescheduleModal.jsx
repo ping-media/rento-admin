@@ -29,11 +29,13 @@ const formatIntoISO = (input) => {
 };
 
 const formatDateReadable = (dateString) => {
+  if (!dateString) return "--";
   const parsedDate = parseISO(dateString);
   return Fromat(parsedDate, "dd MMM, yyyy");
 };
 
 const formatTimeUTC = (timeString) => {
+  if (!timeString) return "--";
   const fullDateTime = `1970-01-01T${timeString}`;
   return formatInTimeZone(fullDateTime, "UTC", "hh:mm a");
 };
@@ -96,6 +98,23 @@ const RescheduleModal = () => {
         result?.BookingEndDateAndTime,
       );
 
+      const currentStart = vehicleMaster?.[0]?.BookingStartDateAndTime || "";
+
+      const currentEnd = vehicleMaster?.[0]?.BookingEndDateAndTime || "";
+
+      // prevent same dates update
+      if (
+        currentStart === dbBookingStartDateAndTime &&
+        currentEnd === dbBookingEndDateAndTime
+      ) {
+        handleAsyncError(
+          dispatch,
+          "New booking dates cannot be same as existing dates.",
+        );
+
+        return;
+      }
+
       const response = await postData(
         "/reschedule-booking",
         {
@@ -106,18 +125,27 @@ const RescheduleModal = () => {
         token,
       );
       if (response?.success) {
-        let data = null;
-        if (response?.isStartUpdate) {
-          data = {
-            ...data,
-            BookingStartDateAndTime: dbBookingStartDateAndTime,
-          };
+        let data = {};
+        if (response?.timeline?.newDates?.start) {
+          data.BookingStartDateAndTime = response.timeline.newDates.start;
         }
-        if (response?.isEndUpdate) {
-          data = { ...data, BookingEndDateAndTime: dbBookingEndDateAndTime };
+        if (response?.timeline?.newDates?.end) {
+          data.BookingEndDateAndTime = response.timeline.newDates.end;
         }
-        if (data?.timeline) {
-          dispatch(updateTimeLineData(data.timeline));
+        // if (response?.isStartUpdate) {
+        //   data.BookingStartDateAndTime = dbBookingStartDateAndTime;
+        //   // data = {
+        //   //   ...data,
+        //   //   BookingStartDateAndTime: dbBookingStartDateAndTime,
+        //   // };
+        // }
+        // if (response?.isEndUpdate) {
+        //   data.BookingEndDateAndTime = dbBookingEndDateAndTime;
+        //   // data = { ...data, BookingEndDateAndTime: dbBookingEndDateAndTime };
+        // }
+        if (response?.timeline) {
+          dispatch(updateTimeLineData({ timeLine: [response.timeline] }));
+          // dispatch(updateTimeLineData(response.timeline));
         }
         handleAsyncError(dispatch, "Reschedule Successfully", "success");
         dispatch(updateBookingDates(data));
@@ -141,8 +169,8 @@ const RescheduleModal = () => {
     >
       <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-md">
         <div className="flex justify-between border-b p-2">
-          <h2 className="text-theme font-semibold text-lg uppercase">
-            Reschedule Ride
+          <h2 className="text-theme font-semibold text-lg capitalize">
+            Reschedule Booking
           </h2>
           <button
             onClick={() => dispatch(toggleRescheduleModal())}
@@ -191,13 +219,22 @@ const RescheduleModal = () => {
                 name="BookingEndDateAndTime"
               />
             </div>
+
+            <div className="mb-4 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2">
+              <p className="text-xs leading-relaxed text-yellow-800">
+                Before rescheduling the booking, please check whether this
+                vehicle is already assigned to another booking during the
+                selected duration.
+              </p>
+            </div>
+
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full items-center justify-center outline-none"
               disabled={formLoading}
             >
               {!formLoading ? (
-                "Update Booking"
+                "Reschedule Booking"
               ) : (
                 <Spinner message={"loading..."} />
               )}

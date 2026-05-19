@@ -32,6 +32,24 @@ const BookingTimeLine = () => {
     setTimelineIndex(null);
   };
 
+  if (loading) {
+    return (
+      <div className="container mx-auto py-4">
+        <BookingTimelineSkeleton />
+      </div>
+    );
+  }
+
+  if (timeLineData?.length === 0) {
+    return (
+      <div className="container mx-auto py-4">
+        <p className="italic text-md text-center my-2 text-gray-400">
+          No TimeLine Found.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <Suspense fallback={<PreLoader />}>
@@ -44,7 +62,7 @@ const BookingTimeLine = () => {
       </Suspense>
 
       <div className="container mx-auto py-4">
-        {loading && <PreLoader />}
+        {/* {loading && <PreLoader />} */}
         <div className="relative wrap overflow-hidden">
           {/* <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-1/2"></div> */}
           <div
@@ -55,11 +73,11 @@ const BookingTimeLine = () => {
           {!loading &&
             timeLineData != null &&
             timeLineData?.timeLine?.map((item, index) => {
-              const isBothDatesChange = item?.title?.includes("Rescheduled")
-                ? item?.newStartDate !== "" && item?.newEndDate !== ""
-                  ? true
-                  : false
-                : false;
+              // const isBothDatesChange = item?.title?.includes("Rescheduled")
+              //   ? item?.newStartDate !== "" && item?.newEndDate !== ""
+              //     ? true
+              //     : false
+              //   : false;
               return (
                 <div
                   className={`${
@@ -160,7 +178,8 @@ const BookingTimeLine = () => {
                             TxID: {item.paymentId}
                           </p>
                         )}
-                        {(item?.newStartDate || item?.newEndDate) && (
+                        {/* old ui for showing reschedule node  */}
+                        {/* {(item?.newStartDate || item?.newEndDate) && (
                           <>
                             {isBothDatesChange && (
                               <p className="text-gray-800 leading-tight text-xs">
@@ -190,6 +209,48 @@ const BookingTimeLine = () => {
                               </p>
                             )}
                           </>
+                        )} */}
+                        {(item?.oldDates || item?.newDates) && (
+                          <div className="mt-2 space-y-2">
+                            {/* Start Date */}
+                            {(item?.oldDates?.start ||
+                              item?.newDates?.start) && (
+                              <p className="text-xs leading-relaxed text-gray-700 flex-wrap">
+                                <span className="font-semibold">
+                                  Start Date Changed{" "}
+                                </span>
+                                from{" "}
+                                {item?.oldDates?.start
+                                  ? formatFullDateAndTime(item.oldDates.start)
+                                  : "--"}{" "}
+                                to{" "}
+                                <span className="font-semibold">
+                                  {item?.newDates?.start
+                                    ? formatFullDateAndTime(item.newDates.start)
+                                    : "--"}
+                                </span>
+                              </p>
+                            )}
+
+                            {/* End Date */}
+                            {(item?.oldDates?.end || item?.newDates?.end) && (
+                              <p className="text-xs leading-relaxed text-gray-700 flex-wrap">
+                                <span className="font-semibold">
+                                  End Date Changed{" "}
+                                </span>
+                                from{" "}
+                                {item?.oldDates?.end
+                                  ? formatFullDateAndTime(item.oldDates.end)
+                                  : "--"}{" "}
+                                to{" "}
+                                <span className="font-semibold">
+                                  {item?.newDates?.end
+                                    ? formatFullDateAndTime(item.newDates.end)
+                                    : "--"}
+                                </span>
+                              </p>
+                            )}
+                          </div>
                         )}
                       </>
                     ) : (
@@ -299,12 +360,6 @@ const BookingTimeLine = () => {
               );
             })}
         </div>
-
-        {!loading && timeLineData?.length === 0 && (
-          <p className="italic text-md text-center my-2 text-gray-400">
-            No TimeLine Found.
-          </p>
-        )}
       </div>
     </>
   );
@@ -322,3 +377,68 @@ const AddNoteBtn = ({ onClick }) => (
     {tableIcons.add}
   </button>
 );
+
+const BookingTimelineSkeleton = () => {
+  return (
+    <div className="relative overflow-hidden">
+      {/* Center Line */}
+      <div className="absolute left-1/2 h-full border border-gray-200"></div>
+
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div
+          key={index}
+          className={`mb-4 flex w-full justify-between ${
+            (index + 1) % 2 === 0
+              ? "right-timeline"
+              : "flex-row-reverse left-timeline"
+          }`}
+        >
+          {/* Empty Side */}
+          <div className="w-5/12"></div>
+
+          {/* Dot */}
+          <div className="relative z-20 h-4 w-4 rounded-full bg-gray-300"></div>
+
+          {/* Content */}
+          <div
+            className={`w-5/12 ${
+              (index + 1) % 2 === 0 ? "text-left" : "text-right"
+            }`}
+          >
+            <div
+              className={`rounded-xl border border-gray-100 bg-white p-4 shadow-sm ${
+                (index + 1) % 2 === 0 ? "" : "ml-auto"
+              }`}
+            >
+              {/* Title */}
+              <div
+                className={`mb-3 h-4 w-40 animate-pulse rounded bg-gray-200 ${
+                  (index + 1) % 2 === 0 ? "" : "ml-auto"
+                }`}
+              ></div>
+
+              {/* Status */}
+              <div
+                className={`mb-3 h-3 w-28 animate-pulse rounded bg-gray-200 ${
+                  (index + 1) % 2 === 0 ? "" : "ml-auto"
+                }`}
+              ></div>
+
+              {/* Start */}
+              <div
+                className={`mb-2 h-3 w-full animate-pulse rounded bg-gray-100`}
+              ></div>
+
+              {/* End */}
+              <div
+                className={`h-3 w-5/6 animate-pulse rounded bg-gray-100 ${
+                  (index + 1) % 2 === 0 ? "" : "ml-auto"
+                }`}
+              ></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};

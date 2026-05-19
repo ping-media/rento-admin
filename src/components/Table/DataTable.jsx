@@ -579,7 +579,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 </td>
                               ) : (
                                 <td
-                                  className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                  className="px-2 py-1 md:max-w-16 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
                                   key={statusKey}
                                 >
                                   <StatusChange item={item} column={column} />

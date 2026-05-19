@@ -266,6 +266,25 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
               update the pending payment in order to change vehicle.
             </p>
           )}
+          {/* {previewData?.priceSummary?.effectivePaid === 0 &&
+            !previewData?.priceSummary?.isExtraPayment && (
+              <p className="text-left text-xs lg:text-sm text-blue-500 italic mb-2">
+                <span className="font-bold mr-1">Note:</span>
+                No payment has been made yet. The new vehicle price of ₹
+                {formatPrice(previewData?.priceSummary?.newRemainingCost)} will
+                apply when payment is collected.
+              </p>
+            )} */}
+          {previewData?.priceSummary?.effectivePaid > 0 &&
+            previewData?.priceSummary?.isExtraPayment && (
+              <p className="text-left text-xs lg:text-sm text-orange-500 italic mb-2">
+                <span className="font-bold mr-1">Note:</span>₹
+                {formatPrice(previewData?.priceSummary?.effectivePaid)} already
+                paid. Remaining amount of ₹
+                {formatPrice(previewData?.priceSummary?.pendingPayment)} to be
+                collected.
+              </p>
+            )}
           {previewData?.isVehicleConflicted && (
             <p className="text-left text-xs lg:text-sm text-yellow-500 italic mb-2">
               <span className="font-bold mr-1">Warning:</span>
@@ -353,6 +372,10 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
                     bookingData?.bookingPrice?.extraAddonPrice || 0
                   }
                   addonTax={bookingData?.bookingPrice?.addonTax || 0}
+                  pendingPayment={
+                    previewData?.priceSummary?.pendingPayment || 0
+                  }
+                  effectivePaid={previewData?.priceSummary?.effectivePaid || 0}
                 />
               )}
             </div>

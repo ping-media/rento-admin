@@ -208,12 +208,6 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
               </span>
             </div>
           </div>
-          {/* <p className="text-sm">
-            <span className="font-semibold">Reason:</span>{" "}
-            <span className="capitalize break-words whitespace-pre-wrap">
-              {viewData?.reason}
-            </span>
-          </p> */}
         </div>
       </ConfirmModal>
 

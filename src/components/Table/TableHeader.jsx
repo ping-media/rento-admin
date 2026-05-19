@@ -4,18 +4,30 @@ import CheckBoxInputToMultiple from "../InputAndDropdown/CheckBoxInputToMultiple
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
+const headerForBooking = [
+  { vehicleName: "vehicle" },
+  { BookingStartDateAndTime: "Pick Up" },
+  { BookingEndDateAndTime: "Drop Off" },
+  { bookingPrice: "Price" },
+];
+
+const headerForPayment = [
+  { payInitFrom: "Payment Type" },
+  { paymentgatewayOrderId: "Payment Order ID" },
+  { rrnNumber: "RRN Number" },
+];
+
+const pages = [
+  { page: "/all-bookings", header: headerForBooking },
+  { page: "/payments", header: headerForPayment },
+];
+
 const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
   const { loggedInRole } = useSelector((state) => state.user);
   const location = useLocation();
 
-  const headerForBooking = [
-    { vehicleName: "vehicle" },
-    { BookingStartDateAndTime: "Pick Up" },
-    { BookingEndDateAndTime: "Drop Off" },
-    { paymentgatewayOrderId: "Payment Order ID" },
-    { rrnNumber: "RRN Number" },
-    { bookingPrice: "Price" },
-  ];
+  const DynamicHeader = pages.find((p) => p.page === location.pathname);
+  const Header = DynamicHeader ? DynamicHeader.header : null;
 
   if (Columns?.length === 0) {
     return;
@@ -67,13 +79,13 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           );
         }
 
-        // if (location?.pathname === "/all-bookings") {
-        if (["/all-bookings", "/payments"].includes(location?.pathname)) {
-          const bookingHeader = headerForBooking.find(
+        if (Header !== null) {
+          const pageHeader = Header.find(
             (header) => Object.keys(header)[0] === item,
           );
-          if (bookingHeader) {
-            const label = Object.values(bookingHeader)[0];
+
+          if (pageHeader) {
+            const label = Object.values(pageHeader)[0];
             return (
               <th
                 scope="col"
@@ -85,6 +97,23 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             );
           }
         }
+        // if (["/all-bookings", "/payments"].includes(location?.pathname)) {
+        //   const bookingHeader = headerForBooking.find(
+        //     (header) => Object.keys(header)[0] === item,
+        //   );
+        //   if (bookingHeader) {
+        //     const label = Object.values(bookingHeader)[0];
+        //     return (
+        //       <th
+        //         scope="col"
+        //         className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+        //         key={item}
+        //       >
+        //         {label}
+        //       </th>
+        //     );
+        //   }
+        // }
 
         if (item === "userId") {
           return (
@@ -97,6 +126,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </th>
           );
         }
+
         if (item === "bookingPrice" && location.pathname === "/payments") {
           return (
             <React.Fragment key={"userPaymentRecived"}>
@@ -116,6 +146,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </React.Fragment>
           );
         }
+
         if (item === "openStartTime") {
           return (
             <th
@@ -127,6 +158,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </th>
           );
         }
+
         if (
           location.pathname === "/all-invoices" ||
           location?.pathname === "/all-users" ||
@@ -164,6 +196,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </th>
           );
         }
+
         if (item === "isEmailVerified") {
           return (
             <th
@@ -175,6 +208,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </th>
           );
         }
+
         if (
           item === "state" ||
           item === "isContactVerified" ||
@@ -210,7 +244,9 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           key={`Status-${index}`}
           onClick={() => sortData(item)}
         >
-          {camelCaseToSpaceSeparated(item)}
+          {item === "isCouponActive"
+            ? "Status"
+            : camelCaseToSpaceSeparated(item)}
           {sortConfig.key === item &&
             (sortConfig.direction === "asc" ? "↑" : "↓")}
         </th>
