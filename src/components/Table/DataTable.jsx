@@ -168,6 +168,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
           "priority",
           "weekendPriceType",
           "isUnderMaintenance",
+          "mobileTokens",
         ].includes(key),
     );
 

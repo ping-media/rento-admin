@@ -70,7 +70,7 @@ const BookingCard = ({ item }) => {
         </div>
         {/* vehicle booking */}
         <div className="flex items-center mb-2">
-          <div className="flex-1 flex justify-center items-center gap-2">
+          <div className="flex-1 flex justify-center items-center gap-4">
             {/* image here  */}
             <div className="w-24 h-20">
               <img
@@ -81,11 +81,9 @@ const BookingCard = ({ item }) => {
             </div>
 
             <div>
-              <div className="flex items-center gap-2">
-                <div className="w-full flex justify-end text-right">
-                  <p className="max-w-[80px] truncate capitalize">
-                    {item?.vehicleName}
-                  </p>
+              <div className="flex items-center max-w-[120px] flex-wrap gap-2">
+                <div className="w-full flex justify-start text-left">
+                  <p className="capitalize">{item?.vehicleName}</p>
                 </div>
 
                 <h2 className="uppercase text-base font-semibold">
