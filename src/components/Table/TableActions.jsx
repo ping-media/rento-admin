@@ -36,7 +36,8 @@ const TableActions = ({ item, handleDeleteVehicle }) => {
           location.pathname == "/users-documents" ||
           location.pathname == "/payments" ||
           location.pathname == "/all-invoices" ||
-          location.pathname == "/all-bookings"
+          location.pathname == "/all-bookings" ||
+          location.pathname == "/logs"
         ) && (
           <Link
             className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
@@ -50,7 +51,8 @@ const TableActions = ({ item, handleDeleteVehicle }) => {
           location.pathname == "/users-documents" ||
           location.pathname == "/all-bookings" ||
           location.pathname == "/payments" ||
-          location.pathname == "/location-master"
+          location.pathname == "/location-master" ||
+          location.pathname == "/logs"
         ) && (
           <button
             className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:bg-red-600 flex item-center"

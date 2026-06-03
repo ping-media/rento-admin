@@ -97,23 +97,6 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             );
           }
         }
-        // if (["/all-bookings", "/payments"].includes(location?.pathname)) {
-        //   const bookingHeader = headerForBooking.find(
-        //     (header) => Object.keys(header)[0] === item,
-        //   );
-        //   if (bookingHeader) {
-        //     const label = Object.values(bookingHeader)[0];
-        //     return (
-        //       <th
-        //         scope="col"
-        //         className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
-        //         key={item}
-        //       >
-        //         {label}
-        //       </th>
-        //     );
-        //   }
-        // }
 
         if (item === "userId") {
           return (
@@ -258,7 +241,8 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           location?.pathname === "/payments" ||
           location?.pathname === "/all-pickup-image" ||
           location?.pathname === "/users-documents" ||
-          location.pathname == "/all-bookings"
+          location.pathname == "/all-bookings" ||
+          location.pathname == "/logs"
         ) &&
         loggedInRole !== "manager" && (
           <th

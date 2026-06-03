@@ -5,10 +5,11 @@ import { lazy, Suspense } from "react";
 import PrivateRouteBasedOnUser from "./components/layout/PrivateRouteBasedOnUser";
 import { useSelector } from "react-redux";
 import ErrorBoundaryWrapper from "./components/Error/ErrorBoundaryWrapper";
+import { Dashboard } from "./Pages/index";
 
-const Dashboard = lazy(() =>
-  import("./Pages/index").then((module) => ({ default: module.Dashboard })),
-);
+// const Dashboard = lazy(() =>
+//   import("./Pages/index").then((module) => ({ default: module.Dashboard })),
+// );
 const NotFound = lazy(() =>
   import("./Pages/index").then((module) => ({ default: module.NotFound })),
 );
@@ -119,6 +120,7 @@ const App = () => {
                   </PrivateRouteBasedOnUser>
                 }
               />
+              <Route path="logs" exact element={<VehicleMaster />} />
               {/* vehicles Routes start */}
               <Route path="vehicle-master" exact element={<VehicleMaster />} />
               <Route

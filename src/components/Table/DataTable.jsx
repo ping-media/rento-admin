@@ -277,7 +277,9 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
             ? `details/${id}`
             : location?.pathname === "/payments"
               ? "#"
-              : `${id}`;
+              : location?.pathname === "/logs"
+                ? "#"
+                : `${id}`;
 
       navigate(url);
     },
@@ -363,6 +365,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 <CheckBoxInput isId={item?._id} />
                               </td>
                             )}
+
                             <td
                               className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
                               key={`slNo-${index}`}
@@ -490,7 +493,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
 
                               if (typeof item[column] === "object") {
                                 const paymentKey = `payment-${item._id}-${column}-${columnIndex}-${index}`;
-                                // const priceKey = `price-${item._id}-${column}-${columnIndex}-${index}`;
 
                                 return (
                                   <React.Fragment key={cellKey}>
@@ -514,6 +516,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       "address",
                                       "email",
                                       "stationName",
+                                      "message",
                                     ].includes(column)
                                       ? "max-w-32 truncate"
                                       : column.includes("vehicleName")
@@ -521,6 +524,11 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                         : "whitespace-nowrap"
                                   }`}
                                   key={cellKey}
+                                  title={
+                                    column === "message"
+                                      ? item[column]?.toString() || ""
+                                      : undefined
+                                  }
                                 >
                                   {RenderCellContent(
                                     column,

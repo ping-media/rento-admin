@@ -268,8 +268,8 @@ const UploadPickupImageModal = ({
             {
               title:
                 isChange && isChange === true && isRideStart
-                  ? "Ride Updated"
-                  : "Ride Started",
+                  ? `Ride Updated by ${loggedInRole}`
+                  : `Ride Started by ${loggedInRole}`,
               date: Date.now(),
               vehicleName: vehicleMaster[0]?.vehicleName,
               vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
@@ -374,6 +374,7 @@ const UploadPickupImageModal = ({
                 </button>
               </div>
             )}
+
             <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-2">
               {rideVehicleImages.map((item, index) => (
                 <div key={index}>

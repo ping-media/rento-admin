@@ -17,6 +17,7 @@ const VehicleMasterForm = lazy(
 
 // for fetching & posting data to backend link
 const endPointBasedOnURL = {
+  logs: "/logs",
   "vehicle-master": "/getVehicleMasterData",
   "vehicle-master/": "/createVehicleMaster",
   "vehicle-master/update": "/updateVehicleMaster",

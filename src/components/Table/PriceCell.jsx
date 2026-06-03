@@ -6,6 +6,14 @@ import MaintenanceStatusBadge from "./MaintenanceBadge";
 const PriceCell = ({ item, column }) => {
   const location = useLocation();
 
+  if (location.pathname === "/logs") {
+    return (
+      <td className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900">
+        {item[column]?.ip ?? "--"}
+      </td>
+    );
+  }
+
   const bookingPrice =
     item[column]?.isDiscountZero === true ||
     (item[column]?.discountTotalPrice && item[column]?.discountTotalPrice !== 0)
@@ -39,7 +47,12 @@ const PriceCell = ({ item, column }) => {
         if (diff?.refundAmount > 0) {
           return sum - Number(diff?.refundAmount || 0);
         }
-        return sum + Number(diff?.amount || 0);
+
+        if (diff?.amount > 0) {
+          if (diff?.oldAmount !== diff?.newAmount) {
+            return sum + Number(diff?.amount || 0);
+          }
+        }
       }
       return sum;
     }, 0);
@@ -70,18 +83,6 @@ const PriceCell = ({ item, column }) => {
     lateFeeBasedOnHour,
     lateFeeBasedOnKM,
   ]);
-
-  // const newBookingPrice =
-  //   extendPrice !== null &&
-  //   !isNaN(extendPrice) &&
-  //   diffPrice !== null &&
-  //   !isNaN(diffPrice)
-  //     ? Number(extendPrice) +
-  //       Number(diffPrice) +
-  //       Number(bookingPrice) +
-  //       lateFeeBasedOnHour +
-  //       lateFeeBasedOnKM
-  //     : bookingPrice;
 
   // payment price
   const paymentPrice =

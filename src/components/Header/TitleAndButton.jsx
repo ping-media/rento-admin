@@ -32,7 +32,12 @@ export function getPageTitle(pathname, activeFilterName) {
   return formatPathNameToTitle(pathname);
 }
 
-const NO_ADD_BUTTON_ROUTES = ["/payments", "/all-invoices", "/users-documents"];
+const NO_ADD_BUTTON_ROUTES = [
+  "/payments",
+  "/all-invoices",
+  "/users-documents",
+  "/logs",
+];
 
 const TitleAndButton = ({ className = "flex" }) => {
   const { activeFilterName } = useSelector((state) => state.pagination);

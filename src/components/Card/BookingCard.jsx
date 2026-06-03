@@ -31,10 +31,17 @@ const BookingCard = ({ item }) => {
   }, [extendAmount]);
 
   const diffAmount = item.bookingPrice?.diffAmount || [];
+
   const diffPrice = useMemo(() => {
     return diffAmount.reduce((sum, diff) => {
       if (diff?.status === "paid") {
-        const debit = Number(diff?.amount || 0);
+        let debit = 0;
+        if (diff?.amount > 0) {
+          if (diff?.oldAmount !== diff?.newAmount) {
+            debit = Number(diff?.amount || 0);
+          }
+        }
+        // const debit = diff Number(diff?.amount || 0);
         const credit = Number(diff?.refundAmount || 0);
         return sum + (debit - credit);
       }

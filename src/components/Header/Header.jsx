@@ -4,7 +4,7 @@ import userImage from "../../assets/logo/user.png";
 import { toggleSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { tableIcons } from "../../Data/Icons";
 import HeaderMenuList from "./HeaderMenuList";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import BackButton from "../../components/Buttons/BackButton";
 import TitleAndButton from "./TitleAndButton";
 
@@ -14,6 +14,8 @@ const NON_TITLE_PAGE = [
   "/profile",
   "/settings",
 ];
+
+const isDev = import.meta.env.VITE_ENV === "development";
 
 const Header = () => {
   const { id } = useParams();
@@ -102,8 +104,18 @@ const Header = () => {
             </>
           )}
         </div>
+
         {/* user menu */}
         <div className="flex gap-2 items-center">
+          {isDev && !location.pathname.includes("/all-bookings/details/") && (
+            <Link
+              className="relative border-2 rounded-md hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-2 dark:bg-gray-700"
+              to={"/logs"}
+            >
+              View Logs
+            </Link>
+          )}
+
           {loggedInRole &&
             loggedInRole === "manager" &&
             !location.pathname.includes("/all-bookings/details/") && (
