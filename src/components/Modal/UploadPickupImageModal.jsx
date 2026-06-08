@@ -12,6 +12,7 @@ import Input from "../InputAndDropdown/Input";
 import { useNavigate } from "react-router-dom";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
 import { isValidIndianMobile } from "../../utils";
+import VehicleSearchInput from "../../components/InputAndDropdown/vehicle-search-input";
 
 const UploadPickupImageModal = ({
   isBookingIdPresent = false,
@@ -42,6 +43,7 @@ const UploadPickupImageModal = ({
   });
   const [loading, setLoading] = useState(false);
   const [isKycApproved, setIsKycApproved] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   const currentUser = vehicleMaster?.[0]?.userId ?? null;
 
@@ -55,10 +57,13 @@ const UploadPickupImageModal = ({
     false;
 
   const userId = (vehicleMaster && vehicleMaster[0]?.userId?._id) || "";
+  const booking = vehicleMaster && vehicleMaster[0];
   const bookingId = (vehicleMaster && vehicleMaster[0]?.bookingId) || "";
   const docId = (vehicleMaster && vehicleMaster[0]?._id) || "";
 
   const isDev = import.meta.env.VITE_ENV === "development";
+
+  console.log(booking);
 
   // new image compress per image
   const handleUploadPickupImages = async (event) => {
@@ -151,6 +156,21 @@ const UploadPickupImageModal = ({
     let currentBooking = currentData?.find(
       (item) => item?._id === tempVehicleData?._id,
     );
+
+    if (!currentBooking?.vehicleAssigned && !isChange) {
+      if (!selectedVehicle) {
+        setLoading(false);
+        return handleAsyncError(
+          dispatch,
+          "Please select a vehicle to assign before starting the ride.",
+        );
+      }
+      finalFormData.append("assignVehicleTableId", selectedVehicle._id);
+      finalFormData.append(
+        "assignVehicleNumber",
+        selectedVehicle.vehicleNumber,
+      );
+    }
 
     // for paymentmethod update in booking price
     const updatePaymentMode =
@@ -262,6 +282,11 @@ const UploadPickupImageModal = ({
               : vehicleMaster[0]?.bookingPrice?.totalPrice;
         }
 
+        const TimelineVehicleNumber =
+          responseImage?.vehicleNumber?.trim() !== ""
+            ? responseImage.vehicleNumber
+            : vehicleMaster[0]?.vehicleBasic?.vehicleNumber;
+
         const timeLineData = {
           currentBooking_id: vehicleMaster && vehicleMaster[0]?._id,
           timeLine: [
@@ -272,7 +297,8 @@ const UploadPickupImageModal = ({
                   : `Ride Started by ${loggedInRole}`,
               date: Date.now(),
               vehicleName: vehicleMaster[0]?.vehicleName,
-              vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
+              vehicleNumber: TimelineVehicleNumber,
+              // vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
               remaining_amount: amount,
               paymentMode: !isChange ? updatePaymentMode : "",
             },
@@ -321,6 +347,8 @@ const UploadPickupImageModal = ({
       ? Object.values(imagesUrl).every((val) => val !== "")
       : true;
   }, [imagesUrl]);
+
+  console.log(selectedVehicle);
 
   return (
     <div
@@ -394,6 +422,13 @@ const UploadPickupImageModal = ({
                   />
                 </div>
               ))}
+            </div>
+            <div className="flex items-center w-full mb-3">
+              <VehicleSearchInput
+                booking={vehicleMaster[0]}
+                selectedVehicle={selectedVehicle}
+                setSelectedVehicle={setSelectedVehicle}
+              />
             </div>
             {(vehicleMaster[0]?.paymentMethod === "cash" ||
               vehicleMaster[0]?.paymentStatus === "partially_paid" ||

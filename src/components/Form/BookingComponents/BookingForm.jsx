@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react";
-import InputDateAndTime from "../../InputAndDropdown/InputDateAndTime";
-import InputSearch from "../../InputAndDropdown/InputSearch";
-import SelectDropDownVehicle from "../../InputAndDropdown/SelectDropDownVehicle";
+// import InputDateAndTime from "../../InputAndDropdown/InputDateAndTime";
+// import InputSearch from "../../InputAndDropdown/InputSearch";
+// import SelectDropDownVehicle from "../../InputAndDropdown/SelectDropDownVehicle";
 import { getData } from "../../../Data/index";
-import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
-import { useDispatch, useSelector } from "react-redux";
+// import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
+import { useSelector } from "react-redux";
 import PreLoader from "../../Skeleton/PreLoader";
 import { endPointBasedOnKey } from "../../../Data/commonData";
 import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
 import { fetchStationBasedOnLocation } from "../../../Data/Function";
-import { isDuration24Hours } from "../../../utils/index";
+// import { isDuration24Hours } from "../../../utils/index";
 
 export const BookingForm = () => {
-  const { loggedInRole, userStation, token } = useSelector(
-    (state) => state.user,
-  );
+  const { loggedInRole, token } = useSelector((state) => state.user);
 
   const [stationId, setStationId] = useState("");
   const [loading, setLoading] = useState(null);

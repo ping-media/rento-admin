@@ -6,10 +6,6 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { formatDateToISOWithoutSecond, formatPrice } from "../../utils/index";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import Spinner from "../../components/Spinner/Spinner";
-// import {
-//   handleChangesAfterVehicleChange,
-//   updateTimeLineData,
-// } from "../../Redux/VehicleSlice/VehicleSlice";
 import SelectDropDownVehicle from "../../components/InputAndDropdown/SelectDropDownVehicle";
 import PriceList from "../../components/Form/VehicleComponents/PriceList";
 import NewVehiclePreview from "./_components/NewVehiclePreview";

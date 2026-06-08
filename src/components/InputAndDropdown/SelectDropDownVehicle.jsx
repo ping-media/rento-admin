@@ -16,6 +16,9 @@ const SelectDropDownVehicle = ({
   setValueChanger,
   setSelectedChanger,
   isModalClose,
+  isLabel = true,
+  onSearch,
+  loading = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -62,7 +65,11 @@ const SelectDropDownVehicle = ({
       clearTimeout(debounceTimerRef.current);
     }
     debounceTimerRef.current = setTimeout(() => {
-      dispatch(setBookingVehicleName(searchTerm));
+      if (onSearch) {
+        onSearch(searchTerm);
+      } else {
+        dispatch(setBookingVehicleName(searchTerm));
+      }
     }, 300);
 
     return () => {
@@ -78,19 +85,24 @@ const SelectDropDownVehicle = ({
 
   useEffect(() => {
     return () => {
-      dispatch(resetBookingVehicleName());
+      if (!onSearch) {
+        dispatch(resetBookingVehicleName());
+      }
     };
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="w-full" ref={dropdownRef}>
-      <label
-        htmlFor={item}
-        className="block text-gray-800 font-semibold text-sm capitalize"
-      >
-        Select {item}
-        {require && <span className="ml-1 text-red-500">*</span>}
-      </label>
+      {isLabel && (
+        <label
+          htmlFor={item}
+          className="block text-gray-800 font-semibold text-sm capitalize"
+        >
+          Select {item}
+          {require && <span className="ml-1 text-red-500">*</span>}
+        </label>
+      )}
+
       <div className="mt-2 relative">
         <input
           type="hidden"
@@ -128,21 +140,12 @@ const SelectDropDownVehicle = ({
               onClick={(e) => e.stopPropagation()}
               className="w-full px-3 py-2 border-b border-gray-200 outline-none text-sm"
             />
-            {/* {options?.length ? (
-              options.map((opt) => (
-                <div
-                  key={opt._id}
-                  onClick={() => handleOptionClick(opt)}
-                  className="px-4 py-2 hover:bg-gray-100 text-sm capitalize cursor-pointer"
-                >
-                  {opt.vehicleNumber} | {opt.vehicleName}
-                </div>
-              ))
-            ) : (
-              <div className="px-4 py-2 text-gray-500 text-sm">
-                No options found
+
+            {loading && (
+              <div className="px-4 py-2 text-sm text-gray-500 italic">
+                Searching...
               </div>
-            )} */}
+            )}
 
             {options?.length ? (
               options.map((opt) => {

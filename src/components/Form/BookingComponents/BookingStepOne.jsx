@@ -35,21 +35,12 @@ const BookingStepOne = ({
     data?.isLocationSelected || "",
   );
   const [duration, setDuration] = useState(data?.duration || 1);
-
-  // const [userId, setUserId] = useState("");
-  // const [vehicleId, setVehicleId] = useState("");
-  // const [stationId, setStationId] = useState("");
-  // const [bookingStartDate, setBookingStartDate] = useState("");
-  // const [bookingEndDate, setBookingEndDate] = useState("");
-  // const [selectedVehicle, setSlectedVehicle] = useState(null);
   const [loading, setLoading] = useState(null);
   //vehicle suggestion list
   const [suggestedData, setSuggestionData] = useState(null);
   const [collectedData, setCollectedData] = useState(null);
   const [stationData, setStationData] = useState(null);
   const [error, setError] = useState("");
-  // const [isLocationSelected, setIsLocationSelected] = useState("");
-  // const [duration, setDuration] = useState(1);
 
   const { loggedInRole, userStation } = useSelector((state) => state.user);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
@@ -77,16 +68,6 @@ const BookingStepOne = ({
     isLocationSelected,
     duration,
   ]);
-
-  // const handleNext = () => {
-  //   onNext({
-  //     userId,
-  //     vehicleId,
-  //     bookingStartDate,
-  //     bookingEndDate,
-  //     selectedVehicle,
-  //   });
-  // };
 
   //updating station based on location id
   useEffect(() => {
@@ -170,63 +151,6 @@ const BookingStepOne = ({
     dispatch,
     vehiclesFilter,
   ]);
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     if (
-  //       (loggedInRole === "admin" &&
-  //         bookingStartDate &&
-  //         bookingEndDate &&
-  //         isLocationSelected &&
-  //         stationId) ||
-  //       (loggedInRole === "manager" && bookingStartDate && bookingEndDate)
-  //     ) {
-  //       const isDateValid = isDuration24Hours(bookingStartDate, bookingEndDate);
-  //       if (!isDateValid) {
-  //         setError("There should be a gap of 1 day between dates.");
-  //         return;
-  //       } else {
-  //         setError("");
-  //       }
-
-  //       try {
-  //         setLoading(true);
-  //         const changeEndPointBasedOnRole =
-  //           loggedInRole === "manager"
-  //             ? `stationId=${userStation?.stationId}`
-  //             : `stationId=${stationId}`;
-
-  //         let endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&includeUnavailable=true&page=1&limit=50`;
-
-  //         if (vehiclesFilter?.bookingVehicleName !== "") {
-  //           endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&search=${vehiclesFilter?.bookingVehicleName}&includeUnavailable=true&page=1&limit=50`;
-  //         }
-
-  //         const response = await getData(endpoint);
-
-  //         if (response?.status === 200) {
-  //           setSuggestionData(response?.data);
-  //         } else {
-  //           handleAsyncError(dispatch, response?.message);
-  //         }
-  //       } catch (error) {
-  //         handleAsyncError(dispatch, error?.message);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [
-  //   bookingStartDate,
-  //   bookingEndDate,
-  //   isLocationSelected,
-  //   stationId,
-  //   loggedInRole,
-  //   userStation?.stationId,
-  //   dispatch,
-  //   vehiclesFilter,
-  // ]);
 
   // fetching stationId and LocationId
   const fetchCollectedData = async (locationUrl) => {
