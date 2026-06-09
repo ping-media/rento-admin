@@ -2,12 +2,16 @@ import { Link, useLocation } from "react-router-dom";
 import { tableIcons } from "../../Data/Icons";
 import { toggleFilterSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { bookingSearchList } from "../../Data/commonData";
-import { handleChangeSearchType } from "../../Redux/PaginationSlice/PaginationSlice";
+import {
+  handleChangeSearchTerm,
+  handleChangeSearchType,
+} from "../../Redux/PaginationSlice/PaginationSlice";
 import useSidebarFilter from "../../hooks/use-sidebar-filter";
 import ExportButton from "../../components/ExcelExport/ExportButton";
 import TitleAndButton from "../../components/Header/TitleAndButton";
+import { useDebounce } from "../../utils/Helper/debounce";
 
 const FILTER_ENABLED_ROUTES = [
   "/all-users",
@@ -25,7 +29,7 @@ const TablePageHeader = ({
   const { pathname } = useLocation();
   const { loggedInRole } = useSelector((state) => state.user);
   const { searchDataBasedOnFilters, loading } = useSidebarFilter();
-  const [isNotification, setNotification] = useState(false);
+  const searchTerm = useDebounce(inputSearchQuery, 500);
   const dispatch = useDispatch();
 
   const isBookings = pathname === "/all-bookings";
@@ -42,14 +46,21 @@ const TablePageHeader = ({
     return count;
   }, [vehiclesFilter]);
 
-  // stopping to reload the page
-  const handleControlSubmit = (e) => {
-    e.preventDefault();
-  };
+  // for changing data based on search query
+  useEffect(() => {
+    // else if (searchTerm?.trim() !== "" && searchTerm !== null) {
+    //   dispatch(handleChangeSearchTerm(searchTerm));
+    // }
+    if (inputSearchQuery?.trim() !== "") {
+      dispatch(handleChangeSearchTerm(inputSearchQuery));
+    } else {
+      dispatch(handleChangeSearchTerm(null));
+    }
+  }, [searchTerm]);
 
   // for clearing the input state
   useEffect(() => {
-    if (!pathname.includes("/details")) {
+    if (!pathname.includes("/details/") && pathname !== "/all-bookings") {
       setInputSearchQuery("");
     }
   }, [pathname, setInputSearchQuery]);
@@ -63,7 +74,7 @@ const TablePageHeader = ({
         <div className="flex items-center flex-wrap lg:flex-nowrap gap-2">
           <div className="w-full bg-white rounded-md shadow-lg">
             <form
-              onSubmit={handleControlSubmit}
+              onSubmit={(e) => e.preventDefault()}
               className="flex items-center justify-center p-2"
             >
               <input
@@ -75,7 +86,7 @@ const TablePageHeader = ({
                 onChange={(e) => setInputSearchQuery(e.target.value)}
                 autoComplete="off"
               />
-              {/* {location.pathname !== "/all-bookings" && ( */}
+
               {!isBookings && (
                 <button
                   type="submit"

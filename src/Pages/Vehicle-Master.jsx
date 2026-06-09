@@ -47,7 +47,10 @@ const VehicleMaster = () => {
   );
 
   // Memoize vehicle data and pagination separately
-  const vehicleData = useMemo(() => vehicleMaster?.data, [vehicleMaster?.data]);
+  const vehicleData = useMemo(() => {
+    return vehicleMaster?.data?.length ? vehicleMaster.data : undefined;
+  }, [vehicleMaster?.data]);
+
   const paginationData = useMemo(
     () => vehicleMaster?.pagination,
     [vehicleMaster?.pagination],
@@ -92,10 +95,10 @@ const VehicleMaster = () => {
   // clear data after page change
   useEffect(() => {
     return () => {
-      const nextPath = window.location.pathname;
-      const isGoingToDetails = nextPath.includes("/details");
+      const currentPath = location.pathname;
+      const isGoingToDetails = currentPath.includes("/details/");
 
-      if (!isGoingToDetails && nextPath !== "/all-bookings") {
+      if (!isGoingToDetails && currentPath !== "/all-bookings") {
         dispatch(handleRestPagination());
       }
 
@@ -124,7 +127,7 @@ const VehicleMaster = () => {
 
       {/* table data  */}
       <CustomTableComponent
-        Data={vehicleData}
+        Data={vehicleData || []}
         pagination={paginationData}
         searchTermQuery={searchTerm}
         dataLoading={loading}

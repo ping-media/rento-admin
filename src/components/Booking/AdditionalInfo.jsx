@@ -84,7 +84,7 @@ const AdditionalInfo = () => {
   return (
     <>
       {/* ride otp's  */}
-      <div className="mb-2">
+      {/* <div className="mb-2">
         {((diffAmount !== null && diffAmount?.rideStatus === false) ||
           vehicleMaster[0]?.rideStatus !== "ongoing") && (
           <div className="w-full flex items-center justify-between">
@@ -108,7 +108,7 @@ const AdditionalInfo = () => {
             </p>
           </div>
         )}
-      </div>
+      </div> */}
 
       {diffAmount !== null && diffAmount?.refundAmount > 0 && (
         <div className="mt-1 mb-2.5">
