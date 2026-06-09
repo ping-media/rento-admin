@@ -7,7 +7,6 @@ import {
   toggleChangeVehicleModal,
   togglePickupImageModal,
   toggleRescheduleModal,
-  // toggleRescheduleModal,
   toggleRideEndModal,
 } from "../../../Redux/SideBarSlice/SideBarSlice";
 import GenerateInvoiceButton from "../../Table/GenerateInvoiceButton";
@@ -187,16 +186,18 @@ const BookingDetailsButton = ({
           </button>
         )}
 
-        <Button
-          title={"Send Reminder"}
-          fn={handleSendRemainder}
-          disable={
-            booking?.bookingStatus === "canceled" ||
-            booking?.rideStatus === "completed"
-          }
-          loading={reminderLoading}
-          customLoadingMessage="sending"
-        />
+        {!["completed", "canceled"].includes(booking?.rideStatus) && (
+          <Button
+            title={"Send Reminder"}
+            fn={handleSendRemainder}
+            disable={
+              booking?.bookingStatus === "canceled" ||
+              booking?.rideStatus === "completed"
+            }
+            loading={reminderLoading}
+            customLoadingMessage="sending"
+          />
+        )}
 
         {booking?.bookingStatus !== "canceled" &&
           booking?.paymentStatus !== "pending" && (

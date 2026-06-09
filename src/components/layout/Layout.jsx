@@ -96,7 +96,7 @@ const Layout = () => {
   useEffect(() => {
     if (
       location.pathname !== "/all-bookings" &&
-      !location.pathname.startsWith("/all-bookings/details")
+      !location.pathname.startsWith("/all-bookings/details/")
     ) {
       dispatch(handleRestPagination());
     }
