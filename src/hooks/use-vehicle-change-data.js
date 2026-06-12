@@ -9,10 +9,11 @@ const useVehicleChangeData = () => {
   const booking = useMemo(() => vehicleMaster?.[0] ?? null, [vehicleMaster]);
 
   const [oldMeterReading] = useState(
-    booking?.pickupImage !== null ? booking?.pickupImage?.startMeterReading : 0,
+    booking?.pickupImage?.startMeterReading ?? 0,
   );
+
   const [EndMeterReading] = useState(
-    booking?.pickupImage !== null ? booking?.pickupImage?.endMeterReading : 0,
+    booking?.pickupImage?.endMeterReading ?? 0,
   );
 
   const pickupData = useMemo(() => {
@@ -32,8 +33,8 @@ const useVehicleChangeData = () => {
     return pickupData.reduce((sum, entry) => {
       const ran = Math.max(
         0,
-        Number(entry.oldVehicleEndMeterReading || 0) -
-          Number(entry.startMeterReading || 0),
+        Number(entry?.oldVehicleEndMeterReading || 0) -
+          Number(entry?.startMeterReading || 0),
       );
       return sum + ran;
     }, 0);

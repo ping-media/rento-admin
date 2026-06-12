@@ -16,14 +16,15 @@ const VehicleSearchInput = ({
     initialLoading,
     searchLoading,
     fetchVehicles,
-    vehicleId,
+    // vehicleId,
     setVehicleId,
   } = useAvailableVehicles({
     stationId: booking?.stationId,
+    vehicleName: booking?.vehicleName,
     bookingStartDateTime: booking?.BookingStartDateAndTime,
     bookingEndDateTime: booking?.BookingEndDateAndTime,
     excludeBookingId: booking?._id,
-    initialSearch: booking?.vehicleName,
+    // initialSearch: booking?.vehicleName,
     limit: 10,
   });
 

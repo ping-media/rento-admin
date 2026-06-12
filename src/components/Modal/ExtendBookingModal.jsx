@@ -68,7 +68,10 @@ const ExtendBookingModal = ({ bookingData }) => {
           bookingData?.vehicleTableId?._id
         }&BookingStartDateAndTime=${addOneMinute(
           bookingData?.BookingEndDateAndTime,
-        ).replace(".000Z", "Z")}&BookingEndDateAndTime=${newDate}`,
+        ).replace(
+          ".000Z",
+          "Z",
+        )}&BookingEndDateAndTime=${newDate}&excludeBookingId=${bookingData._id}`,
         token,
       );
       if (isVehicleFree?.status === 200) {

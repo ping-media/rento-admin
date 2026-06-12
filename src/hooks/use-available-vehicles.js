@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../Data";
+import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 
 const useAvailableVehicles = ({
   stationId,
+  vehicleName = "",
   bookingStartDateTime,
   bookingEndDateTime,
   excludeBookingId = null,
@@ -12,18 +14,20 @@ const useAvailableVehicles = ({
   limit = 10,
 }) => {
   const { token } = useSelector((state) => state.user);
+  const hasInitiallyLoaded = useRef(false);
 
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [vehicleId, setVehicleId] = useState("");
   const [initialLoading, setInitialLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const fetchVehicles = async (search = initialSearch) => {
     if (!enabled) return;
 
     try {
-      if (vehicles.length === 0) {
+      if (!hasInitiallyLoaded.current) {
         setInitialLoading(true);
       } else {
         setSearchLoading(true);
@@ -36,6 +40,10 @@ const useAvailableVehicles = ({
         `&BookingEndDateAndTime=${bookingEndDateTime}` +
         `&page=1` +
         `&limit=${limit}`;
+
+      if (vehicleName?.trim() !== "") {
+        endpoint += `&vehicleName=${encodeURIComponent(vehicleName)}`;
+      }
 
       if (excludeBookingId) {
         endpoint += `&excludeBookingId=${excludeBookingId}`;
@@ -50,11 +58,18 @@ const useAvailableVehicles = ({
       if (response?.status === 200) {
         setVehicles(response.data || []);
       } else {
+        const message =
+          response?.unavailabilityReasons?.[0]?.reason ??
+          response?.message ??
+          "Unable to get vehicle! try again";
+
+        handleAsyncError(dispatch, message);
         setVehicles([]);
       }
     } catch (error) {
       setVehicles([]);
     } finally {
+      hasInitiallyLoaded.current = true;
       setInitialLoading(false);
       setSearchLoading(false);
     }

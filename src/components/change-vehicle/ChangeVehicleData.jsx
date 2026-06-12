@@ -9,6 +9,7 @@ const ChangeVehicleData = () => {
     EndMeterReading,
     previousVehiclesKm,
   } = useVehicleChangeData();
+
   return (
     <>
       <div className="text-left">
@@ -17,7 +18,7 @@ const ChangeVehicleData = () => {
         </h3>
 
         {/* Previous vehicles from updatedData */}
-        {pickupData.map((entry, index) => {
+        {(pickupData ?? [])?.map((entry, index) => {
           const driven = Math.max(
             0,
             Number(entry.oldVehicleEndMeterReading || 0) -

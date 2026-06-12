@@ -141,17 +141,17 @@ const SelectDropDownVehicle = ({
               className="w-full px-3 py-2 border-b border-gray-200 outline-none text-sm"
             />
 
-            {loading && (
+            {loading ? (
               <div className="px-4 py-2 text-sm text-gray-500 italic">
                 Searching...
               </div>
-            )}
-
-            {options?.length ? (
+            ) : options?.length ? (
               options.map((opt) => {
                 const isBooked = opt?.vehicleStatus === "booked";
                 const isMaintenance = opt?.vehicleStatus === "maintenance";
-                const isUnavailable = isBooked || isMaintenance;
+                const isVehicleInBooking = opt?.pendingRideWarning !== null;
+                const isUnavailable =
+                  isBooked || isMaintenance || isVehicleInBooking;
 
                 return (
                   <div
@@ -178,6 +178,14 @@ const SelectDropDownVehicle = ({
                         Booked{" "}
                         {opt?.bookingConflict?.bookingId
                           ? `#${opt.bookingConflict.bookingId}`
+                          : ""}
+                      </span>
+                    )}
+                    {isVehicleInBooking && (
+                      <span className="text-xs font-semibold text-red-600 bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                        In Booking{" "}
+                        {opt?.pendingRideWarning?.bookingId
+                          ? `#${opt.pendingRideWarning.bookingId}`
                           : ""}
                       </span>
                     )}
