@@ -29,6 +29,10 @@ const UploadPickupImageModal = ({
     handleCloseModalAndVerifyUser,
     rideVehicleImages,
     isAllImagesUploaded,
+    formValues,
+    handleFormValueChange,
+    cachedVehicles,
+    setCachedVehicles,
   } = useRideStart({ isBookingIdPresent, onVehicleChange });
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
 
@@ -109,6 +113,8 @@ const UploadPickupImageModal = ({
                   booking={vehicleMaster[0]}
                   selectedVehicle={selectedVehicle}
                   setSelectedVehicle={setSelectedVehicle}
+                  cachedVehicles={cachedVehicles}
+                  onVehiclesCached={setCachedVehicles}
                 />
               </div>
             )}
@@ -155,6 +161,8 @@ const UploadPickupImageModal = ({
                   placeholder={"Enter start Reading"}
                   require={true}
                   isLabel={false}
+                  defaultValue={formValues.startMeterReading}
+                  afterOnChange={handleFormValueChange("startMeterReading")}
                 />
               </div>
               {isChange &&
@@ -164,9 +172,11 @@ const UploadPickupImageModal = ({
                       type="number"
                       item="EndMeterReading"
                       name="oldVehicleEndMeterReading"
-                      placeholder={"Enter End Reading"}
+                      placeholder={"Enter old vehicle End Reading"}
                       require={true}
                       isLabel={false}
+                      defaultValue={formValues.EndMeterReading}
+                      afterOnChange={handleFormValueChange("EndMeterReading")}
                     />
                   </div>
                 )}
@@ -177,6 +187,8 @@ const UploadPickupImageModal = ({
                   placeholder={"Enter Otp"}
                   require={true}
                   isLabel={false}
+                  defaultValue={formValues.rideOtp}
+                  afterOnChange={handleFormValueChange("rideOtp")}
                 />
               </div>
 
@@ -188,6 +200,8 @@ const UploadPickupImageModal = ({
                   placeholder={"Enter Alternate Contact Number"}
                   // require={loggedInRole !== "admin" ? true : false}
                   isLabel={false}
+                  defaultValue={formValues.altContact}
+                  afterOnChange={handleFormValueChange("altContact")}
                 />
               </div>
               <div className="w-full lg:w-[48%]">
@@ -196,6 +210,8 @@ const UploadPickupImageModal = ({
                   placeholder={"Enter Address"}
                   require={loggedInRole !== "admin" ? true : false}
                   isLabel={false}
+                  defaultValue={formValues.address}
+                  afterOnChange={handleFormValueChange("address")}
                 />
               </div>
             </div>

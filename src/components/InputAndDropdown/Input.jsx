@@ -34,6 +34,7 @@ const Input = ({
   btnLoading,
   isFull = true,
   btnDisable,
+  afterOnChange,
   ...rest
 }) => {
   const [inputValue, setInputValue] = useState(value || defaultValue || "");
@@ -53,6 +54,8 @@ const Input = ({
       Number(e.target.value) < 0
     )
       return;
+
+    afterOnChange?.(e);
 
     setInputValue(e.target.value);
     setValueChange && setValueChange(e.target.value);

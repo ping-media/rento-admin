@@ -10,7 +10,8 @@ import {
 import { isValidIndianMobile } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 
-const isDev = import.meta.env.VITE_ENV === "development";
+// const isDev = import.meta.env.VITE_ENV === "development";
+const isDev = import.meta.env.VITE_ENV === "production";
 
 const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
   const { token, loggedInRole } = useSelector((state) => state.user);
@@ -39,6 +40,19 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
   const [loading, setLoading] = useState(false);
   const [isKycApproved, setIsKycApproved] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+
+  const [formValues, setFormValues] = useState({
+    startMeterReading: "",
+    EndMeterReading: "",
+    rideOtp: "",
+    altContact: "",
+    address: "",
+  });
+  const [cachedVehicles, setCachedVehicles] = useState(null);
+
+  const handleFormValueChange = (field) => (e) => {
+    setFormValues((prev) => ({ ...prev, [field]: e.target.value }));
+  };
 
   const currentUser = vehicleMaster?.[0]?.userId ?? null;
 
@@ -208,6 +222,9 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
         );
       }
 
+      // console.log(Object.fromEntries(finalFormData.entries()));
+      // return;
+
       const responseImage = await postData("/start-ride", finalFormData, token);
 
       if (responseImage?.status === 200) {
@@ -220,6 +237,14 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
           others: null,
         });
         setImageUrl([]);
+        setFormValues({
+          startMeterReading: "",
+          EndMeterReading: "",
+          rideOtp: "",
+          altContact: "",
+          address: "",
+        });
+        setCachedVehicles(null);
         onVehicleChange && onVehicleChange();
         dispatch(togglePickupImageModal());
 
@@ -366,6 +391,10 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
     handleCloseModalAndVerifyUser,
     rideVehicleImages,
     isAllImagesUploaded,
+    formValues,
+    handleFormValueChange,
+    cachedVehicles,
+    setCachedVehicles,
   };
 };
 

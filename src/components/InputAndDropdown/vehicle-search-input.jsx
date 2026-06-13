@@ -9,6 +9,8 @@ const VehicleSearchInput = ({
   isModalClose = false,
   label = "Vehicle",
   name = "vehicleTableId",
+  cachedVehicles = null,
+  onVehiclesCached = null,
 }) => {
   const [search, setSearch] = useState(booking?.vehicleName || "");
   const {
@@ -28,7 +30,16 @@ const VehicleSearchInput = ({
     limit: 10,
   });
 
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     fetchVehicles(search);
+  //   }, 300);
+
+  //   return () => clearTimeout(timer);
+  // }, [search]);
+
   useEffect(() => {
+    if (cachedVehicles !== null) return; // skip if we already have cached data
     const timer = setTimeout(() => {
       fetchVehicles(search);
     }, 300);
@@ -36,22 +47,42 @@ const VehicleSearchInput = ({
     return () => clearTimeout(timer);
   }, [search]);
 
-  if (initialLoading) {
+  useEffect(() => {
+    if (
+      !initialLoading &&
+      vehicles.length > 0 &&
+      onVehiclesCached &&
+      cachedVehicles === null
+    ) {
+      onVehiclesCached(vehicles);
+    }
+  }, [vehicles, initialLoading]);
+
+  const displayVehicles =
+    initialLoading && cachedVehicles ? cachedVehicles : vehicles;
+
+  if (initialLoading && !cachedVehicles) {
     return <VehicleSelectorSkeleton />;
   }
+
+  // if (initialLoading) {
+  //   return <VehicleSelectorSkeleton />;
+  // }
 
   return (
     <div className="text-left w-full">
       <SelectDropDownVehicle
         item={label}
         name={name}
-        options={vehicles}
+        // options={vehicles}
+        options={displayVehicles}
         setValueChanger={setVehicleId}
         setSelectedChanger={setSelectedVehicle}
         isModalClose={isModalClose}
         isLabel={false}
         loading={searchLoading}
         onSearch={setSearch}
+        // defaultSelected={selectedVehicle}
       />
 
       {selectedVehicle && selectedVehicle?.length === 0 && (

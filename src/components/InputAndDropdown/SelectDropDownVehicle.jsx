@@ -19,14 +19,17 @@ const SelectDropDownVehicle = ({
   isLabel = true,
   onSearch,
   loading = false,
+  defaultSelected = null,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [inputSelect, setInputSelect] = useState(value);
+  const [inputSelect, setInputSelect] = useState(defaultSelected?._id || value);
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
   const debounceTimerRef = useRef(null);
   const dispatch = useDispatch();
+  const isFirstRender = useRef(true);
+
   useAutoFocus(searchInputRef, isOpen);
 
   const handleOptionClick = (val) => {
@@ -54,6 +57,10 @@ const SelectDropDownVehicle = ({
 
   // clearing the state when user close modal
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     if (isModalClose === false) {
       setInputSelect("");
     }
