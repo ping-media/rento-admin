@@ -288,6 +288,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         {
           bookingData: data,
           paymentMethod: result?.paymentMethod,
+          isAdminBooking: true,
         },
         token,
       );
