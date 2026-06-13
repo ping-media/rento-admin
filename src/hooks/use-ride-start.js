@@ -10,8 +10,8 @@ import {
 import { isValidIndianMobile } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 
-// const isDev = import.meta.env.VITE_ENV === "development";
-const isDev = import.meta.env.VITE_ENV === "production";
+const isDev = import.meta.env.VITE_ENV === "development";
+// const isDev = import.meta.env.VITE_ENV === "production";
 
 const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
   const { token, loggedInRole } = useSelector((state) => state.user);
