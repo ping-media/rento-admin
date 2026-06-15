@@ -11,7 +11,6 @@ import { isValidIndianMobile } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 
 const isDev = import.meta.env.VITE_ENV === "development";
-// const isDev = import.meta.env.VITE_ENV === "production";
 
 const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
   const { token, loggedInRole } = useSelector((state) => state.user);
@@ -95,119 +94,123 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
       return handleAsyncError(dispatch, "Required fields missing! try again");
     }
 
-    const rawFormData = new FormData(event.target);
-    const altContact = rawFormData.get("altContact");
-    const finalFormData = new FormData();
+    try {
+      const rawFormData = new FormData(event.target);
+      const altContact = rawFormData.get("altContact");
+      const finalFormData = new FormData();
 
-    const savedAltContact = currentUser?.altContact;
+      const savedAltContact = currentUser?.altContact;
 
-    const hasValidSavedAltContact =
-      savedAltContact && isValidIndianMobile(savedAltContact);
+      const hasValidSavedAltContact =
+        savedAltContact && isValidIndianMobile(savedAltContact);
 
-    const hasValidNewAltContact = altContact && isValidIndianMobile(altContact);
+      const hasValidNewAltContact =
+        altContact && isValidIndianMobile(altContact);
 
-    if (loggedInRole !== "admin") {
-      // If no valid saved alt contact exists
-      if (!hasValidSavedAltContact) {
-        // Then new altContact becomes mandatory
-        if (!altContact) {
+      if (loggedInRole !== "admin") {
+        // If no valid saved alt contact exists
+        if (!hasValidSavedAltContact) {
+          // Then new altContact becomes mandatory
+          if (!altContact) {
+            setLoading(false);
+            return handleAsyncError(
+              dispatch,
+              "Alternate contact number is required.",
+            );
+          }
+
+          if (!hasValidNewAltContact) {
+            setLoading(false);
+            return handleAsyncError(
+              dispatch,
+              "Alternate contact number must be a valid 10-digit mobile number.",
+            );
+          }
+        }
+      }
+
+      // return;
+
+      // Copy all non-file fields
+      for (let [key, value] of rawFormData.entries()) {
+        if (!(value instanceof File)) {
+          finalFormData.append(key, value);
+        }
+      }
+      // filter data
+      if (!isDev) {
+        const imagesToSend = Object.values(image).filter(Boolean);
+        finalFormData.append("imageLinks", JSON.stringify(imagesToSend));
+      }
+      finalFormData.append("userId", userId);
+      finalFormData.append("bookingId", bookingId);
+      finalFormData.append("_id", docId);
+      finalFormData.append("startDateAndTime", Date.now());
+
+      const finalAltContact = hasValidSavedAltContact
+        ? savedAltContact
+        : altContact;
+
+      if (finalAltContact) {
+        finalFormData.append("altContact", finalAltContact);
+      }
+
+      // changing the data based on id is present or not
+      let currentData = !isBookingIdPresent
+        ? vehicleMaster?.data
+        : vehicleMaster;
+
+      let currentBooking = currentData?.find(
+        (item) => item?._id === tempVehicleData?._id,
+      );
+
+      if (!currentBooking?.vehicleAssigned && !isChange) {
+        if (!selectedVehicle) {
           setLoading(false);
           return handleAsyncError(
             dispatch,
-            "Alternate contact number is required.",
+            "Please select a vehicle to assign before starting the ride.",
           );
         }
-
-        if (!hasValidNewAltContact) {
-          setLoading(false);
-          return handleAsyncError(
-            dispatch,
-            "Alternate contact number must be a valid 10-digit mobile number.",
-          );
-        }
-      }
-    }
-
-    // return;
-
-    // Copy all non-file fields
-    for (let [key, value] of rawFormData.entries()) {
-      if (!(value instanceof File)) {
-        finalFormData.append(key, value);
-      }
-    }
-    // filter data
-    if (!isDev) {
-      const imagesToSend = Object.values(image).filter(Boolean);
-      finalFormData.append("imageLinks", JSON.stringify(imagesToSend));
-    }
-    finalFormData.append("userId", userId);
-    finalFormData.append("bookingId", bookingId);
-    finalFormData.append("_id", docId);
-    finalFormData.append("startDateAndTime", Date.now());
-
-    const finalAltContact = hasValidSavedAltContact
-      ? savedAltContact
-      : altContact;
-
-    if (finalAltContact) {
-      finalFormData.append("altContact", finalAltContact);
-    }
-
-    // changing the data based on id is present or not
-    let currentData = !isBookingIdPresent ? vehicleMaster?.data : vehicleMaster;
-
-    let currentBooking = currentData?.find(
-      (item) => item?._id === tempVehicleData?._id,
-    );
-
-    if (!currentBooking?.vehicleAssigned && !isChange) {
-      if (!selectedVehicle) {
-        setLoading(false);
-        return handleAsyncError(
-          dispatch,
-          "Please select a vehicle to assign before starting the ride.",
+        finalFormData.append("assignVehicleTableId", selectedVehicle._id);
+        finalFormData.append(
+          "assignVehicleNumber",
+          selectedVehicle.vehicleNumber,
         );
       }
-      finalFormData.append("assignVehicleTableId", selectedVehicle._id);
-      finalFormData.append(
-        "assignVehicleNumber",
-        selectedVehicle.vehicleNumber,
-      );
-    }
 
-    // for paymentmethod update in booking price
-    const updatePaymentMode =
-      finalFormData.get("PaymentMode") ||
-      currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
+      // for paymentmethod update in booking price
+      const updatePaymentMode =
+        finalFormData.get("PaymentMode") ||
+        currentBooking?.bookingPrice?.AmountLeftAfterUserPaid?.paymentMethod;
 
-    let updatedBooking = {
-      ...currentBooking,
-      bookingPrice: {
-        ...currentBooking?.bookingPrice,
-        isPickupImageAdded: true,
-      },
-      paymentStatus: "paid",
-      rideStatus: "ongoing",
-    };
+      let updatedBooking = {
+        ...currentBooking,
+        bookingPrice: {
+          ...currentBooking?.bookingPrice,
+          isPickupImageAdded: true,
+        },
+        paymentStatus: "paid",
+        rideStatus: "ongoing",
+      };
 
-    if (!isChange) {
-      if (currentBooking?.paymentMethod?.toLowerCase() === "cash") {
-        updatedBooking.bookingPrice.payOnPickupMethod =
-          updatePaymentMode || "cash";
-      } else {
-        updatedBooking.bookingPrice.AmountLeftAfterUserPaid = {
-          ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
-          status: "paid",
-          paymentMethod:
-            updatePaymentMode ||
-            currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
-              ?.paymentMethod,
-        };
+      if (!isChange) {
+        if (currentBooking?.paymentMethod?.toLowerCase() === "cash") {
+          updatedBooking.bookingPrice.payOnPickupMethod =
+            updatePaymentMode || "cash";
+        } else {
+          updatedBooking.bookingPrice.AmountLeftAfterUserPaid = {
+            ...currentBooking?.bookingPrice?.AmountLeftAfterUserPaid,
+            status: "paid",
+            paymentMethod:
+              updatePaymentMode ||
+              currentBooking?.bookingPrice?.AmountLeftAfterUserPaid
+                ?.paymentMethod,
+          };
+        }
       }
-    }
 
-    try {
+      // try {
       if (isChange) {
         finalFormData.append(
           "vehicleNumber",
@@ -236,7 +239,15 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
           odoMeterReading: null,
           others: null,
         });
-        setImageUrl([]);
+        // setImageUrl([]);
+        setImageUrl({
+          vehicleFront: "",
+          vehicleLeft: "",
+          vehicleRight: "",
+          vehicleBack: "",
+          odoMeterReading: "",
+          others: "",
+        });
         setFormValues({
           startMeterReading: "",
           EndMeterReading: "",
