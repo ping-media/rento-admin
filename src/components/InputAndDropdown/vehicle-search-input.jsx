@@ -12,13 +12,12 @@ const VehicleSearchInput = ({
   cachedVehicles = null,
   onVehiclesCached = null,
 }) => {
-  const [search, setSearch] = useState(booking?.vehicleName || "");
+  const [search, setSearch] = useState("");
   const {
     vehicles,
     initialLoading,
     searchLoading,
     fetchVehicles,
-    // vehicleId,
     setVehicleId,
   } = useAvailableVehicles({
     stationId: booking?.stationId,
@@ -26,20 +25,11 @@ const VehicleSearchInput = ({
     bookingStartDateTime: booking?.BookingStartDateAndTime,
     bookingEndDateTime: booking?.BookingEndDateAndTime,
     excludeBookingId: booking?._id,
-    // initialSearch: booking?.vehicleName,
     limit: 10,
   });
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     fetchVehicles(search);
-  //   }, 300);
-
-  //   return () => clearTimeout(timer);
-  // }, [search]);
-
   useEffect(() => {
-    if (cachedVehicles !== null) return; // skip if we already have cached data
+    if (cachedVehicles !== null && search.trim() === "") return; // skip if we already have cached data
     const timer = setTimeout(() => {
       fetchVehicles(search);
     }, 300);
@@ -61,21 +51,9 @@ const VehicleSearchInput = ({
   const displayVehicles =
     initialLoading && cachedVehicles ? cachedVehicles : vehicles;
 
-  // console.log("VEHICLE_SEARCH_INPUT:", {
-  //   selectedVehicle,
-  //   cachedVehiclesLength: cachedVehicles?.length,
-  //   initialLoading,
-  //   vehiclesLength: vehicles.length,
-  //   displayVehiclesLength: displayVehicles?.length,
-  // });
-
   if (initialLoading && !cachedVehicles) {
     return <VehicleSelectorSkeleton />;
   }
-
-  // if (initialLoading) {
-  //   return <VehicleSelectorSkeleton />;
-  // }
 
   return (
     <div className="text-left w-full">

@@ -122,10 +122,7 @@ const Layout = () => {
 
         {/* Overlay backdrop when mobile drawer is open */}
         {!is_open && (
-          <div
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-            // onClick={() => dispatch(closeSideBar())}
-          />
+          <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" />
         )}
 
         <div

@@ -29,12 +29,6 @@ const SelectDropDownVehicle = ({
   const debounceTimerRef = useRef(null);
   const dispatch = useDispatch();
 
-  // console.log("SELECT_DROPDOWN:", {
-  //   defaultSelected,
-  //   inputSelect,
-  //   optionsIds: options?.map((o) => o._id),
-  // });
-
   useAutoFocus(searchInputRef, isOpen);
 
   const handleOptionClick = (val) => {

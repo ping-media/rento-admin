@@ -153,13 +153,6 @@ const fetchVehicleMasterWithPagination = debounce(
     try {
       dispatch(fetchVehicleStart());
 
-      // const shouldResetPage =
-      //   isSearchTermPresent ||
-      //   searchBasedOnFilter !== "" ||
-      //   (vehiclesFilter &&
-      //     (vehiclesFilter.vehicleName !== "" ||
-      //       vehiclesFilter.search !== "" ||
-      //       vehiclesFilter.maintenanceType !== ""));
       const shouldResetPage =
         Boolean(isSearchTermPresent?.trim()) ||
         (searchBasedOnFilter?.trim() &&
@@ -224,7 +217,17 @@ const fetchVehicleMasterWithPagination = debounce(
         dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
       }
 
-      // console.log("FINAL ENDPOINT =>", dynamicEndpoint);
+      const url = new URL(dynamicEndpoint, window.location.origin);
+
+      const uniqueParams = new URLSearchParams();
+
+      for (const [key, value] of url.searchParams.entries()) {
+        if (!uniqueParams.has(key)) {
+          uniqueParams.append(key, value);
+        }
+      }
+
+      dynamicEndpoint = `${url.pathname}?${uniqueParams.toString()}`;
 
       const response = await getFullData(dynamicEndpoint, token);
       if (response?.status == 200) {
