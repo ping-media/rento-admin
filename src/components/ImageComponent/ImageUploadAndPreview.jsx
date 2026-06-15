@@ -50,7 +50,7 @@ const ImageUploadAndPreview = ({
         const responseImage = await postMultipleData(
           "/upload-pickup-image",
           formData,
-          token
+          token,
         );
         if (responseImage?.success) {
           const { data } = responseImage;
@@ -95,7 +95,7 @@ const ImageUploadAndPreview = ({
       const response = await postData(
         "/delete-image",
         { fileName: image?.fileName },
-        token
+        token,
       );
       if (!response.success) {
         return handleAsyncError(dispatch, "Unable to delete Image!");
@@ -134,7 +134,7 @@ const ImageUploadAndPreview = ({
           id={`ImageInput-Camera-${title}`}
           ref={fileInputRef}
           onChange={handleImageChange}
-          required={isRequired}
+          // required={isRequired}
         />
 
         {isCompressing ? (

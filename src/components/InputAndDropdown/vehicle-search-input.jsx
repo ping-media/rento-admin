@@ -61,6 +61,14 @@ const VehicleSearchInput = ({
   const displayVehicles =
     initialLoading && cachedVehicles ? cachedVehicles : vehicles;
 
+  // console.log("VEHICLE_SEARCH_INPUT:", {
+  //   selectedVehicle,
+  //   cachedVehiclesLength: cachedVehicles?.length,
+  //   initialLoading,
+  //   vehiclesLength: vehicles.length,
+  //   displayVehiclesLength: displayVehicles?.length,
+  // });
+
   if (initialLoading && !cachedVehicles) {
     return <VehicleSelectorSkeleton />;
   }
@@ -82,7 +90,7 @@ const VehicleSearchInput = ({
         isLabel={false}
         loading={searchLoading}
         onSearch={setSearch}
-        // defaultSelected={selectedVehicle}
+        defaultSelected={selectedVehicle}
       />
 
       {selectedVehicle && selectedVehicle?.length === 0 && (

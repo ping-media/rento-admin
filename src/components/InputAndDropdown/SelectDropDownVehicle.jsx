@@ -28,7 +28,12 @@ const SelectDropDownVehicle = ({
   const searchInputRef = useRef(null);
   const debounceTimerRef = useRef(null);
   const dispatch = useDispatch();
-  const isFirstRender = useRef(true);
+
+  // console.log("SELECT_DROPDOWN:", {
+  //   defaultSelected,
+  //   inputSelect,
+  //   optionsIds: options?.map((o) => o._id),
+  // });
 
   useAutoFocus(searchInputRef, isOpen);
 
@@ -57,11 +62,7 @@ const SelectDropDownVehicle = ({
 
   // clearing the state when user close modal
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    if (isModalClose === false) {
+    if (isModalClose === false && !defaultSelected?._id) {
       setInputSelect("");
     }
   }, [isModalClose]);
