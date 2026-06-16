@@ -35,11 +35,6 @@ const UploadPickupImageModal = ({
     setCachedVehicles,
   } = useRideStart({ isBookingIdPresent, onVehicleChange });
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
-  // console.log("MODAL:", {
-  //   isUploadPickupImageActive,
-  //   selectedVehicle,
-  //   cachedVehicles,
-  // });
 
   if (!isUploadPickupImageActive) return null;
 
@@ -203,7 +198,6 @@ const UploadPickupImageModal = ({
                   type="number"
                   item="altContact"
                   placeholder={"Enter Alternate Contact Number"}
-                  // require={loggedInRole !== "admin" ? true : false}
                   isLabel={false}
                   defaultValue={formValues.altContact}
                   afterOnChange={handleFormValueChange("altContact")}

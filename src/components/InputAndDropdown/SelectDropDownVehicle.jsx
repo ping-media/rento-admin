@@ -31,6 +31,12 @@ const SelectDropDownVehicle = ({
 
   useAutoFocus(searchInputRef, isOpen);
 
+  useEffect(() => {
+    if (defaultSelected?._id) {
+      setInputSelect(defaultSelected._id);
+    }
+  }, [defaultSelected?._id]);
+
   const handleOptionClick = (val) => {
     if (inputSelect === val._id) {
       setIsOpen(false);
@@ -93,6 +99,10 @@ const SelectDropDownVehicle = ({
     };
   }, [dispatch]);
 
+  const selectedOption =
+    options?.find((opt) => opt._id === inputSelect) ||
+    (defaultSelected ?? undefined);
+
   return (
     <div className="w-full" ref={dropdownRef}>
       {isLabel && (
@@ -118,7 +128,7 @@ const SelectDropDownVehicle = ({
           onClick={handleToggleDropdown}
           disabled={!options || options?.length == 0 ? true : false}
         >
-          {inputSelect
+          {/* {inputSelect
             ? `${
                 options?.find((opt) => opt._id === inputSelect)
                   ?.vehicleNumber || ""
@@ -126,6 +136,9 @@ const SelectDropDownVehicle = ({
                 options?.find((opt) => opt._id === inputSelect)?.vehicleName ||
                 ""
               }`
+            : `Select ${item}`} */}
+          {inputSelect && selectedOption
+            ? `${selectedOption?.vehicleNumber || ""} | ${selectedOption?.vehicleName || ""}`
             : `Select ${item}`}
         </button>
         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-600">

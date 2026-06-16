@@ -48,8 +48,11 @@ const VehicleSearchInput = ({
     }
   }, [vehicles, initialLoading]);
 
+  // const displayVehicles =
+  //   initialLoading && cachedVehicles ? cachedVehicles : vehicles;
+
   const displayVehicles =
-    initialLoading && cachedVehicles ? cachedVehicles : vehicles;
+    vehicles.length > 0 ? vehicles : (cachedVehicles ?? []);
 
   if (initialLoading && !cachedVehicles) {
     return <VehicleSelectorSkeleton />;
