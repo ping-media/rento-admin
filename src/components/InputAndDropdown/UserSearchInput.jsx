@@ -34,7 +34,7 @@ const UserSearchInput = ({
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(async () => {
       const data = await fetchUserDataBasedOnQuery(
-        `/getAllUsers?search=${val}`,
+        `/admin/getAllUsers?search=${val}`,
         token,
       );
       dispatch(addTempVehicleData(data));

@@ -67,7 +67,7 @@ const BookingDetails = () => {
     // this is for firstTime to active modal
     if (!isDeleteModalActive) return dispatch(toggleDeleteModal());
     // this to cancel booking
-    if (Note?.length > 10 && Note?.length <= 35) {
+    if (Note?.length > 1 && Note?.length <= 35) {
       setVehicleLoading(true);
       try {
         let paymentStatusToSend = "failed";
@@ -128,7 +128,7 @@ const BookingDetails = () => {
     } else {
       return handleAsyncError(
         dispatch,
-        "Note should be between 10 to 35 characters",
+        "Note should be between 1 to 35 characters",
       );
     }
   }, [

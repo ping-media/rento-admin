@@ -20,7 +20,12 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchVehicleMasterById(dispatch, currentUser?._id, token, `/getAllUsers`);
+    fetchVehicleMasterById(
+      dispatch,
+      currentUser?._id,
+      token,
+      `/admin/getAllUsers`,
+    );
   }, []);
 
   return !loading ? (

@@ -45,7 +45,7 @@ const InputSearch = ({
     const newTimeoutId = setTimeout(async () => {
       if (value) {
         const data = await fetchUserDataBasedOnQuery(
-          `/getAllUsers?search=${value}`,
+          `/admin/getAllUsers?search=${value}`,
           token,
         );
         dispatch(addTempVehicleData(data));
@@ -68,7 +68,10 @@ const InputSearch = ({
     if (value != "") {
       (async () => {
         setUserLoading(true);
-        const response = await getData(`/getAllUsers?_id=${value}`, token);
+        const response = await getData(
+          `/admin/getAllUsers?_id=${value}`,
+          token,
+        );
         if (response.status == 200) {
           const data = response?.data;
           setInputValue(

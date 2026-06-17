@@ -12,7 +12,7 @@ import { transformVehicles } from "./data/vehicle";
 
 const EXPORT_CONFIG = {
   "/all-users": {
-    endpoint: "/getAllUsers?userType=customer&page=1&limit=1000",
+    endpoint: "/admin/getAllUsers?userType=customer&page=1&limit=1000",
     reportName: "Customers",
     transform: transformUsers,
   },

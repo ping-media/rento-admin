@@ -177,7 +177,7 @@ const useSidebarFilter = () => {
               : `/getBooking?page=${page}&limit=${limit}`;
       } else {
         endpoint = searchTerm
-          ? `/getAllUsers?${
+          ? `/admin/getAllUsers?${
               searchTerm?.includes("=") ? "" : "search="
             }${searchTerm}&${userType}&page=${page}&limit=${limit}`
           : `/getBooking?${userType}&page=${page}&limit=${limit}`;
