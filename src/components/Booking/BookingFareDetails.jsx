@@ -6,6 +6,37 @@ import {
 import Tooltip from "../../components/Tooltip/Tooltip";
 import { renderTooltipBreakdown } from "../../utils/Helper/Helper";
 
+const EXCLUDED_BOOKING_PRICE_KEYS = new Set([
+  "totalPrice",
+  "vehiclePrice",
+  "rentAmount",
+  "isPackageApplied",
+  "userPaid",
+  "discountPrice",
+  "discountTotalPrice",
+  "isInvoiceCreated",
+  "isPickupImageAdded",
+  "isDiscountZero",
+  "isChanged",
+  "extendAmount",
+  "diffAmount",
+  "AmountLeftAfterUserPaid",
+  "lateFeeBasedOnHour",
+  "lateFeeBasedOnKM",
+  "payOnPickupMethod",
+  "lateFeePaymentMethod",
+  "additionFeePaymentMethod",
+  "additionalPrice",
+  "refundAmount",
+  "rrnNumber",
+  "extraAddonPrice",
+  "daysBreakdown",
+  "appliedPlan",
+  "totalDrivenKm",
+  "tempId",
+  "isRealAssigned",
+]);
+
 const BookingFareDetails = ({ rides }) => {
   // --- prices ---
   const bookingPrice =
@@ -34,35 +65,7 @@ const BookingFareDetails = ({ rides }) => {
           )}
           <ul className="w-full leading-8 mb-2">
             {Object.entries(rides?.bookingPrice || {})
-              .filter(
-                ([key]) =>
-                  key !== "totalPrice" &&
-                  key !== "vehiclePrice" &&
-                  key !== "rentAmount" &&
-                  key !== "isPackageApplied" &&
-                  key !== "userPaid" &&
-                  key !== "discountPrice" &&
-                  key !== "discountTotalPrice" &&
-                  key !== "isInvoiceCreated" &&
-                  key !== "isPickupImageAdded" &&
-                  key !== "isDiscountZero" &&
-                  key !== "isChanged" &&
-                  key !== "extendAmount" &&
-                  key !== "diffAmount" &&
-                  key !== "AmountLeftAfterUserPaid" &&
-                  key !== "lateFeeBasedOnHour" &&
-                  key !== "lateFeeBasedOnKM" &&
-                  key !== "payOnPickupMethod" &&
-                  key !== "lateFeePaymentMethod" &&
-                  key !== "additionFeePaymentMethod" &&
-                  key !== "additionalPrice" &&
-                  key !== "refundAmount" &&
-                  key !== "rrnNumber" &&
-                  key !== "extraAddonPrice" &&
-                  key !== "daysBreakdown" &&
-                  key !== "appliedPlan" &&
-                  key !== "totalDrivenKm",
-              ) // Exclude totalPrice
+              .filter(([key]) => !EXCLUDED_BOOKING_PRICE_KEYS.has(key))
               .map(([key, value]) => {
                 if (typeof value === "object") {
                   return (

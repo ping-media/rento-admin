@@ -2,7 +2,7 @@ import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleBookingExtendModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   addDaysToDate,
   addOneMinute,
@@ -51,6 +51,8 @@ const ExtendBookingModal = ({ bookingData }) => {
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
 
+  const debouncedCheckRef = useRef(debounce((fn) => fn(), 500));
+
   if (!bookingData) {
     return null;
   }
@@ -61,6 +63,12 @@ const ExtendBookingModal = ({ bookingData }) => {
       : true) || false;
 
   const checkFreeVehicle = async () => {
+    // if same date and time for both return
+    const startDate = addOneMinute(bookingData?.BookingEndDateAndTime).replace(
+      ".000Z",
+      "Z",
+    );
+    if (newDate === startDate) return;
     try {
       setPriceLoading(true);
       const isVehicleFree = await getData(
@@ -88,15 +96,6 @@ const ExtendBookingModal = ({ bookingData }) => {
           isVehicleFree?.unavailabilityReasons.length > 0
             ? isVehicleFree.unavailabilityReasons[0]
             : null;
-
-        // const isBooked = vehicleData !== null && !vehicleData?.bookingId;
-
-        // const customMessage =
-        //   vehicleData !== null
-        //     ? !isBooked
-        //       ? `${vehicleData?.reason} and booking id is ${vehicleData?.bookingId}`
-        //       : vehicleData?.reason
-        //     : null;
 
         const customMessage =
           vehicleData !== null
@@ -286,16 +285,26 @@ const ExtendBookingModal = ({ bookingData }) => {
     }
   }, [bookingData]);
 
+  // useEffect(() => {
+  //   if (!bookingData || !newDate) return;
+
+  //   const debouncedCheck = debounce(() => {
+  //     checkFreeVehicle();
+  //   }, 200);
+  //   debouncedCheck();
+
+  //   return () => {
+  //     debouncedCheck.cancel();
+  //   };
+  // }, [bookingData, newDate]);
+
   useEffect(() => {
     if (!bookingData || !newDate) return;
 
-    const debouncedCheck = debounce(() => {
-      checkFreeVehicle();
-    }, 200);
-    debouncedCheck();
+    debouncedCheckRef.current(checkFreeVehicle);
 
     return () => {
-      debouncedCheck.cancel();
+      debouncedCheckRef.current.cancel();
     };
   }, [bookingData, newDate]);
 
