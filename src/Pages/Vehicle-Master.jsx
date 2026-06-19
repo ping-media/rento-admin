@@ -18,7 +18,10 @@ const VehicleStationModal = lazy(
 );
 
 const VehicleMaster = () => {
-  const [stationId, setStationId] = useState("");
+  // const [stationId, setStationId] = useState("");
+  const [stationId, setStationId] = useState(
+    () => sessionStorage.getItem("allBookingsStationId") || "",
+  );
   const { vehicleMaster, deletevehicleId, tempLoading, loading, refresh } =
     useSelector((state) => state.vehicles);
   const { page, limit, searchTerm, searchType, vehiclesFilter, filters } =
@@ -86,6 +89,20 @@ const VehicleMaster = () => {
     filters,
     stationId,
   ]);
+
+  useEffect(() => {
+    if (location.pathname.startsWith("/all-bookings")) {
+      sessionStorage.setItem("allBookingsStationId", stationId);
+    }
+  }, [stationId, location.pathname]);
+
+  useEffect(() => {
+    return () => {
+      if (!location.pathname.startsWith("/all-bookings")) {
+        sessionStorage.removeItem("allBookingsStationId");
+      }
+    };
+  }, [location.pathname]);
 
   // Fetch data effect
   useEffect(() => {

@@ -114,26 +114,6 @@ const FilterSideBar = ({ stationId, setStationId }) => {
                     stationId={stationId}
                     setStationId={setStationId}
                   />
-                  // <div className="mt-2 mb-5">
-                  //   <div className="flex gap-2 items-center">
-                  //     <div className="flex-1">
-                  //       <label
-                  //         htmlFor="stationName"
-                  //         className="block text-gray-800 font-semibold text-sm capitalize text-left"
-                  //       >
-                  //         Station Name
-                  //       </label>
-
-                  //       <input
-                  //         id="stationName"
-                  //         value={stationName}
-                  //         placeholder="Enter Station Name..."
-                  //         onChange={(e) => setStationName(e.target.value)}
-                  //         className="block w-full mt-2 px-5 py-3 rounded-md ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none relative disabled:bg-gray-400/20 disabled:bg-opacity-20"
-                  //       />
-                  //     </div>
-                  //   </div>
-                  // </div>
                 )}
               {/* filter options  */}
               <ul className="leading-10 flex flex-col gap-3">
