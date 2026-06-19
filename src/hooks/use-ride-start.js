@@ -291,6 +291,15 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
           (vehicleMaster && vehicleMaster[0]?.rideStatus === "ongoing") ||
           false;
 
+        const changeUnpaidAmount =
+          vehicleMaster &&
+          (vehicleMaster[0]?.bookingPrice?.diffAmount || []).reduce(
+            (sum, item) => {
+              return item.status !== "paid" ? sum + item.amount : sum;
+            },
+            0,
+          );
+
         let amount = 0;
 
         // adding remaning amount

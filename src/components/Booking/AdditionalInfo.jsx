@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux";
 import { formatPrice, getDurationInDays } from "../../utils/index";
-import CopyButton from "../Buttons/CopyButton";
 import { ExtendSummary, RideSummary } from "./RideSummary";
 import { useEffect, useReducer } from "react";
 import { calculateBookingPrice } from "../../utils/calculateBookingPrice";
@@ -83,33 +82,6 @@ const AdditionalInfo = () => {
 
   return (
     <>
-      {/* ride otp's  */}
-      {/* <div className="mb-2">
-        {((diffAmount !== null && diffAmount?.rideStatus === false) ||
-          vehicleMaster[0]?.rideStatus !== "ongoing") && (
-          <div className="w-full flex items-center justify-between">
-            <p className="mr-1">Start OTP:</p>
-            <p className="flex items-center">
-              {vehicleMaster[0]?.vehicleBasic?.startRide}{" "}
-              <CopyButton
-                textToCopy={vehicleMaster[0]?.vehicleBasic?.startRide}
-              />
-            </p>
-          </div>
-        )}
-        {vehicleMaster[0]?.vehicleBasic?.endRide > 0 && (
-          <div className="w-full flex items-center justify-between">
-            <p className="mr-1">End OTP:</p>
-            <p className="flex items-center">
-              {vehicleMaster[0]?.vehicleBasic?.endRide}{" "}
-              <CopyButton
-                textToCopy={vehicleMaster[0]?.vehicleBasic?.endRide}
-              />
-            </p>
-          </div>
-        )}
-      </div> */}
-
       {diffAmount !== null && diffAmount?.refundAmount > 0 && (
         <div className="mt-1 mb-2.5">
           <div className="w-full flex items-center justify-between text-sm  uppercase">
@@ -125,6 +97,7 @@ const AdditionalInfo = () => {
           </div>
         </div>
       )}
+
       <div className="mt-1 mb-2.5">
         <div className="w-full flex items-center justify-between text-sm  mb-1">
           <p className="mr-1">Free Limit:</p>
@@ -172,10 +145,6 @@ const AdditionalInfo = () => {
       </div>
       <div className="w-full">
         <div className="flex items-center gap-1 mb-1">
-          {/* <h2 className="text-md w-full text-gray-600 border-b pb-1 font-bold mb-1">
-            Other Charges
-          </h2> */}
-
           {vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod &&
             vehicleMaster[0]?.bookingPrice?.lateFeePaymentMethod !== "NA" && (
               <span className="text-xs italic ">
@@ -251,29 +220,6 @@ const AdditionalInfo = () => {
             )}
         </div>
       </div>
-      {/* <div className="w-full">
-        <h2 className="text-md text-gray-600 border-b pb-1 font-bold mb-1">
-          Vehicle Change Summary
-        </h2>
-        <div className="mb-2 w-full">
-          {vehicleMaster[0]?.bookingPrice?.diffAmount &&
-          vehicleMaster[0]?.bookingPrice?.diffAmount?.length > 0 ? (
-            <ul className="leading-6 lg:leading-7 list-disc">
-              {vehicleMaster[0]?.bookingPrice?.diffAmount?.map(
-                (item, index) => (
-                  <li className="flex gap-1" key={index}>
-                    <ExtraAmount item={item} />
-                  </li>
-                ),
-              )}
-            </ul>
-          ) : (
-            <p className="text-sm  italic text-gray-400">
-              vehicle not changed yet.
-            </p>
-          )}
-        </div>
-      </div> */}
 
       <div className="flex flex-col gap-2 border-t-2 mt-5 pt-2.5">
         {finalRefundAmount !== null && (

@@ -6,14 +6,6 @@ import MaintenanceStatusBadge from "./MaintenanceBadge";
 const PriceCell = ({ item, column }) => {
   const location = useLocation();
 
-  if (location.pathname === "/logs") {
-    return (
-      <td className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900">
-        {item[column]?.ip ?? "--"}
-      </td>
-    );
-  }
-
   const bookingPrice =
     item[column]?.isDiscountZero === true ||
     (item[column]?.discountTotalPrice && item[column]?.discountTotalPrice !== 0)
@@ -40,23 +32,48 @@ const PriceCell = ({ item, column }) => {
 
   // change vehicle
   const diffPrice = useMemo(() => {
-    if (!item.bookingPrice?.diffAmount?.length > 0) return 0;
+    if (!item.bookingPrice?.diffAmount?.length) return 0;
 
     return item.bookingPrice.diffAmount.reduce((sum, diff) => {
       if (diff?.status === "paid") {
+        // Refund case
         if (diff?.refundAmount > 0) {
           return sum - Number(diff?.refundAmount || 0);
         }
 
-        if (diff?.amount > 0) {
-          if (diff?.oldAmount !== diff?.newAmount) {
-            return sum + Number(diff?.amount || 0);
-          }
+        // Merged vehicle change — add price delta, not pending amount delta
+        if (diff?.mergedIntoBookingBalance) {
+          return (
+            sum + Number(diff?.newAmount || 0) - Number(diff?.oldAmount || 0)
+          );
+        }
+
+        // Normal extra payment
+        if (diff?.amount > 0 && diff?.oldAmount !== diff?.newAmount) {
+          return sum + Number(diff?.amount || 0);
         }
       }
       return sum;
     }, 0);
   }, [item?.bookingPrice?.diffAmount]);
+  // const diffPrice = useMemo(() => {
+  //   if (!item.bookingPrice?.diffAmount?.length > 0) return 0;
+
+  //   return item.bookingPrice.diffAmount.reduce((sum, diff) => {
+  //     if (diff?.status === "paid") {
+  //       if (diff?.refundAmount > 0) {
+  //         return sum - Number(diff?.refundAmount || 0);
+  //       }
+
+  //       if (diff?.amount > 0) {
+  //         if (diff?.oldAmount !== diff?.newAmount) {
+  //           return sum + Number(diff?.amount || 0);
+  //         }
+  //       }
+  //     }
+  //     return sum;
+  //   }, 0);
+  // }, [item?.bookingPrice?.diffAmount]);
 
   const lateFeeBasedOnHour = !isNaN(
     Number(item.bookingPrice?.lateFeeBasedOnHour),
@@ -85,13 +102,33 @@ const PriceCell = ({ item, column }) => {
   ]);
 
   // payment price
+  const paidDiffTotal =
+    item?.bookingPrice?.diffAmount
+      ?.filter((d) => d?.status === "paid" && d?.amount > 0)
+      ?.reduce((sum, d) => sum + Number(d?.amount || 0), 0) || 0;
+
   const paymentPrice =
     item?.paymentStatus === "partially_paid" ||
     item?.paymentStatus === "partiallyPay"
-      ? item?.bookingPrice?.userPaid
+      ? Number(item?.bookingPrice?.userPaid || 0) + paidDiffTotal
       : item?.bookingPrice?.discountTotalPrice > 0
         ? item?.bookingPrice?.discountTotalPrice
         : item?.bookingPrice?.totalPrice;
+  // const paymentPrice =
+  //   item?.paymentStatus === "partially_paid" ||
+  //   item?.paymentStatus === "partiallyPay"
+  //     ? item?.bookingPrice?.userPaid
+  //     : item?.bookingPrice?.discountTotalPrice > 0
+  //       ? item?.bookingPrice?.discountTotalPrice
+  //       : item?.bookingPrice?.totalPrice;
+
+  if (location.pathname === "/logs") {
+    return (
+      <td className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900">
+        {item[column]?.ip ?? "--"}
+      </td>
+    );
+  }
 
   return (
     <>

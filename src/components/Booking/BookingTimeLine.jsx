@@ -73,11 +73,6 @@ const BookingTimeLine = () => {
           {!loading &&
             timeLineData != null &&
             timeLineData?.timeLine?.map((item, index) => {
-              // const isBothDatesChange = item?.title?.includes("Rescheduled")
-              //   ? item?.newStartDate !== "" && item?.newEndDate !== ""
-              //     ? true
-              //     : false
-              //   : false;
               return (
                 <div
                   className={`${
@@ -178,38 +173,6 @@ const BookingTimeLine = () => {
                             TxID: {item.paymentId}
                           </p>
                         )}
-                        {/* old ui for showing reschedule node  */}
-                        {/* {(item?.newStartDate || item?.newEndDate) && (
-                          <>
-                            {isBothDatesChange && (
-                              <p className="text-gray-800 leading-tight text-xs">
-                                Booking Duration changes to
-                                <br />
-                                <span className="font-semibold">
-                                  {item?.newStartDate
-                                    ? formatFullDateAndTime(item.newStartDate)
-                                    : "--"}{" "}
-                                  -{" "}
-                                  {item?.newEndDate
-                                    ? formatFullDateAndTime(item.newEndDate)
-                                    : "--"}
-                                </span>
-                              </p>
-                            )}
-                            {item?.newStartDate && !isBothDatesChange && (
-                              <p className="text-gray-800 leading-tight text-xs">
-                                Booking Start Date Change to
-                                {formatFullDateAndTime(item?.newStartDate)}
-                              </p>
-                            )}
-                            {item?.newEndDate && !isBothDatesChange && (
-                              <p className="text-gray-800 leading-tight text-xs">
-                                Booking End Date Change to
-                                {formatFullDateAndTime(item?.newEndDate)}
-                              </p>
-                            )}
-                          </>
-                        )} */}
                         {(item?.oldDates || item?.newDates) && (
                           <div className="mt-2 space-y-2">
                             {/* Start Date */}
@@ -304,7 +267,10 @@ const BookingTimeLine = () => {
                             <p
                               className={`text-gray-700 leading-tight text-md font-semibold`}
                             >
-                              ₹{formatPrice(item?.paymentAmount || 0)}
+                              {item?.updatedPendingAmount &&
+                              item?.updatedPendingAmount !== undefined
+                                ? `₹${formatPrice(item?.updatedPendingAmount || 0)}`
+                                : `₹${formatPrice(item?.paymentAmount || 0)}`}
                             </p>
                             {item?.paymentAmount > 0 && (
                               <p className="text-sm lg:text-xs text-theme">

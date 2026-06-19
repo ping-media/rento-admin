@@ -90,7 +90,6 @@ const RenderCellContent = (column, value, item, location) => {
   }
 
   if (column?.includes("InitiatedDate")) {
-    // return value !== "NA" ? formatTimeStampToDate(value) : "--";
     return value !== "NA" ? formatTimeStampToDateNew(value) : "--";
   }
 

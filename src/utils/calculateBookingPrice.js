@@ -4,12 +4,38 @@ export const calculateBookingPrice = (price) => {
   let total = 0;
 
   // Base price
-  if (price.discountTotalPrice > 0) {
+  const mergedVehicleChange = price.diffAmount
+    ?.filter(
+      (item) =>
+        item.title === "changedVehicle" &&
+        item.mergedIntoBookingBalance &&
+        item.newAmount > item.oldAmount,
+    )
+    ?.at(-1);
+
+  // if (mergedVehicleChange) {
+  //   total += Number(mergedVehicleChange.newAmount || 0);
+  // }
+  if (mergedVehicleChange) {
+    if (price.discountTotalPrice > 0) {
+      total += Number(price.discountTotalPrice);
+    } else {
+      total += Number(price.totalPrice || 0) + Number(price.tax || 0);
+    }
+    // Add only the delta — not newAmount alone
+    total +=
+      Number(mergedVehicleChange.newAmount || 0) -
+      Number(mergedVehicleChange.oldAmount || 0);
+  } else if (price.discountTotalPrice > 0) {
     total += Number(price.discountTotalPrice);
   } else {
     total += Number(price.totalPrice || 0) + Number(price.tax || 0);
-    // Number(price.extraAddonPrice || 0);
   }
+  // if (price.discountTotalPrice > 0) {
+  //   total += Number(price.discountTotalPrice);
+  // } else {
+  //   total += Number(price.totalPrice || 0) + Number(price.tax || 0);
+  // }
 
   // diffAmount adjustments
   if (Array.isArray(price.diffAmount)) {

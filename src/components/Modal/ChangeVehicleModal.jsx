@@ -13,7 +13,6 @@ import NewVehiclePreview from "./_components/NewVehiclePreview";
 const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
   const dispatch = useDispatch();
   const { isChangeVehicleModalActive } = useSelector((state) => state.sideBar);
-  // const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
@@ -75,11 +74,15 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
               : null;
 
           const customMessage =
-            vehicleData !== null
-              ? vehicleData?.bookingId?.trim() !== ""
-                ? `${vehicleData?.reason} and booking id is ${vehicleData?.bookingId}`
-                : vehicleData?.reason
+            vehicleData !== null && vehicleData?.bookingId?.trim() !== ""
+              ? vehicleData?.reason
               : null;
+          // const customMessage =
+          //   vehicleData !== null
+          //     ? vehicleData?.bookingId?.trim() !== ""
+          //       ? `${vehicleData?.reason} and booking id is ${vehicleData?.bookingId}`
+          //       : vehicleData?.reason
+          //     : null;
           return handleAsyncError(
             dispatch,
             customMessage !== null ? customMessage : response?.message,
@@ -142,16 +145,6 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
       setFormLoading(true);
       const response = await postData("/vehicleChange", selectedVehicle, token);
       if (response?.success) {
-        // if (response?.data && vehicleMaster) {
-        //   const newData = {
-        //     ...response?.data,
-        //     userId: { ...vehicleMaster[0]?.userId },
-        //   };
-        //   dispatch(handleChangesAfterVehicleChange(newData));
-        // }
-        // if (response?.timeLine) {
-        //   dispatch(updateTimeLineData(response.timeLine));
-        // }
         onVehicleChange && onVehicleChange();
         handleAsyncError(dispatch, "Vehicle changed successfully", "success");
         return dispatch(toggleChangeVehicleModal());
@@ -165,32 +158,12 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
     }
   };
 
-  //   for sending the otp
-  // const handleSendOtp = async () => {
-  //   try {
-  //     setOtpLoading(true);
-  //     const data = {
-  //       contact: bookingData?.userId?.contact,
-  //     };
-  //     const response = await postData("/otpGenerat", data, token);
-  //     if (response?.status === 200) {
-  //       return handleAsyncError(dispatch, response?.message, "success");
-  //     } else {
-  //       return handleAsyncError(dispatch, response?.message);
-  //     }
-  //   } catch (error) {
-  //     return handleAsyncError(dispatch, error?.message);
-  //   } finally {
-  //     setOtpLoading(false);
-  //   }
-  // };
-
   useEffect(() => {
     if (!isChangeVehicleModalActive) {
       setSelectedVehicle(null);
-      setPreviewData(null); // ADD
-      setVehicleId(""); // ADD
-      setShowBreakdown(false); //ADD
+      setPreviewData(null);
+      setVehicleId("");
+      setShowBreakdown(false);
     }
   }, [isChangeVehicleModalActive]);
 
@@ -198,9 +171,9 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
   const handleCloseModal = async () => {
     setFreeVehicles([]);
     setSelectedVehicle(null);
-    setPreviewData(null); // ADD
-    setVehicleId(""); // ADD
-    setShowBreakdown(false); //ADD
+    setPreviewData(null);
+    setVehicleId("");
+    setShowBreakdown(false);
     return dispatch(toggleChangeVehicleModal());
   };
 
@@ -262,15 +235,6 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
               update the pending payment in order to change vehicle.
             </p>
           )}
-          {/* {previewData?.priceSummary?.effectivePaid === 0 &&
-            !previewData?.priceSummary?.isExtraPayment && (
-              <p className="text-left text-xs lg:text-sm text-blue-500 italic mb-2">
-                <span className="font-bold mr-1">Note:</span>
-                No payment has been made yet. The new vehicle price of ₹
-                {formatPrice(previewData?.priceSummary?.newRemainingCost)} will
-                apply when payment is collected.
-              </p>
-            )} */}
           {previewData?.priceSummary?.effectivePaid > 0 &&
             previewData?.priceSummary?.isExtraPayment && (
               <p className="text-left text-xs lg:text-sm text-orange-500 italic mb-2">
@@ -388,32 +352,6 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
                 <p className="italic text-gray-100 mt-1">No vehicle Found.</p>
               )}
             </div>
-            {/* )} */}
-            {/* <div className="mb-2">
-              <Input item={"OTP"} type="number" require={true} />
-              {selectedVehicle !== null && (
-                <div className="text-left mt-2">
-                  <button
-                    type="button"
-                    className="rounded-md bg-theme text-white border-theme p-1.5 disabled:bg-gray-400"
-                    disabled={otpLoading || selectedVehicle === null}
-                    onClick={handleSendOtp}
-                  >
-                    {!otpLoading ? (
-                      "Send OTP"
-                    ) : (
-                      <Spinner textColor="black" message={"sending..."} />
-                    )}
-                  </button>
-                </div>
-              )}
-            </div> */}
-            {/* <p className="text-left text-base mb-3">
-              <span className="font-semibold">
-                {payableAmount > 0 ? "Payable" : "Refund"} Amount:
-              </span>{" "}
-              ₹{formatPrice(Math.abs(payableAmount))}
-            </p> */}
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full items-center justify-center"
