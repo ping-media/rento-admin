@@ -20,6 +20,7 @@ const SelectDropDownVehicle = ({
   onSearch,
   loading = false,
   defaultSelected = null,
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -126,7 +127,7 @@ const SelectDropDownVehicle = ({
           className="text-left block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize bg-white cursor-pointer disabled:bg-gray-300/30"
           type="button"
           onClick={handleToggleDropdown}
-          disabled={!options || options?.length == 0 ? true : false}
+          disabled={disabled || !options || options?.length == 0 ? true : false}
         >
           {/* {inputSelect
             ? `${

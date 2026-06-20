@@ -23,6 +23,7 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
   const [previewData, setPreviewData] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [extendRequired, setExtendRequired] = useState(false);
 
   const isGSTActive =
     bookingData?.stationData?.isGstActive === "active" ? true : false || false;
@@ -50,9 +51,35 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
     0,
   );
 
+  const getCurrentSegmentEndDate = () => {
+    for (let i = extendBookings.length - 1; i >= 0; i--) {
+      const ext = extendBookings[i];
+      const extStart = new Date(ext?.BookingStartDateAndTime);
+
+      if (new Date(currentDateAndTime) >= extStart) {
+        return ext?.bookingEndDateAndTime || ext?.BookingEndDateAndTime;
+      }
+    }
+
+    if (extendBookings.length > 0) {
+      return extendBookings[0]?.originalBookingEndDateAndTime;
+    }
+
+    return bookingData?.BookingEndDateAndTime;
+  };
+
+  const segmentEndDate = getCurrentSegmentEndDate();
+  const isSegmentExpired = segmentEndDate
+    ? new Date(currentDateAndTime) >= new Date(segmentEndDate)
+    : false;
+
   //   for fetching vehicle based on  dynamic date and time
   useEffect(() => {
     if (!isChangeVehicleModalActive) return;
+    if (isSegmentExpired) {
+      setFreeVehicles([]);
+      return;
+    }
 
     (async () => {
       try {
@@ -94,7 +121,7 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
         setVehicleLoading(false);
       }
     })();
-  }, [isChangeVehicleModalActive, vehiclesFilter]);
+  }, [isChangeVehicleModalActive, vehiclesFilter, isSegmentExpired]);
 
   //   selecting and making the data for updating booking
   const handleChangeSelectedVehicle = async (vehicleId) => {
@@ -103,6 +130,7 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
     try {
       setPreviewLoading(true);
       setPreviewData(null);
+      setExtendRequired(false);
 
       const response = await postData(
         "/vehicleChangePreview",
@@ -119,6 +147,9 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
       } else {
         handleAsyncError(dispatch, response?.message);
         setSelectedVehicle(null);
+        setExtendRequired(
+          response?.message?.toLowerCase().includes("extend the ride") || false,
+        );
       }
     } catch (error) {
       handleAsyncError(dispatch, error?.message);
@@ -164,6 +195,7 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
       setPreviewData(null);
       setVehicleId("");
       setShowBreakdown(false);
+      setExtendRequired(false);
     }
   }, [isChangeVehicleModalActive]);
 
@@ -174,6 +206,7 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
     setPreviewData(null);
     setVehicleId("");
     setShowBreakdown(false);
+    setExtendRequired(false);
     return dispatch(toggleChangeVehicleModal());
   };
 
@@ -233,6 +266,13 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
             <p className="text-left text-xs lg:text-sm text-theme italic mb-2">
               <span className="font-bold mr-1">Note:</span>
               update the pending payment in order to change vehicle.
+            </p>
+          )}
+          {(isSegmentExpired || extendRequired) && (
+            <p className="text-left text-xs lg:text-sm text-theme italic mb-2">
+              <span className="font-bold mr-1">Note:</span>
+              No remaining days left in this segment. Please extend the ride
+              first to change the vehicle.
             </p>
           )}
           {previewData?.priceSummary?.effectivePaid > 0 &&
@@ -347,6 +387,7 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
                 setValueChanger={setVehicleId}
                 setSelectedChanger={setSelectedVehicle}
                 isModalClose={isChangeVehicleModalActive}
+                disabled={isSegmentExpired || extendRequired}
               />
               {selectedVehicle && selectedVehicle?.length === 0 && (
                 <p className="italic text-gray-100 mt-1">No vehicle Found.</p>
@@ -355,7 +396,13 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full items-center justify-center"
-              disabled={isDisabled || formLoading || selectedVehicle === null}
+              disabled={
+                isDisabled ||
+                isSegmentExpired ||
+                extendRequired ||
+                formLoading ||
+                selectedVehicle === null
+              }
             >
               {!formLoading ? (
                 "Change vehicle"
