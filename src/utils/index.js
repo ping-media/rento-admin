@@ -378,7 +378,7 @@ const formatReadableDateTime = (dateString) => {
   return `${day} ${month} ${year} At ${formattedHours}:${formattedMinutes} ${period}`;
 };
 
-const getDurationInDays = (date1Str, date2Str) => {
+const getDurationInDays = (date1Str, date2Str, rounding = "floor") => {
   // Parse the input strings into Date objects
   const date1 = new Date(date1Str);
   const date2 = new Date(date2Str);
@@ -392,9 +392,10 @@ const getDurationInDays = (date1Str, date2Str) => {
   const differenceInMs = Math.abs(date2 - date1);
 
   // Convert milliseconds to days
-  const days = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
+  // const days = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
+  const days = differenceInMs / (1000 * 60 * 60 * 24);
 
-  return days;
+  return rounding === "ceil" ? Math.ceil(days) : Math.floor(days);
 };
 
 const formatDateTimeISTForUser = (input) => {

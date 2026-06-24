@@ -13,12 +13,13 @@ import GoogleSearchLocation from "../../components/InputAndDropdown/GoogleSearch
 import GeneralAddOn from "../../components/general/GeneralAddOn";
 import PaymentToggler from "../station/PaymentToggler";
 import DatePicker from "../../components/DateTimePicker/DateTimePicker";
+import { useStationMasterData } from "../../hooks/use-station-master";
 
 const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
-  const [collectedData, setCollectedData] = useState(null);
+  // const [collectedData, setCollectedData] = useState(null);
   const [zipCodeValue, setZipcodeValue] = useState(null);
   // station open and close time
   const [openStationTime, setOpenStationTime] = useState(null);
@@ -28,27 +29,29 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const [mapUrl, setMapUrl] = useState("");
   const [cityValue, setCityValue] = useState("");
 
-  const fetchCollectedData = async (locationUrl, stationUrl) => {
-    const locationResponse = await getData(
-      `${endPointBasedOnKey[locationUrl]}?fetchAll=true`,
-      token,
-    );
-    const stationResponse = await getData(
-      `${endPointBasedOnKey[stationUrl]}?fetchAll=true`,
-      token,
-    );
+  const { data: collectedData } = useStationMasterData();
 
-    if (locationResponse && stationResponse) {
-      return setCollectedData({
-        locationId: locationResponse?.data,
-        stationId: stationResponse?.data,
-      });
-    }
-  };
+  // const fetchCollectedData = async (locationUrl, stationUrl) => {
+  //   const locationResponse = await getData(
+  //     `${endPointBasedOnKey[locationUrl]}?fetchAll=true`,
+  //     token,
+  //   );
+  //   const stationResponse = await getData(
+  //     `${endPointBasedOnKey[stationUrl]}?fetchAll=true`,
+  //     token,
+  //   );
 
-  useEffect(() => {
-    fetchCollectedData("locationId", "stationId");
-  }, []);
+  //   if (locationResponse && stationResponse) {
+  //     return setCollectedData({
+  //       locationId: locationResponse?.data,
+  //       stationId: stationResponse?.data,
+  //     });
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchCollectedData("locationId", "stationId");
+  // }, []);
 
   // updating the station opening and closing time here
   useEffect(() => {
@@ -74,10 +77,6 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
     <>
       {/* station form  */}
       <form onSubmit={handleFormSubmit} className="mb-5">
-        {/* <p className="text-xs mt-1 text-gray-500 font-semibold italic mb-1">
-          Note: (Always add time in round, Like 10:00 AM, 11:00 AM etc.)
-        </p> */}
-
         <div className="flex flex-wrap gap-4">
           <>
             <div className="w-full lg:w-[48%]">
@@ -109,14 +108,6 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
                 setValueChange={setOpenStationTime}
                 item="openStartTime"
               />
-              {/* <Input
-                item={"openStartTime"}
-                type="time"
-                value={id && formatHourToTime(vehicleMaster[0]?.openStartTime)}
-                require={true}
-                placeholder={"Select Station Open Time"}
-                isFull={false}
-              /> */}
             </div>
             <div className="w-full lg:w-[48%]">
               <TimePicker
@@ -125,14 +116,6 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
                 setValueChange={setCloseStationTime}
                 item="openEndTime"
               />
-              {/* <Input
-                item={"openEndTime"}
-                type="time"
-                value={id && formatHourToTime(vehicleMaster[0]?.openEndTime)}
-                require={true}
-                placeholder={"Select Station Close Time"}
-                isFull={false}
-              /> */}
             </div>
             <div className="w-full lg:w-[48%]">
               <Input
@@ -232,7 +215,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
           </>
 
           <button
-            className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+            className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
             type="submit"
             disabled={loading}
           >

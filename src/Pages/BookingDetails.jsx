@@ -29,6 +29,9 @@ const UserKycApproveModal = lazy(
 );
 const AddonModal = lazy(() => import("../components/Modal/AddonModal.jsx"));
 
+const MINIMUM_WORD_COUNT = 1;
+const MAXIMUM_WORD_COUNT = 35;
+
 const BookingDetails = () => {
   const { id } = useParams();
   const { token, currentUser } = useSelector((state) => state.user);
@@ -67,7 +70,10 @@ const BookingDetails = () => {
     // this is for firstTime to active modal
     if (!isDeleteModalActive) return dispatch(toggleDeleteModal());
     // this to cancel booking
-    if (Note?.length > 1 && Note?.length <= 35) {
+    if (
+      Note?.length > MINIMUM_WORD_COUNT &&
+      Note?.length <= MAXIMUM_WORD_COUNT
+    ) {
       setVehicleLoading(true);
       try {
         let paymentStatusToSend = "failed";
@@ -128,7 +134,7 @@ const BookingDetails = () => {
     } else {
       return handleAsyncError(
         dispatch,
-        "Note should be between 1 to 35 characters",
+        `Note should be between ${MINIMUM_WORD_COUNT} to ${MAXIMUM_WORD_COUNT} characters`,
       );
     }
   }, [
@@ -158,6 +164,7 @@ const BookingDetails = () => {
           isNoteRequired={true}
           value={Note}
           setValueChange={setNote}
+          wordCount={MINIMUM_WORD_COUNT}
         />
         {/* pickupImage & start ride modal */}
         <UploadPickupImageModal

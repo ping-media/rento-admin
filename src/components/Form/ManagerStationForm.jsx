@@ -39,7 +39,7 @@ const ManagerStationForm = () => {
     } catch (error) {
       handleAsyncError(
         dispatch,
-        "Uable to update the station details! try after some time"
+        "Uable to update the station details! try after some time",
       );
     } finally {
       setFormLoading(false);
@@ -97,7 +97,7 @@ const ManagerStationForm = () => {
         </div>
 
         <button
-          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
           type="submit"
           disabled={formLoading}
         >

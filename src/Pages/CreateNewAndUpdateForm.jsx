@@ -35,10 +35,7 @@ const CreateNewAndUpdateForm = () => {
     (state) => state.vehicles,
   );
 
-  const isId = useMemo(() => {
-    return id !== undefined && id?.trim() !== "";
-  }, [id]);
-
+  const isId = Boolean(id?.trim());
   const isUsersPageWithoutId = useMemo(() => {
     return (
       ["/all-users/", "/all-managers/"].some((path) =>
@@ -49,18 +46,18 @@ const CreateNewAndUpdateForm = () => {
 
   // fetch data based on id taking from url
   useEffect(() => {
-    if (isId) {
-      fetchVehicleMasterById(
-        dispatch,
-        id,
-        token,
-        location?.pathname.includes("/all-users/") ||
-          location.pathname.includes("/all-managers/")
-          ? "/getDocument?userId="
-          : endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")],
-      );
-    }
-  }, [dispatch, id, isId, token]);
+    if (!isId) return;
+
+    fetchVehicleMasterById(
+      dispatch,
+      id,
+      token,
+      location?.pathname.includes("/all-users/") ||
+        location.pathname.includes("/all-managers/")
+        ? "/getDocument?userId="
+        : endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")],
+    );
+  }, [dispatch, id, token]);
 
   // Dynamically select the form to render based on the URL
   const getFormType = () => {
@@ -72,8 +69,6 @@ const CreateNewAndUpdateForm = () => {
 
   return !loading ? (
     <>
-      {/* location.pathname.includes("/all-users/") */}
-      {/* location.pathname.includes("/all-managers/") */}
       {isUsersPageWithoutId && <UserKycApproveModal />}
 
       {location.pathname.includes("/all-managers/") &&
@@ -85,6 +80,7 @@ const CreateNewAndUpdateForm = () => {
             }
           />
         )}
+
       <div className="flex items-center flex-wrap justify-between gap-1 lg:gap-0 mb-5">
         <div className="flex items-center gap-2">
           {/* back button visiable on mobile screen  */}
@@ -120,10 +116,6 @@ const CreateNewAndUpdateForm = () => {
                               )}`}
           </h1>
         </div>
-        {/* for kyc approval  */}
-        {/* {(location.pathname.includes("/all-users/") ||
-          location.pathname.includes("/all-managers/")) && ( */}
-
         {isUsersPageWithoutId && (
           <div className="flex items-center gap-2">
             <button

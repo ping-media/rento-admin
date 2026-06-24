@@ -57,7 +57,7 @@ const AdditionalInfo = () => {
     ? booking?.bookingPrice?.extendAmount[0]?.BookingStartDateAndTime
     : vehicleMaster[0]?.BookingEndDateAndTime;
 
-  const mainBookingDuration = getDurationInDays(startDate, endDate);
+  const mainBookingDuration = getDurationInDays(startDate, endDate, "ceil");
 
   const extendBookingLimit = isExtend
     ? booking?.bookingPrice?.extendAmount.reduce((sum, extend) => {

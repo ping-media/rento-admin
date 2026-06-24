@@ -290,11 +290,9 @@ const fetchVehicleMasterById = debounce(
             dispatch(addUserRideInfo(thirdData.data));
           }
         }
-
         dispatch(fetchVehicleMasterData(response.data));
       } else {
         dispatch(fetchVehicleMasterData([]));
-        // dispatch(fetchVehicleEnd());
       }
     } catch (error) {
       dispatch(fetchVehicleEnd());
