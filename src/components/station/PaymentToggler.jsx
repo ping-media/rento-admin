@@ -36,9 +36,6 @@ const PaymentToggler = () => {
       ]),
     [paymentModes],
   );
-  // const sortedPayments = ORDER.filter((key) => key in paymentModes).map(
-  //   (key) => [key, paymentModes[key]],
-  // );
 
   return (
     <>
@@ -72,14 +69,14 @@ const PaymentToggler = () => {
             </div>
 
             {/* show or disable this based on where that mode is on or not  */}
-            {/* {key === "partiallyPay" && value && (
+            {key === "partiallyPay" && value && (
               <PartialPaymentEditor
                 partiallyPayPercentage={partiallyPayPercentage}
                 setPartiallyPayPercentage={setPartiallyPayPercentage}
                 vehicleMaster={vehicleMaster}
                 paymentModes={paymentModes}
               />
-            )} */}
+            )}
           </React.Fragment>
         ))}
       </div>
