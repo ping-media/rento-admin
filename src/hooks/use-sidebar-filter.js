@@ -64,7 +64,7 @@ const useSidebarFilter = () => {
     },
     {
       title: "cancelled Ride",
-      searchTag: "rideStatus=canceled",
+      searchTag: "rideStatus=canceled&includeCanceled=true",
       divider: false,
     },
     {
