@@ -70,7 +70,7 @@ const PartialPaymentEditor = ({
     <div className="flex items-center gap-1.5">
       <Input
         item={"partiallyPayPercentage"}
-        placeholder={"Enter partially payment percentage"}
+        placeholder={"Enter Partial Payment Percentage"}
         type="number"
         value={partiallyPayPercentage}
         setValueChange={setPartiallyPayPercentage}

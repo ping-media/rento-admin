@@ -62,12 +62,10 @@ const BookingTimeLine = () => {
       </Suspense>
 
       <div className="container mx-auto py-4">
-        {/* {loading && <PreLoader />} */}
         <div className="relative wrap overflow-hidden">
-          {/* <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-1/2"></div> */}
           <div
-            className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border"
-            style={{ left: "37.5%" }}
+            className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-[29.3%] md:left-[37.5%]"
+            // style={{ left: "37.5%" }}
           ></div>
 
           {!loading &&
@@ -84,8 +82,7 @@ const BookingTimeLine = () => {
                   } flex justify-between  w-full`}
                   key={index}
                 >
-                  {/* <div className="order-1 w-5/12 text-right"> */}
-                  <div className="order-1 w-4/12 text-right">
+                  <div className="order-1 w-3/12 md:w-4/12 text-right">
                     <p className="text-gray-700 text-sm leading-tight whitespace-pre-line">
                       {typeof item?.date === "number" &&
                         millisecToReadableFormat(item?.date)
@@ -95,8 +92,7 @@ const BookingTimeLine = () => {
                   </div>
 
                   <div className="z-10 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative"></div>
-                  {/* <div className="order-1 w-5/12 text-left"> */}
-                  <div className="order-1 w-7/12 text-left">
+                  <div className="order-1 w-8/12 md:w-7/12 text-left">
                     {!(
                       item?.title?.includes("Link") ||
                       item?.title?.includes("Extended") ||

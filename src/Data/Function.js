@@ -171,7 +171,6 @@ const fetchVehicleMasterWithPagination = debounce(
 
       let dynamicEndpoint = `${endpoint}?page=${currentPage}&limit=${limit}`;
 
-      // if (filters !== null && filters !== " ") {
       if (filters && filters?.trim() !== "") {
         dynamicEndpoint = `${endpoint}?${filters}&page=${currentPage}&limit=${limit}`;
 
@@ -183,7 +182,6 @@ const fetchVehicleMasterWithPagination = debounce(
       // if station id is present
       if (stationId && stationId?.trim() !== "") {
         dynamicEndpoint += `&stationId=${stationId}`;
-        // dynamicEndpoint = `${endpoint}?&stationId=${stationId}&page=${currentPage}&limit=${limit}`;
 
         if (filters && filters?.trim() !== "") {
           dynamicEndpoint += `&${filters}`;
@@ -196,7 +194,6 @@ const fetchVehicleMasterWithPagination = debounce(
         vehiclesFilter.maintenanceType !== ""
       ) {
         dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
-        // dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&filteredVehicles?.length&page=${currentPage}&limit=${limit}`;
       } else if (
         vehiclesFilter.vehicleName !== "" ||
         vehiclesFilter.search !== ""
@@ -204,7 +201,6 @@ const fetchVehicleMasterWithPagination = debounce(
         dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
       } else if (vehiclesFilter.maintenanceType !== "") {
         dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
-        // } else if (isSearchTermPresent !== null) {
       } else if (isSearchTermPresent && isSearchTermPresent.trim() !== "") {
         if (searchType !== "all") {
           dynamicEndpoint = `${endpoint}?${searchType}=${isSearchTermPresent}&page=${currentPage}&limit=${limit}`;
@@ -233,9 +229,6 @@ const fetchVehicleMasterWithPagination = debounce(
       if (response?.status == 200) {
         dispatch(fetchVehicleMasterData(response?.data));
       }
-      // else {
-      //   dispatch(fetchVehicleEnd());
-      // }
     } catch (error) {
       dispatch(fetchVehicleEnd());
       handleAsyncError(dispatch, error?.message);
