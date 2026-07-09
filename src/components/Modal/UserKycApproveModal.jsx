@@ -181,8 +181,8 @@ const UserKycApproveModal = () => {
                 </p>
               )
             ) : (
-              <div className="text-gray-400 italic text-sm mt-1">
-                <Spinner />
+              <div className="text-gray-400 italic text-sm mt-1 pb-1 flex items-center justify-center">
+                <Spinner message={"fetching documents..."} />
               </div>
             )}
           </div>
