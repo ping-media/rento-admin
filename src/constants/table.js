@@ -74,7 +74,10 @@ export const ALL_BOOKINGS_EXCLUDED_KEYS = new Set([
   "paymentStatus",
 ]);
 
-export const ALL_VEHICLES_EXCLUDED_KEYS = new Set(["vehicleImage"]);
+export const ALL_VEHICLES_EXCLUDED_KEYS = new Set([
+  "vehicleImage",
+  "perDayCost",
+]);
 
 export const PAYMENTS_EXCLUDED_KEYS = new Set(["userId", "paymentMethod"]);
 

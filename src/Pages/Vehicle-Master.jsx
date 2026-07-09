@@ -18,7 +18,6 @@ const VehicleStationModal = lazy(
 );
 
 const VehicleMaster = () => {
-  // const [stationId, setStationId] = useState("");
   const [stationId, setStationId] = useState(
     () => sessionStorage.getItem("allBookingsStationId") || "",
   );
@@ -51,8 +50,21 @@ const VehicleMaster = () => {
 
   // Memoize vehicle data and pagination separately
   const vehicleData = useMemo(() => {
-    return vehicleMaster?.data?.length ? vehicleMaster.data : undefined;
-  }, [vehicleMaster?.data]);
+    if (!vehicleMaster?.data?.length) return undefined;
+
+    if (location.pathname === "/all-vehicles") {
+      return vehicleMaster.data.map((item) => ({
+        vehicleNumber: item.vehicleNumber,
+        vehicleName: item.vehicleName,
+        stationName: item.stationName,
+        vehicleStatus: item.vehicleStatus,
+        maintenance: item.maintenance,
+        ...item,
+      }));
+    }
+
+    return vehicleMaster.data;
+  }, [vehicleMaster?.data, location.pathname]);
 
   const paginationData = useMemo(
     () => vehicleMaster?.pagination,

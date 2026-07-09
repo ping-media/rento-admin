@@ -13,7 +13,7 @@ const UserKycApproveModal = () => {
   const dispatch = useDispatch();
   const { isKycModalActive } = useSelector((state) => state.sideBar);
   const { userDocuments, vehicleMaster } = useSelector(
-    (state) => state.vehicles
+    (state) => state.vehicles,
   );
   const { id } = useParams();
   const location = useLocation();
@@ -98,19 +98,6 @@ const UserKycApproveModal = () => {
         }));
       }
     }
-    // else if (name === "licenseNumber") {
-    //   if (value.length > 16 || value.length < 15) {
-    //     setFormError((prev) => ({
-    //       ...prev,
-    //       licenseNumber: "Enter valid license number",
-    //     }));
-    //   } else {
-    //     setFormError((prev) => ({
-    //       ...prev,
-    //       licenseNumber: "",
-    //     }));
-    //   }
-    // }
   };
 
   // fetching user documents
@@ -125,6 +112,9 @@ const UserKycApproveModal = () => {
       setUserDocument(userDocuments);
     }
   }, [userDocuments]);
+
+  const hasDocuments =
+    Array.isArray(userDocument) && userDocument[0]?.files?.length > 0;
 
   return (
     <div
@@ -159,6 +149,12 @@ const UserKycApproveModal = () => {
         </div>
 
         <div className="p-6 pt-2 text-center">
+          {!userDocumentLoading && !hasDocuments && (
+            <div className="mb-3 rounded bg-yellow-100 border border-yellow-300 p-2 text-sm text-yellow-800 text-left">
+              Please upload the KYC documents first before verifying.
+            </div>
+          )}
+
           {/* user documents  */}
           <div
             className="flex items-center flex-wrap gap-2 border-b mb-3"
@@ -180,8 +176,8 @@ const UserKycApproveModal = () => {
                   );
                 })
               ) : (
-                <p className="text-gray-400 italic text-sm mt-1">
-                  No Images Found.
+                <p className="text-red-500 italic text-sm mt-1 pb-1">
+                  No documents found. Please upload the documents first.
                 </p>
               )
             ) : (
@@ -210,6 +206,7 @@ const UserKycApproveModal = () => {
                 item={"aadharNumber"}
                 require={true}
                 handlevalidateInput={validateInput}
+                disabled={!hasDocuments}
               />
               {formError.aadharNumber !== "" && (
                 <p className="text-sm text-red-500 text-left">
@@ -222,6 +219,7 @@ const UserKycApproveModal = () => {
                 item={"licenseNumber"}
                 require={true}
                 handlevalidateInput={validateInput}
+                disabled={!hasDocuments}
               />
               {formError.licenseNumber !== "" && (
                 <p className="text-sm text-red-500 text-left">
@@ -234,6 +232,7 @@ const UserKycApproveModal = () => {
               className="bg-theme text-gray-100 rounded-md px-4 py-2.5 mt-3 disabled:bg-theme/60 flex items-center w-full justify-center"
               disabled={
                 loading ||
+                !hasDocuments ||
                 formError?.aadharNumber !== "" ||
                 formError?.licenseNumber !== ""
               }

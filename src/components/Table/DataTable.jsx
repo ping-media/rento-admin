@@ -112,7 +112,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                 ) : (
                   <table className="table-auto min-w-full rounded-xl">
                     <thead>
-                      <tr className="bg-gray-50">
+                      <tr className="bg-gray-50 h-14 sm:h-12">
                         <TableHeader
                           Columns={Columns}
                           sortConfig={sortConfig}
@@ -125,7 +125,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                       {newUpdatedData?.length > 0 ? (
                         newUpdatedData.map((item, index) => (
                           <tr
-                            className={`bg-white p-3.5 md:p-0 transition-all duration-500 hover:bg-gray-50 max-h-[10vh] ${location.pathname === "/payments" ? "" : "cursor-pointer"}`}
+                            className={`bg-white p-3.5 md:p-0 transition-all duration-500 hover:bg-gray-50 h-14 sm:h-12 ${location.pathname === "/payments" ? "" : "cursor-pointer"}`}
                             key={`row-${item._id}-${index}`}
                             onClick={() => handleViewData(item)}
                           >

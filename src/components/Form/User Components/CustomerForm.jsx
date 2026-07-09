@@ -6,8 +6,8 @@ import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
 import Spinner from "../../Spinner/Spinner";
 import { userType, userTypeWithoutAdmin } from "../../../Data/commonData";
 import UserRideTimeLine from "../../Booking/UserRideTimeLine";
-// import PreLoader from "../../Skeleton/PreLoader";
 import { format, parseISO } from "date-fns";
+import KycData from "./KycData";
 
 const formatDateTime = (isoString) => {
   if (!isoString) return null;
@@ -34,6 +34,13 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
     vehicleMaster?.createdAt ||
     "";
 
+  const userId =
+    vehicleMaster?.[0]?.userId?._id ||
+    vehicleMaster?.userId?._id ||
+    vehicleMaster?.[0]?._id ||
+    vehicleMaster?._id ||
+    "";
+
   const isAddCustomer = location.pathname.endsWith("/all-users/add-new");
 
   const isAllCustomerEditable = useMemo(() => {
@@ -50,33 +57,29 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
             : ""
         }`}
       >
-        {/* (!ridesLoading ? ( */}
-        {
-          isAllCustomerEditable && (
-            <div className="w-full lg:flex-1 order-2">
-              <h2 className="text-lg text-theme font-semibold uppercase">
-                Rides History
-              </h2>
-              <UserRideTimeLine />
-            </div>
-          )
-          // ) : (
-          //   <PreLoader />
-          // ))
-        }
+        {isAllCustomerEditable && (
+          <div className="w-full lg:flex-1 order-2">
+            <h2 className="text-lg text-theme font-semibold uppercase">
+              Rides History
+            </h2>
+            <UserRideTimeLine />
+          </div>
+        )}
         <form
           className="mb-5 w-full lg:flex-1 order-1"
           onSubmit={handleFormSubmit}
         >
           {userCreatedAt && userCreatedAt?.trim() !== "" && !isProfile && (
-            <div className="mb-5">
-              <p>
+            <div className="mb-3">
+              <p className="text-base">
                 <span className="font-semibold">User Created at:</span>{" "}
                 {formatDateTime(userCreatedAt)}
               </p>
             </div>
           )}
-          <div className="flex flex-wrap gap-4">
+          {!isProfile && <KycData userId={userId} />}
+
+          <div className="flex flex-wrap gap-4 border-t pt-3">
             <>
               <div className="w-full lg:w-[48%]">
                 <Input

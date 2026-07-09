@@ -48,9 +48,6 @@ const TablePageHeader = ({
 
   // for changing data based on search query
   useEffect(() => {
-    // else if (searchTerm?.trim() !== "" && searchTerm !== null) {
-    //   dispatch(handleChangeSearchTerm(searchTerm));
-    // }
     if (inputSearchQuery?.trim() !== "") {
       dispatch(handleChangeSearchTerm(inputSearchQuery));
     } else {
@@ -138,34 +135,38 @@ const TablePageHeader = ({
           )}
 
           {/* most used filters button */}
-          <button
-            className="flex md:hidden border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
-            title="pending-pickup"
-            disabled={loading}
-            onClick={() => {
-              searchDataBasedOnFilters(
-                "rideStatus=pending&sortBy=BookingStartDateAndTime&sortOrder=asc",
-                "Pending Pickups",
-                true,
-              );
-            }}
-          >
-            Pending Pickups
-          </button>
-          <button
-            className="flex md:hidden border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
-            title="pending-dropoff"
-            disabled={loading}
-            onClick={() => {
-              searchDataBasedOnFilters(
-                "rideStatus=ongoing&sortBy=BookingEndDateAndTime&sortOrder=asc",
-                "Pending Drops",
-                true,
-              );
-            }}
-          >
-            Pending Drops
-          </button>
+          {isBookings && (
+            <>
+              <button
+                className="flex md:hidden border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
+                title="pending-pickup"
+                disabled={loading}
+                onClick={() => {
+                  searchDataBasedOnFilters(
+                    "rideStatus=pending&sortBy=BookingStartDateAndTime&sortOrder=asc",
+                    "Pending Pickups",
+                    true,
+                  );
+                }}
+              >
+                Pending Pickups
+              </button>
+              <button
+                className="flex md:hidden border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
+                title="pending-dropoff"
+                disabled={loading}
+                onClick={() => {
+                  searchDataBasedOnFilters(
+                    "rideStatus=ongoing&sortBy=BookingEndDateAndTime&sortOrder=asc",
+                    "Pending Drops",
+                    true,
+                  );
+                }}
+              >
+                Pending Drops
+              </button>
+            </>
+          )}
 
           {showFilters && (
             <button
