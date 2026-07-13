@@ -25,7 +25,7 @@ const StationFilter = ({ stationId, setStationId }) => {
   }, []);
 
   const handleClearStationId = () => {
-    setStationId("");
+    setStationId && setStationId("");
     setResetDropdown(true);
   };
 

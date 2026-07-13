@@ -1,6 +1,6 @@
 import { camelCaseToSpaceSeparated } from "../../utils/index";
 import React from "react";
-import CheckBoxInputToMultiple from "../InputAndDropdown/CheckBoxInputToMultiple";
+// import CheckBoxInputToMultiple from "../InputAndDropdown/CheckBoxInputToMultiple";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
@@ -35,7 +35,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
 
   return (
     <>
-      {Columns?.length > 0 && location.pathname == "/all-vehicles" && (
+      {/* {Columns?.length > 0 && location.pathname == "/all-vehicles" && (
         <th
           scope="col"
           className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
@@ -45,7 +45,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             unique={"headerSelected"}
           />
         </th>
-      )}
+      )} */}
 
       <th
         scope="col"

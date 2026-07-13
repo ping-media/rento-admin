@@ -50,10 +50,11 @@ const VehicleMaster = () => {
 
   // Memoize vehicle data and pagination separately
   const vehicleData = useMemo(() => {
-    if (!vehicleMaster?.data?.length) return undefined;
+    // if (!vehicleMaster?.data?.length) return undefined;
+    const data = vehicleMaster?.data ?? [];
 
     if (location.pathname === "/all-vehicles") {
-      return vehicleMaster.data.map((item) => ({
+      return data.map((item) => ({
         vehicleNumber: item.vehicleNumber,
         vehicleName: item.vehicleName,
         stationName: item.stationName,
@@ -63,7 +64,7 @@ const VehicleMaster = () => {
       }));
     }
 
-    return vehicleMaster.data;
+    return data;
   }, [vehicleMaster?.data, location.pathname]);
 
   const paginationData = useMemo(

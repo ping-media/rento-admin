@@ -42,7 +42,12 @@ const ChangeBulkVehicle = ({
       return;
     }
 
-    const excludedKeys = ["perDayCost", "freeKms", "vehicleStatus"];
+    const excludedKeys = [
+      "perDayCost",
+      "freeKms",
+      "weekendCost",
+      "vehicleStatus",
+    ];
 
     let vehiclePlan = Object.entries(results)
       .filter(([key]) => !excludedKeys.includes(key))
@@ -109,6 +114,16 @@ const ChangeBulkVehicle = ({
           updateData: {
             ...(data.updateData || {}),
             perDayCost: Number(results.perDayCost),
+          },
+        };
+      }
+
+      if (results.weekendCost > 0) {
+        data = {
+          ...data,
+          updateData: {
+            ...(data.updateData || {}),
+            weekendCost: Number(results.weekendCost),
           },
         };
       }
@@ -195,6 +210,7 @@ const ChangeBulkVehicle = ({
     const vehiclePlan = vehicle?.vehiclePlan ?? [];
     const daily = {
       perdaycost: vehicle?.perDayCost ?? 0,
+      weekendcost: vehicle?.weekendCost ?? 0,
       freeKms: vehicle?.freeKms ?? 0,
     };
 
@@ -258,7 +274,7 @@ const ChangeBulkVehicle = ({
           <form onSubmit={handleChangeVehicle}>
             <div className="mb-2 flex items-center gap-2">
               <Input
-                placeholder="Per Day Cost"
+                placeholder="Week Cost"
                 item={"perDayCost"}
                 defaultValue={daily?.perdaycost || ""}
                 type="number"
@@ -267,6 +283,15 @@ const ChangeBulkVehicle = ({
                 placeholder="Km Limit"
                 item={"freeKms"}
                 defaultValue={daily?.freeKms || ""}
+                type="number"
+              />
+            </div>
+
+            <div className="mb-2 flex items-center gap-2">
+              <Input
+                placeholder="Weekend Cost"
+                item={"weekendCost"}
+                defaultValue={daily?.weekendcost || ""}
                 type="number"
               />
             </div>
@@ -324,10 +349,10 @@ const ChangeBulkVehicle = ({
                 formLoading || planMasterLoading || tempLoading?.loading
               }
             >
-              {!formLoading ? (
-                "Update Price"
-              ) : (
+              {formLoading ? (
                 <Spinner message={"loading..."} />
+              ) : (
+                "Update Price"
               )}
             </button>
           </form>

@@ -43,6 +43,7 @@ const TablePageHeader = ({
     if (vehiclesFilter.vehicleName) count++;
     if (vehiclesFilter.search) count++;
     if (vehiclesFilter.maintenanceType) count++;
+    if (vehiclesFilter.stationId) count++;
     return count;
   }, [vehiclesFilter]);
 

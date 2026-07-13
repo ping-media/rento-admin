@@ -4,7 +4,8 @@ import {
   setActiveFilterName,
   setFilters,
   setSearch,
-  setVehicleName,
+  setStationId,
+  // setVehicleName,
 } from "../Redux/PaginationSlice/PaginationSlice";
 import { getData } from "../Data/index";
 import { toggleFilterSideBar } from "../Redux/SideBarSlice/SideBarSlice";
@@ -212,27 +213,40 @@ const useSidebarFilter = () => {
     const formData = new FormData(event.target);
     let result = Object.fromEntries(formData.entries());
 
+    // console.log(result);
+    // return;
+
     // if (!result.vehicleName && !result.stationName) {
-    if (!result.vehicleName && !result.stationId) {
+    if (!result.search && !result.stationId) {
       handleAsyncError(dispatch, "Atleast add one field in order filter data.");
       return;
     }
 
     if (
-      result.vehicleName === vehiclesFilter.vehicleName &&
-      result.stationName === vehiclesFilter.stationName
+      result.search === vehiclesFilter.search &&
+      result.stationId === vehiclesFilter.stationId
     )
       return;
+    // if (
+    //   result.vehicleName === vehiclesFilter.vehicleName &&
+    //   result.stationName === vehiclesFilter.stationName
+    // )
+    //   return;
 
     try {
       setFormLoading(true);
-      if (result.vehicleName !== "" && result.stationName !== "") {
-        dispatch(setVehicleName(result.vehicleName));
-        dispatch(setSearch(result.stationName));
-      } else if (result.vehicleName !== "") {
-        dispatch(setVehicleName(result.vehicleName));
-      } else if (result.stationName !== "") {
-        dispatch(setSearch(result.stationName));
+      // if (result.vehicleName !== "" && result.stationName !== "") {
+      if (result.search !== "" && result.stationId !== "") {
+        dispatch(setStationId(result.stationId));
+        dispatch(setSearch(result.search));
+        // dispatch(setVehicleName(result.vehicleName));
+        // dispatch(setSearch(result.stationName));
+      } else if (result.search !== "") {
+        // dispatch(setVehicleName(result.vehicleName));
+        dispatch(setSearch(result.search));
+      } else if (result.stationId !== "") {
+        dispatch(setStationId(result.stationId));
+        // dispatch(setSearch(result.stationName));
       }
       dispatch(toggleFilterSideBar());
     } catch (error) {

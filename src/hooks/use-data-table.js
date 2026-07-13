@@ -1,5 +1,5 @@
 import { EXCLUDED_KEYS, ROUTE_EXCLUSIONS } from "../constants/table";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addVehicleIdToDelete } from "../Redux/VehicleSlice/VehicleSlice";

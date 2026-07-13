@@ -13,6 +13,27 @@ const BookingTimelineNoteModal = lazy(
   () => import("../../components/Modal/BookingTimelineNoteModal"),
 );
 
+function formatDateTime(dateString) {
+  if (!dateString) return "";
+
+  const [date, time] = dateString.split(", ");
+  const [day, month, year] = date.split("/");
+
+  const formattedDate = new Date(`${year}-${month}-${day}T${time}`);
+
+  return formattedDate
+    .toLocaleString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace("am", "AM")
+    .replace("pm", "PM");
+}
+
 const BookingTimeLine = () => {
   const { timeLineData } = useSelector((state) => state.vehicles);
   const [loading] = useState(false);
@@ -63,10 +84,7 @@ const BookingTimeLine = () => {
 
       <div className="container mx-auto py-4">
         <div className="relative wrap overflow-hidden">
-          <div
-            className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-[29.3%] md:left-[37.5%]"
-            // style={{ left: "37.5%" }}
-          ></div>
+          <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-[29.3%] md:left-[37.5%]"></div>
 
           {!loading &&
             timeLineData != null &&
@@ -84,10 +102,14 @@ const BookingTimeLine = () => {
                 >
                   <div className="order-1 w-3/12 md:w-4/12 text-right">
                     <p className="text-gray-700 text-sm leading-tight whitespace-pre-line">
-                      {typeof item?.date === "number" &&
-                        millisecToReadableFormat(item?.date)
-                          .split(/,(?=[^,]*$)/)
-                          .join("\n")}
+                      {typeof item?.date === "number"
+                        ? millisecToReadableFormat(item?.date)
+                            .split(/,(?=[^,]*$)/)
+                            .join("\n")
+                        : item.date &&
+                          formatDateTime(item?.date)
+                            .split(/,(?=[^,]*$)/)
+                            .join("\n")}
                     </p>
                   </div>
 

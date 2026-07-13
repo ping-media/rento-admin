@@ -69,7 +69,6 @@ const FilterSideBar = ({ stationId, setStationId }) => {
         isFilterOpen ? "bg-black bg-opacity-50" : "hidden"
       } transition-all duration-300 ease-in-out`}
     >
-      {/* {loading && <PreLoader />} */}
       <div
         ref={sideBarRef}
         className={`shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200 w-full lg:w-[22%] lg:float-right ${
@@ -156,21 +155,24 @@ const FilterSideBar = ({ stationId, setStationId }) => {
                 )}
                 <div className="mb-2">
                   <Input
-                    item={"vehicleName"}
-                    placeholder={"Vehicle Name"}
+                    item={"search"}
+                    // item={"vehicleName"}
+                    placeholder={"Vehicle Name/ Brand"}
                     isModalClose={isFilterOpen}
-                    value={vehiclesFilter.vehicleName}
+                    value={vehiclesFilter.search}
+                    // value={vehiclesFilter.vehicleName}
                     excludeLocation={"/all-vehicles"}
                   />
                 </div>
                 <div className="mb-2">
-                  <Input
+                  <StationFilter />
+                  {/* <Input
                     item={"stationName"}
                     placeholder={"Station Name"}
                     isModalClose={isFilterOpen}
                     value={vehiclesFilter.search}
                     excludeLocation={"/all-vehicles"}
-                  />
+                  /> */}
                 </div>
                 <button
                   type="submit"

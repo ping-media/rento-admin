@@ -13,7 +13,7 @@ export const OrderSummaryList = React.memo(({ booking }) => {
     ? booking?.bookingPrice?.extendAmount[0]?.BookingStartDateAndTime
     : booking?.BookingEndDateAndTime;
 
-  const mainBookingDuration = getDurationInDays(startDate, endDate);
+  const mainBookingDuration = getDurationInDays(startDate, endDate, "ceil");
 
   return (
     <>

@@ -163,6 +163,7 @@ const fetchVehicleMasterWithPagination = debounce(
           vehiclesFilter &&
           (vehiclesFilter.vehicleName?.trim() ||
             vehiclesFilter.search?.trim() ||
+            vehiclesFilter.stationId?.trim() ||
             vehiclesFilter.maintenanceType?.trim()),
         );
 
@@ -188,17 +189,33 @@ const fetchVehicleMasterWithPagination = debounce(
         }
       }
 
+      // if (
+      //   vehiclesFilter.vehicleName !== "" &&
+      //   vehiclesFilter.search !== "" &&
+      //   vehiclesFilter.maintenanceType !== ""
+      // ) {
+      //   dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
+      // } else if (
+      //   vehiclesFilter.vehicleName !== "" ||
+      //   vehiclesFilter.search !== ""
+      // ) {
+      //   dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
+      // } else if (vehiclesFilter.maintenanceType !== "") {
+      //   dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
+      // }
       if (
         vehiclesFilter.vehicleName !== "" &&
         vehiclesFilter.search !== "" &&
+        vehiclesFilter.stationId !== "" &&
         vehiclesFilter.maintenanceType !== ""
       ) {
-        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&stationId=${vehiclesFilter?.stationId}&maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
       } else if (
         vehiclesFilter.vehicleName !== "" ||
-        vehiclesFilter.search !== ""
+        vehiclesFilter.search !== "" ||
+        vehiclesFilter.stationId !== ""
       ) {
-        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&stationId=${vehiclesFilter?.stationId}&page=${currentPage}&limit=${limit}`;
       } else if (vehiclesFilter.maintenanceType !== "") {
         dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
       } else if (isSearchTermPresent && isSearchTermPresent.trim() !== "") {

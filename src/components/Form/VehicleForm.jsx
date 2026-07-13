@@ -93,24 +93,6 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           </div>
         </div>
       )}
-      {/* <div className={`border-b-2 ${!id ? "mb-5" : "pb-5 mb-5"}`}>
-        <h2 className="font-bold">
-          {!id
-            ? "Select Package"
-            : `Package Applied: ${
-                vehicleMaster && vehicleMaster[0]?.vehiclePlan?.length
-              } Plan`}
-        </h2>
-
-        <div className="w-full pb-2">
-          <VehiclePlan
-            collectedData={collectedData}
-            data={
-              (id && vehicleMaster && vehicleMaster[0]?.vehiclePlan) || null
-            }
-          />
-        </div>
-      </div> */}
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
         <>
@@ -206,8 +188,18 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <Input
               item={"perDayCost"}
+              placeholder={"Week Cost"}
               type="number"
               value={id && Number(vehicleMaster[0]?.perDayCost)}
+              require={true}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"weekendCost"}
+              placeholder={"Weekend Cost"}
+              type="number"
+              value={id && Number(vehicleMaster[0]?.weekendCost)}
               require={true}
             />
           </div>

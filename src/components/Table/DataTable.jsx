@@ -6,7 +6,7 @@ import {
 import Pagination from "../Pagination/Pagination.jsx";
 import React, { useEffect } from "react";
 import InputSwitch from "../InputAndDropdown/InputSwitch.jsx";
-import CheckBoxInput from "../InputAndDropdown/CheckBoxInput.jsx";
+// import CheckBoxInput from "../InputAndDropdown/CheckBoxInput.jsx";
 import StatusChange from "./StatusChange.jsx";
 import TableNotFound from "../Skeleton/TableNotFound.jsx";
 import TableHeader from "./TableHeader.jsx";
@@ -64,15 +64,28 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
 
   //filtering data selecting only field we need
   useEffect(() => {
-    if (!Data?.length) return;
+    if (!Data?.length) {
+      setNewUpdatedData([]);
+      return;
+    }
 
     getTableHeader(Data);
     loadFiltersAndData();
 
-    // clear the previous data
     setNewUpdatedData([]);
     getTableValue(Data);
   }, [Data, totalPages]);
+
+  // useEffect(() => {
+  //   if (!Data?.length) return;
+
+  //   getTableHeader(Data);
+  //   loadFiltersAndData();
+
+  //   // clear the previous data
+  //   setNewUpdatedData([]);
+  //   getTableValue(Data);
+  // }, [Data, totalPages]);
 
   // Add this useEffect to clear data when loading starts
   // useEffect(() => {
@@ -130,7 +143,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                             onClick={() => handleViewData(item)}
                           >
                             {/* Checkbox — vehicles page only */}
-                            {location.pathname === "/all-vehicles" && (
+                            {/* {location.pathname === "/all-vehicles" && (
                               <td
                                 className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
                                 key={`checkbox-${item._id}-${index}`}
@@ -138,7 +151,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               >
                                 <CheckBoxInput isId={item?._id} />
                               </td>
-                            )}
+                            )} */}
 
                             {/* Serial number */}
                             <td
