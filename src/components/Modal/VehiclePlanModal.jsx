@@ -14,7 +14,7 @@ const VehiclePlanModal = ({
   onClose,
   planData = [],
   title = "Vehicle Package List",
-  image = "",
+  info = null,
 }) => {
   if (!isPlanModalActive) return null;
 
@@ -55,10 +55,10 @@ const VehiclePlanModal = ({
         </div>
 
         <div className="overflow-y-auto flex-1 p-4 pt-2">
-          {image?.trim() !== "" && (
-            <div className="w-full h-32 md:h-40 border mb-3.5 md:mb-5">
+          {info !== null && info?.image?.trim() !== "" && (
+            <div className="w-full h-24 md:h-32 border mb-3.5 md:mb-5">
               <img
-                src={image}
+                src={info.image}
                 alt={title}
                 className="w-full h-full object-contain"
                 loading="lazy"
@@ -78,7 +78,7 @@ const VehiclePlanModal = ({
                     {HEADERS.map((col) => (
                       <th
                         key={col.key}
-                        className="px-2.5 py-2 text-center truncate max-w-24 md:max-w-auto"
+                        className="p-2 text-center truncate max-w-24 md:max-w-auto"
                       >
                         {col.label}
                       </th>
@@ -98,7 +98,7 @@ const VehiclePlanModal = ({
 
                         return (
                           <td
-                            className={`px-2.5 py-2 font-normal capitalize text-center ${col.key === "planPrice" ? "text-theme font-medium" : ""}`}
+                            className={`p-2 font-normal capitalize text-center ${col.key === "planPrice" ? "text-theme font-medium" : ""}`}
                             key={col.key}
                           >
                             {col.key === "planPrice" && "₹"}
@@ -114,6 +114,19 @@ const VehiclePlanModal = ({
               </table>
             </div>
           )}
+
+          <div className="border-t pt-2 flex-col gap-1.5">
+            <p>
+              <span className="text-theme">*</span>Extra kilometer will be
+              charged at ₹{info.extraKmsCharges} per km.
+            </p>
+            <p>
+              <span className="text-theme">*</span>Extra Security deposit: ₹
+              {info.refundableDeposit !== "--"
+                ? formatNumber(Number(info.refundableDeposit))
+                : info.refundableDeposit}
+            </p>
+          </div>
         </div>
       </div>
     </div>

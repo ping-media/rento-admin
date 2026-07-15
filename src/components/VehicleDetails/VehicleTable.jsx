@@ -25,7 +25,7 @@ const VehicleTable = ({
           </th>
           <th className="px-3 py-2 text-left">SL</th>
           <th className="px-3 py-2 text-left">Vehicle Number</th>
-          <th className="px-3 py-2 text-center">Station Name</th>
+          <th className="px-3 py-2 text-center">Booking Id</th>
           <th className="px-3 py-2 text-center">Under Maintenance</th>
           <th className="px-3 py-2 text-center">Action</th>
         </tr>
@@ -54,7 +54,13 @@ const VehicleTable = ({
             </td>
 
             <td className="px-3 py-2 text-center capitalize">
-              {vehicle.stationName}
+              <span
+                className={`${vehicle.currentBooking === null ? "bg-green-500/30" : "bg-yellow-500/35"} rounded-md p-2`}
+              >
+                {vehicle.currentBooking !== null
+                  ? vehicle.currentBooking.bookingId
+                  : "Available"}
+              </span>
             </td>
             <td className="px-3 py-2 text-center capitalize">
               <span

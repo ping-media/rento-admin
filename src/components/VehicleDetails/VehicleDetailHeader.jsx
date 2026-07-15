@@ -5,10 +5,10 @@ import {
   toggleVehicleServiceModal,
   toggleVehicleUpdateModal,
 } from "../../Redux/SideBarSlice/SideBarSlice";
-import { tableIcons } from "../../Data/Icons";
+// import { tableIcons } from "../../Data/Icons";
 import { Link, useParams } from "react-router-dom";
 
-const VehicleDetailHeader = () => {
+const VehicleDetailHeader = ({ setIsPlanModalOpen }) => {
   const { id } = useParams();
   const { loggedInRole } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -23,35 +23,43 @@ const VehicleDetailHeader = () => {
       </div>
       <div className="flex items-center flex-wrap gap-2">
         <button
-          className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
+          className="bg-theme p-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
           type="button"
           onMouseEnter={() => {
             import("../../components/Modal/ChangeBulkVehicle");
           }}
           onClick={() => dispatch(toggleVehicleUpdateModal())}
         >
-          {tableIcons["common-edit"]}
-          Bulk Edit Price
+          {/* {tableIcons["common-edit"]} */}
+          Bulk Update
         </button>
 
         <button
-          className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
+          className="bg-theme p-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
+          type="button"
+          onClick={() => setIsPlanModalOpen(true)}
+        >
+          Traiff
+        </button>
+
+        <button
+          className="bg-theme p-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
           type="button"
           onMouseEnter={() => {
             import("../../components/Table/MaintenanceTable");
           }}
           onClick={() => dispatch(toggleVehicleServiceModal())}
         >
-          {tableIcons["add"]}
-          Add Maintenance
+          {/* {tableIcons["add"]} */}
+          Add Block
         </button>
 
         {loggedInRole !== "manager" && (
           <Link
-            className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
+            className="bg-theme p-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
             to={`/all-vehicles/${id}`}
           >
-            {tableIcons["common-edit"]}
+            {/* {tableIcons["common-edit"]} */}
             <span>Edit</span>
           </Link>
         )}

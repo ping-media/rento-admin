@@ -236,9 +236,16 @@ const ChangeBulkVehicle = ({
       <div className="relative w-full max-w-xl bg-white rounded-md shadow-xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex justify-between border-b p-2 sticky top-0 bg-white z-10">
-          <h2 className="text-theme font-semibold text-lg uppercase">
-            Update Price
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-theme font-semibold text-lg uppercase">
+              Update Price
+            </h2>
+            {selectedVehicleIds?.length > 0 && (
+              <span className="text-md text-left font-normal text-theme border px-2 py-0.5 rounded-full border-theme bg-theme/10">
+                {selectedVehicleIds?.length} Vehicles Selected
+              </span>
+            )}
+          </div>
           <button
             onClick={handleCloseModal}
             type="button"
@@ -264,17 +271,10 @@ const ChangeBulkVehicle = ({
 
         {/* Scrollable content */}
         <div className="overflow-y-auto px-4 2xl:px-6 py-2.5 flex-1">
-          {selectedVehicleIds?.length > 0 && (
-            <div className="pb-2 border-b mb-2">
-              <span className="text-md text-left font-normal text-theme border px-2 py-0.5 rounded-full border-theme bg-theme/10">
-                {selectedVehicleIds?.length} Vehicles Selected
-              </span>
-            </div>
-          )}
           <form onSubmit={handleChangeVehicle}>
             <div className="mb-2 flex items-center gap-2">
               <Input
-                placeholder="Week Cost"
+                placeholder="Weekday Cost"
                 item={"perDayCost"}
                 defaultValue={daily?.perdaycost || ""}
                 type="number"
@@ -297,9 +297,9 @@ const ChangeBulkVehicle = ({
             </div>
 
             <div className="mb-2">
-              <h2 className="text-md text-left font-bold border-b pb-1 mb-1.5">
+              {/* <h2 className="text-md text-left font-bold border-b pb-1 mb-1.5">
                 Plan Price & Km Limit
-              </h2>
+              </h2> */}
               <div className="flex justify-center flex-wrap gap-2 items-center">
                 {planMasterLoading ? (
                   <Spinner />

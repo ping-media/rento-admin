@@ -22,7 +22,6 @@ const VehicleGroupUpdate = ({
   // for adding maintenance records in bulk
   const [bulkUnblockConfirm, setBulkUnblockConfirm] = useState(false);
   const [unblocking, setUnblocking] = useState(false);
-  // const [maintenanceVehicleId, setMaintenanceVehicleId] = useState([]);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
@@ -197,16 +196,6 @@ const VehicleGroupUpdate = ({
             </button>
           </div>
         )}
-      {/* {maintenanceVehicleId.length > 0 && (
-        <div className="flex justify-end mb-2">
-          <button
-            className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-sm hover:opacity-90"
-            onClick={() => setBulkUnblockConfirm(true)}
-          >
-            Unblock Selected ({maintenanceVehicleId.length})
-          </button>
-        </div>
-      )} */}
 
       {allVehicles?.length === 0 ? (
         <p className="text-center text-gray-500 italic">

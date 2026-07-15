@@ -56,24 +56,6 @@ const PriceCell = ({ item, column }) => {
       return sum;
     }, 0);
   }, [item?.bookingPrice?.diffAmount]);
-  // const diffPrice = useMemo(() => {
-  //   if (!item.bookingPrice?.diffAmount?.length > 0) return 0;
-
-  //   return item.bookingPrice.diffAmount.reduce((sum, diff) => {
-  //     if (diff?.status === "paid") {
-  //       if (diff?.refundAmount > 0) {
-  //         return sum - Number(diff?.refundAmount || 0);
-  //       }
-
-  //       if (diff?.amount > 0) {
-  //         if (diff?.oldAmount !== diff?.newAmount) {
-  //           return sum + Number(diff?.amount || 0);
-  //         }
-  //       }
-  //     }
-  //     return sum;
-  //   }, 0);
-  // }, [item?.bookingPrice?.diffAmount]);
 
   const lateFeeBasedOnHour = !isNaN(
     Number(item.bookingPrice?.lateFeeBasedOnHour),
@@ -114,13 +96,6 @@ const PriceCell = ({ item, column }) => {
       : item?.bookingPrice?.discountTotalPrice > 0
         ? item?.bookingPrice?.discountTotalPrice
         : item?.bookingPrice?.totalPrice;
-  // const paymentPrice =
-  //   item?.paymentStatus === "partially_paid" ||
-  //   item?.paymentStatus === "partiallyPay"
-  //     ? item?.bookingPrice?.userPaid
-  //     : item?.bookingPrice?.discountTotalPrice > 0
-  //       ? item?.bookingPrice?.discountTotalPrice
-  //       : item?.bookingPrice?.totalPrice;
 
   if (location.pathname === "/logs") {
     return (

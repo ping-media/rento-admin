@@ -6,7 +6,6 @@ import {
 import Pagination from "../Pagination/Pagination.jsx";
 import React, { useEffect } from "react";
 import InputSwitch from "../InputAndDropdown/InputSwitch.jsx";
-// import CheckBoxInput from "../InputAndDropdown/CheckBoxInput.jsx";
 import StatusChange from "./StatusChange.jsx";
 import TableNotFound from "../Skeleton/TableNotFound.jsx";
 import TableHeader from "./TableHeader.jsx";
@@ -168,6 +167,18 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                               })()}
                             </td>
 
+                            {location.pathname === "/all-vehicles" && (
+                              <td
+                                className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <InputSwitch
+                                  value={item["vehicleStatus"]}
+                                  id={item?._id}
+                                />
+                              </td>
+                            )}
+
                             {/* Main columns */}
                             {Columns.filter(
                               (col) =>
@@ -249,11 +260,28 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     <TableImage item={item} column={column} />
                                   );
 
+                                if (
+                                  typeof item[column] === "object" &&
+                                  column === "currentBooking"
+                                )
+                                  return (
+                                    <td
+                                      className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                      key={cellKey}
+                                    >
+                                      <span
+                                        className={`${item[column] === null ? "bg-green-500/30" : "bg-yellow-500/35"} rounded-md px-4 py-2`}
+                                      >
+                                        {item[column]?.bookingId ?? "Available"}
+                                      </span>
+                                    </td>
+                                  );
+
                                 if (typeof item[column] === "object")
                                   return (
                                     <React.Fragment key={cellKey}>
                                       <PriceCell
-                                        key={`payment-${item._id}-${column}-${columnIndex}-${index}`}
+                                        key={`booking-${item._id}-${column}-${columnIndex}-${index}`}
                                         item={item}
                                         column={column}
                                       />

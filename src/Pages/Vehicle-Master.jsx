@@ -58,8 +58,9 @@ const VehicleMaster = () => {
         vehicleNumber: item.vehicleNumber,
         vehicleName: item.vehicleName,
         stationName: item.stationName,
-        vehicleStatus: item.vehicleStatus,
+        currentBooking: item.currentBooking,
         maintenance: item.maintenance,
+        vehicleStatus: item.vehicleStatus,
         ...item,
       }));
     }

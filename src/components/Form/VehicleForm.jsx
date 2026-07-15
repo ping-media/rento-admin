@@ -188,7 +188,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <Input
               item={"perDayCost"}
-              placeholder={"Week Cost"}
+              placeholder={"Weekday Cost"}
               type="number"
               value={id && Number(vehicleMaster[0]?.perDayCost)}
               require={true}

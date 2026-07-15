@@ -11,6 +11,8 @@ const headerForBooking = [
   { bookingPrice: "Price" },
 ];
 
+const headerForVehicle = [{ currentBooking: "Booking Id" }];
+
 const headerForPayment = [
   { payInitFrom: "Payment Type" },
   { paymentgatewayOrderId: "Payment Order ID" },
@@ -20,6 +22,7 @@ const headerForPayment = [
 const pages = [
   { page: "/all-bookings", header: headerForBooking },
   { page: "/payments", header: headerForPayment },
+  { page: "/all-vehicles", header: headerForVehicle },
 ];
 
 const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
@@ -53,6 +56,16 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
       >
         SL
       </th>
+
+      {location.pathname === "/all-vehicles" && (
+        <th
+          scope="col"
+          className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+        >
+          Status
+        </th>
+      )}
+
       {Columns.filter(
         (item) =>
           !item.includes("status") &&
