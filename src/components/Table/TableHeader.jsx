@@ -193,7 +193,8 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           );
         }
 
-        if (item === "isEmailVerified") {
+        // if (item === "isEmailVerified") {
+        if (item === "kycApproved") {
           return (
             <th
               scope="col"
@@ -209,7 +210,8 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           item === "state" ||
           item === "isContactVerified" ||
           item === "isDocumentVerified" ||
-          item === "kycApproved" ||
+          item === "isEmailVerified" ||
+          // item === "kycApproved" ||
           item === "openEndTime"
         ) {
           return null;

@@ -90,11 +90,11 @@ const VehicleSelectorSkeleton = () => {
 
       <div className="h-12 w-full bg-gray-200 rounded-md mb-2" />
 
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <div className="h-10 w-full bg-gray-100 rounded-md" />
         <div className="h-10 w-full bg-gray-100 rounded-md" />
         <div className="h-10 w-full bg-gray-100 rounded-md" />
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -23,7 +23,7 @@ const UserKycApproveModal = () => {
     aadharNumber: "",
     licenseNumber: "",
   });
-  const [userDocumentLoading, setUserDocumentLoading] = useState([]);
+  const [userDocumentLoading, setUserDocumentLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -73,7 +73,10 @@ const UserKycApproveModal = () => {
       if (response?.status !== 200) {
         return handleAsyncError(dispatch, response?.message);
       }
-      setUserDocument(response?.data);
+      const result = Array.isArray(response?.data)
+        ? response?.data?.[0]?.files
+        : response?.data;
+      setUserDocument(result);
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
     } finally {
@@ -109,12 +112,16 @@ const UserKycApproveModal = () => {
 
   useEffect(() => {
     if (userDocuments !== null) {
-      setUserDocument(userDocuments);
+      const result = Array.isArray(userDocuments)
+        ? userDocuments?.[0]?.files
+        : userDocuments;
+      setUserDocument(result);
     }
   }, [userDocuments]);
 
-  const hasDocuments =
-    Array.isArray(userDocument) && userDocument[0]?.files?.length > 0;
+  const hasDocuments = Array.isArray(userDocument) && userDocument?.length > 0;
+  // const hasDocuments =
+  //   Array.isArray(userDocument) && userDocument[0]?.files?.length > 0;
 
   return (
     <div
@@ -160,10 +167,13 @@ const UserKycApproveModal = () => {
             className="flex items-center flex-wrap gap-2 border-b mb-3"
             id="kyc-gallery"
           >
-            {!userDocumentLoading ? (
+            {/* {!userDocumentLoading ? (
               (userDocument && userDocument[0]?.files?.length > 0) ||
               (userDocument && userDocument?.files) ? (
-                userDocument[0]?.files?.map((item) => {
+                userDocument[0]?.files?.map((item) => { */}
+            {!userDocumentLoading ? (
+              hasDocuments ? (
+                userDocument?.map((item) => {
                   return (
                     <div className="mb-3 w-20" key={item?._id}>
                       <PhotoView
@@ -181,8 +191,8 @@ const UserKycApproveModal = () => {
                 </p>
               )
             ) : (
-              <div className="text-gray-400 italic text-sm mt-1 pb-1 flex items-center justify-center">
-                <Spinner message={"fetching documents..."} />
+              <div className="w-full text-gray-400 italic text-sm mt-1 pb-1 flex items-center justify-center">
+                <Spinner textColor="black" message={"fetching documents..."} />
               </div>
             )}
           </div>

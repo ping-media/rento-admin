@@ -93,7 +93,8 @@ export const SKIP_COLUMNS = new Set([
   "state",
   "isContactVerified",
   "isDocumentVerified",
-  "kycApproved",
+  "isEmailVerified",
+  // "kycApproved",
   "openEndTime",
 ]);
 

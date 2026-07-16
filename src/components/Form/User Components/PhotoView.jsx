@@ -106,7 +106,7 @@ const PhotoView = ({
           </div>
           {showName && (
             <p className="text-center mt-2 capitalize">
-              {item.fileName.split("_")[3] || "--"}
+              {item?.fileName?.split("_")[3] || "--"}
             </p>
           )}
         </div>

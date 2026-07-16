@@ -1,14 +1,9 @@
 import { lazy, memo, Suspense, useMemo, useState } from "react";
-import {
-  formatFullDateAndTime,
-  // formatNumber,
-  // millisecToReadableFormat,
-} from "../../utils/index";
+import { formatFullDateAndTime } from "../../utils/index";
 import { DetailsSkeleton } from "../../components/Skeleton/DetailSkeleton";
 import CancelNoteSection from "./_components/left-booking-details/CancelNoteSection";
 import CustomerSection from "./_components/left-booking-details/CustomerSection";
 import RightSection from "./_components/right-booking-details/RightSection";
-import CopyButton from "../../components/Buttons/CopyButton";
 
 const ChangeVehicleModal = lazy(
   () => import("../../components/Modal/ChangeVehicleModal"),
@@ -28,17 +23,6 @@ const buildBookingData = (booking, setOdometerModal) => {
   const diffAmount = vm?.bookingPrice?.diffAmount
     ? vm?.bookingPrice?.diffAmount[vm?.bookingPrice?.diffAmount?.length - 1]
     : null;
-
-  // const isExtended = vm?.bookingStatus === "extended" || false;
-
-  // const rawBookingEndDateAndTime =
-  //   (vm?.extendBooking?.oldBooking?.length > 0 &&
-  //     vm?.extendBooking?.oldBooking[0]?.BookingEndDateAndTime) ||
-  //   vm?.BookingEndDateAndTime;
-
-  // const BookingEndDateAndTime = !isExtended
-  //   ? vm?.extendBooking?.originalEndDate || rawBookingEndDateAndTime
-  //   : rawBookingEndDateAndTime;
 
   return {
     user: [
@@ -83,7 +67,6 @@ const buildBookingData = (booking, setOdometerModal) => {
         key: "Booking End",
         value: `${vm?.BookingEndDateAndTime && formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
         isVisible: true,
-        // value: `${BookingEndDateAndTime && formatFullDateAndTime(BookingEndDateAndTime)}`,
       },
       {
         key: "Odometer Readings",
@@ -104,42 +87,6 @@ const buildBookingData = (booking, setOdometerModal) => {
         isVisible:
           vm?.rideStatus !== "completed" && vm?.vehicleBasic?.endRide > 0,
       },
-      // {
-      //   key: "Start Odometer Reading",
-      //   value: `${
-      //     vm?.pickupImage?.startMeterReading
-      //       ? `${formatNumber(Number(vm?.pickupImage?.startMeterReading))} Km`
-      //       : ""
-      //   }`,
-      // },
-      // {
-      //   key: "End Odometer Reading",
-      //   value: `${
-      //     vm?.pickupImage?.endMeterReading
-      //       ? `${formatNumber(Number(vm?.pickupImage?.endMeterReading))} km`
-      //       : ""
-      //   }`,
-      // },
-      // {
-      //   key: "Ride Start",
-      //   value: `${
-      //     vm?.vehicleBasic?.RideStart
-      //       ? millisecToReadableFormat(Number(vm?.vehicleBasic?.RideStart))
-      //       : ""
-      //   }`,
-      // },
-      // {
-      //   key: "Ride End",
-      //   value: `${
-      //     vm?.vehicleBasic?.RideEnd
-      //       ? millisecToReadableFormat(Number(vm?.vehicleBasic?.RideEnd))
-      //       : ""
-      //   }`,
-      // },
-      // {
-      //   key: "Extended Till",
-      //   value: `${vm?.BookingEndDateAndTime && formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
-      // },
     ],
   };
 };

@@ -34,7 +34,7 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
     }
   };
 
-  if (loading || hookLoading) {
+  if (hookLoading || loading) {
     return (
       <div className="w-full">
         <div className="flex items-center gap-2 flex-wrap mx-auto">
