@@ -10,7 +10,7 @@ import {
 import { isValidIndianMobile } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 
-const isDev = import.meta.env.VITE_ENV === "development";
+// const isDev = import.meta.env.VITE_ENV === "development";
 
 const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
   const { token, loggedInRole } = useSelector((state) => state.user);
@@ -73,16 +73,16 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
     event.preventDefault();
     setLoading(true);
 
-    if (!isDev) {
-      const isAnyImageMissing = Object.values(imagesUrl).some(
-        (value) => value === "",
-      );
+    // if (!isDev) {
+    //   const isAnyImageMissing = Object.values(imagesUrl).some(
+    //     (value) => value === "",
+    //   );
 
-      if (isAnyImageMissing) {
-        setLoading(false);
-        return handleAsyncError(dispatch, "All Images Required!.");
-      }
-    }
+    //   if (isAnyImageMissing) {
+    //     setLoading(false);
+    //     return handleAsyncError(dispatch, "All Images Required!.");
+    //   }
+    // }
 
     if (!tempVehicleData) {
       setLoading(false);
@@ -138,10 +138,13 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
         }
       }
       // filter data
-      if (!isDev) {
-        const imagesToSend = Object.values(image).filter(Boolean);
+      // if (!isDev) {
+      const imagesToSend = Object.values(image).filter(Boolean);
+
+      if (imagesToSend.length > 0) {
         finalFormData.append("imageLinks", JSON.stringify(imagesToSend));
       }
+      // }
       finalFormData.append("userId", userId);
       finalFormData.append("bookingId", bookingId);
       finalFormData.append("_id", docId);

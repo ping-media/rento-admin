@@ -5,7 +5,7 @@ import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
 import VehicleSearchInput from "../../components/InputAndDropdown/vehicle-search-input";
 import useRideStart from "../../hooks/use-ride-start";
 
-const isDev = import.meta.env.VITE_ENV === "development";
+// const isDev = import.meta.env.VITE_ENV === "development";
 
 const UploadPickupImageModal = ({
   isBookingIdPresent = false,
@@ -86,39 +86,6 @@ const UploadPickupImageModal = ({
               </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-2">
-              {rideVehicleImages.map((item, index) => (
-                <div key={index}>
-                  <ImageUploadAndPreview
-                    title={item?.title}
-                    image={image[item?.title]}
-                    setImageMultiChanger={setImage}
-                    imagesUrl={imagesUrl[item?.title]}
-                    setImageUrlMultiChanger={setImageUrl}
-                    isUpload={true}
-                    userId={userId}
-                    isRequired={!isDev}
-                    isDisableRemove={loading}
-                    customImageText={item?.title}
-                    isLabel={false}
-                    name="image"
-                  />
-                </div>
-              ))}
-            </div>
-
-            {vehicleMaster[0]?.vehicleBasic?.vehicleNumber === "unassigned" && (
-              <div className="flex items-center w-full mb-3">
-                <VehicleSearchInput
-                  booking={vehicleMaster[0]}
-                  selectedVehicle={selectedVehicle}
-                  setSelectedVehicle={setSelectedVehicle}
-                  cachedVehicles={cachedVehicles}
-                  onVehiclesCached={setCachedVehicles}
-                />
-              </div>
-            )}
-
             {(vehicleMaster[0]?.paymentMethod === "cash" ||
               vehicleMaster[0]?.paymentStatus === "partially_paid" ||
               vehicleMaster[0]?.paymentStatus === "partiallyPay") &&
@@ -153,6 +120,7 @@ const UploadPickupImageModal = ({
                   <input type="hidden" name="PaymentMode" value="cash" />
                 </div>
               )}
+
             <div className="flex items-center flex-wrap gap-4 mb-3">
               <div className="w-full lg:w-[48%]">
                 <Input
@@ -213,6 +181,38 @@ const UploadPickupImageModal = ({
                   afterOnChange={handleFormValueChange("address")}
                 />
               </div>
+            </div>
+
+            {vehicleMaster[0]?.vehicleBasic?.vehicleNumber === "unassigned" && (
+              <div className="flex items-center w-full  mb-8 sm:mb-6">
+                <VehicleSearchInput
+                  booking={vehicleMaster[0]}
+                  selectedVehicle={selectedVehicle}
+                  setSelectedVehicle={setSelectedVehicle}
+                  cachedVehicles={cachedVehicles}
+                  onVehiclesCached={setCachedVehicles}
+                />
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 items-center gap-2">
+              {rideVehicleImages.map((item, index) => (
+                <div key={index}>
+                  <ImageUploadAndPreview
+                    title={item?.title}
+                    image={image[item?.title]}
+                    setImageMultiChanger={setImage}
+                    imagesUrl={imagesUrl[item?.title]}
+                    setImageUrlMultiChanger={setImageUrl}
+                    isUpload={true}
+                    userId={userId}
+                    isDisableRemove={loading}
+                    customImageText={item?.title}
+                    isLabel={false}
+                    name="image"
+                  />
+                </div>
+              ))}
             </div>
 
             <button

@@ -139,7 +139,7 @@ const TablePageHeader = ({
           {isBookings && (
             <>
               <button
-                className="flex md:hidden border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
+                className="flex whitespace-nowrap lg:p-2.5 border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 items-center transition-all duration-200 ease-in"
                 title="pending-pickup"
                 disabled={loading}
                 onClick={() => {
@@ -153,7 +153,7 @@ const TablePageHeader = ({
                 Pending Pickups
               </button>
               <button
-                className="flex md:hidden border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
+                className="flex whitespace-nowrap lg:p-2.5 border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 items-center transition-all duration-200 ease-in"
                 title="pending-dropoff"
                 disabled={loading}
                 onClick={() => {

@@ -13,25 +13,83 @@ const BookingTimelineNoteModal = lazy(
   () => import("../../components/Modal/BookingTimelineNoteModal"),
 );
 
+// function formatDateTime(dateString) {
+//   if (!dateString) return "";
+
+//   const [date, time] = dateString.split(", ");
+//   const [day, month, year] = date.split("/");
+
+//   const formattedDate = new Date(`${year}-${month}-${day}T${time}`);
+
+//   return formattedDate
+//     .toLocaleString("en-IN", {
+//       day: "numeric",
+//       month: "short",
+//       year: "numeric",
+//       hour: "2-digit",
+//       minute: "2-digit",
+//       hour12: true,
+//     })
+//     .replace("am", "AM")
+//     .replace("pm", "PM");
+// }
+
 function formatDateTime(dateString) {
   if (!dateString) return "";
 
-  const [date, time] = dateString.split(", ");
-  const [day, month, year] = date.split("/");
+  const [datePart, timePart] = dateString.split(", ");
+  if (!datePart || !timePart) return dateString;
 
-  const formattedDate = new Date(`${year}-${month}-${day}T${time}`);
+  const [day, month, year] = datePart.split("/").map(Number);
 
-  return formattedDate
-    .toLocaleString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
+  let hours = 0;
+  let minutes = 0;
+  let seconds = 0;
+
+  const is12Hour = /am|pm/i.test(timePart);
+
+  if (is12Hour) {
+    const [time, period] = timePart.split(" ");
+    const [h, m, s = "0"] = time.split(":").map(Number);
+
+    hours = h;
+
+    if (period.toUpperCase() === "PM" && hours !== 12) {
+      hours += 12;
+    }
+
+    if (period.toUpperCase() === "AM" && hours === 12) {
+      hours = 0;
+    }
+
+    minutes = m;
+    seconds = Number(s);
+  } else {
+    const [h, m, s = "0"] = timePart.split(":").map(Number);
+
+    hours = h;
+    minutes = m;
+    seconds = Number(s);
+  }
+
+  const date = new Date(year, month - 1, day, hours, minutes, seconds);
+
+  if (isNaN(date.getTime())) return dateString;
+
+  const formattedDate = `${date.toLocaleString("en-US", {
+    month: "short",
+  })} ${date.getDate()}, ${date.getFullYear()}`;
+
+  const formattedTime = date
+    .toLocaleString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
     })
-    .replace("am", "AM")
-    .replace("pm", "PM");
+    .replace("AM", "AM")
+    .replace("PM", "PM");
+
+  return `${formattedDate}, ${formattedTime}`;
 }
 
 const BookingTimeLine = () => {

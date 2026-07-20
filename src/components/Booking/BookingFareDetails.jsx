@@ -39,27 +39,7 @@ const EXCLUDED_BOOKING_PRICE_KEYS = new Set([
 ]);
 
 const BookingFareDetails = ({ rides }) => {
-  // --- prices ---
   const totalBookingPrice = calculateBookingPrice(rides?.bookingPrice);
-  // const bookingPrice =
-  //   rides?.bookingPrice?.isDiscountZero === true ||
-  //   (rides?.bookingPrice?.discountTotalPrice &&
-  //     rides?.bookingPrice?.discountTotalPrice !== 0)
-  //     ? rides?.bookingPrice?.discountTotalPrice
-  //     : rides?.bookingPrice?.totalPrice;
-
-  // const latestMergedVehicleChange = rides?.bookingPrice?.diffAmount
-  //   ?.filter(
-  //     (item) =>
-  //       item.title === "changedVehicle" && item.mergedIntoBookingBalance,
-  //   )
-  //   ?.at(-1);
-
-  // const displayBookingAmount = latestMergedVehicleChange
-  //   ? Number(bookingPrice || 0) +
-  //     Number(latestMergedVehicleChange.newAmount || 0) -
-  //     Number(latestMergedVehicleChange.oldAmount || 0)
-  //   : bookingPrice;
 
   return (
     <>
@@ -259,8 +239,6 @@ const BookingFareDetails = ({ rides }) => {
               <p className="text-sm capitalize text-left">Total Price</p>
               <p className="text-sm font-extrabold text-right text-theme">
                 {`₹${formatPrice(totalBookingPrice || 0)}`}
-                {/* {`₹${formatPrice(bookingPrice || 0)}`} */}
-                {/* {`₹${formatPrice(displayBookingAmount || 0)}`} */}
               </p>
             </li>
             {/* refunded amount */}

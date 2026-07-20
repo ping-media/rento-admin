@@ -26,6 +26,7 @@ import {
 } from "../../constants/table.js";
 import BookingCardView from "./BookingCardView.jsx";
 import TableSkeleton from "./TableSkeleton.jsx";
+import { Link } from "react-router-dom";
 
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
   const {
@@ -269,12 +270,22 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     <td
                                       className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
                                       key={cellKey}
+                                      onClick={(e) => e.stopPropagation()}
                                     >
-                                      <span
-                                        className={`${item[column] === null ? "bg-green-500/30" : "bg-yellow-500/35"} rounded-md px-4 py-2`}
+                                      <Link
+                                        to={
+                                          item[column] !== null
+                                            ? `/all-bookings/details/${item[column]?._id}_${item[column]?.bookingId}`
+                                            : "#"
+                                        }
                                       >
-                                        {item[column]?.bookingId ?? "Available"}
-                                      </span>
+                                        <span
+                                          className={`${item[column] === null ? "bg-green-500/30" : "bg-yellow-500/35"} rounded-md px-4 py-2`}
+                                        >
+                                          {item[column]?.bookingId ??
+                                            "Available"}
+                                        </span>
+                                      </Link>
                                     </td>
                                   );
 

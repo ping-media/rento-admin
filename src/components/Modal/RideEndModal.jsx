@@ -213,6 +213,13 @@ const RideEndModal = ({ id }) => {
       }
     }
 
+    if (Number(EndMeterReading) < Number(oldMeterReading)) {
+      return handleAsyncError(
+        dispatch,
+        `End meter reading must be greater than or equal to ${oldMeterReading} Km.`,
+      );
+    }
+
     setFormLoading(true);
     try {
       let data = {
@@ -234,17 +241,6 @@ const RideEndModal = ({ id }) => {
         ? data.lateFeeBasedOnHour + data.lateFeeBasedOnKM
         : 0;
 
-      // adding refund amount if greater than 0
-      // if (
-      //   formatDateToISO(new Date()).replace(".000Z", "Z") <
-      //   booking?.BookingEndDateAndTime
-      // ) {
-      //   data = {
-      //     ...data,
-      //     closingDate: formatDateToISO(new Date()).replace(".000Z", "Z"),
-      //     refundAmount: refundAmount,
-      //   };
-      // }
       if (refundAmount > 0) {
         data = {
           ...data,
@@ -511,6 +507,11 @@ const RideEndModal = ({ id }) => {
                   type="number"
                   require={true}
                 />
+
+                <p className="mt-1 text-sm text-red-600 text-left">
+                  Start Meter Reading: {formatNumber(Number(oldMeterReading))}{" "}
+                  Km
+                </p>
               </div>
               <div className="mb-2">
                 <Input

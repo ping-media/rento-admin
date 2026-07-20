@@ -17,7 +17,7 @@ const ImageUploadAndPreview = ({
   setImageMultiChanger,
   setImageUrlMultiChanger,
   name = "image",
-  isRequired = true,
+  // isRequired = true,
   isUpload = false,
   isDisableRemove = false,
   isLabel = true,

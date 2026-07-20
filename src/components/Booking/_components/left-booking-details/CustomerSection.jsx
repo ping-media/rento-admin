@@ -8,6 +8,9 @@ import { OrderSummaryList } from "../OrderSummaryList";
 import { Timeline } from "../Timeline";
 
 const CustomerSection = ({ booking, data, tab, tabs, setTab }) => {
+  const isVehicleImages =
+    Object.keys(booking?.pickupImage?.files ?? {}).length > 0;
+
   return (
     <>
       <div className={`${tabs !== "customer" ? "hidden lg:block" : ""}`}>
@@ -46,7 +49,8 @@ const CustomerSection = ({ booking, data, tab, tabs, setTab }) => {
           <h2 className="text-base lg:text-lg font-semibold text-gray-500 mt-5">
             Vehicle Images
           </h2>
-          {booking?.pickupImage !== null ? (
+          {/* {booking?.pickupImage !== null ? ( */}
+          {isVehicleImages ? (
             <VehicleImages pickupImage={booking?.pickupImage} />
           ) : (
             <p className="text-sm italic text-gray-400">
