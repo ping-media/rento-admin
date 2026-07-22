@@ -327,10 +327,10 @@ const BookingTimeLine = () => {
                                   underLine={false}
                                   buttonMessage="(?)"
                                   tooltipData={
-                                    <>
+                                    <p className="max-w-60 text-wrap">
                                       {item.notes[0]?.value} |{" "}
                                       {item.notes[0]?.key}
-                                    </>
+                                    </p>
                                   }
                                 />
                               )}

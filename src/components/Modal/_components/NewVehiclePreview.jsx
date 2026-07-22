@@ -27,10 +27,12 @@ const NewVehiclePreview = ({
       {!showBreakdown ? (
         <>
           <ul className="leading-7 text-left mb-1 text-sm">
-            <li className="font-semibold text-gray-600">
-              Remaining days: {previewData?.priceSummary?.daysLeft} day(s) (
-              {previewData?.priceSummary?.segmentType} period)
-            </li>
+            {!previewData?.isSameMasterSwap && (
+              <li className="font-semibold text-gray-600">
+                Remaining days: {previewData?.priceSummary?.daysLeft} day(s) (
+                {previewData?.priceSummary?.segmentType} period)
+              </li>
+            )}
             <li>
               Current vehicle value for remaining days:{" "}
               <span className="font-semibold">
@@ -55,33 +57,6 @@ const NewVehiclePreview = ({
             </li>
           </ul>
 
-          {/* <div className="mt-1 border-t border-gray-600/20 flex flex-wrap md:flex-nowrap items-center justify-between pt-1">
-            {previewData?.priceSummary?.isFreeSwap && (
-              <p className="text-left text-sm font-semibold text-green-600">
-                Free Change — no payment required
-              </p>
-            )}
-            {previewData?.priceSummary?.isExtraPayment && (
-              <p className="text-left text-sm font-semibold text-red-600">
-                Extra payment required: ₹{" "}
-                {formatPrice(previewData?.priceSummary?.difference)}
-              </p>
-            )}
-            {previewData?.priceSummary?.isRefund && (
-              <p className="text-left text-sm font-semibold text-yellow-600">
-                Refund to customer: ₹{" "}
-                {formatPrice(previewData?.priceSummary?.difference)}
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={() => setShowBreakdown(true)}
-              className="text-sm text-theme underline mt-1"
-            >
-              View price breakdown
-            </button>
-          </div> */}
-          {/* <div className="mt-1 border-t border-gray-600/20 flex flex-wrap md:flex-nowrap items-center justify-between pt-1"> */}
           <div className="mt-1 border-t border-gray-600/20 flex flex-col pt-1">
             {previewData?.priceSummary?.isFreeSwap && effectivePaid === 0 && (
               <p className="text-left text-sm font-semibold text-blue-600">

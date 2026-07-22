@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { tableIcons } from "../../Data/Icons";
 import { useDispatch } from "react-redux";
 import {
@@ -6,6 +6,34 @@ import {
   setBookingVehicleName,
 } from "../../Redux/PaginationSlice/PaginationSlice";
 import { useAutoFocus } from "../../utils/Helper/useAutoFocus";
+
+const getSortedVehicles = (vehicles = []) => {
+  const getPriority = (vehicle) => {
+    const isBooked = vehicle?.vehicleStatus === "booked";
+    const isMaintenance = vehicle?.vehicleStatus === "maintenance";
+    const isVehicleInBooking = vehicle?.pendingRideWarning !== null;
+
+    if (!isBooked && !isMaintenance && !isVehicleInBooking) {
+      return 0; // Free
+    }
+
+    if (isVehicleInBooking) {
+      return 1; // In Booking
+    }
+
+    if (isBooked) {
+      return 2; // Booked
+    }
+
+    if (isMaintenance) {
+      return 3; // Maintenance
+    }
+
+    return 4;
+  };
+
+  return [...vehicles].sort((a, b) => getPriority(a) - getPriority(b));
+};
 
 const SelectDropDownVehicle = ({
   item,
@@ -68,6 +96,13 @@ const SelectDropDownVehicle = ({
     }
   }, [isModalClose]);
 
+  // clearing the input instead the select input box
+  useEffect(() => {
+    if (isModalClose === false) {
+      setSearchTerm("");
+    }
+  }, [isModalClose]);
+
   // Debounce effect for search
   useEffect(() => {
     if (debounceTimerRef.current) {
@@ -104,6 +139,10 @@ const SelectDropDownVehicle = ({
     options?.find((opt) => opt._id === inputSelect) ||
     (defaultSelected ?? undefined);
 
+  const sortedOptions = useMemo(() => {
+    return getSortedVehicles(options);
+  }, [options]);
+
   return (
     <div className="w-full" ref={dropdownRef}>
       {isLabel && (
@@ -129,15 +168,6 @@ const SelectDropDownVehicle = ({
           onClick={handleToggleDropdown}
           disabled={disabled || !options || options?.length == 0 ? true : false}
         >
-          {/* {inputSelect
-            ? `${
-                options?.find((opt) => opt._id === inputSelect)
-                  ?.vehicleNumber || ""
-              } | ${
-                options?.find((opt) => opt._id === inputSelect)?.vehicleName ||
-                ""
-              }`
-            : `Select ${item}`} */}
           {inputSelect && selectedOption
             ? `${selectedOption?.vehicleNumber || ""} | ${selectedOption?.vehicleName || ""}`
             : `Select ${item}`}
@@ -162,7 +192,7 @@ const SelectDropDownVehicle = ({
                 Searching...
               </div>
             ) : options?.length ? (
-              options.map((opt) => {
+              sortedOptions.map((opt) => {
                 const isBooked = opt?.vehicleStatus === "booked";
                 const isMaintenance = opt?.vehicleStatus === "maintenance";
                 const isVehicleInBooking = opt?.pendingRideWarning !== null;

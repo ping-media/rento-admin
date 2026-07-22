@@ -84,7 +84,7 @@ const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
     (async () => {
       try {
         setVehicleLoading(true);
-        let endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&BookingStartDateAndTime=${currentDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=25`;
+        let endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&vehicleName=${bookingData?.vehicleName}&BookingStartDateAndTime=${currentDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=25`;
 
         if (vehiclesFilter?.bookingVehicleName !== "") {
           endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&search=${vehiclesFilter?.bookingVehicleName}&BookingStartDateAndTime=${currentDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=100`;

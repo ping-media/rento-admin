@@ -133,9 +133,9 @@ const ExtendBookingModal = ({ bookingData }) => {
       return handleAsyncError(dispatch, "please select valid extension mode!");
     }
 
-    const newStartDate = addOneMinute(
-      bookingData?.BookingEndDateAndTime,
-    ).replace(".000Z", "Z");
+    // const newStartDate = addOneMinute(
+    //   bookingData?.BookingEndDateAndTime,
+    // ).replace(".000Z", "Z");
 
     const extendAmountList = bookingData?.bookingPrice?.extendAmount || [];
     const extensionId = extendAmountList.length + 1 || 1;
@@ -246,9 +246,9 @@ const ExtendBookingModal = ({ bookingData }) => {
           };
           const { contact, firstName, managerContact, ...reduxData } = data;
           if (extensionNote !== null) {
-            dispatch(
-              handleUpdateExtendVehicle({ ...reduxData, notes: extensionNote }),
-            );
+            // dispatch(
+            //   handleUpdateExtendVehicle({ ...reduxData, notes: extensionNote }),
+            // );
           } else {
             dispatch(handleUpdateExtendVehicle(reduxData));
           }
