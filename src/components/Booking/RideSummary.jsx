@@ -77,7 +77,7 @@ const ExtendSummary = ({
             <span>
               Weekend ₹{weekend[0]?.dailyRate} x {weekend?.length}
             </span>
-            <span className="mx-2">|</span>
+            {weekDays?.length > 0 && <span className="mx-2">|</span>}
           </>
         )}
         {weekDays?.length > 0 && (

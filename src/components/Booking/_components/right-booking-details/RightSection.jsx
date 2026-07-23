@@ -5,6 +5,8 @@ import VehicleInfo from "../../../../components/VehicleDetails/VehicleInfo";
 import { UpdatePaymentBtn } from "../UpdatePaymentBtn";
 import AdditionalInfo from "../../../../components/Booking/AdditionalInfo";
 import BookingNote from "../../../../components/Booking/BookingNote";
+import { Link } from "react-router-dom";
+import CopyButton from "../../../../components/Buttons/CopyButton";
 
 const RightSection = ({ tabs, booking }) => {
   return (
@@ -13,12 +15,13 @@ const RightSection = ({ tabs, booking }) => {
         tabs !== "payment" ? "hidden" : ""
       } lg:block flex-1 px-6 py-4 bg-white shadow-md rounded-lg`}
     >
-      <div className="hidden lg:flex lg:items-center justify-between">
-        <div>
-          <h2 className="font-bold uppercase text-md lg:text-lg flex flex-wrap items-center gap-2">
+      <div className="hidden lg:flex lg:items-center">
+        <Link to={`/all-vehicles/details/${booking?.vehicleTableId?._id}`}>
+          <h2 className="font-bold uppercase text-md lg:text-lg flex flex-wrap items-center hover:text-theme hover:underline gap-2">
             {booking?.vehicleBasic?.vehicleNumber}
           </h2>
-        </div>
+        </Link>
+        <CopyButton textToCopy={booking?.vehicleBasic?.vehicleNumber} />
       </div>
 
       <small className="capitalize lg:block text-sm text-gray-400 mb-2 lg:mb-5">

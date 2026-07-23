@@ -140,6 +140,7 @@ const SelectDropDownVehicle = ({
     (defaultSelected ?? undefined);
 
   const sortedOptions = useMemo(() => {
+    if (options == null) return [];
     return getSortedVehicles(options);
   }, [options]);
 
@@ -192,7 +193,7 @@ const SelectDropDownVehicle = ({
                 Searching...
               </div>
             ) : options?.length ? (
-              sortedOptions.map((opt) => {
+              sortedOptions?.map((opt) => {
                 const isBooked = opt?.vehicleStatus === "booked";
                 const isMaintenance = opt?.vehicleStatus === "maintenance";
                 const isVehicleInBooking = opt?.pendingRideWarning !== null;

@@ -10,6 +10,7 @@ const NewVehiclePreview = ({
   addonTax,
   pendingPayment = 0,
   effectivePaid = 0,
+  extendBookingTotal = 0,
 }) => {
   return (
     <>
@@ -33,6 +34,25 @@ const NewVehiclePreview = ({
                 {previewData?.priceSummary?.segmentType} period)
               </li>
             )}
+            {previewData?.priceSummary?.segmentType === "extension" &&
+              extendBookingTotal > 0 && (
+                <li>
+                  Old vehicle cost:{" "}
+                  <span className="font-semibold">
+                    ₹ {formatPrice(extendBookingTotal)}
+                  </span>
+                </li>
+              )}
+            <li>
+              New vehicle total price:{" "}
+              <span className="font-semibold">
+                ₹{" "}
+                {formatPrice(
+                  previewData?.newVehicle?.totalRentalCost +
+                    (previewData?.newVehicle?.tax || 0),
+                )}
+              </span>
+            </li>
             <li>
               Current vehicle value for remaining days:{" "}
               <span className="font-semibold">
@@ -43,16 +63,6 @@ const NewVehiclePreview = ({
               New vehicle cost for remaining days:{" "}
               <span className="font-semibold">
                 ₹ {formatPrice(previewData?.priceSummary?.newRemainingCost)}
-              </span>
-            </li>
-            <li>
-              New vehicle total price:{" "}
-              <span className="font-semibold">
-                ₹{" "}
-                {formatPrice(
-                  previewData?.newVehicle?.totalRentalCost +
-                    (previewData?.newVehicle?.tax || 0),
-                )}
               </span>
             </li>
           </ul>
@@ -77,10 +87,10 @@ const NewVehiclePreview = ({
                 </p>
               )}
             {previewData?.priceSummary?.isExtraPayment && effectivePaid > 0 && (
-              <div className="text-left text-sm">
-                <p className="font-semibold text-gray-600">
+              <div className="text-left text-sm pt-1">
+                {/* <p className="font-semibold text-gray-600">
                   Already paid: ₹ {formatPrice(effectivePaid)}
-                </p>
+                </p> */}
                 <p className="font-semibold text-red-600">
                   Remaining to pay: ₹ {formatPrice(pendingPayment)}
                 </p>

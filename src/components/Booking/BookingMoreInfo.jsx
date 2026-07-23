@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import CopyButton from "../../components/Buttons/CopyButton";
 import { useSelector } from "react-redux";
 
@@ -32,9 +33,11 @@ const BookingMoreInfo = ({ data, datatype }) => {
         <h2 className="font-semibold uppercase text-md">
           {`${vehicle?.vehicleBrand} ${vehicle?.vehicleName}`}
         </h2>
-        <p className="text-md text-gray-500">
-          {vehicle?.vehicleBasic?.vehicleNumber}
-        </p>
+        <Link to={`/all-vehicles/details/${vehicle?.vehicleTableId?._id}`}>
+          <p className="text-md text-gray-500">
+            {vehicle?.vehicleBasic?.vehicleNumber}
+          </p>
+        </Link>
       </div>
 
       {filteredData.map((item, index, filteredArr) => {
