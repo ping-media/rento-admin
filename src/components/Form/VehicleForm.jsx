@@ -154,15 +154,25 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
+              placeholder={"Weekday Free kms"}
               item={"freeKms"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.freeKms) : 100}
               require={true}
             />
-            <p className="text-xs mt-1 text-gray-500 italic">
+            {/* <p className="text-xs mt-1 text-gray-500 italic">
               Base Free limit for vehicle.The limit entered above will change
               based on booking duration.
-            </p>
+            </p> */}
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              placeholder={"Weekend Free Kms"}
+              item={"weekendFreeKms"}
+              type="number"
+              value={id ? Number(vehicleMaster[0]?.weekendFreeKms) : 100}
+              require={true}
+            />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input

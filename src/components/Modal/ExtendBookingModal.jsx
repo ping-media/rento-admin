@@ -152,15 +152,19 @@ const ExtendBookingModal = ({ bookingData }) => {
           }, 0)
         : 0;
 
+    // const freeKmLimitForDays =
+    //   daysBreakdowns !== null
+    //     ? daysBreakdowns?.length * Number(newFreeLimit !== 0 ? newFreeLimit : 1)
+    //     : 0;
     const freeKmLimitForDays =
       daysBreakdowns !== null
-        ? daysBreakdowns?.length * Number(newFreeLimit !== 0 ? newFreeLimit : 1)
+        ? daysBreakdowns.reduce(
+            (sum, day) => sum + Number(day.kmLimit || newFreeLimit || 0),
+            0,
+          )
         : 0;
 
     const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;
-
-    // const addonGstPercentage =
-    //   freeVehicle?.stationData?.extraAddOn?.[0]?.gstPercentage || 0;
 
     const finalAddonTax = taxStatus ? Math.round(Number(addOnTax)) || 0 : 0;
 

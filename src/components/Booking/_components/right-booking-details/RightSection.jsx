@@ -21,7 +21,9 @@ const RightSection = ({ tabs, booking }) => {
             {booking?.vehicleBasic?.vehicleNumber}
           </h2>
         </Link>
-        <CopyButton textToCopy={booking?.vehicleBasic?.vehicleNumber} />
+        {booking?.vehicleBasic?.vehicleNumber !== "unassigned" && (
+          <CopyButton textToCopy={booking?.vehicleBasic?.vehicleNumber} />
+        )}
       </div>
 
       <small className="capitalize lg:block text-sm text-gray-400 mb-2 lg:mb-5">

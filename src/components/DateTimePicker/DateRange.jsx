@@ -105,9 +105,6 @@ export const DateRange = ({
       setDropoffTime(`${h12}:${mm} ${period}`);
     }
   }, [duration]);
-  // useEffect(() => {
-  //   setDropoffDate(formattedDate(duration));
-  // }, [duration]);
 
   // Sync dropoff when pickup changes (maintain duration gap)
   useEffect(() => {
@@ -169,25 +166,6 @@ export const DateRange = ({
     setBookingStartDate,
     setBookingEndDate,
   ]);
-
-  //   updating the parent state with prefill values
-  // useEffect(() => {
-  //   if (!setBookingStartDate || !setBookingEndDate) return;
-
-  //   const combinedPickupDateTime = `${formatDate(pickupDate)} ${formatTimeWithoutSeconds(pickupTime)}`;
-
-  //   const combinedDropoffDateTime = `${formatDate(dropoffDate)} ${formatTimeWithoutSeconds(dropoffTime)}`;
-
-  //   setBookingStartDate(formatIntoISO(combinedPickupDateTime));
-  //   setBookingEndDate(formatIntoISO(combinedDropoffDateTime));
-  // }, [
-  //   pickupDate,
-  //   pickupTime,
-  //   dropoffDate,
-  //   dropoffTime,
-  //   setBookingStartDate,
-  //   setBookingEndDate,
-  // ]);
 
   return (
     <>

@@ -35,6 +35,7 @@ const BookingStepOne = ({
     data?.isLocationSelected || "",
   );
   const [duration, setDuration] = useState(data?.duration || 1);
+  const [selectedPackage, setSelectedPackage] = useState(data?.duration || 1);
   const [loading, setLoading] = useState(null);
   //vehicle suggestion list
   const [suggestedData, setSuggestionData] = useState(null);
@@ -201,10 +202,20 @@ const BookingStepOne = ({
           </div>
         </>
       )}
+
       <DateRange
-        {...{ error, setBookingStartDate, setBookingEndDate, duration }}
+        {...{
+          error,
+          setBookingStartDate,
+          setBookingEndDate,
+          duration,
+          setDuration,
+          selectedPackage,
+          setSelectedPackage,
+        }}
         className="lg:w-[48%]"
       />
+
       <BookingPlan {...{ duration, setDuration }} />
 
       <div className="w-full lg:w-[48%]">
@@ -226,20 +237,6 @@ const BookingStepOne = ({
           require={true}
         />
       </div>
-
-      {/* <button
-        className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
-        type="button"
-        onClick={handleNext}
-        disabled={
-          userId === "" ||
-          vehicleId === "" ||
-          bookingStartDate === "" ||
-          bookingEndDate === ""
-        }
-      >
-        Continue
-      </button> */}
     </>
   );
 };

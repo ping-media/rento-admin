@@ -189,20 +189,6 @@ const fetchVehicleMasterWithPagination = debounce(
         }
       }
 
-      // if (
-      //   vehiclesFilter.vehicleName !== "" &&
-      //   vehiclesFilter.search !== "" &&
-      //   vehiclesFilter.maintenanceType !== ""
-      // ) {
-      //   dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
-      // } else if (
-      //   vehiclesFilter.vehicleName !== "" ||
-      //   vehiclesFilter.search !== ""
-      // ) {
-      //   dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
-      // } else if (vehiclesFilter.maintenanceType !== "") {
-      //   dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
-      // }
       if (
         vehiclesFilter.vehicleName !== "" &&
         vehiclesFilter.search !== "" &&

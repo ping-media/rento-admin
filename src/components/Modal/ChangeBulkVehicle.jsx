@@ -45,6 +45,7 @@ const ChangeBulkVehicle = ({
     const excludedKeys = [
       "perDayCost",
       "freeKms",
+      "weekendFreeKms",
       "weekendCost",
       "vehicleStatus",
     ];
@@ -124,6 +125,16 @@ const ChangeBulkVehicle = ({
           updateData: {
             ...(data.updateData || {}),
             weekendCost: Number(results.weekendCost),
+          },
+        };
+      }
+
+      if (results.weekendFreeKms > 0) {
+        data = {
+          ...data,
+          updateData: {
+            ...(data.updateData || {}),
+            weekendFreeKms: Number(results.weekendFreeKms),
           },
         };
       }
@@ -212,6 +223,7 @@ const ChangeBulkVehicle = ({
       perdaycost: vehicle?.perDayCost ?? 0,
       weekendcost: vehicle?.weekendCost ?? 0,
       freeKms: vehicle?.freeKms ?? 0,
+      weekendFreeKms: vehicle?.weekendFreeKms ?? 0,
     };
 
     return { vehiclePlan, daily };
@@ -280,7 +292,7 @@ const ChangeBulkVehicle = ({
                 type="number"
               />
               <Input
-                placeholder="Km Limit"
+                placeholder="Week Day Km Limit"
                 item={"freeKms"}
                 defaultValue={daily?.freeKms || ""}
                 type="number"
@@ -294,12 +306,15 @@ const ChangeBulkVehicle = ({
                 defaultValue={daily?.weekendcost || ""}
                 type="number"
               />
+              <Input
+                placeholder="Weekend Km Limit"
+                item={"weekendFreeKms"}
+                defaultValue={daily?.weekendFreeKms || ""}
+                type="number"
+              />
             </div>
 
             <div className="mb-2">
-              {/* <h2 className="text-md text-left font-bold border-b pb-1 mb-1.5">
-                Plan Price & Km Limit
-              </h2> */}
               <div className="flex justify-center flex-wrap gap-2 items-center">
                 {planMasterLoading ? (
                   <Spinner />

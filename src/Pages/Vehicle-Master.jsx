@@ -17,6 +17,11 @@ const VehicleStationModal = lazy(
   () => import("../components/Modal/StationModal"),
 );
 
+const EXCLUDE_PATH = [
+  "/all-bookings",
+  //  "/all-vehicles", "/all-users"
+];
+
 const VehicleMaster = () => {
   const [stationId, setStationId] = useState(
     () => sessionStorage.getItem("allBookingsStationId") || "",
@@ -129,7 +134,8 @@ const VehicleMaster = () => {
       const currentPath = location.pathname;
       const isGoingToDetails = currentPath.includes("/details/");
 
-      if (!isGoingToDetails && currentPath !== "/all-bookings") {
+      // if (!isGoingToDetails && currentPath !== "/all-bookings") {
+      if (!isGoingToDetails && !EXCLUDE_PATH.includes(currentPath)) {
         dispatch(handleRestPagination());
       }
 
