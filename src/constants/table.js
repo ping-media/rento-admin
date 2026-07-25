@@ -57,6 +57,7 @@ export const EXCLUDED_KEYS = new Set([
   "mobileTokens",
   "vehicleAssigned",
   "weekendCost",
+  "weekendFreeKms",
 ]);
 
 export const ALL_BOOKINGS_EXCLUDED_KEYS = new Set([
