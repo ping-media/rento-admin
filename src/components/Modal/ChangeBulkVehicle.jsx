@@ -48,6 +48,7 @@ const ChangeBulkVehicle = ({
       "weekendFreeKms",
       "weekendCost",
       "vehicleStatus",
+      "extraKmsCharges",
     ];
 
     let vehiclePlan = Object.entries(results)
@@ -139,6 +140,16 @@ const ChangeBulkVehicle = ({
         };
       }
 
+      if (results.extraKmsCharges > 0) {
+        data = {
+          ...data,
+          updateData: {
+            ...(data.updateData || {}),
+            extraKmsCharges: Number(results.extraKmsCharges),
+          },
+        };
+      }
+
       if (results.freeKms > 0) {
         data = {
           ...data,
@@ -224,6 +235,7 @@ const ChangeBulkVehicle = ({
       weekendcost: vehicle?.weekendCost ?? 0,
       freeKms: vehicle?.freeKms ?? 0,
       weekendFreeKms: vehicle?.weekendFreeKms ?? 0,
+      extraKmsCharges: vehicle?.extraKmsCharges ?? 0,
     };
 
     return { vehiclePlan, daily };
@@ -310,6 +322,15 @@ const ChangeBulkVehicle = ({
                 placeholder="Weekend Km Limit"
                 item={"weekendFreeKms"}
                 defaultValue={daily?.weekendFreeKms || ""}
+                type="number"
+              />
+            </div>
+
+            <div className="mb-2 flex items-center gap-2">
+              <Input
+                placeholder="Extra Kms Charges"
+                item={"extraKmsCharges"}
+                defaultValue={daily?.extraKmsCharges || ""}
                 type="number"
               />
             </div>
