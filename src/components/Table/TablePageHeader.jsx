@@ -20,15 +20,15 @@ const FILTER_ENABLED_ROUTES = [
   "/all-vehicles",
 ];
 
-const EXCLUDE_PATH = [
-  "/all-bookings",
-  //  "/all-vehicles", "/all-users"
-];
-const EXCLUDE_PREFIX = [
-  "/all-bookings/details/",
-  // "/all-vehicles/details/",
-  // "/all-users/",
-];
+// const EXCLUDE_PATH = [
+//   "/all-bookings",
+//   //  "/all-vehicles", "/all-users"
+// ];
+// const EXCLUDE_PREFIX = [
+//   "/all-bookings/details/",
+//   // "/all-vehicles/details/",
+//   // "/all-users/",
+// ];
 
 const TablePageHeader = ({
   inputSearchQuery,
@@ -68,12 +68,12 @@ const TablePageHeader = ({
 
   // for clearing the input state
   useEffect(() => {
-    // if (!pathname.includes("/details/") && pathname !== "/all-bookings") {
-    const isExcluded =
-      EXCLUDE_PATH.includes(pathname) ||
-      EXCLUDE_PREFIX.some((prefix) => pathname.startsWith(prefix));
+    // const isExcluded =
+    //   EXCLUDE_PATH.includes(pathname) ||
+    //   EXCLUDE_PREFIX.some((prefix) => pathname.startsWith(prefix));
 
-    if (!isExcluded) {
+    // if (!isExcluded) {
+    if (!pathname.includes("/details/") && pathname !== "/all-bookings") {
       setInputSearchQuery("");
     }
   }, [pathname, setInputSearchQuery]);

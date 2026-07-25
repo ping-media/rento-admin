@@ -31,16 +31,16 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 const SignOutModal = lazy(() => import("../Modal/SignOutModal"));
 const DeleteModal = lazy(() => import("../Modal/DeleteModal"));
 
-const excludedRoutes = [
-  "/all-bookings",
-  //  "/all-vehicles", "/all-users"
-];
+// const excludedRoutes = [
+//   "/all-bookings",
+//   //  "/all-vehicles", "/all-users"
+// ];
 
-const excludedPrefixes = [
-  "/all-bookings/details/",
-  // "/all-vehicles/details/",
-  // "/all-users/",
-];
+// const excludedPrefixes = [
+//   "/all-bookings/details/",
+//   // "/all-vehicles/details/",
+//   // "/all-users/",
+// ];
 
 const Layout = () => {
   const dispatch = useDispatch();
@@ -105,15 +105,15 @@ const Layout = () => {
 
   //need to reset some value when ever user change page
   useEffect(() => {
-    const isExcluded =
-      excludedRoutes.includes(location.pathname) ||
-      excludedPrefixes.some((prefix) => location.pathname.startsWith(prefix));
+    // const isExcluded =
+    //   excludedRoutes.includes(location.pathname) ||
+    //   excludedPrefixes.some((prefix) => location.pathname.startsWith(prefix));
 
-    // if (
-    //   location.pathname !== "/all-bookings" &&
-    //   !location.pathname.startsWith("/all-bookings/details/")
-    // ) {
-    if (!isExcluded) {
+    // if (!isExcluded) {
+    if (
+      location.pathname !== "/all-bookings" &&
+      !location.pathname.startsWith("/all-bookings/details/")
+    ) {
       dispatch(handleRestPagination());
     }
 
