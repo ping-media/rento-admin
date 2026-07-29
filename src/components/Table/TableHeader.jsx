@@ -11,7 +11,7 @@ const headerForBooking = [
   { bookingPrice: "Price" },
 ];
 
-const headerForVehicle = [{ currentBooking: "Booking Id" }];
+// const headerForVehicle = [{ currentBooking: "Booking Id" }];
 
 const headerForPayment = [
   { payInitFrom: "Payment Type" },
@@ -22,7 +22,7 @@ const headerForPayment = [
 const pages = [
   { page: "/all-bookings", header: headerForBooking },
   { page: "/payments", header: headerForPayment },
-  { page: "/all-vehicles", header: headerForVehicle },
+  // { page: "/all-vehicles", header: headerForVehicle },
 ];
 
 const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
@@ -109,6 +109,25 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
               </th>
             );
           }
+        }
+
+        if (
+          location.pathname === "/all-vehicles" &&
+          item === "currentBooking"
+        ) {
+          return null;
+        }
+
+        if (location.pathname === "/all-vehicles" && item === "maintenance") {
+          return (
+            <th
+              scope="col"
+              className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              key={item}
+            >
+              Vehicle Status
+            </th>
+          );
         }
 
         if (item === "userId") {

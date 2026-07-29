@@ -76,24 +76,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
     getTableValue(Data);
   }, [Data, totalPages]);
 
-  // useEffect(() => {
-  //   if (!Data?.length) return;
-
-  //   getTableHeader(Data);
-  //   loadFiltersAndData();
-
-  //   // clear the previous data
-  //   setNewUpdatedData([]);
-  //   getTableValue(Data);
-  // }, [Data, totalPages]);
-
-  // Add this useEffect to clear data when loading starts
-  // useEffect(() => {
-  //   if (dataLoading) {
-  //     setNewUpdatedData([]);
-  //   }
-  // }, [dataLoading]);
-
   return (
     <>
       <div
@@ -266,28 +248,29 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                   typeof item[column] === "object" &&
                                   column === "currentBooking"
                                 )
-                                  return (
-                                    <td
-                                      className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
-                                      key={cellKey}
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <Link
-                                        to={
-                                          item[column] !== null
-                                            ? `/all-bookings/details/${item[column]?._id}_${item[column]?.bookingId}`
-                                            : "#"
-                                        }
-                                      >
-                                        <span
-                                          className={`${item[column] === null ? "bg-green-500/30" : "bg-yellow-500/35"} rounded-md px-4 py-2`}
-                                        >
-                                          {item[column]?.bookingId ??
-                                            "Available"}
-                                        </span>
-                                      </Link>
-                                    </td>
-                                  );
+                                  return null;
+                                // return (
+                                //   <td
+                                //     className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                //     key={cellKey}
+                                //     onClick={(e) => e.stopPropagation()}
+                                //   >
+                                //     <Link
+                                //       to={
+                                //         item[column] !== null
+                                //           ? `/all-bookings/details/${item[column]?._id}_${item[column]?.bookingId}`
+                                //           : "#"
+                                //       }
+                                //     >
+                                //       <span
+                                //         className={`${item[column] === null ? "bg-green-500/30" : "bg-yellow-500/35"} rounded-md px-4 py-2`}
+                                //       >
+                                //         {item[column]?.bookingId ??
+                                //           "Available"}
+                                //       </span>
+                                //     </Link>
+                                //   </td>
+                                // );
 
                                 if (typeof item[column] === "object")
                                   return (

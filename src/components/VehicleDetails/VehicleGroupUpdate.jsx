@@ -19,6 +19,8 @@ const VehicleGroupUpdate = ({
   const [allVehicles, setAllVehicles] = useState([]);
   // for vehicle price update in bulk
   const [vehicleIds, setVehicleIds] = useState([]);
+  const [vehicleFilter, setVehicleFilter] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   // for adding maintenance records in bulk
   const [bulkUnblockConfirm, setBulkUnblockConfirm] = useState(false);
   const [unblocking, setUnblocking] = useState(false);
@@ -59,19 +61,38 @@ const VehicleGroupUpdate = ({
     FetchVehiclesId();
   }, [vehicleName, stationId, isMaintenanceAdd]);
 
+  const filteredVehicles = allVehicles.filter((vehicle) => {
+    if (!vehicleFilter) return true;
+
+    switch (vehicleFilter) {
+      case "maintenance":
+        return vehicle.isUnderMaintenance;
+
+      case "available":
+        return !vehicle.currentBooking && !vehicle.isUnderMaintenance;
+
+      case "unavailable":
+        return !!vehicle.currentBooking && !vehicle.isUnderMaintenance;
+
+      default:
+        return true;
+    }
+  });
+
   const isAllSelected =
-    allVehicles.length > 0 &&
-    maintenanceVehicleId.length === allVehicles.length;
+    filteredVehicles.length > 0 &&
+    maintenanceVehicleId.length === filteredVehicles.length;
 
   const isIndeterminate =
     maintenanceVehicleId.length > 0 &&
-    maintenanceVehicleId.length < allVehicles.length;
+    maintenanceVehicleId.length < filteredVehicles.length;
 
   const handleSelectAll = () => {
     if (isAllSelected) {
       setMaintenanceVehicleId([]);
     } else {
-      const allIds = allVehicles.map((v) => v._id);
+      const allIds = filteredVehicles.map((v) => v._id);
+      // const allIds = allVehicles.map((v) => v._id);
       setMaintenanceVehicleId(allIds);
     }
   };
@@ -175,18 +196,27 @@ const VehicleGroupUpdate = ({
       )}
 
       {/* Bulk Unblock Button — only shows when 1+ vehicles selected */}
-      {maintenanceVehicleId.length > 0 &&
-        allVehicles.some(
-          (v) => maintenanceVehicleId.includes(v._id) && v.isUnderMaintenance,
-        ) && (
-          <div className="flex justify-end mb-2">
+      <div className="flex items-center justify-between mb-3">
+        <FilterDropdown
+          {...{
+            isFilterOpen,
+            setIsFilterOpen,
+            setVehicleFilter,
+            vehicleFilter,
+          }}
+        />
+
+        {maintenanceVehicleId.length > 0 &&
+          filteredVehicles.some(
+            (v) => maintenanceVehicleId.includes(v._id) && v.isUnderMaintenance,
+          ) && (
             <button
               className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-sm hover:opacity-90"
               onClick={() => setBulkUnblockConfirm(true)}
             >
               Unblock Selected (
               {
-                allVehicles.filter(
+                filteredVehicles.filter(
                   (v) =>
                     maintenanceVehicleId.includes(v._id) &&
                     v.isUnderMaintenance,
@@ -194,17 +224,18 @@ const VehicleGroupUpdate = ({
               }
               )
             </button>
-          </div>
-        )}
+          )}
+      </div>
 
-      {allVehicles?.length === 0 ? (
+      {filteredVehicles?.length === 0 ? (
         <p className="text-center text-gray-500 italic">
           No Vehicle Data Found.
         </p>
       ) : (
         <div className="overflow-x-auto h-full md:h-[30rem] md:overflow-y-auto">
           <VehicleTable
-            allVehicles={allVehicles}
+            // allVehicles={allVehicles}
+            allVehicles={filteredVehicles}
             maintenanceVehicleId={maintenanceVehicleId}
             handleSelect={handleSelect}
             handleSelectAll={handleSelectAll}
@@ -218,3 +249,89 @@ const VehicleGroupUpdate = ({
 };
 
 export default VehicleGroupUpdate;
+
+const FilterDropdown = ({
+  isFilterOpen,
+  setIsFilterOpen,
+  setVehicleFilter,
+  vehicleFilter,
+}) => {
+  const handleVehicleFilter = (value) => {
+    setVehicleFilter((prev) => (prev === value ? "" : value));
+    setIsFilterOpen(false);
+  };
+  return (
+    <div className="relative w-56">
+      <button
+        type="button"
+        onClick={() => setIsFilterOpen((prev) => !prev)}
+        className="flex w-full items-center justify-between rounded-md border bg-white px-3 py-2 text-sm"
+      >
+        <span>
+          {vehicleFilter === ""
+            ? "All Vehicles"
+            : vehicleFilter === "maintenance"
+              ? "Under Maintenance"
+              : vehicleFilter === "available"
+                ? "Available"
+                : "Unavailable"}
+        </span>
+
+        <svg
+          className={`h-4 w-4 transition-transform duration-200 ${
+            isFilterOpen ? "rotate-180" : ""
+          }`}
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
+
+      {isFilterOpen && (
+        <div className="absolute z-20 mt-1 w-full rounded-md border bg-white shadow-lg">
+          {[
+            ["maintenance", "Under Maintenance"],
+            ["available", "Available"],
+            ["unavailable", "Unavailable"],
+          ].map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => handleVehicleFilter(value)}
+              className={`flex w-full items-center justify-between px-3 py-2 text-left hover:bg-gray-100 ${
+                vehicleFilter === value ? "bg-theme/10 text-theme" : ""
+              }`}
+            >
+              {label}
+
+              {vehicleFilter === value && (
+                <span className="text-xs font-medium">✓</span>
+              )}
+            </button>
+          ))}
+
+          {vehicleFilter && (
+            <>
+              <hr />
+              <button
+                type="button"
+                onClick={() => {
+                  setVehicleFilter("");
+                  setIsFilterOpen(false);
+                }}
+                className="w-full px-3 py-2 text-left text-red-500 hover:bg-red-50"
+              >
+                Clear Filter
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};

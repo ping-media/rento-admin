@@ -117,9 +117,13 @@ const PriceCell = ({ item, column }) => {
         className={`px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900 ${
           column.includes("maintenance") ? "capitalize" : ""
         }`}
+        onClick={(e) => e.stopPropagation()}
       >
         {column.includes("files") ? null : column.includes("maintenance") ? (
-          <MaintenanceStatusBadge maintenanceList={item[column]} />
+          <MaintenanceStatusBadge
+            maintenanceList={item[column]}
+            currentBooking={item["currentBooking"] ?? null}
+          />
         ) : (
           `₹${formatPrice(newBookingPrice)}`
         )}

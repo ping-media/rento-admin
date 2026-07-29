@@ -49,6 +49,7 @@ const ChangeBulkVehicle = ({
       "weekendCost",
       "vehicleStatus",
       "extraKmsCharges",
+      "lateFee",
     ];
 
     let vehiclePlan = Object.entries(results)
@@ -160,6 +161,16 @@ const ChangeBulkVehicle = ({
         };
       }
 
+      if (results.lateFee > 0) {
+        data = {
+          ...data,
+          updateData: {
+            ...(data.updateData || {}),
+            lateFee: Number(results.lateFee),
+          },
+        };
+      }
+
       if (results.vehicleStatus !== "don'tChange") {
         data = {
           ...data,
@@ -236,6 +247,7 @@ const ChangeBulkVehicle = ({
       freeKms: vehicle?.freeKms ?? 0,
       weekendFreeKms: vehicle?.weekendFreeKms ?? 0,
       extraKmsCharges: vehicle?.extraKmsCharges ?? 0,
+      lateFee: vehicle?.lateFee ?? 0,
     };
 
     return { vehiclePlan, daily };
@@ -326,15 +338,6 @@ const ChangeBulkVehicle = ({
               />
             </div>
 
-            <div className="mb-2 flex items-center gap-2">
-              <Input
-                placeholder="Extra Kms Charges"
-                item={"extraKmsCharges"}
-                defaultValue={daily?.extraKmsCharges || ""}
-                type="number"
-              />
-            </div>
-
             <div className="mb-2">
               <div className="flex justify-center flex-wrap gap-2 items-center">
                 {planMasterLoading ? (
@@ -369,6 +372,20 @@ const ChangeBulkVehicle = ({
               </div>
             </div>
 
+            <div className="mb-2 flex items-center gap-2">
+              <Input
+                placeholder="Extra Kms Charges"
+                item={"extraKmsCharges"}
+                defaultValue={daily?.extraKmsCharges || ""}
+                type="number"
+              />
+              <Input
+                item={"lateFee"}
+                defaultValue={daily?.lateFee || ""}
+                type="number"
+              />
+            </div>
+
             <div className="text-left mb-2">
               <SelectDropDown
                 item={"vehicleStatus"}
@@ -385,7 +402,7 @@ const ChangeBulkVehicle = ({
                 formLoading || planMasterLoading || tempLoading?.loading
               }
             >
-              {formLoading ? (
+              {formLoading || planMasterLoading || tempLoading?.loading ? (
                 <Spinner message={"loading..."} />
               ) : (
                 "Update Price"
