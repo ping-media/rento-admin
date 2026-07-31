@@ -7,7 +7,6 @@ import PreLoader from "../Skeleton/PreLoader";
 import { NotFound } from "../../Pages";
 import { getData } from "../../Data";
 import { endPointBasedOnKey } from "../../Data/commonData";
-// import { formatPrice } from "../../utils/index";
 const MaintenanceTable = lazy(
   () => import("../../components/Table/MaintenanceTable"),
 );
@@ -163,13 +162,8 @@ const VehicleDetail = () => {
             )}
 
             <VehicleDetailList vehicle={vehicle} />
-          </div>
-          <div className="w-full lg:flex-1 px-6 py-4 bg-white shadow-md rounded-lg overflow-hidden">
-            <VehicleNameHeader
-              collectedData={collectedData}
-              vehicle={vehicle}
-              className="hidden md:flex"
-            />
+
+            <div className="w-full h-[0.1rem] my-5 bg-gray-300" />
 
             <div className="mb-2">
               <h2 className="text-lg font-medium">Maintenance Schedule</h2>
@@ -178,8 +172,13 @@ const VehicleDetail = () => {
             <Suspense fallback={<MaintenanceTableSkeleton />}>
               <MaintenanceTable isMaintenanceAdd={isMaintenanceAdd} />
             </Suspense>
-
-            <div className="w-full h-[0.1rem] my-5 bg-gray-300" />
+          </div>
+          <div className="w-full lg:flex-1 px-6 py-4 bg-white shadow-md rounded-lg">
+            <VehicleNameHeader
+              collectedData={collectedData}
+              vehicle={vehicle}
+              className="hidden md:flex"
+            />
 
             <div className="mt-3 mb-2">
               <h2 className="text-lg font-medium">

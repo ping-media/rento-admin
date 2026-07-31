@@ -1,6 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import { getData, postData } from "../../Data/index";
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
 import MaintenanceTableSkeleton from "../../components/Skeleton/MaintenanceTableSkeleton";
 import ChangeBulkVehicle from "../../components/Modal/ChangeBulkVehicle";
 import VehicleTable from "./VehicleTable";
@@ -256,12 +262,34 @@ const FilterDropdown = ({
   setVehicleFilter,
   vehicleFilter,
 }) => {
+  const dropdownRef = useRef(null);
+  const [dropdownPosition, setDropdownPosition] = useState("bottom");
+
+  useEffect(() => {
+    if (!isFilterOpen || !dropdownRef.current) return;
+
+    const rect = dropdownRef.current.getBoundingClientRect();
+
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    // Approximate dropdown height
+    const dropdownHeight = 220;
+
+    if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
+      setDropdownPosition("top");
+    } else {
+      setDropdownPosition("bottom");
+    }
+  }, [isFilterOpen]);
+
   const handleVehicleFilter = (value) => {
     setVehicleFilter((prev) => (prev === value ? "" : value));
     setIsFilterOpen(false);
   };
+
   return (
-    <div className="relative w-56">
+    <div ref={dropdownRef} className="relative w-56">
       <button
         type="button"
         onClick={() => setIsFilterOpen((prev) => !prev)}
@@ -293,7 +321,12 @@ const FilterDropdown = ({
       </button>
 
       {isFilterOpen && (
-        <div className="absolute z-20 mt-1 w-full rounded-md border bg-white shadow-lg">
+        <div
+          // className="absolute z-20 mt-1 w-full rounded-md border bg-white shadow-lg"
+          className={`absolute z-20 w-full rounded-md border bg-white shadow-lg ${
+            dropdownPosition === "top" ? "bottom-full mb-1" : "top-full mt-1"
+          }`}
+        >
           {[
             ["maintenance", "Under Maintenance"],
             ["available", "Available"],
