@@ -112,7 +112,7 @@ const VehicleDetail = () => {
   if (!collectedData) return <PreLoader />;
   if (vehicleMaster?.length !== 1) return <NotFound />;
 
-  const ModalTitle = `${vehicle.vehicleBrand} ${vehicle.vehicleName} ( - Tariff)`;
+  const ModalTitle = `${vehicle.vehicleBrand} ${vehicle.vehicleName} - Tariff`;
 
   return (
     <>

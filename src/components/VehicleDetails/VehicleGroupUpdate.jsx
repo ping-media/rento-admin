@@ -299,10 +299,10 @@ const FilterDropdown = ({
           {vehicleFilter === ""
             ? "All Vehicles"
             : vehicleFilter === "maintenance"
-              ? "Under Maintenance"
+              ? "Blocked"
               : vehicleFilter === "available"
                 ? "Available"
-                : "Unavailable"}
+                : "Booking"}
         </span>
 
         <svg
@@ -328,9 +328,9 @@ const FilterDropdown = ({
           }`}
         >
           {[
-            ["maintenance", "Under Maintenance"],
+            ["maintenance", "Blocked"],
             ["available", "Available"],
-            ["unavailable", "Unavailable"],
+            ["unavailable", "Booking"],
           ].map(([value, label]) => (
             <button
               key={value}
