@@ -167,7 +167,8 @@ const SelectDropDownVehicle = ({
           className="text-left block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize bg-white cursor-pointer disabled:bg-gray-300/30"
           type="button"
           onClick={handleToggleDropdown}
-          disabled={disabled || !options || options?.length == 0 ? true : false}
+          // disabled={disabled || !options || options?.length == 0 ? true : false}
+          disabled={disabled}
         >
           {inputSelect && selectedOption
             ? `${selectedOption?.vehicleNumber || ""} | ${selectedOption?.vehicleName || ""}`
@@ -188,62 +189,73 @@ const SelectDropDownVehicle = ({
               className="w-full px-3 py-2 border-b border-gray-200 outline-none text-sm"
             />
 
-            {loading ? (
-              <div className="px-4 py-2 text-sm text-gray-500 italic">
-                Searching...
-              </div>
-            ) : options?.length ? (
-              sortedOptions?.map((opt) => {
-                const isBooked = opt?.vehicleStatus === "booked";
-                const isMaintenance = opt?.vehicleStatus === "maintenance";
-                const isVehicleInBooking = opt?.pendingRideWarning !== null;
-                const isUnavailable =
-                  isBooked || isMaintenance || isVehicleInBooking;
+            {
+              loading ? (
+                <div className="px-4 py-2 text-sm text-gray-500 italic">
+                  Searching...
+                </div>
+              ) : options?.length ? (
+                sortedOptions?.map((opt) => {
+                  const isBooked = opt?.vehicleStatus === "booked";
+                  const isMaintenance = opt?.vehicleStatus === "maintenance";
+                  const isVehicleInBooking = opt?.pendingRideWarning !== null;
+                  const isUnavailable =
+                    isBooked || isMaintenance || isVehicleInBooking;
 
-                return (
-                  <div
-                    key={opt._id}
-                    onClick={() => !isUnavailable && handleOptionClick(opt)}
-                    className={`px-4 py-2 text-sm capitalize flex items-center justify-between gap-2
+                  return (
+                    <div
+                      key={opt._id}
+                      onClick={() => !isUnavailable && handleOptionClick(opt)}
+                      className={`px-4 py-2 text-sm capitalize flex items-center justify-between gap-2
           ${
             isUnavailable
               ? "cursor-not-allowed opacity-60 bg-gray-50"
               : "hover:bg-gray-100 cursor-pointer"
           }`}
-                  >
-                    <span>
-                      {opt.vehicleNumber} | {opt.vehicleName}
-                    </span>
+                    >
+                      <span>
+                        {opt.vehicleNumber} | {opt.vehicleName}
+                      </span>
 
-                    {isMaintenance && (
-                      <span className="text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full whitespace-nowrap">
-                        Maintenance
-                      </span>
-                    )}
-                    {isBooked && (
-                      <span className="text-xs font-semibold text-red-600 bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap">
-                        Booked{" "}
-                        {opt?.bookingConflict?.bookingId
-                          ? `#${opt.bookingConflict.bookingId}`
-                          : ""}
-                      </span>
-                    )}
-                    {isVehicleInBooking && (
-                      <span className="text-xs font-semibold text-red-600 bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap">
-                        In Booking{" "}
-                        {opt?.pendingRideWarning?.bookingId
-                          ? `#${opt.pendingRideWarning.bookingId}`
-                          : ""}
-                      </span>
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <div className="px-4 py-2 text-gray-500 text-sm">
-                No options found
-              </div>
-            )}
+                      {isMaintenance && (
+                        <span className="text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                          Maintenance
+                        </span>
+                      )}
+                      {isBooked && (
+                        <span className="text-xs font-semibold text-red-600 bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                          Booked{" "}
+                          {opt?.bookingConflict?.bookingId
+                            ? `#${opt.bookingConflict.bookingId}`
+                            : ""}
+                        </span>
+                      )}
+                      {isVehicleInBooking && (
+                        <span className="text-xs font-semibold text-red-600 bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                          In Booking{" "}
+                          {opt?.pendingRideWarning?.bookingId
+                            ? `#${opt.pendingRideWarning.bookingId}`
+                            : ""}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })
+              ) : searchTerm.trim() ? (
+                <div className="px-4 py-2 text-gray-500 text-sm">
+                  No vehicles found.
+                </div>
+              ) : (
+                <div className="px-4 py-2 text-gray-500 text-sm italic">
+                  Start typing to search for a vehicle.
+                </div>
+              )
+              // (
+              //   <div className="px-4 py-2 text-gray-500 text-sm">
+              //     No options found
+              //   </div>
+              // )
+            }
           </div>
         )}
       </div>

@@ -380,7 +380,8 @@ const App = () => {
                 exact
                 element={
                   <PrivateRouteBasedOnUser
-                    allowedRoles={["admin", "manager"]}
+                    // "manager"
+                    allowedRoles={["admin"]}
                     userRole={loggedInRole}
                     isLoading={verifyLoading}
                   >

@@ -213,8 +213,15 @@ const fetchVehicleMasterWithPagination = debounce(
           dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
         }
       } else if (searchBasedOnFilter !== "") {
-        dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
+        if (filters && filters.trim() !== "") {
+          dynamicEndpoint = `${endpoint}?${filters}&${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
+        } else {
+          dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
+        }
       }
+      // else if (searchBasedOnFilter !== "") {
+      //   dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
+      // }
 
       const url = new URL(dynamicEndpoint, window.location.origin);
 

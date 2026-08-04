@@ -2,9 +2,17 @@ import { tableIcons } from "../../Data/Icons";
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
 
-const BarChart = ({ data }) => {
+// Format date
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+  });
+};
+
+const BarChart = ({ data, onBarClick }) => {
   const [viewMode, setViewMode] = useState("Daily");
-  // const options = ["Daily", "Weekly", "Monthly"];
   const options = ["Daily", "Weekly"];
   const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
@@ -49,46 +57,107 @@ const BarChart = ({ data }) => {
     return filledData;
   };
 
-  // Format date
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-    });
-  };
-
   // Group data by week
   const groupByWeek = (data) => {
-    const weeks = {};
+    if (!data || data.length === 0)
+      return { categories: [], totalPrice: [], weekRanges: [] };
 
-    data.forEach((item) => {
-      const date = new Date(item._id);
-      // Get the week number within the month
-      const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-      const dayOffset = firstDayOfMonth.getDay();
-      const dayOfMonth = date.getDate();
-      const weekNumber = Math.ceil((dayOfMonth + dayOffset) / 7);
+    // get month/year from first data point
+    const firstDate = new Date(data[0]._id);
+    const year = firstDate.getFullYear();
+    const month = firstDate.getMonth();
+    const lastDay = new Date(year, month + 1, 0).getDate(); // last day of month
 
-      const weekKey = `Week ${weekNumber}`;
+    const pad = (n) => String(n).padStart(2, "0");
+    const toDateStr = (day) =>
+      `${year}-${pad(month + 1)}-${pad(Math.min(day, lastDay))}`;
 
-      if (!weeks[weekKey]) {
-        weeks[weekKey] = {
-          totalPrice: 0,
-          bookingCount: 0,
-        };
-      }
+    // fixed 4 week ranges — week 4 always goes to end of month
+    const weekDefs = [
+      { key: "Week 1", start: 1, end: 7 },
+      { key: "Week 2", start: 8, end: 14 },
+      { key: "Week 3", start: 15, end: 21 },
+      { key: "Week 4", start: 22, end: lastDay },
+    ];
 
-      weeks[weekKey].totalPrice += item.totalPrice;
-      weeks[weekKey].bookingCount += item.bookingCount;
+    const weekMap = {};
+    weekDefs.forEach((w) => {
+      weekMap[w.key] = {
+        totalPrice: 0,
+        bookingCount: 0,
+        startDate: toDateStr(w.start),
+        endDate: toDateStr(w.end),
+      };
     });
 
-    // Convert to arrays
+    data.forEach((item) => {
+      const day = new Date(item._id).getDate();
+      const weekKey =
+        day <= 7
+          ? "Week 1"
+          : day <= 14
+            ? "Week 2"
+            : day <= 21
+              ? "Week 3"
+              : "Week 4";
+
+      weekMap[weekKey].totalPrice += item.totalPrice;
+      weekMap[weekKey].bookingCount += item.bookingCount;
+    });
+
+    // only show weeks that have data
+    const nonEmpty = weekDefs.filter(
+      (w) => weekMap[w.key].totalPrice > 0 || weekMap[w.key].bookingCount > 0,
+    );
+
     return {
-      categories: Object.keys(weeks),
-      totalPrice: Object.values(weeks).map((w) => w.totalPrice),
+      categories: nonEmpty.map((w) => w.key),
+      totalPrice: nonEmpty.map((w) => weekMap[w.key].totalPrice),
+      weekRanges: nonEmpty.map((w) => ({
+        startDate: weekMap[w.key].startDate,
+        endDate: weekMap[w.key].endDate,
+      })),
     };
   };
+  // const groupByWeek = (data) => {
+  //   const weeks = {};
+
+  //   data.forEach((item) => {
+  //     const date = new Date(item._id);
+  //     // Get the week number within the month
+  //     const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  //     const dayOffset = firstDayOfMonth.getDay();
+  //     const dayOfMonth = date.getDate();
+  //     const weekNumber = Math.ceil((dayOfMonth + dayOffset) / 7);
+
+  //     const weekKey = `Week ${weekNumber}`;
+
+  //     if (!weeks[weekKey]) {
+  //       weeks[weekKey] = {
+  //         totalPrice: 0,
+  //         bookingCount: 0,
+  //         startDate: item._id,
+  //         endDate: item._id,
+  //       };
+  //     }
+
+  //     weeks[weekKey].totalPrice += item.totalPrice;
+  //     weeks[weekKey].bookingCount += item.bookingCount;
+  //     if (item._id < weeks[weekKey].startDate)
+  //       weeks[weekKey].startDate = item._id;
+  //     if (item._id > weeks[weekKey].endDate) weeks[weekKey].endDate = item._id;
+  //   });
+
+  //   // Convert to arrays
+  //   return {
+  //     categories: Object.keys(weeks),
+  //     totalPrice: Object.values(weeks).map((w) => w.totalPrice),
+  //     weekRanges: Object.values(weeks).map((w) => ({
+  //       startDate: w.startDate,
+  //       endDate: w.endDate,
+  //     })),
+  //   };
+  // };
 
   // Process data for different view modes
   const processChartData = (mode) => {
@@ -97,6 +166,8 @@ const BarChart = ({ data }) => {
     if (mode === "Daily") {
       return {
         categories: processedData.map((item) => formatDate(item._id)),
+        rawDates: processedData.map((item) => item._id),
+        weekRanges: null,
         totalPrice: processedData.map((item) => item.totalPrice),
       };
     } else if (mode === "Weekly") {
@@ -133,6 +204,32 @@ const BarChart = ({ data }) => {
         blur: 4,
         opacity: 0.12,
       },
+      events: {
+        dataPointSelection: (event, chartContext, config) => {
+          if (!onBarClick) return;
+          const index = config.dataPointIndex;
+
+          if (viewMode === "Daily") {
+            const rawDate = chartData.rawDates?.[index];
+            if (rawDate) onBarClick({ date: rawDate });
+          } else if (viewMode === "Weekly") {
+            const weekRange = chartData.weekRanges?.[index];
+            if (weekRange)
+              onBarClick({
+                startDate: weekRange.startDate,
+                endDate: weekRange.endDate,
+              });
+          }
+        },
+      },
+      // events: {
+      //   dataPointSelection: (event, chartContext, config) => {
+      //     if (viewMode !== "Daily" || !onBarClick) return;
+      //     const index = config.dataPointIndex;
+      //     const rawDate = chartData.rawDates?.[index];
+      //     if (rawDate) onBarClick(rawDate);
+      //   },
+      // },
     },
     xaxis: {
       categories: chartData.categories,

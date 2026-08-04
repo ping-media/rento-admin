@@ -30,7 +30,7 @@ const CreateNewAndUpdateForm = () => {
   const dispatch = useDispatch();
   const [formLoading, setFormLoading] = useState(false);
   const { id } = useParams();
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
   const { loading, vehicleMaster, tempIds } = useSelector(
     (state) => state.vehicles,
   );
@@ -83,14 +83,16 @@ const CreateNewAndUpdateForm = () => {
 
       <div className="flex items-center flex-wrap justify-between gap-1 lg:gap-0 mb-5">
         <div className="flex items-center gap-2">
-          {/* back button visiable on mobile screen  */}
-          <button
-            className="flex items-center gap-1 p-1 rounded-lg"
-            type="button"
-            onClick={() => handlePreviousPage(navigate)}
-          >
-            {tableIcons?.backArrow}
-          </button>
+          {location.pathname.startsWith("/all-users/") &&
+            loggedInRole !== "manager" && (
+              <button
+                className="flex items-center gap-1 p-1 rounded-lg"
+                type="button"
+                onClick={() => handlePreviousPage(navigate)}
+              >
+                {tableIcons?.backArrow}
+              </button>
+            )}
           {/* heading render dynamically based on url  */}
           <h1 className="text-xl lg:text-2xl capitalize font-bold text-theme">
             {location.pathname.includes("/all-bookings/")

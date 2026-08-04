@@ -288,18 +288,29 @@ const formatTimeStampToDateNew = (timestamp) => {
     return "";
   }
 
-  // ✅ force numeric conversion
   const ts = Number(timestamp);
 
-  if (Number.isNaN(ts)) {
-    return "";
-  }
+  let date;
 
-  // ✅ detect seconds vs milliseconds
-  const date =
-    ts < 1e12
-      ? new Date(ts * 1000) // seconds
-      : new Date(ts); // milliseconds
+  if (!Number.isNaN(ts) && ts > 0) {
+    // numeric timestamp — detect seconds vs milliseconds
+    date = ts < 1e12 ? new Date(ts * 1000) : new Date(ts);
+  } else {
+    // ISO string or any other date string
+    date = new Date(timestamp);
+  }
+  // // force numeric conversion
+  // const ts = Number(timestamp);
+
+  // if (Number.isNaN(ts)) {
+  //   return "";
+  // }
+
+  // // detect seconds vs milliseconds
+  // const date =
+  //   ts < 1e12
+  //     ? new Date(ts * 1000) // seconds
+  //     : new Date(ts); // milliseconds
 
   if (isNaN(date.getTime())) {
     return "";

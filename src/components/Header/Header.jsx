@@ -7,6 +7,7 @@ import HeaderMenuList from "./HeaderMenuList";
 import { Link, useLocation, useParams } from "react-router-dom";
 import BackButton from "../../components/Buttons/BackButton";
 import TitleAndButton from "./TitleAndButton";
+import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
 
 const NON_TITLE_PAGE = [
   "/dashboard",
@@ -23,6 +24,7 @@ const Header = () => {
   const dispatch = useDispatch();
   const adminRef = useRef(null);
   const { loggedInRole, userStation } = useSelector((state) => state.user);
+  const { filters } = useSelector((state) => state.pagination);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const location = useLocation();
 
@@ -116,10 +118,20 @@ const Header = () => {
             </Link>
           )}
 
+          {/* clearing extra filters in booking page */}
+          {location.pathname === "/all-bookings" && filters !== null && (
+            <button
+              className="relative border-2 rounded-md hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-2 dark:bg-gray-700"
+              onClick={() => dispatch(handleRestPagination())}
+            >
+              <span className="text-theme">X</span> Clear filters
+            </button>
+          )}
+
           {loggedInRole &&
             loggedInRole === "manager" &&
             !location.pathname.includes("/all-bookings/details/") && (
-              <div className="relative capitalize hover:shadow-none shadow-md rounded-xl cursor-pointer flex items-center gap-2 px-4 py-2.5 lg:py-3 dark:bg-gray-700">
+              <div className="relative capitalize hover:shadow-none shadow-md rounded-xl cursor-pointer hidden md:flex items-center gap-2 px-4 py-2.5 lg:py-3 dark:bg-gray-700">
                 {tableIcons?.map}{" "}
                 {userStation?.stationName || "No Station Assign"}
               </div>

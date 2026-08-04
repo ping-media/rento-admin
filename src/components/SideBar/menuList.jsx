@@ -44,7 +44,7 @@ const menuList = [
     menuImg: <PersonOutlinedIcon />,
     menuTitle: "Customers",
     menuLink: "/all-users",
-    roles: ["admin", "manager"],
+    roles: ["admin"],
   },
   {
     menuImg: <AccountBalanceOutlinedIcon />,

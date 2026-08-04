@@ -191,8 +191,6 @@ const ExtendBookingModal = ({ bookingData }) => {
         addonTax: finalAddonTax,
         originalBookingEndDateAndTime:
           bookingData?.BookingEndDateAndTime.replace(".000Z", "Z"),
-        // BookingStartDateAndTime: newStartDate,
-        // bookingEndDateAndTime: newDate,
         BookingStartDateAndTime: bookingData?.BookingEndDateAndTime,
         BookingEndDateAndTime: newBookingEndDateAndTime,
         daysBreakdown: daysBreakdown || [],
@@ -206,9 +204,6 @@ const ExtendBookingModal = ({ bookingData }) => {
       },
       bookingStatus: "extended",
     };
-
-    // console.log(data);
-    // return;
 
     try {
       setFormLoading(true);

@@ -134,7 +134,10 @@ const RideSummary = ({
             </span>
             <span className="text-sm font-semibold mx-1">:</span>
             <span className="text-sm font-semibold">
-              {bookingDuration} Day(s)
+              {bookingDuration != "Invalid date format"
+                ? bookingDuration
+                : "--"}{" "}
+              Day(s)
             </span>
           </div>
         </div>

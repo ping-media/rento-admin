@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { getData } from "../Data";
 import BarChart from "../components/charts/BarChart";
 import InfoCard from "../components/Dashboard/InfoCard";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +18,7 @@ import { monthNames } from "../Data/commonData";
 import CustomMonthDropdown from "../components/DropDown/CustomDropDown";
 import { tableIcons } from "../Data/Icons";
 import DashboardSeleton from "../components/Skeleton/dashboard/DashboardSeleton";
+import BookingBreakdownModal from "../components/Modal/BookingBreakdownModal";
 
 const Dashboard = () => {
   const now = new Date();
@@ -30,8 +32,50 @@ const Dashboard = () => {
   );
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
+  const [dayDetail, setDayDetail] = useState({
+    open: false,
+    date: "",
+    data: null,
+    loading: false,
+  });
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const handleBarClick = useCallback(
+    async ({ date, startDate, endDate }) => {
+      // const label = date || `${startDate} → ${endDate}`;
+      // setDayDetail({ open: true, date: label, data: null, loading: true });
+      setDayDetail({
+        open: true,
+        date: date || null,
+        startDate: startDate || null,
+        endDate: endDate || null,
+        data: null,
+        loading: true,
+      });
+      try {
+        const stationParam =
+          loggedInRole === "manager"
+            ? `&stationId=${userStation?.stationId}`
+            : "";
+        const params = date
+          ? `date=${date}`
+          : `startDate=${startDate}&endDate=${endDate}`;
+        const res = await getData(
+          `/getGraphDayDetail?${params}${stationParam}`,
+          token,
+        );
+        if (res?.status === 200) {
+          setDayDetail({ open: true, date, data: res.data, loading: false });
+        } else {
+          setDayDetail({ open: true, date, data: null, loading: false });
+        }
+      } catch (e) {
+        setDayDetail({ open: true, date, data: null, loading: false });
+      }
+    },
+    [loggedInRole, userStation],
+  );
 
   //fetching dashboard data
   useEffect(() => {
@@ -107,8 +151,15 @@ const Dashboard = () => {
         ))}
       </div>
       <div className="shadow-lg p-3 lg:p-5 rounded-2xl bg-white">
-        <BarChart data={barChartData} />
+        <BarChart data={barChartData} onBarClick={handleBarClick} />
       </div>
+
+      {dayDetail.open && (
+        <BookingBreakdownModal
+          dayDetail={dayDetail}
+          setDayDetail={setDayDetail}
+        />
+      )}
     </>
   );
 };
