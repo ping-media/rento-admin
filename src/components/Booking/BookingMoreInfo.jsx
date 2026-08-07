@@ -30,14 +30,29 @@ const BookingMoreInfo = ({ data, datatype }) => {
   return (
     <>
       <div className="md:hidden lg:hidden flex items-center justify-between pb-1 border-b-2">
-        <h2 className="font-semibold uppercase text-md">
+        <h2 className="font-normal uppercase text-md">
           {`${vehicle?.vehicleBrand} ${vehicle?.vehicleName}`}
         </h2>
-        <Link to={`/all-vehicles/details/${vehicle?.vehicleTableId?._id}`}>
-          <p className="text-md text-gray-500">
-            {vehicle?.vehicleBasic?.vehicleNumber}
-          </p>
-        </Link>
+        <div className="flex items-center gap-1">
+          {vehicle?.vehicleBasic?.vehicleNumber !== "unassigned" && (
+            <CopyButton textToCopy={vehicle?.vehicleBasic?.vehicleNumber} />
+          )}
+          <Link
+            to={
+              vehicle?.vehicleTableId !== null
+                ? `/all-vehicles/details/${vehicle?.vehicleTableId?._id}`
+                : "#"
+            }
+          >
+            <p
+              className={`text-md ${vehicle?.vehicleBasic?.vehicleNumber !== "unassigned" ? "text-theme font-bold" : "text-gray-500"}`}
+            >
+              {vehicle?.vehicleBasic?.vehicleNumber !== "unassigned"
+                ? vehicle?.vehicleBasic?.vehicleNumber
+                : "--"}
+            </p>
+          </Link>
+        </div>
       </div>
 
       {filteredData.map((item, index, filteredArr) => {

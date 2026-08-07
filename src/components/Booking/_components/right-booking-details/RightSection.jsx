@@ -18,7 +18,9 @@ const RightSection = ({ tabs, booking }) => {
       <div className="hidden lg:flex lg:items-center">
         <Link to={`/all-vehicles/details/${booking?.vehicleTableId?._id}`}>
           <h2 className="font-bold uppercase text-md lg:text-lg flex flex-wrap items-center hover:text-theme hover:underline gap-2">
-            {booking?.vehicleBasic?.vehicleNumber}
+            {booking?.vehicleBasic?.vehicleNumber !== "unassigned"
+              ? booking?.vehicleBasic?.vehicleNumber
+              : "--"}
           </h2>
         </Link>
         {booking?.vehicleBasic?.vehicleNumber !== "unassigned" && (

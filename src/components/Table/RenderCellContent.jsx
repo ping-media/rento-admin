@@ -108,7 +108,13 @@ const RenderCellContent = (column, value, item, location) => {
     return (
       <>
         <p className="w-full truncate">{value}</p>
-        <p className="text-xs">({item?.vehicleBasic?.vehicleNumber})</p>
+        <p className="text-xs">
+          (
+          {item?.vehicleBasic?.vehicleNumber !== "unassigned"
+            ? item?.vehicleBasic?.vehicleNumber
+            : "--"}
+          )
+        </p>
       </>
     );
   }

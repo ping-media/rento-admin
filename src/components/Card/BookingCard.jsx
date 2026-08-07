@@ -94,7 +94,11 @@ const BookingCard = ({ item }) => {
                 </div>
 
                 <h2 className="uppercase text-base font-semibold">
-                  ({item?.vehicleBasic?.vehicleNumber})
+                  (
+                  {item?.vehicleBasic?.vehicleNumber !== "unassigned"
+                    ? item?.vehicleBasic?.vehicleNumber
+                    : "--"}
+                  )
                 </h2>
               </div>
 
