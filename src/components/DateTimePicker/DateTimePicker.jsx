@@ -62,23 +62,6 @@ const DatePicker = ({
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState("bottom");
 
-  // const availableTimes = useMemo(() => {
-  //   const times = [];
-
-  //   for (let hour = 0; hour < 24; hour++) {
-  //     for (let minute = 0; minute < 60; minute += 30) {
-  //       const period = hour < 12 ? "AM" : "PM";
-  //       const adjustedHour = hour % 12 === 0 ? 12 : hour % 12;
-  //       const hourString = adjustedHour;
-  //       const minuteString = minute < 10 ? `0${minute}` : minute;
-  //       const timeString = `${hourString}:${minuteString} ${period}`;
-
-  //       times.push(timeString);
-  //     }
-  //   }
-  //   return times;
-  // }, [value]);
-
   const availableTimes = useMemo(() => {
     const times = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -135,9 +118,6 @@ const DatePicker = ({
       setDropdownPosition(
         spaceBelow < 350 && spaceAbove > 350 ? "top" : "bottom",
       );
-      // setDropdownPosition(
-      //   spaceBelow < 300 && spaceAbove > spaceBelow ? "top" : "bottom",
-      // );
     }
   };
 
@@ -189,11 +169,6 @@ const DatePicker = ({
                   d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
                 />
               )}
-              {/* <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-              /> */}
             </svg>
           </span>
           <input
@@ -209,11 +184,6 @@ const DatePicker = ({
             }
             name={!timeOnly ? name : undefined}
             readOnly
-            // placeholder="Select date & time"
-            // value={`${formatDate(new Date(value))} ${formatTimeWithoutSeconds(
-            //   timeValue,
-            // )}`}
-            // name={name}
           />
           {timeOnly && (
             <input // hidden input carries 24hr value on form submit
@@ -266,7 +236,6 @@ const DatePicker = ({
           )}
 
           {/* Time Picker */}
-          {/* <div className="w-1/3 pl-1"> */}
           <div className={timeOnly ? "w-full" : "w-1/3 pl-1"}>
             <div className="text-center font-semibold">Time</div>
             <div ref={timePickerRef} className="overflow-y-auto max-h-48">

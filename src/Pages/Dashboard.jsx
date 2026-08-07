@@ -43,8 +43,6 @@ const Dashboard = () => {
 
   const handleBarClick = useCallback(
     async ({ date, startDate, endDate }) => {
-      // const label = date || `${startDate} → ${endDate}`;
-      // setDayDetail({ open: true, date: label, data: null, loading: true });
       setDayDetail({
         open: true,
         date: date || null,
@@ -66,9 +64,9 @@ const Dashboard = () => {
           token,
         );
         if (res?.status === 200) {
-          setDayDetail({ open: true, date, data: res.data, loading: false });
+          setDayDetail((prev) => ({ ...prev, data: res.data, loading: false }));
         } else {
-          setDayDetail({ open: true, date, data: null, loading: false });
+          setDayDetail((prev) => ({ ...prev, data: null, loading: false }));
         }
       } catch (e) {
         setDayDetail({ open: true, date, data: null, loading: false });

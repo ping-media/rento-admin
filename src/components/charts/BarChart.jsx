@@ -119,45 +119,6 @@ const BarChart = ({ data, onBarClick }) => {
       })),
     };
   };
-  // const groupByWeek = (data) => {
-  //   const weeks = {};
-
-  //   data.forEach((item) => {
-  //     const date = new Date(item._id);
-  //     // Get the week number within the month
-  //     const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-  //     const dayOffset = firstDayOfMonth.getDay();
-  //     const dayOfMonth = date.getDate();
-  //     const weekNumber = Math.ceil((dayOfMonth + dayOffset) / 7);
-
-  //     const weekKey = `Week ${weekNumber}`;
-
-  //     if (!weeks[weekKey]) {
-  //       weeks[weekKey] = {
-  //         totalPrice: 0,
-  //         bookingCount: 0,
-  //         startDate: item._id,
-  //         endDate: item._id,
-  //       };
-  //     }
-
-  //     weeks[weekKey].totalPrice += item.totalPrice;
-  //     weeks[weekKey].bookingCount += item.bookingCount;
-  //     if (item._id < weeks[weekKey].startDate)
-  //       weeks[weekKey].startDate = item._id;
-  //     if (item._id > weeks[weekKey].endDate) weeks[weekKey].endDate = item._id;
-  //   });
-
-  //   // Convert to arrays
-  //   return {
-  //     categories: Object.keys(weeks),
-  //     totalPrice: Object.values(weeks).map((w) => w.totalPrice),
-  //     weekRanges: Object.values(weeks).map((w) => ({
-  //       startDate: w.startDate,
-  //       endDate: w.endDate,
-  //     })),
-  //   };
-  // };
 
   // Process data for different view modes
   const processChartData = (mode) => {
@@ -222,14 +183,6 @@ const BarChart = ({ data, onBarClick }) => {
           }
         },
       },
-      // events: {
-      //   dataPointSelection: (event, chartContext, config) => {
-      //     if (viewMode !== "Daily" || !onBarClick) return;
-      //     const index = config.dataPointIndex;
-      //     const rawDate = chartData.rawDates?.[index];
-      //     if (rawDate) onBarClick(rawDate);
-      //   },
-      // },
     },
     xaxis: {
       categories: chartData.categories,
@@ -365,22 +318,6 @@ const BarChart = ({ data, onBarClick }) => {
           ))}
         </div>
       </div>
-
-      {/* Summary Card */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100">
-          <p className="text-gray-500 text-sm">This Month Bookings</p>
-          <p className="text-2xl font-bold text-gray-800">
-            {totals.totalBookings}
-          </p>
-        </div>
-        <div className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100">
-          <p className="text-gray-500 text-sm">This Month Revenue</p>
-          <p className="text-2xl font-bold text-gray-800">
-            ₹ {formatPrice(totals.totalRevenue)}
-          </p>
-        </div>
-      </div> */}
 
       {/* Total Price Chart */}
       <div className="w-full overflow-x-auto">

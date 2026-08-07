@@ -4,7 +4,7 @@ import Spinner from "../Spinner/Spinner";
 import DatePicker from "../DateTimePicker/DateTimePicker";
 import { useEffect, useMemo, useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { parse, parseISO, format as Fromat } from "date-fns";
+import { parse, parseISO, format as Fromat, isValid } from "date-fns";
 import { format, formatInTimeZone } from "date-fns-tz";
 import { postData } from "../../Data/index";
 import {
@@ -24,7 +24,11 @@ const formattedDate = () => {
 };
 
 const formatIntoISO = (input) => {
-  const parsedDate = parse(input, "dd MMM, yyyy h:mm a", new Date());
+  const normalized = input.replace(/\bSept\b/g, "Sep");
+  const parsedDate = parse(normalized, "dd MMM, yyyy h:mm a", new Date());
+  if (!isValid(parsedDate)) {
+    throw new Error(`Invalid date: ${input}`);
+  }
   return format(parsedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'", { timeZone: "UTC" });
 };
 
@@ -132,20 +136,8 @@ const RescheduleModal = () => {
         if (response?.timeline?.newDates?.end) {
           data.BookingEndDateAndTime = response.timeline.newDates.end;
         }
-        // if (response?.isStartUpdate) {
-        //   data.BookingStartDateAndTime = dbBookingStartDateAndTime;
-        //   // data = {
-        //   //   ...data,
-        //   //   BookingStartDateAndTime: dbBookingStartDateAndTime,
-        //   // };
-        // }
-        // if (response?.isEndUpdate) {
-        //   data.BookingEndDateAndTime = dbBookingEndDateAndTime;
-        //   // data = { ...data, BookingEndDateAndTime: dbBookingEndDateAndTime };
-        // }
         if (response?.timeline) {
           dispatch(updateTimeLineData({ timeLine: [response.timeline] }));
-          // dispatch(updateTimeLineData(response.timeline));
         }
         handleAsyncError(dispatch, "Reschedule Successfully", "success");
         dispatch(updateBookingDates(data));

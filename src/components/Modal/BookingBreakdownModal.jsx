@@ -1,8 +1,12 @@
 import React from "react";
 import { formatPrice } from "../../utils";
 import { Link } from "react-router-dom";
+import useTransactionReport from "../../hooks/use-transaction-report";
+import Spinner from "../../components/Spinner/Spinner";
+import { tableIcons } from "../../Data/Icons";
 
 const BookingBreakdownModal = ({ dayDetail, setDayDetail }) => {
+  const { downloadReport, loading: reportLoading } = useTransactionReport();
   const [activeFilter, setActiveFilter] = React.useState("all");
 
   const filterOptions = [
@@ -24,29 +28,35 @@ const BookingBreakdownModal = ({ dayDetail, setDayDetail }) => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl min-h-[80vh] max-h-[90vh] flex flex-col">
         {/* header */}
         <div className="flex items-center justify-between px-4 py-2 border-b">
           <div>
-            {/* <h2 className="text-lg font-bold text-theme">
-              {dayDetail.date
-                ? new Date(dayDetail.date).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                  })
-                : ""}
-            </h2> */}
-            <h2 className="text-lg font-bold text-theme">
-              {dayDetail.date
-                ? new Date(dayDetail.date).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                  })
-                : dayDetail.startDate && dayDetail.endDate
-                  ? `${new Date(dayDetail.startDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })} – ${new Date(dayDetail.endDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}`
-                  : ""}
+            <h2 className="text-base sm:text-lg font-bold text-theme">
+              {dayDetail.date ? (
+                new Date(dayDetail.date).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })
+              ) : dayDetail.startDate && dayDetail.endDate ? (
+                <span className="flex flex-col">
+                  <span>
+                    {new Date(dayDetail.startDate).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })}
+                    {" – "}
+                    {new Date(dayDetail.endDate).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </span>
+              ) : (
+                ""
+              )}
             </h2>
             {dayDetail.data && (
               <p className="text-sm text-gray-500">
@@ -57,21 +67,42 @@ const BookingBreakdownModal = ({ dayDetail, setDayDetail }) => {
               </p>
             )}
           </div>
-          <button
-            onClick={() =>
-              setDayDetail({
-                open: false,
-                date: null,
-                startDate: null,
-                endDate: null,
-                data: null,
-                loading: false,
-              })
-            }
-            className="text-gray-400 hover:text-gray-700 text-xl font-bold"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-3">
+            {/* <button
+              onClick={() =>
+                downloadReport({
+                  date: dayDetail.date || null,
+                  startDate: dayDetail.startDate || null,
+                  endDate: dayDetail.endDate || null,
+                })
+              }
+              disabled={reportLoading || dayDetail.loading}
+              className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-md border border-theme text-theme hover:bg-theme hover:text-white transition-all duration-150 disabled:opacity-50"
+            >
+              {reportLoading ? (
+                <Spinner />
+              ) : (
+                <div className="flex items-center gap-2">
+                  {tableIcons?.download} <span>Download</span>
+                </div>
+              )}
+            </button> */}
+            <button
+              onClick={() =>
+                setDayDetail({
+                  open: false,
+                  date: null,
+                  startDate: null,
+                  endDate: null,
+                  data: null,
+                  loading: false,
+                })
+              }
+              className="text-gray-400 hover:text-gray-700 text-xl font-bold"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* filters */}
@@ -129,7 +160,11 @@ const BookingBreakdownModal = ({ dayDetail, setDayDetail }) => {
               return (
                 <Link
                   key={i}
-                  to={`/all-bookings/details/${item.booking_id}_${bookingId}`}
+                  to={
+                    item.booking_id
+                      ? `/all-bookings/details/${item.booking_id}_${bookingId}`
+                      : "#"
+                  }
                   className="w-full"
                 >
                   <div className="flex items-center justify-between py-2 border-b last:border-0">
