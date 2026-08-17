@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import DatePicker from "./DateTimePicker";
-import { parse } from "date-fns";
+import { isValid, parse } from "date-fns";
 import { format } from "date-fns-tz";
 import { formatDate } from "../../utils/index";
 
@@ -21,7 +21,11 @@ const formattedDate = (addDays = 0) => {
 };
 
 const formatIntoISO = (input) => {
-  const parsedDate = parse(input, "dd MMM, yyyy h:mm a", new Date());
+  const normalized = input.replace(/\bSept\b/g, "Sep");
+  const parsedDate = parse(normalized, "dd MMM, yyyy h:mm a", new Date());
+  if (!isValid(parsedDate)) {
+    throw new Error(`Invalid date: ${input}`);
+  }
   return format(parsedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'", { timeZone: "UTC" });
 };
 

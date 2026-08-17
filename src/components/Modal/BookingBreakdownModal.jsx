@@ -68,7 +68,7 @@ const BookingBreakdownModal = ({ dayDetail, setDayDetail }) => {
             )}
           </div>
           <div className="flex items-center gap-3">
-            {/* <button
+            <button
               onClick={() =>
                 downloadReport({
                   date: dayDetail.date || null,
@@ -86,7 +86,7 @@ const BookingBreakdownModal = ({ dayDetail, setDayDetail }) => {
                   {tableIcons?.download} <span>Download</span>
                 </div>
               )}
-            </button> */}
+            </button>
             <button
               onClick={() =>
                 setDayDetail({

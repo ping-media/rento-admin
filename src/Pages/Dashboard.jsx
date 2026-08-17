@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  lazy,
+  Suspense,
+} from "react";
 import { getData } from "../Data";
 import BarChart from "../components/charts/BarChart";
 import InfoCard from "../components/Dashboard/InfoCard";
@@ -18,7 +25,9 @@ import { monthNames } from "../Data/commonData";
 import CustomMonthDropdown from "../components/DropDown/CustomDropDown";
 import { tableIcons } from "../Data/Icons";
 import DashboardSeleton from "../components/Skeleton/dashboard/DashboardSeleton";
-import BookingBreakdownModal from "../components/Modal/BookingBreakdownModal";
+const BookingBreakdownModal = lazy(
+  () => import("../components/Modal/BookingBreakdownModal"),
+);
 
 const Dashboard = () => {
   const now = new Date();
@@ -153,10 +162,12 @@ const Dashboard = () => {
       </div>
 
       {dayDetail.open && (
-        <BookingBreakdownModal
-          dayDetail={dayDetail}
-          setDayDetail={setDayDetail}
-        />
+        <Suspense loading={null}>
+          <BookingBreakdownModal
+            dayDetail={dayDetail}
+            setDayDetail={setDayDetail}
+          />
+        </Suspense>
       )}
     </>
   );
