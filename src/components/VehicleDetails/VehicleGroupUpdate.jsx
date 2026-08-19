@@ -23,6 +23,11 @@ const VehicleGroupUpdate = ({
 }) => {
   const { token } = useSelector((state) => state.user);
   const [allVehicles, setAllVehicles] = useState([]);
+  const [vehicleStats, setVehicleStats] = useState({
+    freeCount: 0,
+    actualFreeCount: 0,
+    reservedByPendingBookings: 0,
+  });
   // for vehicle price update in bulk
   const [vehicleIds, setVehicleIds] = useState([]);
   const [vehicleFilter, setVehicleFilter] = useState("");
@@ -53,6 +58,11 @@ const VehicleGroupUpdate = ({
           : [];
         setVehicleIds(ids);
         setAllVehicles(data);
+        setVehicleStats({
+          freeCount: response?.freeCount ?? 0,
+          actualFreeCount: response?.actualFreeCount ?? 0,
+          reservedByPendingBookings: response?.reservedByPendingBookings ?? 0,
+        });
       }
     } catch (error) {
       console.log("Unable to fetch vehicle data", error);
@@ -85,21 +95,49 @@ const VehicleGroupUpdate = ({
     }
   });
 
+  // const isAllSelected =
+  //   filteredVehicles.length > 0 &&
+  //   maintenanceVehicleId.length === filteredVehicles.length;
+
+  // const isIndeterminate =
+  //   maintenanceVehicleId.length > 0 &&
+  //   maintenanceVehicleId.length < filteredVehicles.length;
+
+  const selectableVehicles = filteredVehicles.filter(
+    (v) => !v.currentBooking && !v.isUnderMaintenance,
+  );
+
+  const effectiveMax =
+    vehicleStats.actualFreeCount > 0 &&
+    vehicleStats.actualFreeCount < selectableVehicles.length
+      ? vehicleStats.actualFreeCount
+      : selectableVehicles.length;
+
   const isAllSelected =
-    filteredVehicles.length > 0 &&
-    maintenanceVehicleId.length === filteredVehicles.length;
+    effectiveMax > 0 && maintenanceVehicleId.length >= effectiveMax;
 
   const isIndeterminate =
     maintenanceVehicleId.length > 0 &&
-    maintenanceVehicleId.length < filteredVehicles.length;
+    maintenanceVehicleId.length < effectiveMax;
 
   const handleSelectAll = () => {
     if (isAllSelected) {
       setMaintenanceVehicleId([]);
     } else {
-      const allIds = filteredVehicles.map((v) => v._id);
-      // const allIds = allVehicles.map((v) => v._id);
-      setMaintenanceVehicleId(allIds);
+      // const allIds = filteredVehicles.map((v) => v._id);
+      // setMaintenanceVehicleId(allIds);
+      const selectableVehicles = filteredVehicles.filter(
+        (v) => !v.currentBooking && !v.isUnderMaintenance,
+      );
+
+      // if no filter applied, cap selection to actualFreeCount to respect pending reservations
+      const capped =
+        vehicleStats.actualFreeCount > 0 &&
+        vehicleStats.actualFreeCount < selectableVehicles.length
+          ? selectableVehicles.slice(0, vehicleStats.actualFreeCount)
+          : selectableVehicles;
+
+      setMaintenanceVehicleId(capped.map((v) => v._id));
     }
   };
 
@@ -238,17 +276,32 @@ const VehicleGroupUpdate = ({
           No Vehicle Data Found.
         </p>
       ) : (
-        <div className="overflow-x-auto h-full md:h-[30rem] md:overflow-y-auto">
-          <VehicleTable
-            // allVehicles={allVehicles}
-            allVehicles={filteredVehicles}
-            maintenanceVehicleId={maintenanceVehicleId}
-            handleSelect={handleSelect}
-            handleSelectAll={handleSelectAll}
-            isAllSelected={isAllSelected}
-            isIndeterminate={isIndeterminate}
-          />
-        </div>
+        <>
+          {vehicleStats.reservedByPendingBookings > 0 && (
+            <div className="mb-3 px-3 py-2 rounded-md bg-yellow-50 border border-yellow-300 text-yellow-800 text-sm">
+              ⚠️ <strong>{vehicleStats.reservedByPendingBookings}</strong>{" "}
+              vehicle
+              {vehicleStats.reservedByPendingBookings > 1
+                ? "s are"
+                : " is"}{" "}
+              reserved by pending bookings. Only{" "}
+              <strong>{vehicleStats.actualFreeCount}</strong> out of{" "}
+              <strong>{vehicleStats.freeCount}</strong> free vehicles are safe
+              to block.
+            </div>
+          )}
+          <div className="overflow-x-auto h-full md:h-[30rem] md:overflow-y-auto">
+            <VehicleTable
+              // allVehicles={allVehicles}
+              allVehicles={filteredVehicles}
+              maintenanceVehicleId={maintenanceVehicleId}
+              handleSelect={handleSelect}
+              handleSelectAll={handleSelectAll}
+              isAllSelected={isAllSelected}
+              isIndeterminate={isIndeterminate}
+            />
+          </div>
+        </>
       )}
     </>
   );

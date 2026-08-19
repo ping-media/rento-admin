@@ -83,9 +83,18 @@ const VehicleTable = ({
                       Blocked
                     </span>
                   ) : vehicle.currentBooking !== null ? (
-                    <span className="p-2 rounded-md text-xs font-medium bg-yellow-500/35 text-yellow-800">
-                      {vehicle.currentBooking.bookingId}
-                    </span>
+                    <Link
+                      to={
+                        vehicle.currentBooking?._id
+                          ? `/all-bookings/details/${vehicle.currentBooking?._id}_${vehicle.currentBooking?.bookingId}`
+                          : "#"
+                      }
+                      className="w-full"
+                    >
+                      <span className="p-2 rounded-md text-xs font-medium bg-yellow-500/35 text-yellow-800">
+                        {vehicle.currentBooking.bookingId}
+                      </span>
+                    </Link>
                   ) : (
                     <span className="p-2 rounded-md text-xs font-medium bg-green-500/30 text-green-800">
                       Available

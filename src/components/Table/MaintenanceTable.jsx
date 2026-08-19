@@ -5,6 +5,7 @@ import { tableIcons } from "../../Data/Icons";
 import {
   formatFullDateAndTime,
   formatLocalTimeIntoISO,
+  millisecToReadableFormat,
 } from "../../utils/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { getData, postData } from "../../Data/index";
@@ -12,11 +13,9 @@ import {
   addMaintenanceData,
   resetMaintenanceData,
   startMaintenanceLoading,
-  updateMaintenanceData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import DropDownComponent from "../../components/DropDown/DropDownComponent";
 import Pagination from "../../components/Pagination/Pagination";
-import ViewModal from "../../components/Modal/ViewModal";
 
 const formatDateTimeIN = (timestring) => {
   if (!timestring) return { date: "NA", time: "NA" };
@@ -60,23 +59,11 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
     if (!loading && vehicleMaster?.length > 0) {
       (async () => {
         await fetchMaintenanceData();
-        // dispatch(startMaintenanceLoading());
-        // const response = await getData(
-        //   `/maintenanceVehicle?vehicleTableId=${vehicleMaster[0]?._id}&page=${currentPage}&limit=${limit}`,
-        //   token,
-        // );
-        // if (response?.status === 200) {
-        //   dispatch(addMaintenanceData(response));
-        // } else {
-        //   dispatch(resetMaintenanceData());
-        // }
       })();
     }
 
     return () => dispatch(resetMaintenanceData());
   }, [loading, vehicleMaster, limit, currentPage, isMaintenanceAdd]);
-
-  // const sortedMaintenance = [...(vehicleMaster[0]?.maintenance || [])];
 
   // table header
   const maintenanceHeader = [
@@ -85,19 +72,6 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
     "Reason",
     "Action",
   ];
-
-  // const isVehicleUnblocked = (id) => {
-  //   const currentDateAndTime = new Date();
-  //   const endDate = formatLocalTimeIntoISO(currentDateAndTime);
-
-  //   console.log(endDate);
-
-  //   const hasActiveMaintenance = maintenanceData?.data?.some((m) => {
-  //     return m._id === id && m.endDate < endDate;
-  //   });
-
-  //   return hasActiveMaintenance;
-  // };
 
   // unblock maintenance
 
@@ -122,7 +96,6 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
       setModifyingVehicleId(id);
       const response = await postData("/maintenanceVehicle", data, token);
       if (response.success === true) {
-        // dispatch(updateMaintenanceData(endDate));
         handleAsyncError(dispatch, response?.message, "success");
         await fetchMaintenanceData();
       } else {
@@ -137,46 +110,10 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
       setModifyingVehicleId(null);
     }
   };
-  // const unblockVehicles = async (id) => {
-  //   const currentDateAndTime = new Date();
-  //   const endDate = formatLocalTimeIntoISO(currentDateAndTime);
-
-  //   const hasActiveMaintenance = maintenanceData?.data?.some((m) => {
-  //     return m._id === id && m.endDate > endDate;
-  //   });
-
-  //   if (!hasActiveMaintenance)
-  //     return handleAsyncError(dispatch, "No Active Maintenance found");
-
-  //   const data = {
-  //     maintenanceId: id,
-  //     vehicleTableId: vehicleMaster[0]?._id,
-  //     endDate: endDate,
-  //   };
-
-  //   try {
-  //     setModifyingVehicleId(id);
-  //     const response = await postData("/maintenanceVehicle", data, token);
-  //     if (response.success === true) {
-  //       dispatch(updateMaintenanceData(endDate));
-  //       handleAsyncError(dispatch, response?.message, "success");
-  //     } else {
-  //       handleAsyncError(dispatch, response?.message);
-  //     }
-  //   } catch (error) {
-  //     handleAsyncError(
-  //       dispatch,
-  //       "Unable to update maintenance records! try again.",
-  //     );
-  //   } finally {
-  //     setModifyingVehicleId(null);
-  //   }
-  // };
 
   const handleView = (id) => {
     const data = maintenanceData?.data?.find((d) => d._id === id);
     if (data) {
-      // setIsActive(!isActive);
       setIsActive(true);
       setViewData(data);
     }
@@ -188,23 +125,85 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
         isOpen={isActive && viewData !== null}
         onClose={() => setIsActive(false)}
         title="Maintenance Details"
-        className="p-4 w-full max-w-xl"
+        className="p-4 sm:max-w-xl w-full"
       >
-        <div className="flex flex-col gap-2">
-          <p className="text-sm">
-            <span className="font-semibold">Start:</span>{" "}
-            {viewData?.startDate && formatFullDateAndTime(viewData.startDate)}
-          </p>
-          <p className="text-sm">
-            <span className="font-semibold">End:</span>{" "}
-            {viewData?.endDate && formatFullDateAndTime(viewData.endDate)}
-          </p>
+        <div className="flex flex-col gap-3">
+          <div className="overflow-x-auto rounded-md border">
+            <table className="w-full text-sm">
+              <tbody className="divide-y">
+                <tr>
+                  <td className="px-3 py-2.5 font-semibold text-gray-700 whitespace-nowrap">
+                    Start
+                  </td>
+                  <td className="px-3 py-2.5 text-gray-600">
+                    {viewData?.startDate
+                      ? formatFullDateAndTime(viewData.startDate)
+                      : "--"}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td className="px-3 py-2.5 font-semibold text-gray-700 whitespace-nowrap">
+                    End
+                  </td>
+                  <td className="px-3 py-2.5 text-gray-600">
+                    {viewData?.actualEndDate
+                      ? formatFullDateAndTime(viewData.actualEndDate)
+                      : viewData?.endDate
+                        ? formatFullDateAndTime(viewData.endDate)
+                        : "--"}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td className="px-3 py-2.5 font-semibold text-gray-700 whitespace-nowrap">
+                    Create Date
+                  </td>
+                  <td className="px-3 py-2.5 text-gray-600">
+                    {viewData?.createDate
+                      ? millisecToReadableFormat(viewData.createDate)
+                      : "--"}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td className="px-3 py-2.5 font-semibold text-gray-700 whitespace-nowrap">
+                    Finish Date
+                  </td>
+                  <td className="px-3 py-2.5 text-gray-600">
+                    {viewData?.actualEndDate
+                      ? formatFullDateAndTime(viewData.endDate)
+                      : "--"}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td className="px-3 py-2.5 font-semibold text-gray-700 whitespace-nowrap">
+                    Created By
+                  </td>
+                  <td className="px-3 py-2.5 text-gray-600">
+                    {viewData?.createdBy || "--"}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td className="px-3 py-2.5 font-semibold text-gray-700 whitespace-nowrap">
+                    Finished By
+                  </td>
+                  <td className="px-3 py-2.5 text-gray-600">
+                    {viewData?.unblockedBy || "--"}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
           <div className="text-sm">
             <span className="font-semibold">Reason:</span>
 
             <div className="mt-1 max-h-40 overflow-y-auto rounded-md border bg-gray-50 p-2">
               <span className="capitalize break-all whitespace-pre-wrap">
-                {viewData?.reason}
+                {viewData?.reason || "--"}
               </span>
             </div>
           </div>
@@ -239,46 +238,6 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
         </div>
       </ConfirmModal>
 
-      {/* {maintenanceData?.data?.length > 0 && viewData !== null && ( */}
-      {/* {viewData !== null && (
-        <ViewModal
-          isActive={isActive}
-          setIsActive={setIsActive}
-          {...viewData}
-        />
-      )}
-
-      confirmation modal 
-      {confirmModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-md shadow-xl p-6 w-80 flex flex-col gap-4">
-            <h2 className="text-base font-semibold text-gray-800">
-              Unblock Vehicle
-            </h2>
-            <p className="text-sm text-gray-500">
-              Are you sure you want to unblock this vehicle from maintenance?
-            </p>
-            <div className="flex justify-end gap-3 mt-2">
-              <button
-                className="px-4 py-1.5 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
-                onClick={() => setConfirmModal({ open: false, id: null })}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-1.5 rounded-lg bg-theme text-white text-sm hover:opacity-90"
-                onClick={() => {
-                  unblockVehicles(confirmModal.id);
-                  setConfirmModal({ open: false, id: null });
-                }}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
-
       <div className="flex flex-col">
         <div className=" overflow-x-auto">
           <div className="min-w-full inline-block align-middle">
@@ -309,14 +268,20 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
                           (item?.startDate &&
                             formatDateTimeIN(item?.startDate)) ||
                           {};
+                        const endDateToDisplay =
+                          item?.actualEndDate || item?.endDate;
+
                         const { date: EndDate, time: EndTime } =
-                          (item?.endDate && formatDateTimeIN(item?.endDate)) ||
+                          (endDateToDisplay &&
+                            formatDateTimeIN(endDateToDisplay)) ||
                           {};
+                        // const { date: EndDate, time: EndTime } =
+                        //   (item?.endDate && formatDateTimeIN(item?.endDate)) ||
+                        //   {};
                         return (
                           <tr
                             className="bg-white transition-all duration-500 hover:bg-gray-50"
                             key={index}
-                            // onClick={() => handleView(item?._id)}
                           >
                             <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ">
                               {StartDate ?? "NA"},
@@ -384,66 +349,6 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
                                 </button>
                               </div>
                             </td>
-                            {/* <td className="p-2.5 whitespace-nowrap text-sm items-center" >
-                            <button
-                              type="button"
-                              className={`p-1 rounded-full bg-white group transition-all duration-500 flex item-center ${
-                                !item?.isActive ||
-                                modifyingVehicleId === item?._id
-                                  ? "opacity-50 cursor-not-allowed"
-                                  : "hover:text-white hover:bg-theme"
-                              }`}
-                              // className={`p-1 rounded-full bg-white group transition-all duration-500 flex item-center ${
-                              //   isVehicleUnblocked(item?._id) ||
-                              //   modifyingVehicleId === item?._id
-                              //     ? "opacity-50 cursor-not-allowed"
-                              //     : "hover:text-white hover:bg-theme"
-                              // }`}
-                              // onClick={() => unblockVehicles(item?._id)}
-                              onClick={(e) => {
-                                e.stopPropagation(); // prevent row click (handleView) from firing
-                                if (
-                                  !item?.isActive ||
-                                  modifyingVehicleId === item?._id
-                                )
-                                  return;
-                                setConfirmModal({ open: true, id: item?._id });
-                              }}
-                              disabled={
-                                !item?.isActive ||
-                                modifyingVehicleId === item?._id
-                              }
-                              title={
-                                item?.isActive
-                                  ? "Vehicle currently under maintenance"
-                                  : "Unblock vehicle"
-                              }
-                              // disabled={
-                              //   isVehicleUnblocked(item?._id) ||
-                              //   modifyingVehicleId === item?._id
-                              // }
-                              // title={
-                              //   item?.status === "active"
-                              //     ? "unblock vehicle"
-                              //     : ""
-                              // }
-                            >
-                              {modifyingVehicleId === item?._id ? (
-                                <Spinner />
-                              ) : item?.status === "active" ? (
-                                tableIcons?.lock
-                              ) : (
-                                tableIcons?.unBlock
-                              )}
-                              {modifyingVehicleId === item?._id ? (
-                                <Spinner />
-                              ) : item?.isActive ? (
-                                tableIcons?.lock
-                              ) : (
-                                tableIcons?.unBlock
-                              )}
-                            </button>
-                          </td> */}
                           </tr>
                         );
                       })

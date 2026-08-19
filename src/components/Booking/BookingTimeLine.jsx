@@ -13,27 +13,6 @@ const BookingTimelineNoteModal = lazy(
   () => import("../../components/Modal/BookingTimelineNoteModal"),
 );
 
-// function formatDateTime(dateString) {
-//   if (!dateString) return "";
-
-//   const [date, time] = dateString.split(", ");
-//   const [day, month, year] = date.split("/");
-
-//   const formattedDate = new Date(`${year}-${month}-${day}T${time}`);
-
-//   return formattedDate
-//     .toLocaleString("en-IN", {
-//       day: "numeric",
-//       month: "short",
-//       year: "numeric",
-//       hour: "2-digit",
-//       minute: "2-digit",
-//       hour12: true,
-//     })
-//     .replace("am", "AM")
-//     .replace("pm", "PM");
-// }
-
 function formatDateTime(dateString) {
   if (!dateString) return "";
 
