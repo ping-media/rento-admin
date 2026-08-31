@@ -8,7 +8,7 @@ const COMPONENTS = {
   general: WebsiteForm,
   others: OthersForm,
   terms_and_conditions: PolicyEditor,
-  // booking_terms: PolicyEditor,
+  booking_terms: PolicyEditor,
   privacy_policy: PolicyEditor,
   refund_policy: PolicyEditor,
 };
@@ -16,7 +16,7 @@ const COMPONENTS = {
 export const TAB_LIST = [
   { id: "general", title: "General" },
   { id: "terms_and_conditions", title: "Terms & Condition" },
-  // { id: "booking_terms", title: "Booking Terms" },
+  { id: "booking_terms", title: "Booking Terms" },
   { id: "privacy_policy", title: "Privacy Policy" },
   { id: "refund_policy", title: "Refund Policy" },
   { id: "others", title: "Banners" },
