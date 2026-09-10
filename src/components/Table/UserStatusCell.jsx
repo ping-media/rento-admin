@@ -9,7 +9,7 @@ const UserStatusCell = ({ item, index }) => {
       : false;
   return (
     <td
-      className="p-2 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize"
+      className="px-2 py-1 whitespace-nowrap text-md lg:text-sm leading-6 font-medium text-gray-900 capitalize"
       key={`UserVerification_${index}`}
     >
       <p
@@ -17,11 +17,7 @@ const UserStatusCell = ({ item, index }) => {
           isVerify ? "text-green-500" : "text-red-500/90"
         }`}
       >
-        {isVerify ? (
-          <>{tableIcons?.verify} verified</>
-        ) : (
-          <>{tableIcons?.unVerify} not verified</>
-        )}
+        {isVerify ? <>{tableIcons?.verify}</> : <>{tableIcons?.unVerify}</>}
       </p>
     </td>
   );

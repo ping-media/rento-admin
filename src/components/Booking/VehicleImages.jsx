@@ -1,45 +1,20 @@
 import PhotoView from "../../components/Form/User Components/PhotoView";
-// import { tableIcons } from "../../Data/Icons";
 import React from "react";
-import { useSelector } from "react-redux";
 
-const VehicleImages = () => {
-  const { vehiclePickupImage } = useSelector((state) => state.vehicles);
+const VehicleImages = ({ pickupImage }) => {
+  const files = Object.entries(pickupImage?.files || {});
+  if (!files.length) return null;
+
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      {Object.entries(vehiclePickupImage[0]?.files || {})?.map(
-        ([key, value]) => (
-          <PhotoView
-            item={value}
-            className="w-20 h-20"
-            uniqueId={key}
-            key={key}
-          />
-          // <div
-          //   className={`relative w-auto border-2 rounded-md p-1 h-full`}
-          //   key={key}
-          // >
-          //   <a
-          //     href={value?.imageUrl}
-          //     data-pswp-width="1920"
-          //     data-pswp-height="1080"
-          //     target="_blank"
-          //     rel="noreferrer"
-          //     className="flex items-center gap-1"
-          //   >
-          //     {value?.imageUrl ? (
-          //       <img
-          //         src={value?.imageUrl}
-          //         className="w-16 h-16 object-cover"
-          //         alt={value?.fileName}
-          //       />
-          //     ) : (
-          //       tableIcons?.image
-          //     )}
-          //   </a>
-          // </div>
-        )
-      )}
+    <div className="flex items-center gap-2 flex-wrap" id="vehicle-gallery">
+      {files?.map(([key, value]) => (
+        <PhotoView
+          item={value}
+          className="w-14 lg:w-20 h-14 lg:h-20"
+          uniqueId="vehicle-gallery"
+          key={key}
+        />
+      ))}
     </div>
   );
 };

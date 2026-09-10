@@ -3,73 +3,117 @@ import { toggleChangeVehicleModal } from "../../Redux/SideBarSlice/SideBarSlice"
 import { useEffect, useState } from "react";
 import { getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
-import {
-  calculateTax,
-  calculateTotalAddOnPrice,
-  camelCaseToSpaceSeparated,
-  formatDateToISO,
-  formatDateToISOWithoutSecond,
-  formatPrice,
-  getDurationInDays,
-  getDurationInDaysAndHours,
-} from "../../utils/index";
-import Input from "../../components/InputAndDropdown/Input";
+import { formatDateToISOWithoutSecond, formatPrice } from "../../utils/index";
 import PreLoader from "../../components/Skeleton/PreLoader";
 import Spinner from "../../components/Spinner/Spinner";
-import {
-  handleChangesInBooking,
-  updateTimeLineData,
-} from "../../Redux/VehicleSlice/VehicleSlice";
-import { updateTimeLineForPayment } from "../../Data/Function";
 import SelectDropDownVehicle from "../../components/InputAndDropdown/SelectDropDownVehicle";
+import PriceList from "../../components/Form/VehicleComponents/PriceList";
+import NewVehiclePreview from "./_components/NewVehiclePreview";
 
-const ChangeVehicleModal = ({ bookingData }) => {
+const ChangeVehicleModal = ({ bookingData, onVehicleChange = null }) => {
   const dispatch = useDispatch();
   const { isChangeVehicleModalActive } = useSelector((state) => state.sideBar);
-  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const [formLoading, setFormLoading] = useState(false);
-  const [isModalClose, setIsModalClose] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
-  const [selectedPlan, setSelectedPlan] = useState(null);
   const [freeVehicles, setFreeVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const { token } = useSelector((state) => state.user);
   const [vehicleId, setVehicleId] = useState("");
+  const [previewData, setPreviewData] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(false);
+  // const [extendRequired, setExtendRequired] = useState(false);
+
+  const isGSTActive =
+    bookingData?.stationData?.isGstActive === "active" ? true : false || false;
+
+  let currentDateAndTime = formatDateToISOWithoutSecond(new Date());
+  // if someone is changing the vehicle before vehicle actual start date and time than take booking start date and time
+  if (currentDateAndTime < bookingData?.BookingStartDateAndTime) {
+    currentDateAndTime = bookingData?.BookingStartDateAndTime;
+  }
+
+  const extendBookings =
+    bookingData?.bookingPrice?.extendAmount?.length > 0
+      ? bookingData?.bookingPrice?.extendAmount?.filter(
+          (extend) => extend?.status === "paid",
+        )
+      : [];
+
+  const extendBookingDuration = extendBookings.reduce(
+    (sum, extend) => sum + Number(extend?.extendDuration || 0),
+    0,
+  );
+
+  const extendBookingTotal = extendBookings.reduce(
+    (sum, extend) => sum + Number(extend?.amount || 0),
+    0,
+  );
+
+  const getCurrentSegmentEndDate = () => {
+    for (let i = extendBookings.length - 1; i >= 0; i--) {
+      const ext = extendBookings[i];
+      const extStart = new Date(ext?.BookingStartDateAndTime);
+
+      if (new Date(currentDateAndTime) >= extStart) {
+        return ext?.bookingEndDateAndTime || ext?.BookingEndDateAndTime;
+      }
+    }
+
+    if (extendBookings.length > 0) {
+      return extendBookings[0]?.originalBookingEndDateAndTime;
+    }
+
+    return bookingData?.BookingEndDateAndTime;
+  };
+
+  const segmentEndDate = getCurrentSegmentEndDate();
+  const isSegmentExpired = segmentEndDate
+    ? new Date(currentDateAndTime) >= new Date(segmentEndDate)
+    : false;
 
   //   for fetching vehicle based on  dynamic date and time
   useEffect(() => {
     if (!isChangeVehicleModalActive) return;
+    // if (isSegmentExpired) {
+    //   setFreeVehicles([]);
+    //   return;
+    // }
+
     (async () => {
       try {
         setVehicleLoading(true);
-        let endpoint = `/getAllVehiclesAvailable?stationId=${
-          bookingData?.stationId
-        }&BookingStartDateAndTime=${formatDateToISO(new Date()).replace(
-          ".000Z",
-          "Z"
-        )}&BookingEndDateAndTime=${
-          bookingData?.BookingEndDateAndTime
-        }&page=1&limit=25`;
+        let endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&vehicleName=${bookingData?.vehicleName}&BookingStartDateAndTime=${currentDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=25`;
+
         if (vehiclesFilter?.bookingVehicleName !== "") {
-          endpoint = `/getAllVehiclesAvailable?stationId=${
-            bookingData?.stationId
-          }&search=${
-            vehiclesFilter?.bookingVehicleName
-          }&BookingStartDateAndTime=${formatDateToISO(new Date()).replace(
-            ".000Z",
-            "Z"
-          )}&BookingEndDateAndTime=${
-            bookingData?.BookingEndDateAndTime
-          }&page=1&limit=25`;
+          endpoint = `/getAllVehiclesAvailable?stationId=${bookingData?.stationId}&search=${vehiclesFilter?.bookingVehicleName}&BookingStartDateAndTime=${currentDateAndTime}&BookingEndDateAndTime=${bookingData?.BookingEndDateAndTime}&excludeBookingId=${bookingData?._id}&page=1&limit=100`;
         }
+
         const response = await getData(endpoint, token);
         if (response?.status === 200) {
           setFreeVehicles(response?.data);
         } else {
-          return handleAsyncError(dispatch, response?.message);
+          const vehicleData =
+            response?.unavailabilityReasons &&
+            response?.unavailabilityReasons.length > 0
+              ? response.unavailabilityReasons[0]
+              : null;
+
+          const customMessage =
+            vehicleData !== null && vehicleData?.bookingId?.trim() !== ""
+              ? vehicleData?.reason
+              : null;
+          // const customMessage =
+          //   vehicleData !== null
+          //     ? vehicleData?.bookingId?.trim() !== ""
+          //       ? `${vehicleData?.reason} and booking id is ${vehicleData?.bookingId}`
+          //       : vehicleData?.reason
+          //     : null;
+          return handleAsyncError(
+            dispatch,
+            customMessage !== null ? customMessage : response?.message,
+          );
         }
       } catch (error) {
         return handleAsyncError(dispatch, error?.message);
@@ -77,137 +121,42 @@ const ChangeVehicleModal = ({ bookingData }) => {
         setVehicleLoading(false);
       }
     })();
-  }, [isChangeVehicleModalActive, vehiclesFilter]);
+  }, [isChangeVehicleModalActive, vehiclesFilter, isSegmentExpired]);
 
   //   selecting and making the data for updating booking
-  const handleChangeSelectedVehicle = (vehicleId) => {
-    const changeToNewVehicle = freeVehicles?.find(
-      (item) => item?._id == vehicleId
-    );
-    const NewVehicleHavePlan =
-      (changeToNewVehicle?.vehiclePlan?.length > 0 &&
-        changeToNewVehicle?.vehiclePlan) ||
-      null;
-    const currentDateAndTime = formatDateToISOWithoutSecond(new Date());
-    const extendStartDate = bookingData?.extendBooking?.originalEndDate || "";
-    // getting start date whether according to extend or first booking
-    let startDate = "";
-    if (extendStartDate === "") {
-      startDate =
-        currentDateAndTime > bookingData?.BookingStartDateAndTime
-          ? currentDateAndTime
-          : bookingData?.BookingStartDateAndTime;
-    } else {
-      startDate =
-        currentDateAndTime > extendStartDate
-          ? currentDateAndTime
-          : extendStartDate;
-    }
-    const endDate = bookingData?.BookingEndDateAndTime;
+  const handleChangeSelectedVehicle = async (vehicleId) => {
+    if (!vehicleId) return;
 
-    // calculating the duration
-    const daysLeft = getDurationInDays(
-      startDate?.slice(0, 10),
-      endDate?.slice(0, 10)
-    );
+    try {
+      setPreviewLoading(true);
+      setPreviewData(null);
+      // setExtendRequired(false);
 
-    const Plan =
-      NewVehicleHavePlan?.length > 0
-        ? NewVehicleHavePlan?.filter(
-            (plan) => Number(plan.planDuration) === Number(daysLeft)
-          )[0]
-        : null;
-
-    if (Plan) {
-      setSelectedPlan(Plan);
-    } else {
-      setSelectedPlan(null);
-    }
-    // calculate the price
-    const isPackageApplied = bookingData?.bookingPrice?.isPackageApplied;
-    const bookingPriceWithoutHelmet = Number(changeToNewVehicle?.perDayCost);
-    const bookingPrice =
-      Plan !== null && isPackageApplied
-        ? Plan?.planPrice
-        : Number(bookingPriceWithoutHelmet) * Number(daysLeft);
-    let extraCharges = 0;
-    if (
-      bookingData?.bookingPrice?.extraAddonDetails &&
-      bookingData?.bookingPrice?.extraAddonDetails?.length > 0
-    ) {
-      extraCharges = calculateTotalAddOnPrice(
-        bookingData?.bookingPrice?.extraAddonDetails,
-        Number(daysLeft)
+      const response = await postData(
+        "/vehicleChangePreview",
+        { booking_id: bookingData?._id, newVehicleTableId: vehicleId },
+        token,
       );
+
+      if (response?.success) {
+        setPreviewData(response.data);
+        setSelectedVehicle({
+          booking_id: bookingData?._id,
+          newVehicleTableId: vehicleId,
+        });
+      } else {
+        handleAsyncError(dispatch, response?.message);
+        setSelectedVehicle(null);
+        // setExtendRequired(
+        //   response?.message?.toLowerCase().includes("extend the ride") || false,
+        // );
+      }
+    } catch (error) {
+      handleAsyncError(dispatch, error?.message);
+      setSelectedVehicle(null);
+    } finally {
+      setPreviewLoading(false);
     }
-    const finalBookingPrice = Number(extraCharges) + Number(bookingPrice);
-    const tax = calculateTax(finalBookingPrice, 18);
-    const totalPrice = Number(finalBookingPrice) + Number(tax);
-    const oldDiscountPrice = bookingData?.bookingPrice?.discountTotalPrice;
-    const oldTotalPrice = bookingData?.bookingPrice?.totalPrice;
-
-    // calculating the diffAmount
-    const diffAmount =
-      Number(oldDiscountPrice) > 0
-        ? Number(totalPrice) - Number(oldDiscountPrice)
-        : Number(totalPrice) - Number(oldTotalPrice);
-    const finalDiffAmount = diffAmount <= 0 ? 0 : Math.round(diffAmount);
-    const refundAmount = diffAmount < 0 ? Math.abs(diffAmount) : 0;
-
-    const data = {
-      _id: bookingData?._id,
-      vehicleMasterId: changeToNewVehicle?.vehicleMasterId,
-      vehicleTableId: changeToNewVehicle?._id,
-      vehicleImage: changeToNewVehicle?.vehicleImage,
-      vehicleBrand: changeToNewVehicle?.vehicleBrand,
-      vehicleName: changeToNewVehicle?.vehicleName,
-      bookingPrice: {
-        bookingPrice: bookingPrice,
-        vehiclePrice: bookingPrice,
-        extraAddonDetails: bookingData?.bookingPrice?.extraAddonDetails,
-        extraAddonPrice: bookingData?.bookingPrice?.extraAddonPrice,
-        discountPrice: bookingData?.bookingPrice?.discountPrice || 0,
-        discountTotalPrice: bookingData?.bookingPrice?.discountTotalPrice || 0,
-        isDiscountZero: bookingData?.bookingPrice?.isDiscountZero || false,
-        isPackageApplied: bookingData?.bookingPrice?.isPackageApplied || false,
-        tax: tax,
-        totalPrice: totalPrice,
-        rentAmount: Number(changeToNewVehicle?.perDayCost),
-        diffAmount: [
-          ...(bookingData?.diffAmount || []),
-          {
-            id: bookingData?.diffAmount?.length + 1,
-            title: "changedVehicle",
-            amount: finalDiffAmount,
-            refundAmount: refundAmount,
-            paymentMethod: "",
-            status: finalDiffAmount > 0 ? "unpaid" : "paid",
-          },
-        ],
-      },
-      changeVehicle: {
-        vehicleMasterId: bookingData?.vehicleMasterId,
-        vehicleTableId: bookingData?._id,
-        bookingPrice: bookingData?.bookingPrice,
-        vehicleName: bookingData?.vehicleName,
-        vehicleNumber: bookingData?.vehicleBasic?.vehicleNumber,
-      },
-      vehicleBasic: {
-        isChanged: true,
-        refundableDeposit: changeToNewVehicle?.refundableDeposit,
-        speedLimit: changeToNewVehicle?.speedLimit,
-        vehicleNumber: changeToNewVehicle?.vehicleNumber,
-        freeLimit: Number(changeToNewVehicle?.freeKms) * Number(daysLeft),
-        lateFee: changeToNewVehicle?.lateFee,
-        extraKmCharge: changeToNewVehicle?.extraKmsCharges,
-        startRide: bookingData?.vehicleBasic?.startRide,
-        endRide: bookingData?.vehicleBasic?.endRide,
-      },
-      firstName: vehicleMaster[0]?.userId?.firstName,
-      managerContact: vehicleMaster[0]?.stationMasterUserId?.contact,
-    };
-    console.log(data);
-    return setSelectedVehicle(data);
   };
 
   useEffect(() => {
@@ -219,69 +168,34 @@ const ChangeVehicleModal = ({ bookingData }) => {
   // apply vehicle for Maintenance
   const handleChangeVehicle = async (event) => {
     event.preventDefault();
-    // const formData = new FormData(event.target);
-    // const otp = formData.get("OTP");
-    // if (!otp) return handleAsyncError(dispatch, "Please provide otp first!");
 
-    const data = {
-      ...selectedVehicle,
-      // otp,
-      contact: bookingData?.userId?.contact,
-    };
-    if (!data)
-      return handleAsyncError(dispatch, "unable to change vehicle! try again.");
+    if (!selectedVehicle)
+      return handleAsyncError(dispatch, "Unable to change vehicle! try again.");
+
     try {
       setFormLoading(true);
-      const response = await postData("/vehicleChange", data, token);
-      if (response?.status === 200) {
-        // updating the redux state
-        const { firstName, managerContact, ...updatedSelectedVehicle } =
-          selectedVehicle;
-        dispatch(handleChangesInBooking(updatedSelectedVehicle));
-        // pushing the data for upating the timeline
-        const timeLineData = await updateTimeLineForPayment(
-          data,
-          token,
-          "Vehicle Changed",
-          `From (${vehicleMaster[0]?.vehicleBasic?.vehicleNumber}) to (${selectedVehicle?.vehicleBasic?.vehicleNumber})`
-        );
-        // for updating timeline redux data
-        dispatch(updateTimeLineData(timeLineData));
-        handleAsyncError(dispatch, "vehicle Change Successfully", "success");
+      const response = await postData("/vehicleChange", selectedVehicle, token);
+      if (response?.success) {
+        onVehicleChange && onVehicleChange();
+        handleAsyncError(dispatch, "Vehicle changed successfully", "success");
         return dispatch(toggleChangeVehicleModal());
       } else {
         handleAsyncError(dispatch, response?.message);
       }
     } catch (error) {
-      return handleAsyncError(dispatch, error?.message);
+      handleAsyncError(dispatch, error?.message);
     } finally {
       setFormLoading(false);
-    }
-  };
-
-  //   for sending the otp
-  const handleSendOtp = async () => {
-    try {
-      setOtpLoading(true);
-      const data = {
-        contact: bookingData?.userId?.contact,
-      };
-      const response = await postData("/otpGenerat", data, token);
-      if (response?.status === 200) {
-        return handleAsyncError(dispatch, response?.message, "success");
-      } else {
-        return handleAsyncError(dispatch, response?.message);
-      }
-    } catch (error) {
-      return handleAsyncError(dispatch, error?.message);
-    } finally {
-      setOtpLoading(false);
     }
   };
 
   useEffect(() => {
     if (!isChangeVehicleModalActive) {
       setSelectedVehicle(null);
+      setPreviewData(null);
+      setVehicleId("");
+      setShowBreakdown(false);
+      // setExtendRequired(false);
     }
   }, [isChangeVehicleModalActive]);
 
@@ -289,9 +203,30 @@ const ChangeVehicleModal = ({ bookingData }) => {
   const handleCloseModal = async () => {
     setFreeVehicles([]);
     setSelectedVehicle(null);
-    setIsModalClose(true);
+    setPreviewData(null);
+    setVehicleId("");
+    setShowBreakdown(false);
+    // setExtendRequired(false);
     return dispatch(toggleChangeVehicleModal());
   };
+
+  const isDisabled =
+    bookingData?.bookingPrice?.diffAmount &&
+    bookingData?.bookingPrice?.diffAmount?.length > 0 &&
+    bookingData?.bookingPrice?.diffAmount[
+      bookingData?.bookingPrice?.diffAmount?.length - 1
+    ]?.status === "unpaid"
+      ? true
+      : false;
+
+  const lastVehicleChange = bookingData?.bookingPrice?.diffAmount
+    ?.filter((d) => d.title === "changedVehicle" && d.newVehicleSnapshot)
+    ?.at(-1);
+
+  const currentVehicleActualCost = lastVehicleChange
+    ? Number(lastVehicleChange.newVehicleSnapshot.rentalCost || 0) +
+      Number(lastVehicleChange.newVehicleSnapshot.tax || 0)
+    : null;
 
   return (
     <div
@@ -300,7 +235,7 @@ const ChangeVehicleModal = ({ bookingData }) => {
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
       <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-xl">
-        <div className="flex justify-between p-2">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Change Vehicle
           </h2>
@@ -325,148 +260,127 @@ const ChangeVehicleModal = ({ bookingData }) => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
+        <div className="p-6 pt-2 text-center">
           {vehicleLoading && <PreLoader />}
+          {isDisabled && (
+            <p className="text-left text-xs lg:text-sm text-theme italic mb-2">
+              <span className="font-bold mr-1">Note:</span>
+              update the pending payment in order to change vehicle.
+            </p>
+          )}
+          {/* {(isSegmentExpired || extendRequired) && (
+            <p className="text-left text-xs lg:text-sm text-theme italic mb-2">
+              <span className="font-bold mr-1">Note:</span>
+              No remaining days left in this segment. Please extend the ride
+              first to change the vehicle.
+            </p>
+          )} */}
+          {/* {previewData?.priceSummary?.effectivePaid > 0 &&
+            previewData?.priceSummary?.isExtraPayment && (
+              <p className="text-left text-xs lg:text-sm text-orange-500 italic mb-2">
+                <span className="font-bold mr-1">Note:</span>₹
+                {formatPrice(previewData?.priceSummary?.effectivePaid)} already
+                paid. Remaining amount of ₹
+                {formatPrice(previewData?.priceSummary?.pendingPayment)} to be
+                collected.
+              </p>
+            )} */}
+          {previewData?.isVehicleConflicted && (
+            <p className="text-left text-xs lg:text-sm text-yellow-500 italic mb-2">
+              <span className="font-bold mr-1">Warning:</span>
+              This vehicle is already booked (ID:{" "}
+              {previewData?.conflictingBookingId}). Proceeding will assign it to
+              this booking as well.
+            </p>
+          )}
           <form onSubmit={handleChangeVehicle}>
             <div className="w-full bg-gray-300 rounded-lg bg-opacity-75 py-2 px-2.5 mb-2">
-              <div className="flex items-center justify-between">
+              <div
+                className={`flex flex-wrap items-center justify-between ${showBreakdown ? "hidden" : ""}`}
+              >
                 <h2 className="text-left font-semibold">
                   Current Vehicle Info
                 </h2>
                 <p className="text-sm capitalize">
-                  ({`${bookingData?.vehicleBrand} ${bookingData?.vehicleName}`})
+                  {bookingData?.vehicleBasic?.vehicleNumber}(
+                  {`${bookingData?.vehicleBrand} ${bookingData?.vehicleName}`})
                 </p>
               </div>
-              <ul className="leading-7 text-left mb-1">
-                {[
-                  "rentAmount",
-                  "extraAddonPrice",
-                  "tax",
-                  "totalPrice",
-                  "discountTotalPrice",
-                ].map((key, index) => {
-                  const value = bookingData?.bookingPrice?.[key];
-                  if (value !== undefined || value !== 0) {
-                    if (bookingData?.bookingPrice?.[key] === 0) {
-                      return null;
-                    }
-                    return (
-                      <li
-                        className={`capitalize ${
-                          key === "discountTotalPrice" || key === "totalPrice"
-                            ? "font-semibold"
-                            : ""
-                        }`}
-                        key={index}
-                      >
-                        {key != "extraAddonPrice"
-                          ? camelCaseToSpaceSeparated(key)
-                          : "Additional Charges"}
-                        : ₹
-                        {key === "rentAmount" || key === "extraAddonPrice"
-                          ? key === "rentAmount" &&
-                            bookingData?.bookingPrice?.isPackageApplied
-                            ? `${formatPrice(
-                                bookingData?.bookingPrice?.bookingPrice
-                              )}`
-                            : key === "extraAddonPrice"
-                            ? formatPrice(value)
-                            : `${formatPrice(value)} x ${getDurationInDays(
-                                bookingData?.BookingStartDateAndTime,
-                                bookingData?.BookingEndDateAndTime
-                              )} day(s)`
-                          : formatPrice(value)}
+              <ul
+                className={`leading-7 text-left mb-1 ${showBreakdown ? "hidden" : ""}`}
+              >
+                {lastVehicleChange ? (
+                  // Show actual current vehicle cost from last change snapshot
+                  <>
+                    <li className="font-semibold">
+                      Booking Price: ₹{" "}
+                      {formatPrice(
+                        lastVehicleChange.newVehicleSnapshot.rentalCost,
+                      )}
+                    </li>
+                    {lastVehicleChange.newVehicleSnapshot.tax > 0 && (
+                      <li className="font-semibold">
+                        Tax: ₹{" "}
+                        {formatPrice(lastVehicleChange.newVehicleSnapshot.tax)}
                       </li>
-                    );
-                  } else {
-                    return null;
-                  }
-                })}
-              </ul>
-              {selectedVehicle !== null && (
-                <>
-                  <div className="flex items-center justify-between border-t border-gray-600/20 pt-1">
-                    <h2 className="text-left font-semibold">
-                      New Vehicle Info
-                    </h2>
-                    <p className="text-sm capitalize">
-                      (
-                      {`${selectedVehicle?.vehicleBrand} ${selectedVehicle?.vehicleName}`}
-                      )
-                    </p>
-                  </div>
-                  <ul className="leading-7 text-left mb-1">
-                    {["rentAmount", "extraAddonPrice", "tax", "totalPrice"].map(
-                      (key, index) => {
-                        const value = selectedVehicle?.bookingPrice?.[key];
-                        if (bookingData?.bookingPrice?.[key] === 0) {
-                          return null;
-                        }
-                        if (value !== undefined) {
-                          return (
-                            <li
-                              className={`capitalize ${
-                                key === "totalPrice" ? "font-semibold" : ""
-                              }`}
-                              key={index}
-                            >
-                              {key != "extraAddonPrice"
-                                ? camelCaseToSpaceSeparated(key)
-                                : "Additional Charges"}
-                              : ₹
-                              {key === "rentAmount" || key === "extraAddonPrice"
-                                ? key === "rentAmount" &&
-                                  bookingData?.bookingPrice?.isPackageApplied &&
-                                  selectedPlan !== null
-                                  ? `${formatPrice(selectedPlan?.planPrice)}`
-                                  : key === "extraAddonPrice"
-                                  ? formatPrice(value)
-                                  : `${formatPrice(
-                                      value
-                                    )} x ${getDurationInDays(
-                                      bookingData?.BookingStartDateAndTime,
-                                      bookingData?.BookingEndDateAndTime
-                                    )} day(s)`
-                                : formatPrice(value)}
-                            </li>
-                          );
-                        } else {
-                          return null;
-                        }
-                      }
                     )}
-                  </ul>
-                  {selectedVehicle &&
-                  selectedVehicle?.bookingPrice?.diffAmount[
-                    selectedVehicle?.bookingPrice?.diffAmount?.length - 1
-                  ]?.refundAmount ? (
-                    <p className="font-semibold text-left">
-                      Amount need to refund:
-                      <span className="text-theme ml-1">{`₹${formatPrice(
-                        Number(
-                          selectedVehicle?.bookingPrice?.diffAmount[
-                            selectedVehicle?.bookingPrice?.diffAmount?.length -
-                              1
-                          ]?.refundAmount || 0
-                        )
-                      )}`}</span>
-                    </p>
-                  ) : (
-                    <p className="font-semibold text-left">
-                      Amount need to pay:
-                      <span className="text-theme ml-1">
-                        {`₹${formatPrice(
-                          Number(
-                            selectedVehicle?.bookingPrice?.diffAmount[
-                              selectedVehicle?.bookingPrice?.diffAmount
-                                ?.length - 1
-                            ]?.amount || 0
-                          )
-                        )}`}
-                      </span>
-                    </p>
-                  )}
-                </>
+                    {extendBookingDuration > 0 && (
+                      <li className="font-semibold">
+                        Extend Ride: ₹ {formatPrice(extendBookingTotal)}
+                      </li>
+                    )}
+                    <li className="font-semibold">
+                      Total Price: ₹{" "}
+                      {formatPrice(
+                        Number(currentVehicleActualCost) +
+                          Number(extendBookingTotal),
+                      )}
+                    </li>
+                  </>
+                ) : (
+                  // No previous vehicle change — show original bookingPrice as before
+                  <PriceList
+                    options={[
+                      "bookingPrice",
+                      "discountTotalPrice",
+                      "extraAddonPrice",
+                      "tax",
+                      "totalPrice",
+                    ]}
+                    extendBooking={{
+                      duration: extendBookingDuration,
+                      amount: extendBookingTotal,
+                    }}
+                    bookingData={bookingData}
+                    isGSTActive={isGSTActive}
+                  />
+                )}
+              </ul>
+
+              {previewLoading && (
+                <div className="flex items-center justify-center py-2">
+                  <Spinner textColor="black" message={"Calculating price..."} />
+                </div>
+              )}
+
+              {previewData !== null && !previewLoading && (
+                <NewVehiclePreview
+                  previewData={previewData}
+                  showBreakdown={showBreakdown}
+                  setShowBreakdown={setShowBreakdown}
+                  addonDetails={
+                    bookingData?.bookingPrice?.extraAddonDetails || []
+                  }
+                  extraAddonPrice={
+                    bookingData?.bookingPrice?.extraAddonPrice || 0
+                  }
+                  addonTax={bookingData?.bookingPrice?.addonTax || 0}
+                  pendingPayment={
+                    previewData?.priceSummary?.pendingPayment || 0
+                  }
+                  effectivePaid={previewData?.priceSummary?.effectivePaid || 0}
+                  extendBookingTotal={extendBookingTotal}
+                />
               )}
             </div>
             <div className="text-left mb-2">
@@ -477,35 +391,22 @@ const ChangeVehicleModal = ({ bookingData }) => {
                 setValueChanger={setVehicleId}
                 setSelectedChanger={setSelectedVehicle}
                 isModalClose={isChangeVehicleModalActive}
+                // disabled={isSegmentExpired || extendRequired}
               />
               {selectedVehicle && selectedVehicle?.length === 0 && (
                 <p className="italic text-gray-100 mt-1">No vehicle Found.</p>
               )}
             </div>
-            {/* )} */}
-            {/* <div className="mb-2">
-              <Input item={"OTP"} type="number" require={true} />
-              {selectedVehicle !== null && (
-                <div className="text-left mt-2">
-                  <button
-                    type="button"
-                    className="rounded-md bg-theme text-white border-theme p-1.5 disabled:bg-gray-400"
-                    disabled={otpLoading || selectedVehicle === null}
-                    onClick={handleSendOtp}
-                  >
-                    {!otpLoading ? (
-                      "Send OTP"
-                    ) : (
-                      <Spinner textColor="black" message={"sending..."} />
-                    )}
-                  </button>
-                </div>
-              )}
-            </div> */}
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
-              disabled={formLoading || selectedVehicle === null}
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full items-center justify-center"
+              disabled={
+                isDisabled ||
+                // isSegmentExpired ||
+                // extendRequired ||
+                formLoading ||
+                selectedVehicle === null
+              }
             >
               {!formLoading ? (
                 "Change vehicle"

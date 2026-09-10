@@ -4,14 +4,13 @@ import Spinner from "../Spinner/Spinner";
 import { handleInvoiceCreated } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const GenerateInvoiceButton = ({ item, loadingStates, setLoadingStates }) => {
-  const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   return (
     <button
       type="button"
-      className="bg-theme text-gray-100 rounded-md font-medium p-1.5 text-sm lg:px-2.5 lg:py-1.5 text-left disabled:bg-gray-400"
+      className="p-1.5 text-sm lg:px-2.5 lg:py-1.5 bg-theme rounded-md text-white text-left disabled:bg-gray-400"
       onClick={() =>
         handleGenerateInvoice(
           dispatch,

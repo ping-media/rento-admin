@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleVehicleUpdateModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
@@ -15,7 +15,11 @@ import { handleDeleteAndEditAllData } from "../../Data/Function";
 import { getData } from "../../Data/index";
 import Spinner from "../../components/Spinner/Spinner";
 
-const ChangeBulkVehicle = () => {
+const ChangeBulkVehicle = ({
+  selectedVehicleIds = [],
+  vehicle = null,
+  isRest = true,
+}) => {
   const { isVehicleUpdateModalActive } = useSelector((state) => state.sideBar);
   const { tempIds, tempLoading } = useSelector((state) => state.vehicles);
   const { token } = useSelector((state) => state.user);
@@ -24,6 +28,8 @@ const ChangeBulkVehicle = () => {
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
 
+  const isRestData = isRest ? restvehicleMaster : null;
+
   // for updating multiple data in one go
   const handleChangeVehicle = async (e) => {
     e.preventDefault();
@@ -31,50 +37,77 @@ const ChangeBulkVehicle = () => {
     const formData = new FormData(e.target);
     const results = Object.fromEntries(formData.entries());
 
-    if (
-      !results.perDayCost &&
-      results.vehicleStatus === "don'tChange" &&
-      results?.length === 0
-    ) {
+    if (results.vehicleStatus === "don'tChange" && results?.length === 0) {
       handleAsyncError(dispatch, "At least update any one value");
       return;
     }
 
-    const excludedKeys = ["perDayCost", "vehicleStatus"];
+    const excludedKeys = [
+      "perDayCost",
+      "freeKms",
+      "weekendFreeKms",
+      "weekendCost",
+      "vehicleStatus",
+      "extraKmsCharges",
+      "lateFee",
+    ];
 
     let vehiclePlan = Object.entries(results)
       .filter(([key]) => !excludedKeys.includes(key))
-      .filter(([id, price]) => {
-        const num = Number(price);
-        return price && !isNaN(num) && num >= 0;
+      .filter(([key, value]) => {
+        if (key.endsWith("_limit")) return false;
+
+        // allow zero also (0 is valid), but must be a number
+        const num = Number(value);
+        const kmLimitKey = `${key}_limit`;
+        const kmLimit = Number(results[kmLimitKey]);
+
+        // keep entry if either price OR kmLimit is provided
+        return (
+          (!isNaN(num) && value !== "" && num >= 0) ||
+          (!isNaN(kmLimit) && kmLimit > 0)
+        );
       })
       .map(([id, price]) => {
-        const matchedPlan = planMaster.find((plan) => plan._id === id);
+        const kmLimitKey = `${id}_limit`;
+        const kmLimit = Number(results[kmLimitKey]) || 0;
+
         return {
           _id: id,
-          planPrice: Number(price),
-          planName: matchedPlan?.planName || "",
-          planDuration: Number(matchedPlan?.planDuration) || 0,
+          // only include if user provided price
+          ...(price !== undefined && price !== "" && !isNaN(Number(price))
+            ? { planPrice: Number(price) }
+            : {}),
+          // only include if user provided kmLimit
+          ...(results[kmLimitKey] !== undefined && !isNaN(kmLimit)
+            ? { kmLimit }
+            : {}),
         };
       });
 
+    // Final validation
     if (
-      !results.perDayCost &&
       results.vehicleStatus === "don'tChange" &&
-      vehiclePlan.length === 0
+      vehiclePlan.length === 0 &&
+      results?.length === 0
     ) {
-      handleAsyncError(dispatch, "Please add balance for at least one plan.");
+      handleAsyncError(
+        dispatch,
+        "Please add price or kmLimit for at least one plan or per day cost.",
+      );
       return;
     }
 
-    if (!tempIds)
+    if (!tempIds || !selectedVehicleIds)
       return handleAsyncError(dispatch, "unable to get Ids! try again.");
 
     try {
       setFormLoading(true);
 
+      const vehicleIds = tempIds?.length > 0 ? tempIds : selectedVehicleIds;
+
       let data = {
-        vehicleIds: tempIds,
+        vehicleIds,
         updateData: {},
       };
 
@@ -84,6 +117,56 @@ const ChangeBulkVehicle = () => {
           updateData: {
             ...(data.updateData || {}),
             perDayCost: Number(results.perDayCost),
+          },
+        };
+      }
+
+      if (results.weekendCost > 0) {
+        data = {
+          ...data,
+          updateData: {
+            ...(data.updateData || {}),
+            weekendCost: Number(results.weekendCost),
+          },
+        };
+      }
+
+      if (results.weekendFreeKms > 0) {
+        data = {
+          ...data,
+          updateData: {
+            ...(data.updateData || {}),
+            weekendFreeKms: Number(results.weekendFreeKms),
+          },
+        };
+      }
+
+      if (results.extraKmsCharges > 0) {
+        data = {
+          ...data,
+          updateData: {
+            ...(data.updateData || {}),
+            extraKmsCharges: Number(results.extraKmsCharges),
+          },
+        };
+      }
+
+      if (results.freeKms > 0) {
+        data = {
+          ...data,
+          updateData: {
+            ...(data.updateData || {}),
+            freeKms: Number(results.freeKms),
+          },
+        };
+      }
+
+      if (results.lateFee > 0) {
+        data = {
+          ...data,
+          updateData: {
+            ...(data.updateData || {}),
+            lateFee: Number(results.lateFee),
           },
         };
       }
@@ -105,23 +188,23 @@ const ChangeBulkVehicle = () => {
         };
       }
 
-      return handleDeleteAndEditAllData(
+      return handleDeleteAndEditAllData({
         data,
-        "edit",
+        operation: "edit",
         handleAsyncError,
         changeTempLoadingTrue,
         changeTempLoadingFalse,
         dispatch,
         removeTempIds,
-        restvehicleMaster,
+        restvehicleMaster: isRestData,
         token,
         handleIsHeaderChecked,
-        handleCloseModal
-      );
+        handleCloseModal,
+      });
     } catch (error) {
       handleAsyncError(
         dispatch,
-        "Unable to update vehicle right now! try again."
+        "Unable to update vehicle right now! try again.",
       );
     } finally {
       setFormLoading(false);
@@ -154,19 +237,51 @@ const ChangeBulkVehicle = () => {
     return;
   };
 
-  if (!isVehicleUpdateModalActive) return;
+  const { vehiclePlan, daily } = useMemo(() => {
+    if (!vehicle) return { vehiclePlan: [], daily: {} };
+
+    const vehiclePlan = vehicle?.vehiclePlan ?? [];
+    const daily = {
+      perdaycost: vehicle?.perDayCost ?? 0,
+      weekendcost: vehicle?.weekendCost ?? 0,
+      freeKms: vehicle?.freeKms ?? 0,
+      weekendFreeKms: vehicle?.weekendFreeKms ?? 0,
+      extraKmsCharges: vehicle?.extraKmsCharges ?? 0,
+      lateFee: vehicle?.lateFee ?? 0,
+    };
+
+    return { vehiclePlan, daily };
+  }, [vehicle]);
+
+  const vehiclePlanMap = useMemo(() => {
+    if (!vehiclePlan?.length) return {};
+    return vehiclePlan.reduce((acc, curr) => {
+      acc[curr._id] = curr;
+      return acc;
+    }, {});
+  }, [vehiclePlan]);
+
+  if (!isVehicleUpdateModalActive) return null;
 
   return (
     <div
-      className={`fixed ${
+      className={`fixed inset-0 z-40 bg-gray-900 bg-opacity-60 flex justify-center items-center px-4 ${
         !isVehicleUpdateModalActive ? "hidden" : ""
-      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4`}
+      }`}
     >
-      <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-xl max-h-[30rem] overflow-y-scroll no-scrollbar">
-        <div className="flex justify-between p-2">
-          <h2 className="text-theme font-semibold text-lg uppercase">
-            Update Vehicles
-          </h2>
+      <div className="relative w-full max-w-xl bg-white rounded-md shadow-xl flex flex-col max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="flex justify-between border-b p-2 sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-2">
+            <h2 className="text-theme font-semibold text-lg uppercase">
+              Update Price
+            </h2>
+            {selectedVehicleIds?.length > 0 && (
+              <span className="text-md text-left font-normal text-theme border px-2 py-0.5 rounded-full border-theme bg-theme/10">
+                {selectedVehicleIds?.length} Vehicles Selected
+              </span>
+            )}
+          </div>
           <button
             onClick={handleCloseModal}
             type="button"
@@ -190,32 +305,61 @@ const ChangeBulkVehicle = () => {
           </button>
         </div>
 
-        <p className="px-4 mb-2 text-xs text-gray-400 italic">
-          <span className="font-semibold">Note:</span> (Only put value for those
-          you want to change price leave other fields empty.)
-        </p>
-        <div className="p-6 pt-0 text-center">
+        {/* Scrollable content */}
+        <div className="overflow-y-auto px-4 2xl:px-6 py-2.5 flex-1">
           <form onSubmit={handleChangeVehicle}>
-            <div className="mb-2">
+            <div className="mb-2 flex items-center gap-2">
               <Input
-                placeholder="Per Day Cost"
+                placeholder="Weekday Cost"
                 item={"perDayCost"}
+                defaultValue={daily?.perdaycost || ""}
+                type="number"
+              />
+              <Input
+                placeholder="Week Day Km Limit"
+                item={"freeKms"}
+                defaultValue={daily?.freeKms || ""}
                 type="number"
               />
             </div>
+
+            <div className="mb-2 flex items-center gap-2">
+              <Input
+                placeholder="Weekend Cost"
+                item={"weekendCost"}
+                defaultValue={daily?.weekendcost || ""}
+                type="number"
+              />
+              <Input
+                placeholder="Weekend Km Limit"
+                item={"weekendFreeKms"}
+                defaultValue={daily?.weekendFreeKms || ""}
+                type="number"
+              />
+            </div>
+
             <div className="mb-2">
-              <h2 className="text-md text-left font-semibold mb-1.5">
-                Change Plan Price
-              </h2>
               <div className="flex justify-center flex-wrap gap-2 items-center">
                 {planMasterLoading ? (
                   <Spinner />
                 ) : planMaster?.length > 0 ? (
                   planMaster.map((plan) => (
-                    <div className="w-full lg:w-[48%]" key={plan._id}>
+                    <div
+                      className="w-full flex items-center gap-2"
+                      key={plan._id}
+                    >
                       <Input
                         placeholder={plan.planName}
                         item={plan._id}
+                        defaultValue={
+                          vehiclePlanMap?.[plan._id]?.planPrice || ""
+                        }
+                        type="number"
+                      />
+                      <Input
+                        placeholder={"km Limit"}
+                        item={`${plan._id}_limit`}
+                        defaultValue={vehiclePlanMap?.[plan._id]?.kmLimit || ""}
                         type="number"
                       />
                     </div>
@@ -227,6 +371,21 @@ const ChangeBulkVehicle = () => {
                 )}
               </div>
             </div>
+
+            <div className="mb-2 flex items-center gap-2">
+              <Input
+                placeholder="Extra Kms Charges"
+                item={"extraKmsCharges"}
+                defaultValue={daily?.extraKmsCharges || ""}
+                type="number"
+              />
+              <Input
+                item={"lateFee"}
+                defaultValue={daily?.lateFee || ""}
+                type="number"
+              />
+            </div>
+
             <div className="text-left mb-2">
               <SelectDropDown
                 item={"vehicleStatus"}
@@ -235,17 +394,18 @@ const ChangeBulkVehicle = () => {
                 isSearchEnable={false}
               />
             </div>
+
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
+              className="bg-theme px-4 py-2 text-gray-100 gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 flex items-center justify-center w-full mt-3"
               disabled={
                 formLoading || planMasterLoading || tempLoading?.loading
               }
             >
-              {!formLoading || !tempLoading?.loading ? (
-                "Update vehicle"
-              ) : (
+              {formLoading || planMasterLoading || tempLoading?.loading ? (
                 <Spinner message={"loading..."} />
+              ) : (
+                "Update Price"
               )}
             </button>
           </form>

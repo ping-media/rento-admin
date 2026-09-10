@@ -3,7 +3,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { tableIcons } from "../../Data/Icons";
 import { camelCaseToSpaceSeparated } from "../../utils/index";
-import InputSwitchForAddOn from "../../components/InputAndDropdown/InputSwitchForAddOn";
+import InputSwitch from "../InputAndDropdown/InputSwitch";
 
 const AddOnTable = ({
   addOnId,
@@ -12,7 +12,9 @@ const AddOnTable = ({
   deleteFn,
   loading,
 }) => {
-  const { extraAddOn } = useSelector((state) => state.general);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
+
+  const extraAddOn = vehicleMaster && vehicleMaster?.[0]?.extraAddOn;
 
   // table header
   const addOnHeader = [
@@ -53,8 +55,8 @@ const AddOnTable = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-300 ">
-                  {extraAddOn?.data?.length > 0 ? (
-                    extraAddOn?.data?.map((item, index) => (
+                  {extraAddOn?.length > 0 ? (
+                    extraAddOn?.map((item, index) => (
                       <tr
                         className="bg-white transition-all duration-500 hover:bg-gray-50"
                         key={index}
@@ -69,11 +71,46 @@ const AddOnTable = ({
                           {item?.maxAmount}
                         </td>
                         <td className="p-2.5 max-w-24 break-words whitespace-wrap text-sm leading-6 font-medium text-gray-900 capitalize">
-                          <InputSwitchForAddOn
-                            value={item?.status}
-                            id={item?._id}
+                          <InputSwitch
+                            value={item.status}
+                            id={vehicleMaster?.[0]?._id}
+                            addonId={item._id}
                           />
-                          {/* {item?.status} */}
+                          {/* <div
+                            className={`p-1 lg:py-1.5 lg:px-2.5 border ${
+                              item.status === "active"
+                                ? "bg-emerald-50 border-emerald-100"
+                                : "bg-red-100 border-red-200"
+                            } rounded-md flex justify-center min-w-24 items-center uppercase gap-1`}
+                          >
+                            <svg
+                              width="5"
+                              height="6"
+                              viewBox="0 0 5 6"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <circle
+                                cx="2.5"
+                                cy="3"
+                                r="2.5"
+                                fill={`${
+                                  item.status === "active"
+                                    ? "#059669"
+                                    : "#C62300"
+                                }`}
+                              ></circle>
+                            </svg>
+                            <span
+                              className={`font-medium text-xs ${
+                                item.status === "active"
+                                  ? "text-emerald-600"
+                                  : "text-red-700"
+                              }`}
+                            >
+                              {item.status}
+                            </span>
+                          </div> */}
                         </td>
                         <td className="p-2.5 whitespace-nowrap text-sm items-center">
                           <div className="flex items-center gap-1">
@@ -110,27 +147,6 @@ const AddOnTable = ({
                 </tbody>
               </table>
             )}
-
-            {/* {extraAddOn?.pagination !== null &&
-              extraAddOn?.pagination?.limit >= 10 &&
-              extraAddOn?.data?.length > 0 && (
-                <div className="flex flex-wrap items-center justify-start lg:justify-between gap-4 lg:gap-2 mt-5">
-                  <div className="flex items-center gap-2">
-                    <h2 className="capitalize">Rows per Page</h2>
-                    <DropDownComponent
-                      options={showRecordsOptions}
-                      customLimit={limit}
-                      setLimitChanger={setLimit}
-                    />
-                  </div>
-                  <span className="hidden lg:mx-1">|</span>
-                  <Pagination
-                    totalNumberOfPages={extraAddOn?.pagination?.totalPages}
-                    currentPage={currentPage}
-                    setPageChanger={setCurrentPage}
-                  />
-                </div>
-              )} */}
           </div>
         </div>
       </div>

@@ -3,6 +3,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* setting font for different screen size for  responsive layout */
+@media (max-width: 1366px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 1280px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* Sidebar Scrollbar Styling */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 8px;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.sidebar-scroll:hover::-webkit-scrollbar {
+  opacity: 1;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 6px;
+}
+
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+}
+
+.sidebar-scroll:hover {
+  scrollbar-color: #c1c1c1 transparent;
+}
+
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -46,11 +96,12 @@ details > summary::-webkit-details-marker {
 
 body {
   font-family: "Inter", serif !important;
-  font-size: 0.95rem !important;
+  font-size: 0.89rem !important;
   font-weight: 400 !important;
   cursor: default;
-  user-select: none;
+  /* user-select: none; */
   @apply bg-light-gray;
+  @apply sidebar-scroll;
 }
 
 /* glass background */
@@ -88,7 +139,7 @@ table.dataTable tbody tr:hover {
 }
 
 .dataTables_wrapper .dataTables_filter input {
-  @apply px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+  @apply px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-theme;
 }
 
 .dataTables_wrapper .dataTables_paginate {
@@ -101,4 +152,53 @@ table.dataTable tbody tr:hover {
 
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
   @apply bg-blue-500 text-white;
+}
+
+.rdp-chevron {
+  fill: black !important;
+}
+
+@media (max-width: 640px) {
+  .rdp-day,
+  .rdp-day_button {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .rdp-day,
+  .rdp-day_button {
+    width: 30px !important;
+    height: 30px !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  .rdp-day,
+  .rdp-day_button {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
+/* for showing swipable button in big screen view  */
+.pswp__button--arrow--prev,
+.pswp__button--arrow--next {
+  display: block !important;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* reactquill button icon  */
+.ql-divider::before {
+  content: "—";
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.ql-editor hr {
+  border: none;
+  border-top: 1px solid #d1d5db;
+  margin: 20px 0;
 }

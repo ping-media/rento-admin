@@ -1,11 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Input from "../../InputAndDropdown/Input";
 import PreLoader from "../../Skeleton/PreLoader";
-import {
-  formatPrice,
-  getDurationBetweenDates,
-  // getDurationInDays,
-} from "../../../utils/index";
+import { formatPrice, getDurationBetweenDates } from "../../../utils/index";
 import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
 import { getData, postData } from "../../../Data/index";
 import { useSelector } from "react-redux";
@@ -14,10 +10,13 @@ import SelectDropDownCoupon from "../../InputAndDropdown/SelectDropDownCoupon";
 const BookingStepTwo = ({
   data,
   priceCalculate,
+  gst,
   setCoupon,
   coupon,
   plan,
   setPlan,
+  stepTwoData: parentStepTwoData,
+  setStepTwoData: setParentStepTwoData,
 }) => {
   const [stepTwoData, setStepTwoData] = useState(null);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
@@ -27,11 +26,29 @@ const BookingStepTwo = ({
   const [CouponLoading, setCouponLoading] = useState(false);
   const [isPlanApplied, setIsPlanApplied] = useState(false);
   const [applyLoading, setApplyLoading] = useState(false);
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
   const [bookingDuration, setBookingDuration] = useState(0);
   const [selectedAddOns, setSelectedAddOns] = useState([]);
-  // const extraHelmetCharge = 50;
+
+  const appliedCouponRef = useRef(null);
+
+  // Sync with parent stepTwoData
+  useEffect(() => {
+    if (parentStepTwoData) {
+      setStepTwoData(parentStepTwoData);
+    }
+  }, [parentStepTwoData]);
+
+  const isData =
+    data && data?.selectedVehicle?._daysBreakdown?.length > 0
+      ? data?.selectedVehicle?._daysBreakdown
+      : [];
+
+  const dayBreakDown =
+    isData?.length > 0
+      ? isData?.filter((days) => days?.isWeekend === true)
+      : [];
 
   const handleAddonToggle = (checked, item) => {
     if (checked) {
@@ -43,12 +60,14 @@ const BookingStepTwo = ({
 
   // for calculating price
   useEffect(() => {
+    // if (!data && CouponLoading) return;
     if (!data) return;
+    const { bookingStartDate, bookingEndDate, selectedVehicle } = data;
+    if (!bookingStartDate || !bookingEndDate || !selectedVehicle) return;
+
     try {
       setLoading(true);
-      const { bookingStartDate, bookingEndDate, selectedVehicle } = data;
 
-      if (!bookingStartDate || !bookingEndDate || !selectedVehicle) return;
       // reset coupon if try to add extra helemet after apply coupon
       if (coupon?.className !== "" && coupon?.couponId !== "") {
         setInputSelect("");
@@ -56,31 +75,14 @@ const BookingStepTwo = ({
       }
       const durationBetweenStartAndEnd = getDurationBetweenDates(
         bookingStartDate,
-        bookingEndDate
+        bookingEndDate,
       );
       setBookingDuration(durationBetweenStartAndEnd?.days);
-      // let newSelectedVehicle = selectedVehicle;
-      // if (plan?.data?.length > 0) {
-      //   const hasPlan = plan?.data?.filter(
-      //     (plan) => Number(plan?.planDuration) === Number(bookingDuration)
-      //   );
-      //   if (hasPlan) {
-      //     setPlan((prev) => ({ ...prev, selectedPlan: hasPlan }));
-      //     const planPrice =
-      //       hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
-      //     if (planPrice > 0) {
-      //       setIsPlanApplied(true);
-      //       newSelectedVehicle = { ...newSelectedVehicle, planPrice };
-      //     }
-      //   }
-      // } else {
-      //   setIsPlanApplied(false);
-      // }
       if (selectedVehicle?.vehiclePlan?.length > 0) {
         const isPlanMatch = selectedVehicle?.vehiclePlan?.filter(
           (plan) =>
             Number(plan.planDuration) ===
-            Number(durationBetweenStartAndEnd?.days)
+            Number(durationBetweenStartAndEnd?.days),
         );
         if (isPlanMatch?.length > 0) {
           setIsPlanApplied(true);
@@ -96,10 +98,11 @@ const BookingStepTwo = ({
         bookingStartDate,
         bookingEndDate,
         selectedVehicle,
-        selectedAddOns
-        // Number(extraAddonPrice)
+        selectedAddOns,
       );
+
       setStepTwoData(newData);
+      setParentStepTwoData && setParentStepTwoData(newData);
     } finally {
       setLoading(false);
     }
@@ -108,15 +111,38 @@ const BookingStepTwo = ({
     data?.bookingEndDate,
     data?.selectedVehicle,
     selectedAddOns,
-    // extraAddonPrice,
+    // CouponLoading,
   ]);
 
   // for fetching coupon
+  // const fetchCoupons = useCallback(async () => {
+  //   try {
+  //     setCouponLoading(true);
+
+  //     const endpoint = couponName
+  //       ? `/getCoupons?search=${couponName}&page=1&limit=25`
+  //       : `/getCoupons?page=1&limit=25`;
+
+  //     const response = await getData(endpoint, token);
+
+  //     if (response?.status === 200) {
+  //       setCouponData(response.data);
+  //     }
+  //   } finally {
+  //     setCouponLoading(false);
+  //   }
+  // }, [couponName]);
+
+  // useEffect(() => {
+  //   fetchCoupons();
+  // }, [fetchCoupons]);
+
   useEffect(() => {
     (async () => {
       try {
         setCouponLoading(true);
         let endpoint = "/getCoupons?page=1&limit=25";
+
         if (vehiclesFilter.couponName) {
           endpoint = `/getCoupons?search=${vehiclesFilter.couponName}&page=1&limit=25`;
         }
@@ -128,12 +154,14 @@ const BookingStepTwo = ({
         setCouponLoading(false);
       }
     })();
-  }, [vehiclesFilter]);
+  }, [vehiclesFilter?.couponName]);
 
   // for apply coupon
-
   useEffect(() => {
     if (coupon?.couponName === "" && coupon?.couponId === "") return;
+    if (appliedCouponRef.current === coupon?.couponId) return;
+    if (!stepTwoData) return;
+
     (async () => {
       try {
         setApplyLoading(true);
@@ -144,16 +172,18 @@ const BookingStepTwo = ({
             totalAmount:
               coupon?.totalPrice > 0
                 ? Number(coupon?.totalPrice)
-                : Number(
-                    stepTwoData?.bookingPrice + stepTwoData?.extraAddonPrice
-                  ),
+                : Number(stepTwoData?.bookingPrice),
             isExtra: applyLoading,
           },
-          token
+          token,
         );
         if (response?.status === 200) {
+          appliedCouponRef.current = coupon?.couponId;
+
           const discountAmount = Math.round(Number(response?.data?.discount));
-          const finalAmount = Math.round(Number(response?.data?.finalAmount));
+          const finalAmount = Math.round(
+            Number(response?.data?.finalAmount) + stepTwoData?.extraAddonPrice,
+          );
           if (finalAmount === 0) {
             setCoupon({ ...coupon, isDiscountZero: true });
           }
@@ -161,24 +191,33 @@ const BookingStepTwo = ({
             setCoupon({
               ...coupon,
               discountAmount: discountAmount,
-              totalPrice: Number(stepTwoData?.totalPrice),
+              totalPrice: Number(stepTwoData?.bookingPrice),
               discountPrice: finalAmount,
             });
           }
-          setStepTwoData({ ...stepTwoData, totalPrice: finalAmount });
+          const updatedStepTwoData = {
+            ...stepTwoData,
+            totalPrice: finalAmount,
+          };
+          setStepTwoData(updatedStepTwoData);
+          setParentStepTwoData && setParentStepTwoData(updatedStepTwoData);
         }
       } finally {
         setApplyLoading(false);
       }
     })();
-  }, [coupon]);
+    // }, [coupon]);
+  }, [coupon?.couponId, coupon?.couponName, stepTwoData?.bookingPrice]);
 
   // reset coupon
   const removeCoupon = () => {
+    appliedCouponRef.current = null;
+
     setStepTwoData({
       ...stepTwoData,
-      totalPrice: Number(coupon?.totalPrice),
+      totalPrice: Number(coupon?.totalPrice + stepTwoData?.extraAddonPrice),
     });
+    // setCouponName("");
     setCoupon({
       couponName: "",
       couponId: "",
@@ -189,13 +228,63 @@ const BookingStepTwo = ({
     });
   };
 
-  // const handleNext = () => {
-  //   onNext();
-  // };
+  // Add these handler functions after the removeCoupon function
+  const handleBookingPriceChange = (e) => {
+    const newBookingPrice = Number(e.target.value) || 0;
+
+    // Recalculate tax if GST is active
+    let newTax = 0;
+    if (gst?.status === "active") {
+      newTax = Math.round((newBookingPrice * gst.percentage) / 100);
+    }
+
+    // Recalculate total price
+    const newTotalPrice =
+      newBookingPrice +
+      stepTwoData.extraAddonPrice +
+      newTax +
+      stepTwoData.addonTax;
+
+    const updatedStepTwoData = {
+      ...stepTwoData,
+      bookingPrice: newBookingPrice,
+      vehiclePrice: newBookingPrice,
+      tax: newTax,
+      totalPrice: newTotalPrice,
+    };
+
+    setStepTwoData(updatedStepTwoData);
+    setParentStepTwoData && setParentStepTwoData(updatedStepTwoData);
+
+    // Reset coupon if applied
+    if (coupon?.couponName !== "" && coupon?.couponId !== "") {
+      removeCoupon();
+    }
+  };
+
+  const handleTotalPriceChange = (e) => {
+    const newTotalPrice = Number(e.target.value) || 0;
+
+    const updatedStepTwoData = {
+      ...stepTwoData,
+      totalPrice: newTotalPrice,
+    };
+
+    setStepTwoData(updatedStepTwoData);
+    setParentStepTwoData && setParentStepTwoData(updatedStepTwoData);
+
+    // Reset coupon if applied
+    if (coupon?.couponName !== "" && coupon?.couponId !== "") {
+      removeCoupon();
+    }
+  };
+
+  if (applyLoading) {
+    return <PreLoader />;
+  }
 
   return !loading && stepTwoData !== null ? (
     <>
-      {applyLoading && <PreLoader />}
       {bookingDuration > 0 && (
         <div className="w-full">
           <p className="text-right text-sm font-semibold">
@@ -204,35 +293,82 @@ const BookingStepTwo = ({
         </div>
       )}
       <div className="w-full lg:w-[48%]">
+        <label
+          htmlFor={"bookingPrice"}
+          className="block text-gray-800 font-semibold text-sm capitalize text-left"
+        >
+          Price
+        </label>
         <Input
           item={"bookingPrice"}
           type="number"
           value={Number(stepTwoData?.bookingPrice) ?? ""}
-          require={true}
-          disabled={true}
+          require
+          disabled={
+            loggedInRole === "admin"
+              ? coupon?.couponName !== "" && coupon?.couponId !== ""
+              : true
+          }
+          isLabel={false}
+          onChange={
+            loggedInRole === "admin" ? handleBookingPriceChange : undefined
+          }
         />
         {isPlanApplied && (
           <p className="text-sm font-semibold mt-1">
             Plan Applied ({plan?.selectedPlan[0]?.planName || "--"})
           </p>
         )}
+        {!isPlanApplied && dayBreakDown?.length > 0 && (
+          <p className="text-xs font-semibold text-gray-500 mt-1">
+            Weekend Price Applied (₹{dayBreakDown[0]?.dailyRate || "--"} X
+            {dayBreakDown?.length} day(s))
+          </p>
+        )}
       </div>
+      {gst?.status === "active" && (
+        <>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"tax"}
+              type="number"
+              value={Number(stepTwoData?.tax) ?? ""}
+              require={true}
+              disabled={true}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"addonTax"}
+              type="number"
+              value={Number(stepTwoData?.addonTax) ?? ""}
+              require={true}
+              disabled={true}
+            />
+          </div>
+        </>
+      )}
       <div className="w-full lg:w-[48%]">
-        <Input
-          item={"tax"}
-          type="number"
-          value={Number(stepTwoData?.tax) ?? ""}
-          require={true}
-          disabled={true}
-        />
-      </div>
-      <div className="w-full lg:w-[48%]">
+        <label
+          htmlFor={"bookingPrice"}
+          className="block text-gray-800 font-semibold text-sm capitalize text-left"
+        >
+          Total Price
+        </label>
         <Input
           item={"totalPrice"}
           type="number"
           value={Number(stepTwoData?.totalPrice) || ""}
           require={true}
-          disabled={true}
+          disabled={
+            loggedInRole === "admin"
+              ? coupon?.couponName !== "" && coupon?.couponId !== ""
+              : true
+          }
+          isLabel={false}
+          onChange={
+            loggedInRole === "admin" ? handleTotalPriceChange : undefined
+          }
         />
       </div>
       <div className="w-full mb-2">
@@ -266,24 +402,6 @@ const BookingStepTwo = ({
                 </div>
               );
             })}
-        {/* <div className="flex items-center gap-1">
-          <input type="hidden" name="extraAddonPrice" value={extraAddonPrice} />
-          <input
-            type="checkbox"
-            id="extraHelmet"
-            className="w-4 h-4 accent-red-600"
-            checked={extraAddonPrice > 0}
-            onChange={(e) =>
-              setExtraAddonPrice(e.target.checked ? extraHelmetCharge : 0)
-            }
-          />
-          <label htmlFor="extraHelmet" className="text-sm cursor-pointer">
-            Extra Helmet{" "}
-            <span className="text-gray-500 italic">
-              (₹{formatPrice(extraHelmetCharge)}/day)
-            </span>
-          </label>
-        </div> */}
       </div>
       <div className="w-full lg:w-[48%]">
         <SelectDropDownCoupon
@@ -295,6 +413,7 @@ const BookingStepTwo = ({
           setCoupon={setCoupon}
           removeCoupon={removeCoupon}
           loading={CouponLoading}
+          // onSearchChange={setCouponName}
         />
       </div>
       <div className="w-full lg:w-[48%]">
@@ -302,7 +421,7 @@ const BookingStepTwo = ({
           placeholder="Payment Mode"
           item={"paymentMethod"}
           options={["online", "partiallyPay", "cash"]}
-          value={"online"}
+          value={"cash"}
           require={true}
           isSearchEnable={false}
         />

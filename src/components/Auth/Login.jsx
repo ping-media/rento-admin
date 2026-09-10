@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
 import { Navigate, useNavigate } from "react-router-dom";
 import { handleOtpLogin } from "../../Data/Function";
-import webLogo from "../../assets/logo/rento-logo.png";
+import webLogo from "../../assets/logo/rento-full-light.png";
 import { tableIcons } from "../../Data/Icons";
 import { toggleForgetPasswordModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import PreLoader from "../../components/Skeleton/PreLoader";
@@ -67,7 +67,7 @@ const Login = () => {
             <div className="flex flex-col items-center justify-center lg:hidden mb-5">
               <img
                 src={webLogo}
-                className="w-28 h-28 p-2 bg-gray-100 rounded-full mx-auto mb-3 drop-shadow-2xl object-contain"
+                className="w-3/4 h-28 mx-auto object-contain"
                 alt="LOGO"
               />
             </div>
@@ -93,10 +93,10 @@ const Login = () => {
                     </div>
                     <input
                       type="email"
-                      placeholder="someone@example.com"
+                      placeholder="Enter Email Address"
                       name="email"
                       id="email"
-                      className="w-full pl-[3.4rem] pr-4 py-2.5 lg:py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 outline-none rounded-lg placeholder-gray-100 lg:placeholder-gray-400 autofill:bg-autofill-bg autofill:text-autofill-text"
+                      className="w-full pl-[3.4rem] pr-4 py-2.5 lg:py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 rounded-lg placeholder-gray-100 lg:placeholder-gray-400 autofill:bg-autofill-bg autofill:text-autofill-text"
                       onChange={(e) => e.target.value}
                       autoComplete="off"
                       required
@@ -110,10 +110,10 @@ const Login = () => {
                     </div>
                     <input
                       type="password"
-                      placeholder="************"
+                      placeholder="Enter password"
                       name="password"
                       id="password"
-                      className="w-full pl-[3.4rem] pr-4 py-2.5 lg:py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 outline-none rounded-lg placeholder-gray-100 lg:placeholder-gray-400 autofill:bg-autofill-bg autofill:text-autofill-text"
+                      className="w-full pl-[3.4rem] pr-4 py-2.5 lg:py-3.5 appearance-none bg-transparent outline-none border border-gray-100 lg:border-gray-300 focus:border-text-gray-200 lg:focus:border-theme lg:focus:text-gray-800 text-gray-100 lg:text-gray-800 rounded-lg placeholder-gray-100 lg:placeholder-gray-400 autofill:bg-autofill-bg autofill:text-autofill-text"
                       onChange={(e) => e.target.value}
                       ref={passwordRef}
                       required
@@ -124,8 +124,8 @@ const Login = () => {
                       onClick={handleChangeType}
                     >
                       {!isPasswordTextActive
-                        ? tableIcons.eyeClose
-                        : tableIcons.eyeOpen}
+                        ? tableIcons.eyeOpen
+                        : tableIcons.eyeClose}
                     </button>
                   </div>
                 </div>
@@ -135,7 +135,7 @@ const Login = () => {
                     className="text-gray-100 lg:text-theme hover:underline transition-all duration-200 ease-in-out"
                     onClick={() => dispatch(toggleForgetPasswordModal())}
                   >
-                    Forget Password?
+                    Forgot Password?
                   </button>
                 </div>
                 <button

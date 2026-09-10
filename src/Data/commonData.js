@@ -3,20 +3,21 @@ import { lazy } from "react";
 const CouponForm = lazy(() => import("../components/Form/CouponsForm.jsx"));
 const BookingForm = lazy(() => import("../components/Form/BookingForm.jsx"));
 const PlanForm = lazy(() => import("../components/Form/PlanForm.jsx"));
-const StationMasterForm = lazy(() =>
-  import("../components/Form/StationMasterForm.jsx")
+const StationMasterForm = lazy(
+  () => import("../components/Form/StationMasterForm.jsx"),
 );
 const VehicleForm = lazy(() => import("../components/Form/VehicleForm.jsx"));
-const LocationMasterForm = lazy(() =>
-  import("../components/Form/LocationMasterForm.jsx")
+const LocationMasterForm = lazy(
+  () => import("../components/Form/LocationMasterForm.jsx"),
 );
 const UserForm = lazy(() => import("../components/Form/UserForm.jsx"));
-const VehicleMasterForm = lazy(() =>
-  import("../components/Form/VehicleMasterForm.jsx")
+const VehicleMasterForm = lazy(
+  () => import("../components/Form/VehicleMasterForm.jsx"),
 );
 
 // for fetching & posting data to backend link
 const endPointBasedOnURL = {
+  logs: "/logs",
   "vehicle-master": "/getVehicleMasterData",
   "vehicle-master/": "/createVehicleMaster",
   "vehicle-master/update": "/updateVehicleMaster",
@@ -31,8 +32,8 @@ const endPointBasedOnURL = {
   "all-plans/": "/createPlan",
   "all-vehicles": "/getAllVehiclesData",
   "all-vehicles/": "/createVehicle",
-  "all-users": "/getAllUsers",
-  "all-managers": "/getAllUsers",
+  "all-users": "/admin/getAllUsers",
+  "all-managers": "/admin/getAllUsers",
   "all-users/": "/signup",
   "all-managers/": "/signup",
   "users-documents": "/getAllDocument",
@@ -51,8 +52,8 @@ const endPointBasedOnURL = {
 const endPointBasedOnKey = {
   stationId: "/getStationData",
   locationId: "/getLocationData",
-  userId: "/getAllUsers?userType=manager",
-  userIdAll: "/getAllUsers",
+  userId: "/admin/getAllUsers?userType=manager",
+  userIdAll: "/admin/getAllUsers",
   vehicleMasterId: "/getVehicleMasterData",
   vehicleTableId: "/getAllVehiclesData",
   AllPlanDataId: "/getPlanData",
@@ -92,6 +93,7 @@ const States = [
 ];
 
 const userType = ["customer", "manager", "admin"];
+const userTypeWithoutAdmin = ["customer", "manager"];
 
 // brands
 const vehicleBrands = [
@@ -109,8 +111,7 @@ const vehicleBrands = [
   "mahindra",
   "royal enfield",
   "harley-davidson",
-  "kawasaki",
-  "ducati",
+  "hyundai",
 ];
 
 const vehicleColor = ["white", "black", "gray", "blue", "yellow", "dark blue"];
@@ -130,6 +131,9 @@ const forms = {
 const bookingSearchList = [
   { label: "All", value: "all" },
   { label: "Booking Id", value: "bookingId" },
+  { label: "Name", value: "fullName" },
+  { label: "Phone Number", value: "contact" },
+  { label: "Vehicle Number", value: "vehicleNumber" },
 ];
 
 const blockReasonList = [
@@ -161,15 +165,23 @@ const monthNames = [
   "December",
 ];
 
+const PAYMENT_LABELS = {
+  online: "Full Payment",
+  partiallyPay: "Partial Payment",
+  cash: "Cash Payment",
+};
+
 export {
   endPointBasedOnURL,
   endPointBasedOnKey,
   States,
   userType,
+  userTypeWithoutAdmin,
   vehicleBrands,
   forms,
   vehicleColor,
   bookingSearchList,
   blockReasonList,
   monthNames,
+  PAYMENT_LABELS,
 };

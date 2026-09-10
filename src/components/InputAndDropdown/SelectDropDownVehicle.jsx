@@ -1,10 +1,39 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { tableIcons } from "../../Data/Icons";
 import { useDispatch } from "react-redux";
 import {
   resetBookingVehicleName,
   setBookingVehicleName,
 } from "../../Redux/PaginationSlice/PaginationSlice";
+import { useAutoFocus } from "../../utils/Helper/useAutoFocus";
+
+const getSortedVehicles = (vehicles = []) => {
+  const getPriority = (vehicle) => {
+    const isBooked = vehicle?.vehicleStatus === "booked";
+    const isMaintenance = vehicle?.vehicleStatus === "maintenance";
+    const isVehicleInBooking = vehicle?.pendingRideWarning !== null;
+
+    if (!isBooked && !isMaintenance && !isVehicleInBooking) {
+      return 0; // Free
+    }
+
+    if (isVehicleInBooking) {
+      return 1; // In Booking
+    }
+
+    if (isBooked) {
+      return 2; // Booked
+    }
+
+    if (isMaintenance) {
+      return 3; // Maintenance
+    }
+
+    return 4;
+  };
+
+  return [...vehicles].sort((a, b) => getPriority(a) - getPriority(b));
+};
 
 const SelectDropDownVehicle = ({
   item,
@@ -15,16 +44,34 @@ const SelectDropDownVehicle = ({
   setValueChanger,
   setSelectedChanger,
   isModalClose,
+  isLabel = true,
+  onSearch,
+  loading = false,
+  defaultSelected = null,
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [inputSelect, setInputSelect] = useState(value);
+  const [inputSelect, setInputSelect] = useState(defaultSelected?._id || value);
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
   const debounceTimerRef = useRef(null);
   const dispatch = useDispatch();
 
+  useAutoFocus(searchInputRef, isOpen);
+
+  useEffect(() => {
+    if (defaultSelected?._id) {
+      setInputSelect(defaultSelected._id);
+    }
+  }, [defaultSelected?._id]);
+
   const handleOptionClick = (val) => {
+    if (inputSelect === val._id) {
+      setIsOpen(false);
+      return;
+    }
+
     setInputSelect(val._id);
     setIsOpen(false);
     setValueChanger && setValueChanger(val._id);
@@ -44,8 +91,15 @@ const SelectDropDownVehicle = ({
 
   // clearing the state when user close modal
   useEffect(() => {
-    if (isModalClose === false) {
+    if (isModalClose === false && !defaultSelected?._id) {
       setInputSelect("");
+    }
+  }, [isModalClose]);
+
+  // clearing the input instead the select input box
+  useEffect(() => {
+    if (isModalClose === false) {
+      setSearchTerm("");
     }
   }, [isModalClose]);
 
@@ -55,7 +109,11 @@ const SelectDropDownVehicle = ({
       clearTimeout(debounceTimerRef.current);
     }
     debounceTimerRef.current = setTimeout(() => {
-      dispatch(setBookingVehicleName(searchTerm));
+      if (onSearch) {
+        onSearch(searchTerm);
+      } else {
+        dispatch(setBookingVehicleName(searchTerm));
+      }
     }, 300);
 
     return () => {
@@ -71,19 +129,33 @@ const SelectDropDownVehicle = ({
 
   useEffect(() => {
     return () => {
-      dispatch(resetBookingVehicleName());
+      if (!onSearch) {
+        dispatch(resetBookingVehicleName());
+      }
     };
-  }, []);
+  }, [dispatch]);
+
+  const selectedOption =
+    options?.find((opt) => opt._id === inputSelect) ||
+    (defaultSelected ?? undefined);
+
+  const sortedOptions = useMemo(() => {
+    if (options == null) return [];
+    return getSortedVehicles(options);
+  }, [options]);
 
   return (
     <div className="w-full" ref={dropdownRef}>
-      <label
-        htmlFor={item}
-        className="block text-gray-800 font-semibold text-sm capitalize"
-      >
-        Select {item}
-        {require && <span className="ml-1 text-red-500">*</span>}
-      </label>
+      {isLabel && (
+        <label
+          htmlFor={item}
+          className="block text-gray-800 font-semibold text-sm capitalize"
+        >
+          Select {item}
+          {require && <span className="ml-1 text-red-500">*</span>}
+        </label>
+      )}
+
       <div className="mt-2 relative">
         <input
           type="hidden"
@@ -95,23 +167,18 @@ const SelectDropDownVehicle = ({
           className="text-left block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize bg-white cursor-pointer disabled:bg-gray-300/30"
           type="button"
           onClick={handleToggleDropdown}
-          disabled={!options || options?.length == 0 ? true : false}
+          // disabled={disabled || !options || options?.length == 0 ? true : false}
+          disabled={disabled}
         >
-          {inputSelect
-            ? `${
-                options?.find((opt) => opt._id === inputSelect)
-                  ?.vehicleNumber || ""
-              } | ${
-                options?.find((opt) => opt._id === inputSelect)?.vehicleName ||
-                ""
-              }`
+          {inputSelect && selectedOption
+            ? `${selectedOption?.vehicleNumber || ""} | ${selectedOption?.vehicleName || ""}`
             : `Select ${item}`}
         </button>
         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-600">
           {tableIcons.downArrow}
         </div>
         {isOpen && (
-          <div className="absolute z-50 bg-white mt-2 w-full max-h-28 lg:max-h-40 overflow-y-auto rounded-md shadow-md border border-gray-300">
+          <div className="absolute z-50 bg-white mt-2 w-full max-h-40 lg:max-h-40 overflow-y-auto rounded-md shadow-md border border-gray-300">
             <input
               type="text"
               ref={searchInputRef}
@@ -121,21 +188,74 @@ const SelectDropDownVehicle = ({
               onClick={(e) => e.stopPropagation()}
               className="w-full px-3 py-2 border-b border-gray-200 outline-none text-sm"
             />
-            {options?.length ? (
-              options.map((opt) => (
-                <div
-                  key={opt._id}
-                  onClick={() => handleOptionClick(opt)}
-                  className="px-4 py-2 hover:bg-gray-100 text-sm capitalize cursor-pointer"
-                >
-                  {opt.vehicleNumber} | {opt.vehicleName}
+
+            {
+              loading ? (
+                <div className="px-4 py-2 text-sm text-gray-500 italic">
+                  Searching...
                 </div>
-              ))
-            ) : (
-              <div className="px-4 py-2 text-gray-500 text-sm">
-                No options found
-              </div>
-            )}
+              ) : options?.length ? (
+                sortedOptions?.map((opt) => {
+                  const isBooked = opt?.vehicleStatus === "booked";
+                  const isMaintenance = opt?.vehicleStatus === "maintenance";
+                  const isVehicleInBooking = opt?.pendingRideWarning !== null;
+                  const isUnavailable =
+                    isBooked || isMaintenance || isVehicleInBooking;
+
+                  return (
+                    <div
+                      key={opt._id}
+                      onClick={() => !isUnavailable && handleOptionClick(opt)}
+                      className={`px-4 py-2 text-sm capitalize flex items-center justify-between gap-2
+          ${
+            isUnavailable
+              ? "cursor-not-allowed opacity-60 bg-gray-50"
+              : "hover:bg-gray-100 cursor-pointer"
+          }`}
+                    >
+                      <span>
+                        {opt.vehicleNumber} | {opt.vehicleName}
+                      </span>
+
+                      {isMaintenance && (
+                        <span className="text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                          Maintenance
+                        </span>
+                      )}
+                      {isBooked && (
+                        <span className="text-xs font-semibold text-red-600 bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                          Booked{" "}
+                          {opt?.bookingConflict?.bookingId
+                            ? `#${opt.bookingConflict.bookingId}`
+                            : ""}
+                        </span>
+                      )}
+                      {isVehicleInBooking && (
+                        <span className="text-xs font-semibold text-red-600 bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                          In Booking{" "}
+                          {opt?.pendingRideWarning?.bookingId
+                            ? `#${opt.pendingRideWarning.bookingId}`
+                            : ""}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })
+              ) : searchTerm.trim() ? (
+                <div className="px-4 py-2 text-gray-500 text-sm">
+                  No vehicles found.
+                </div>
+              ) : (
+                <div className="px-4 py-2 text-gray-500 text-sm italic">
+                  Start typing to search for a vehicle.
+                </div>
+              )
+              // (
+              //   <div className="px-4 py-2 text-gray-500 text-sm">
+              //     No options found
+              //   </div>
+              // )
+            }
           </div>
         )}
       </div>

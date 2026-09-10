@@ -26,10 +26,49 @@ const GeneralSlice = createSlice({
       state.extraAddOn.pagination = pagination;
       state.extraAddOn.loading = false;
     },
-    updateAddOnData: (state, action) => {
-      const updated = action.payload;
-      state.extraAddOn.data = state.extraAddOn.data.map((item) =>
-        item._id === updated._id ? { ...item, ...updated } : item
+    updateGeneralTestimonial: (state, action) => {
+      state.general.testimonial = action.payload;
+    },
+    removeGeneralTestimonial: (state, action) => {
+      state.general.testimonial = state.general.testimonial.filter(
+        (t) => t._id !== action.payload,
+      );
+    },
+    updateGeneralInfo: (state, action) => {
+      const newInfo = action.payload || {};
+      const currentInfo = state.general.info || {};
+
+      state.general.info = {
+        email: newInfo.email?.trim() || currentInfo.email,
+        contact: newInfo.contact || currentInfo.contact,
+        waContact: newInfo.waContact || currentInfo.waContact,
+        altContact: newInfo.altContact || currentInfo.altContact,
+        address: newInfo.address?.trim() || currentInfo.address,
+        socialmedia: {
+          facebook:
+            newInfo.facebook?.trim() ||
+            currentInfo.socialmedia?.facebook ||
+            "#",
+          instagram:
+            newInfo.instagram?.trim() ||
+            currentInfo.socialmedia?.instagram ||
+            "#",
+          twitter:
+            newInfo.twitter?.trim() || currentInfo.socialmedia?.twitter || "#",
+        },
+        appLink: {
+          IOS: newInfo.IOS?.trim() || currentInfo.appLink?.IOS || "#",
+          Android:
+            newInfo.Android?.trim() || currentInfo.appLink?.Android || "#",
+        },
+      };
+    },
+    addGeneralSlides: (state, action) => {
+      state.general.slides = action.payload;
+    },
+    removeGeneralSlides: (state, action) => {
+      state.general.slides = state.general.slides.filter(
+        (s) => s._id !== action.payload,
       );
     },
     updateGSTStatus: (state, action) => {
@@ -41,7 +80,7 @@ const GeneralSlice = createSlice({
     removeAddOnData: (state, action) => {
       const idToRemove = action.payload;
       state.extraAddOn.data = state.extraAddOn.data.filter(
-        (item) => item._id !== idToRemove
+        (item) => item._id !== idToRemove,
       );
     },
     stopLoading: (state) => {
@@ -60,6 +99,11 @@ export const {
   addAddOn,
   addGeneral,
   addNewAddOnData,
+  updateGeneralInfo,
+  updateGeneralTestimonial,
+  removeGeneralTestimonial,
+  addGeneralSlides,
+  removeGeneralSlides,
   updateAddOnData,
   removeAddOnData,
   stopLoading,

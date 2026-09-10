@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner.jsx";
@@ -25,7 +25,6 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   // for setting locationid if it is present
   useEffect(() => {
     if (id && vehicleMaster?.length == 1) {
-      // console.log(vehicleMaster[0]?.locationId);
       setIsLocationSelected(vehicleMaster[0]?.locationId);
     }
   }, [vehicleMaster, id]);
@@ -40,40 +39,43 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         vehicleMaster,
         isLocationSelected,
         setStationData,
-        token
+        token,
       );
     }
   }, [isLocationSelected, vehicleMaster]);
 
-  const fetchCollectedData = async (vehicleMasterUrl, locationUrl, planUrl) => {
-    setFormLoading(true);
+  const fetchCollectedData = useCallback(
+    async (vehicleMasterUrl, locationUrl, planUrl) => {
+      setFormLoading(true);
 
-    try {
-      // Fetch all data in parallel
-      const [planResponse, vehicleMasterResponse, locationResponse] =
-        await Promise.all([
-          getData(endPointBasedOnKey[planUrl], token),
-          getData(
-            `${endPointBasedOnKey[vehicleMasterUrl]}?fetchAll=true`,
-            token
-          ),
-          getData(`${endPointBasedOnKey[locationUrl]}?fetchAll=true`, token),
-        ]);
+      try {
+        // Fetch all data in parallel
+        const [planResponse, vehicleMasterResponse, locationResponse] =
+          await Promise.all([
+            getData(endPointBasedOnKey[planUrl], token),
+            getData(
+              `${endPointBasedOnKey[vehicleMasterUrl]}?fetchAll=true`,
+              token,
+            ),
+            getData(`${endPointBasedOnKey[locationUrl]}?fetchAll=true`, token),
+          ]);
 
-      // Set the collected data if all responses are successful
-      if (planResponse && vehicleMasterResponse && locationResponse) {
-        setCollectedData({
-          vehicleMasterId: vehicleMasterResponse?.data,
-          locationId: locationResponse?.data,
-          AllPlanDataId: planResponse?.data,
-        });
+        // Set the collected data if all responses are successful
+        if (planResponse && vehicleMasterResponse && locationResponse) {
+          setCollectedData({
+            vehicleMasterId: vehicleMasterResponse?.data,
+            locationId: locationResponse?.data,
+            AllPlanDataId: planResponse?.data,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setFormLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setFormLoading(false);
-    }
-  };
+    },
+    [token],
+  );
 
   useEffect(() => {
     fetchCollectedData("vehicleMasterId", "locationId", "AllPlanDataId");
@@ -82,24 +84,15 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
   return (!formLoading && vehicleMaster?.length === 1) ||
     collectedData != null ? (
     <form onSubmit={handleFormSubmit}>
-      <div className={`border-b-2 ${!id ? "mb-5" : "pb-5 mb-5"}`}>
-        <h2 className="font-bold">
-          {!id
-            ? "Select Package"
-            : `Package Applied: ${
-                vehicleMaster && vehicleMaster[0]?.vehiclePlan?.length
-              } Plan`}
-        </h2>
+      {!id && (
+        <div className={`border-b-2 mb-5`}>
+          <h2 className="font-bold">Select Package</h2>
 
-        <div className="w-full pb-2">
-          <VehiclePlan
-            collectedData={collectedData}
-            data={
-              (id && vehicleMaster && vehicleMaster[0]?.vehiclePlan) || null
-            }
-          />
+          <div className="w-full pb-2">
+            <VehiclePlan collectedData={collectedData} data={null} />
+          </div>
         </div>
-      </div>
+      )}
       <div className="flex flex-wrap gap-4">
         {/* for updating the value of the existing one  */}
         <>
@@ -114,11 +107,12 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               <SelectDropDown
                 item={"locationId"}
                 options={collectedData?.locationId?.filter(
-                  (location) => location?.locationStatus !== "inactive"
+                  (location) => location?.locationStatus !== "inactive",
                 )}
                 value={id && vehicleMaster[0]?.locationId}
                 setIsLocationSelected={setIsLocationSelected}
                 require={true}
+                placeholder={"City"}
               />
             </div>
           )}
@@ -132,7 +126,12 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
             <div className="w-full lg:w-[48%]">
               <SelectDropDown
                 item={"stationId"}
-                options={stationData && stationData}
+                options={
+                  stationData &&
+                  stationData.filter(
+                    (station) => station?.status !== "inactive",
+                  )
+                }
                 value={id && vehicleMaster[0]?.stationId}
                 require={true}
               />
@@ -155,15 +154,25 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
+              placeholder={"Weekday Free kms"}
               item={"freeKms"}
               type="number"
               value={id ? Number(vehicleMaster[0]?.freeKms) : 100}
               require={true}
             />
-            <p className="text-xs mt-1 text-gray-500 italic">
+            {/* <p className="text-xs mt-1 text-gray-500 italic">
               Base Free limit for vehicle.The limit entered above will change
               based on booking duration.
-            </p>
+            </p> */}
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              placeholder={"Weekend Free Kms"}
+              item={"weekendFreeKms"}
+              type="number"
+              value={id ? Number(vehicleMaster[0]?.weekendFreeKms) : 100}
+              require={true}
+            />
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
@@ -189,6 +198,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           <div className="w-full lg:w-[48%]">
             <Input
               item={"perDayCost"}
+              placeholder={"Weekday Cost"}
               type="number"
               value={id && Number(vehicleMaster[0]?.perDayCost)}
               require={true}
@@ -196,11 +206,32 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
           </div>
           <div className="w-full lg:w-[48%]">
             <Input
-              item={"lastServiceDate"}
-              type="date"
-              value={id && vehicleMaster[0]?.lastServiceDate}
+              item={"weekendCost"}
+              placeholder={"Weekend Cost"}
+              type="number"
+              value={id && Number(vehicleMaster[0]?.weekendCost)}
               require={true}
             />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <div className="w-full relative">
+              <label
+                htmlFor={"lastServiceDate"}
+                className="block text-gray-800 font-semibold text-sm capitalize text-left"
+              >
+                Enter Last Service Date <span className="text-red-500">*</span>
+              </label>
+              <div className="mt-2">
+                <input
+                  type="date"
+                  value={id && vehicleMaster[0]?.lastServiceDate}
+                  id="lastServiceDate"
+                  name="lastServiceDate"
+                  className="block rounded-md w-full px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none relative disabled:bg-gray-400/20 disabled:bg-opacity-20"
+                  required
+                />
+              </div>
+            </div>
             <p className="text-xs mt-1 text-gray-500 italic">
               Enter the last service date of the vehicle.
             </p>
@@ -258,7 +289,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               require={true}
             />
           </div>
-          <div className="w-full lg:w-[48%]">
+          {/* <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"condition"}
               options={["new", "old"]}
@@ -275,7 +306,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
               require={true}
               isSearchEnable={false}
             />
-          </div>
+          </div> */}
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"vehicleStatus"}
@@ -288,7 +319,7 @@ const VehicleForm = ({ handleFormSubmit, loading }) => {
         </>
 
         <button
-          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
           type="submit"
           disabled={loading}
         >

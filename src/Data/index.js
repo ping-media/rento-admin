@@ -1,27 +1,6 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-// const getData = async (url, token) => {
-//   const headers = {
-//     "Content-Type": "application/json",
-//     Accept: "application/json",
-//   };
-//   if (token) {
-//     headers["Authorization"] = `Bearer ${token}`;
-//     headers["token"] = `${token}`;
-//   }
-
-//   const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
-//     headers,
-//   });
-
-//   if (response.status == 200) {
-//     return response?.data;
-//   } else {
-//     return response?.message;
-//   }
-// };
-
 const getData = async (url, token, retries = 5, delay = 500) => {
   const headers = {
     "Content-Type": "application/json",
@@ -39,7 +18,7 @@ const getData = async (url, token, retries = 5, delay = 500) => {
         `${import.meta.env.VITE_BASED_URL}${url}`,
         {
           headers,
-        }
+        },
       );
 
       if (response.status === 200) {
@@ -49,39 +28,16 @@ const getData = async (url, token, retries = 5, delay = 500) => {
       }
     } catch (error) {
       if (attempt < retries) {
-        // console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
         console.error("All retry attempts failed.");
-        const navigate = useNavigate(); // React Router navigation
+        const navigate = useNavigate();
         navigate("*");
         throw error;
       }
     }
   }
 };
-
-// const getFullData = async (url, token) => {
-//   const headers = {
-//     "Content-Type": "application/json",
-//     Accept: "application/json",
-//   };
-//   if (token) {
-//     headers["Authorization"] = `Bearer ${token}`;
-//     headers["token"] = `${token}`;
-//   } else {
-//     return "Error fetching Data. Try Again!";
-//   }
-//   const response = await axios.get(`${import.meta.env.VITE_BASED_URL}${url}`, {
-//     headers,
-//   });
-
-//   if (response.status == 200) {
-//     return response;
-//   } else {
-//     return response?.message;
-//   }
-// };
 
 const getFullData = async (url, token, retries = 5, delay = 500) => {
   const headers = {
@@ -102,7 +58,7 @@ const getFullData = async (url, token, retries = 5, delay = 500) => {
         `${import.meta.env.VITE_BASED_URL}${url}`,
         {
           headers,
-        }
+        },
       );
 
       if (response.status === 200) {
@@ -143,13 +99,18 @@ const postData = async (url, data, token, requestType = "post") => {
     }
 
     let response;
-    if ((data?._id && url?.includes("update")) || requestType === "put") {
+    if (
+      (data?._id &&
+        !url?.includes("updateProfile") &&
+        url?.includes("update")) ||
+      requestType === "put"
+    ) {
       response = await axios.put(
         `${import.meta.env.VITE_BASED_URL}${url}`,
         data,
         {
           headers,
-        }
+        },
       );
     } else {
       response = await axios.post(
@@ -157,7 +118,7 @@ const postData = async (url, data, token, requestType = "post") => {
         data,
         {
           headers,
-        }
+        },
       );
     }
     return response?.data;
@@ -171,7 +132,7 @@ const postDataWithRetry = async (
   data,
   token,
   requestType = "post",
-  retries = 3
+  retries = 3,
 ) => {
   let attempt = 0;
 
@@ -198,13 +159,13 @@ const postDataWithRetry = async (
         response = await axios.put(
           `${import.meta.env.VITE_BASED_URL}${url}`,
           data,
-          { headers }
+          { headers },
         );
       } else {
         response = await axios.post(
           `${import.meta.env.VITE_BASED_URL}${url}`,
           data,
-          { headers }
+          { headers },
         );
       }
 
@@ -234,10 +195,9 @@ const postMultipleData = async (url, data, token) => {
       data,
       {
         headers,
-      }
+      },
     );
 
-    // console.log(response);
     return response?.data;
   } catch (error) {
     return `Error :${error?.message}`;
@@ -247,7 +207,7 @@ const postMultipleData = async (url, data, token) => {
 const deleteData = async (url) => {
   try {
     const response = await axios.delete(
-      `${import.meta.env.VITE_BASED_URL}${url}`
+      `${import.meta.env.VITE_BASED_URL}${url}`,
     );
     return response?.data;
   } catch (error) {
@@ -259,7 +219,7 @@ const deleteDataById = async (url, data) => {
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_BASED_URL}${url}`,
-      data
+      data,
     );
     return response?.data;
   } catch (error) {
@@ -273,7 +233,7 @@ const handleAdminLogin = async (url, data) => {
     if (!data) return "email & password should not be empty";
     const response = await axios.post(
       `${import.meta.env.VITE_BASED_URL}${url}`,
-      data
+      data,
     );
     if (response?.status == 200) {
       return response?.data;
@@ -300,14 +260,14 @@ const createOrderId = async (data) => {
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_BASED_URL}/createOrderId`,
-      options
+      options,
     );
 
     return response?.data;
   } catch (error) {
     console.error(
       "Error creating Razorpay order:",
-      error.response ? error.response.data : error.message
+      error.response ? error.response.data : error.message,
     );
   }
 };
@@ -318,7 +278,7 @@ const handleSendOtp = async (
   token,
   dispatch,
   handleAsyncError,
-  setLoading
+  setLoading,
 ) => {
   try {
     setLoading(true);
