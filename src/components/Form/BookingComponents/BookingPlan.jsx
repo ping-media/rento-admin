@@ -60,7 +60,7 @@ export const BookingPlan = ({ duration, setDuration }) => {
                   <button
                     key={p._id}
                     type="button"
-                    onClick={() => setDuration(p.planDuration ?? 1)}
+                    onClick={() => setDuration(Number(p.planDuration) || 1)}
                     className={`border rounded-md border-gray-400 hover:border-none hover:bg-theme hover:text-white transition-colors duration-200 ease-in-out min-w-20 flex-shrink-0 py-1.5 ${duration === p.planDuration ? "bg-theme text-white border-none" : ""}`}
                   >
                     {label}

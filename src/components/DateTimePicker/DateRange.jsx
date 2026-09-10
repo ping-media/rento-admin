@@ -57,6 +57,8 @@ const formatTimeWithoutSeconds = (timeStr) => {
   return `${formattedHour}:${formattedMinutes} ${formattedPeriod}`;
 };
 
+const normalizeSept = (str) => str.replace(/\bSept\b/g, "Sep");
+
 export const DateRange = ({
   pickupLabel = "Pick-up Date And Time",
   pickupName = "BookingStartDateAndTime",
@@ -80,7 +82,9 @@ export const DateRange = ({
   // Update dropoff date when duration changes
   // Update dropoff date when duration changes — based on pickup date, not today
   useEffect(() => {
-    const formattedPickup = `${formatDate(pickupDate)} ${formatTimeWithoutSeconds(pickupTime)}`;
+    const formattedPickup = normalizeSept(
+      `${formatDate(pickupDate)} ${formatTimeWithoutSeconds(pickupTime)}`,
+    );
     const pickupParsed = parse(
       formattedPickup,
       "dd MMM, yyyy h:mm a",
@@ -89,7 +93,7 @@ export const DateRange = ({
 
     if (!isNaN(pickupParsed)) {
       const newDropoff = new Date(pickupParsed);
-      newDropoff.setDate(newDropoff.getDate() + duration);
+      newDropoff.setDate(newDropoff.getDate() + Number(duration));
 
       setDropoffDate(
         newDropoff.toLocaleDateString("en-US", {
@@ -118,7 +122,9 @@ export const DateRange = ({
 
     if (dateChanged || timeChanged) {
       // Parse current pickup into a Date object
-      const formattedPickup = `${formatDate(pickupDate)} ${formatTimeWithoutSeconds(pickupTime)}`;
+      const formattedPickup = normalizeSept(
+        `${formatDate(pickupDate)} ${formatTimeWithoutSeconds(pickupTime)}`,
+      );
       const pickupParsed = parse(
         formattedPickup,
         "dd MMM, yyyy h:mm a",
@@ -128,7 +134,7 @@ export const DateRange = ({
       if (!isNaN(pickupParsed)) {
         // Add duration days to get new dropoff
         const newDropoff = new Date(pickupParsed);
-        newDropoff.setDate(newDropoff.getDate() + duration);
+        newDropoff.setDate(newDropoff.getDate() + Number(duration));
 
         // Sync dropoff date string
         setDropoffDate(
