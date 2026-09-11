@@ -1,5 +1,5 @@
 import { postData } from "../Data";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { togglePickupImageModal } from "../Redux/SideBarSlice/SideBarSlice";
@@ -380,9 +380,10 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
     { title: "others" },
   ];
 
+  // only image is mandatory to upload instead of all 6
   const isAllImagesUploaded = useMemo(() => {
     return import.meta.env.VITE_ENV !== "development"
-      ? Object.values(imagesUrl).every((val) => val !== "")
+      ? Object.values(imagesUrl).some((val) => val !== "")
       : true;
   }, [imagesUrl]);
 
