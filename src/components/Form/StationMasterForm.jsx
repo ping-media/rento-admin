@@ -31,28 +31,6 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
 
   const { data: collectedData } = useStationMasterData();
 
-  // const fetchCollectedData = async (locationUrl, stationUrl) => {
-  //   const locationResponse = await getData(
-  //     `${endPointBasedOnKey[locationUrl]}?fetchAll=true`,
-  //     token,
-  //   );
-  //   const stationResponse = await getData(
-  //     `${endPointBasedOnKey[stationUrl]}?fetchAll=true`,
-  //     token,
-  //   );
-
-  //   if (locationResponse && stationResponse) {
-  //     return setCollectedData({
-  //       locationId: locationResponse?.data,
-  //       stationId: stationResponse?.data,
-  //     });
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchCollectedData("locationId", "stationId");
-  // }, []);
-
   // updating the station opening and closing time here
   useEffect(() => {
     if (id) {

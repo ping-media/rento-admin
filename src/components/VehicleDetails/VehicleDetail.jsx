@@ -116,12 +116,14 @@ const VehicleDetail = () => {
 
   return (
     <>
-      <Suspense fallback={null}>
+      <Suspense fallback={<PreLoader />}>
         <AddVehicleForServiceModal
           vehiclesId={maintenanceVehicleId}
           setMaintenanceVehicleId={setMaintenanceVehicleId}
           isMaintenanceAdd={isMaintenanceAdd}
           setIsMaintenanceAdd={setIsMaintenanceAdd}
+          vehicleName={vehicle?.vehicleName}
+          stationId={vehicle?.stationId}
         />
 
         <VehiclePlanModal

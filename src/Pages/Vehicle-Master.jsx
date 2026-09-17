@@ -1,4 +1,11 @@
-import { lazy, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVehicleMasterWithPagination } from "../Data/Function";
 import { endPointBasedOnURL } from "../Data/commonData";
@@ -9,10 +16,11 @@ import {
 } from "../Redux/VehicleSlice/VehicleSlice";
 import { handleRestPagination } from "../Redux/PaginationSlice/PaginationSlice";
 import { useLocation } from "react-router-dom";
+import PreLoader from "../components/Skeleton/PreLoader";
 const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
-const AddVehicleForServiceModal = lazy(
-  () => import("../components/Modal/AddVehicleForServiceModal"),
-);
+// const AddVehicleForServiceModal = lazy(
+//   () => import("../components/Modal/AddVehicleForServiceModal"),
+// );
 const VehicleStationModal = lazy(
   () => import("../components/Modal/StationModal"),
 );
@@ -145,10 +153,10 @@ const VehicleMaster = () => {
   }, []);
 
   // Memoize conditional renders
-  const showAddVehicleModal = useMemo(
-    () => location.pathname === "/all-vehicles",
-    [location.pathname],
-  );
+  // const showAddVehicleModal = useMemo(
+  //   () => location.pathname === "/all-vehicles",
+  //   [location.pathname],
+  // );
 
   const showVehicleStationModal = useMemo(
     () => location.pathname === "/vehicle-master",
@@ -159,8 +167,12 @@ const VehicleMaster = () => {
     <>
       {/* filters and sorting  */}
       <FilterSideBar stationId={stationId} setStationId={setStationId} />
-      {showAddVehicleModal && <AddVehicleForServiceModal />}
-      {showVehicleStationModal && <VehicleStationModal />}
+      {/* {showAddVehicleModal && <AddVehicleForServiceModal />} */}
+      {showVehicleStationModal && (
+        <Suspense fallback={<PreLoader />}>
+          <VehicleStationModal />
+        </Suspense>
+      )}
 
       {/* table data  */}
       <CustomTableComponent

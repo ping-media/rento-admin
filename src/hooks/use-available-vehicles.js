@@ -21,6 +21,7 @@ const useAvailableVehicles = ({
   const [vehicleId, setVehicleId] = useState("");
   const [initialLoading, setInitialLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [blockedVehicles, setBlockedVehicles] = useState([]);
   const dispatch = useDispatch();
 
   const fetchVehicles = async (search = initialSearch) => {
@@ -57,17 +58,27 @@ const useAvailableVehicles = ({
 
       if (response?.status === 200) {
         setVehicles(response.data || []);
+        setBlockedVehicles([]);
       } else {
-        const message =
-          response?.unavailabilityReasons?.[0]?.reason ??
-          response?.message ??
-          "Unable to get vehicle! try again";
-
-        handleAsyncError(dispatch, message);
+        const reasons = response?.unavailabilityReasons || [];
         setVehicles([]);
+        setBlockedVehicles(reasons);
+        if (reasons.length === 0) {
+          const message =
+            response?.message ?? "Unable to get vehicle! try again";
+          handleAsyncError(dispatch, message);
+        }
+        // const message =
+        //   response?.unavailabilityReasons?.[0]?.reason ??
+        //   response?.message ??
+        //   "Unable to get vehicle! try again";
+
+        // handleAsyncError(dispatch, message);
+        // setVehicles([]);
       }
     } catch (error) {
       setVehicles([]);
+      setBlockedVehicles([]);
     } finally {
       hasInitiallyLoaded.current = true;
       setInitialLoading(false);
@@ -86,6 +97,7 @@ const useAvailableVehicles = ({
     setVehicles([]);
     setSelectedVehicle(null);
     setVehicleId("");
+    setBlockedVehicles([]);
   };
 
   return {
@@ -101,6 +113,8 @@ const useAvailableVehicles = ({
 
     fetchVehicles,
     reset,
+
+    blockedVehicles,
   };
 };
 

@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { tableIcons } from "../../Data/Icons";
-import { useDispatch } from "react-redux";
-import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
-import { addBlockVehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
+// import { useDispatch } from "react-redux";
+// import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
+// import { addBlockVehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
 
 const TableActions = ({ item, handleDeleteVehicle }) => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   // for deleting the vehicle
   const handleDelete = (e, id) => {
     e.stopPropagation();
@@ -13,16 +13,16 @@ const TableActions = ({ item, handleDeleteVehicle }) => {
   };
 
   // for blocking the vehicle
-  const handleBlockVehicle = (e, id) => {
-    e.stopPropagation();
-    dispatch(addBlockVehicleId(id));
-    dispatch(toggleVehicleServiceModal());
-  };
+  // const handleBlockVehicle = (e, id) => {
+  //   e.stopPropagation();
+  //   dispatch(addBlockVehicleId(id));
+  //   dispatch(toggleVehicleServiceModal());
+  // };
 
   return (
     <td className="px-2 py-1 whitespace-nowrap text-sm items-center gap-1">
       <div className="flex">
-        {location.pathname == "/all-vehicles" && (
+        {/* {location.pathname == "/all-vehicles" && (
           <button
             type="button"
             className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:text-white hover:bg-gray-600 flex item-center"
@@ -31,7 +31,7 @@ const TableActions = ({ item, handleDeleteVehicle }) => {
           >
             {tableIcons?.block}
           </button>
-        )}
+        )} */}
         {!(
           location.pathname == "/users-documents" ||
           location.pathname == "/payments" ||

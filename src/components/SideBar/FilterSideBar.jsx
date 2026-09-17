@@ -156,23 +156,14 @@ const FilterSideBar = ({ stationId, setStationId }) => {
                 <div className="mb-2">
                   <Input
                     item={"search"}
-                    // item={"vehicleName"}
                     placeholder={"Vehicle Name/ Brand"}
                     isModalClose={isFilterOpen}
                     value={vehiclesFilter.search}
-                    // value={vehiclesFilter.vehicleName}
                     excludeLocation={"/all-vehicles"}
                   />
                 </div>
                 <div className="mb-2">
                   <StationFilter />
-                  {/* <Input
-                    item={"stationName"}
-                    placeholder={"Station Name"}
-                    isModalClose={isFilterOpen}
-                    value={vehiclesFilter.search}
-                    excludeLocation={"/all-vehicles"}
-                  /> */}
                 </div>
                 <button
                   type="submit"

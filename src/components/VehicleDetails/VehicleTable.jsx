@@ -9,6 +9,7 @@ const VehicleTable = ({
   handleSelectAll,
   isAllSelected,
   isIndeterminate,
+  hasSelectable,
 }) => {
   const { id } = useParams();
   const vehicleId = id ? id : null;
@@ -18,18 +19,22 @@ const VehicleTable = ({
       {/* TABLE HEAD */}
       <thead className="bg-gray-100 sticky top-0 z-10">
         <tr>
-          <th scope="col" className="px-3 py-2 text-left cursor-pointer">
-            <CheckBox
-              id="select-all"
-              checked={isAllSelected}
-              indeterminate={isIndeterminate}
-              handleSelect={handleSelectAll}
-            />
+          <th scope="col" className="px-3 py-2 text-left">
+            <span
+              title={!hasSelectable ? "No blocked vehicle" : undefined}
+              className={!hasSelectable ? "cursor-not-allowed opacity-40" : ""}
+            >
+              <CheckBox
+                id="select-all"
+                checked={isAllSelected}
+                indeterminate={isIndeterminate}
+                disabled={!hasSelectable}
+                handleSelect={hasSelectable ? handleSelectAll : () => {}}
+              />
+            </span>
           </th>
           <th className="px-3 py-2 text-left">SL</th>
           <th className="px-3 py-2 text-left">Vehicle Number</th>
-          {/* <th className="px-3 py-2 text-center">Booking Id</th>
-          <th className="px-3 py-2 text-center">Under Maintenance</th> */}
           <th className="px-3 py-2 text-center">Vehicle Status</th>
           <th className="px-3 py-2 text-center">Action</th>
         </tr>
@@ -60,22 +65,6 @@ const VehicleTable = ({
                 {vehicle.vehicleNumber}
               </td>
 
-              {/* <td className="px-3 py-2 text-center capitalize">
-                <span
-                  className={`${vehicle.currentBooking === null ? "bg-green-500/30" : "bg-yellow-500/35"} rounded-md p-2`}
-                >
-                  {vehicle.currentBooking !== null
-                    ? vehicle.currentBooking.bookingId
-                    : "Available"}
-                </span>
-              </td>
-              <td className="px-3 py-2 text-center capitalize">
-                <span
-                  className={`px-2 py-1 rounded-md ${vehicle.isUnderMaintenance ? "text-theme bg-theme/10 border-theme" : "text-gray-500 bg-gray-200 border-gray-300"}`}
-                >
-                  {vehicle.isUnderMaintenance ? "Yes" : "No"}
-                </span>
-              </td> */}
               <td className="px-3 py-2 text-center">
                 <div className="flex flex-col items-center gap-1">
                   {vehicle.isUnderMaintenance ? (

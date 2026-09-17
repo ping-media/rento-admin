@@ -95,23 +95,22 @@ const VehicleGroupUpdate = ({
     }
   });
 
-  // const isAllSelected =
-  //   filteredVehicles.length > 0 &&
-  //   maintenanceVehicleId.length === filteredVehicles.length;
+  const selectableVehicles =
+    vehicleFilter === ""
+      ? filteredVehicles.filter((v) => v.isUnderMaintenance)
+      : filteredVehicles;
 
-  // const isIndeterminate =
-  //   maintenanceVehicleId.length > 0 &&
-  //   maintenanceVehicleId.length < filteredVehicles.length;
+  const effectiveMax = selectableVehicles.length;
 
-  const selectableVehicles = filteredVehicles.filter(
-    (v) => !v.currentBooking && !v.isUnderMaintenance,
-  );
+  // const selectableVehicles = filteredVehicles.filter(
+  //   (v) => !v.currentBooking && !v.isUnderMaintenance,
+  // );
 
-  const effectiveMax =
-    vehicleStats.actualFreeCount > 0 &&
-    vehicleStats.actualFreeCount < selectableVehicles.length
-      ? vehicleStats.actualFreeCount
-      : selectableVehicles.length;
+  // const effectiveMax =
+  //   vehicleStats.actualFreeCount > 0 &&
+  //   vehicleStats.actualFreeCount < selectableVehicles.length
+  //     ? vehicleStats.actualFreeCount
+  //     : selectableVehicles.length;
 
   const isAllSelected =
     effectiveMax > 0 && maintenanceVehicleId.length >= effectiveMax;
@@ -120,25 +119,33 @@ const VehicleGroupUpdate = ({
     maintenanceVehicleId.length > 0 &&
     maintenanceVehicleId.length < effectiveMax;
 
+  // const handleSelectAll = () => {
+  //   if (isAllSelected) {
+  //     setMaintenanceVehicleId([]);
+  //   } else {
+  //     // const allIds = filteredVehicles.map((v) => v._id);
+  //     // setMaintenanceVehicleId(allIds);
+  //     const selectableVehicles = filteredVehicles.filter(
+  //       (v) => !v.currentBooking && !v.isUnderMaintenance,
+  //     );
+
+  //     // if no filter applied, cap selection to actualFreeCount to respect pending reservations
+  //     const capped =
+  //       vehicleStats.actualFreeCount > 0 &&
+  //       vehicleStats.actualFreeCount < selectableVehicles.length
+  //         ? selectableVehicles.slice(0, vehicleStats.actualFreeCount)
+  //         : selectableVehicles;
+
+  //     setMaintenanceVehicleId(capped.map((v) => v._id));
+  //   }
+  // };
   const handleSelectAll = () => {
     if (isAllSelected) {
       setMaintenanceVehicleId([]);
-    } else {
-      // const allIds = filteredVehicles.map((v) => v._id);
-      // setMaintenanceVehicleId(allIds);
-      const selectableVehicles = filteredVehicles.filter(
-        (v) => !v.currentBooking && !v.isUnderMaintenance,
-      );
-
-      // if no filter applied, cap selection to actualFreeCount to respect pending reservations
-      const capped =
-        vehicleStats.actualFreeCount > 0 &&
-        vehicleStats.actualFreeCount < selectableVehicles.length
-          ? selectableVehicles.slice(0, vehicleStats.actualFreeCount)
-          : selectableVehicles;
-
-      setMaintenanceVehicleId(capped.map((v) => v._id));
+      return;
     }
+
+    setMaintenanceVehicleId(selectableVehicles.map((v) => v._id));
   };
 
   const handleSelect = (id) => {
@@ -167,6 +174,9 @@ const VehicleGroupUpdate = ({
       setBulkUnblockConfirm(false);
       return handleAsyncError(dispatch, "No Active Maintenance found");
     }
+
+    // console.log({ maintenanceIds, endDate });
+    // return;
 
     try {
       setUnblocking(true);
@@ -207,36 +217,12 @@ const VehicleGroupUpdate = ({
 
       {/* Bulk Unblock Confirm Modal */}
       {bulkUnblockConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-80 flex flex-col gap-4">
-            <h2 className="text-base font-semibold text-gray-800">
-              Bulk Unblock Vehicles
-            </h2>
-            <p className="text-sm text-gray-500">
-              Are you sure you want to unblock maintenance for{" "}
-              <span className="font-semibold">
-                {maintenanceVehicleId.length}
-              </span>{" "}
-              selected vehicle(s)?
-            </p>
-            <div className="flex justify-end gap-3 mt-2">
-              <button
-                className="px-4 py-1.5 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
-                onClick={() => setBulkUnblockConfirm(false)}
-                disabled={unblocking}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-1.5 rounded-lg bg-theme text-white text-sm hover:opacity-90 disabled:opacity-50"
-                onClick={handleBulkUnblock}
-                disabled={unblocking}
-              >
-                {unblocking ? "Unblocking..." : "Confirm"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <UnblockDialog
+          setBulkUnblockConfirm={setBulkUnblockConfirm}
+          unblocking={unblocking}
+          handleBulkUnblock={handleBulkUnblock}
+          maintenanceVehicleId={maintenanceVehicleId}
+        />
       )}
 
       {/* Bulk Unblock Button — only shows when 1+ vehicles selected */}
@@ -277,7 +263,7 @@ const VehicleGroupUpdate = ({
         </p>
       ) : (
         <>
-          {vehicleStats.reservedByPendingBookings > 0 && (
+          {/* {vehicleStats.reservedByPendingBookings > 0 && (
             <div className="mb-3 px-3 py-2 rounded-md bg-yellow-50 border border-yellow-300 text-yellow-800 text-sm">
               ⚠️ <strong>{vehicleStats.reservedByPendingBookings}</strong>{" "}
               vehicle
@@ -289,16 +275,16 @@ const VehicleGroupUpdate = ({
               <strong>{vehicleStats.freeCount}</strong> free vehicles are safe
               to block.
             </div>
-          )}
+          )} */}
           <div className="overflow-x-auto h-full md:h-[30rem] md:overflow-y-auto">
             <VehicleTable
-              // allVehicles={allVehicles}
               allVehicles={filteredVehicles}
               maintenanceVehicleId={maintenanceVehicleId}
               handleSelect={handleSelect}
               handleSelectAll={handleSelectAll}
               isAllSelected={isAllSelected}
               isIndeterminate={isIndeterminate}
+              hasSelectable={selectableVehicles.length > 0}
             />
           </div>
         </>
@@ -375,7 +361,6 @@ const FilterDropdown = ({
 
       {isFilterOpen && (
         <div
-          // className="absolute z-20 mt-1 w-full rounded-md border bg-white shadow-lg"
           className={`absolute z-20 w-full rounded-md border bg-white shadow-lg ${
             dropdownPosition === "top" ? "bottom-full mb-1" : "top-full mt-1"
           }`}
@@ -418,6 +403,57 @@ const FilterDropdown = ({
           )}
         </div>
       )}
+    </div>
+  );
+};
+
+export const UnblockDialog = ({
+  setBulkUnblockConfirm,
+  handleBulkUnblock,
+  unblocking,
+  maintenanceVehicleId,
+  variant = "default",
+}) => {
+  const LABEL = {
+    default: {
+      label: "Bulk Unblock Vehicles",
+      description: (
+        <>
+          Are you sure you want to unblock maintenance for{" "}
+          <span className="font-semibold">{maintenanceVehicleId.length}</span>{" "}
+          selected vehicle(s)?
+        </>
+      ),
+    },
+    booking: {
+      label: "UNBLOCK VEHICLE",
+      description: "Aru you sure you want to unblock the selected Vehicle?",
+    },
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-xl shadow-xl p-6 w-80 flex flex-col gap-4">
+        <h2 className="text-base font-semibold text-gray-800">
+          {LABEL[variant].label}
+        </h2>
+        <p className="text-sm text-gray-500">{LABEL[variant].description}</p>
+        <div className="flex justify-end gap-3 mt-2">
+          <button
+            className="px-4 py-1.5 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
+            onClick={() => setBulkUnblockConfirm(false)}
+            disabled={unblocking}
+          >
+            Cancel
+          </button>
+          <button
+            className="px-4 py-1.5 rounded-lg bg-theme text-white text-sm hover:opacity-90 disabled:opacity-50"
+            onClick={handleBulkUnblock}
+            disabled={unblocking}
+          >
+            {unblocking ? "Unblocking..." : "Confirm"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
