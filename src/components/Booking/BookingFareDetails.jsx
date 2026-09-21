@@ -5,7 +5,10 @@ import {
 } from "../../utils/index";
 import Tooltip from "../../components/Tooltip/Tooltip";
 import { renderTooltipBreakdown } from "../../utils/Helper/Helper";
-import { calculateBookingPrice } from "../../utils/calculateBookingPrice";
+import {
+  calculateBookingPrice,
+  calculateExtensionAmount,
+} from "../../utils/calculateBookingPrice";
 
 const EXCLUDED_BOOKING_PRICE_KEYS = new Set([
   "totalPrice",
@@ -36,10 +39,13 @@ const EXCLUDED_BOOKING_PRICE_KEYS = new Set([
   "totalDrivenKm",
   "tempId",
   "isRealAssigned",
+  "extendAmountBackup",
 ]);
 
 const BookingFareDetails = ({ rides }) => {
   const totalBookingPrice = calculateBookingPrice(rides?.bookingPrice);
+  const extensionAmount = calculateExtensionAmount(rides?.bookingPrice);
+  const baseBookingPrice = totalBookingPrice - extensionAmount;
 
   return (
     <>
@@ -175,12 +181,16 @@ const BookingFareDetails = ({ rides }) => {
                             )}
                         </div>
                       </div>
-                      {/* <p>{`₹${formatPrice(value)}`}</p> */}
                       <p>
+                        {`₹${formatPrice(
+                          key === "bookingPrice" ? baseBookingPrice : value,
+                        )}`}
+                      </p>
+                      {/* <p>
                         {`₹${formatPrice(
                           key === "bookingPrice" ? totalBookingPrice : value,
                         )}`}
-                      </p>
+                      </p> */}
                     </li>
                   );
                 }
@@ -234,6 +244,16 @@ const BookingFareDetails = ({ rides }) => {
                   </li>
                 </>
               )}
+
+            {extensionAmount > 0 && (
+              <li className="flex items-center justify-between mt-1 my-1">
+                <p className="text-sm capitalize text-left">Extension's</p>
+                <p className="text-sm font-semibold text-right">
+                  {`₹${formatPrice(extensionAmount)}`}
+                </p>
+              </li>
+            )}
+
             {/* total price */}
             <li className="flex items-center justify-between mt-1 border-t-2 pt-2 my-2">
               <p className="text-sm capitalize text-left">Total Price</p>

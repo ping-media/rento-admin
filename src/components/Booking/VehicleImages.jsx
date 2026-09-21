@@ -6,7 +6,10 @@ const VehicleImages = ({ pickupImage }) => {
   if (!files.length) return null;
 
   return (
-    <div className="flex items-center gap-2 flex-wrap" id="vehicle-gallery">
+    <div
+      className="flex items-center gap-3 sm:gap-2 flex-wrap"
+      id="vehicle-gallery"
+    >
       {files?.map(([key, value]) => (
         <PhotoView
           item={value}

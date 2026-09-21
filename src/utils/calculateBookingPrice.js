@@ -67,3 +67,18 @@ export const calculateBookingPrice = (price) => {
 
   return Math.max(total, 0); // safety
 };
+
+export const calculateExtensionAmount = (price) => {
+  if (!price || !Array.isArray(price.extendAmount)) return 0;
+
+  let total = 0;
+  price.extendAmount.forEach((item) => {
+    if (item.status === "paid") {
+      total += Number(item.amount || 0);
+      total += Number(item.tax || 0);
+      total += Number(item.addonTax || 0);
+    }
+  });
+
+  return total;
+};

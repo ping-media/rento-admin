@@ -59,7 +59,7 @@ const PhotoView = ({
             </div>
           )}
           <div
-            className={`relative ${className} border rounded-md px-1`}
+            className={`relative ${className} border rounded-md px-1 py-1 sm:py-0`}
             key={item?._id}
           >
             {variant === "full" ? (
@@ -81,7 +81,7 @@ const PhotoView = ({
                   alt={item.fileName || alt}
                   className={`w-full ${
                     deleteFn ? "min-h-40 max-h-40" : "min-h-20 max-h-20"
-                  } object-contain brightness-95`}
+                  } object-cover sm:object-contain brightness-95`}
                 />
               </a>
             ) : (
