@@ -71,8 +71,9 @@ const ExtendBookingModal = ({ bookingData }) => {
     if (newDate === startDate) return;
     try {
       setPriceLoading(true);
+      // `/getAllVehiclesAvailable?_id=${
       const isVehicleFree = await getData(
-        `/getAllVehiclesAvailable?_id=${
+        `/extension/check?_id=${
           bookingData?.vehicleTableId?._id
         }&BookingStartDateAndTime=${addOneMinute(
           bookingData?.BookingEndDateAndTime,
