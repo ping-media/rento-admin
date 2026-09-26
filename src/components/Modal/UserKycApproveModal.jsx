@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toogleKycModalActive } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
 import { getData, postData } from "../../Data/index";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { useEffect, useState } from "react";
 import Spinner from "../../components/Spinner/Spinner";
@@ -13,16 +13,18 @@ const UserKycApproveModal = () => {
   const dispatch = useDispatch();
   const { isKycModalActive } = useSelector((state) => state.sideBar);
   const { userDocuments, vehicleMaster } = useSelector(
-    (state) => state.vehicles
+    (state) => state.vehicles,
   );
   const { id } = useParams();
+  const location = useLocation();
   const { token } = useSelector((state) => state.user);
   const [userDocument, setUserDocument] = useState([]);
   const [formError, setFormError] = useState({
     aadharNumber: "",
     licenseNumber: "",
   });
-  const [userDocumentLoading, setUserDocumentLoading] = useState([]);
+  const [userDocumentLoading, setUserDocumentLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   //   approval of kyc
@@ -46,6 +48,10 @@ const UserKycApproveModal = () => {
         dispatch(toogleKycModalActive());
         return handleAsyncError(dispatch, response?.message, "success");
       } else {
+        // setting the user info for better info
+        if (response?.userInfo) {
+          setError(response?.userInfo);
+        }
         return handleAsyncError(dispatch, response?.message);
       }
     } catch (error) {
@@ -59,11 +65,18 @@ const UserKycApproveModal = () => {
   const handleFetchDocuments = async () => {
     try {
       setUserDocumentLoading(true);
-      const response = await getData(`/getDocument?userId=${id}`, token);
+      let docId = id;
+      if (location.pathname.includes("/all-bookings/details/")) {
+        docId = id.split("_")[0];
+      }
+      const response = await getData(`/getDocument?userId=${docId}`, token);
       if (response?.status !== 200) {
         return handleAsyncError(dispatch, response?.message);
       }
-      setUserDocument(response?.data);
+      const result = Array.isArray(response?.data)
+        ? response?.data?.[0]?.files
+        : response?.data;
+      setUserDocument(result);
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
     } finally {
@@ -87,18 +100,6 @@ const UserKycApproveModal = () => {
           aadharNumber: "",
         }));
       }
-    } else if (name === "licenseNumber") {
-      if (value.length > 15 || value.length < 15) {
-        setFormError((prev) => ({
-          ...prev,
-          licenseNumber: "Enter valid 15 character license number",
-        }));
-      } else {
-        setFormError((prev) => ({
-          ...prev,
-          licenseNumber: "",
-        }));
-      }
     }
   };
 
@@ -111,9 +112,16 @@ const UserKycApproveModal = () => {
 
   useEffect(() => {
     if (userDocuments !== null) {
-      setUserDocument(userDocuments);
+      const result = Array.isArray(userDocuments)
+        ? userDocuments?.[0]?.files
+        : userDocuments;
+      setUserDocument(result);
     }
   }, [userDocuments]);
+
+  const hasDocuments = Array.isArray(userDocument) && userDocument?.length > 0;
+  // const hasDocuments =
+  //   Array.isArray(userDocument) && userDocument[0]?.files?.length > 0;
 
   return (
     <div
@@ -121,8 +129,8 @@ const UserKycApproveModal = () => {
         !isKycModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white w-full lg:max-w-xl">
-        <div className="flex justify-between p-2">
+      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white w-full lg:max-w-md">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme text-lg uppercase font-semibold">
             Kyc Verify
           </h2>
@@ -147,40 +155,60 @@ const UserKycApproveModal = () => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
+        <div className="p-6 pt-2 text-center">
+          {!userDocumentLoading && !hasDocuments && (
+            <div className="mb-3 rounded bg-yellow-100 border border-yellow-300 p-2 text-sm text-yellow-800 text-left">
+              Please upload the KYC documents first before verifying.
+            </div>
+          )}
+
           {/* user documents  */}
-          <div className="lg:flex items-center gap-2 mb-3">
-            {!userDocumentLoading ? (
+          <div
+            className="flex items-center flex-wrap gap-2 border-b mb-3"
+            id="kyc-gallery"
+          >
+            {/* {!userDocumentLoading ? (
               (userDocument && userDocument[0]?.files?.length > 0) ||
               (userDocument && userDocument?.files) ? (
-                userDocument[0]?.files?.map((item, index) => {
-                  if (index % 2 !== 0) {
-                    return null;
-                  }
-                  if (item.fileName?.includes("Selfie")) {
-                    return null;
-                  }
+                userDocument[0]?.files?.map((item) => { */}
+            {!userDocumentLoading ? (
+              hasDocuments ? (
+                userDocument?.map((item) => {
                   return (
-                    <div className="mb-3" key={item?._id}>
+                    <div className="mb-3 w-20" key={item?._id}>
                       <PhotoView
                         item={item}
-                        className="w-full lg:flex-1 h-48"
-                        uniqueId={`kyc-modal-${index}`}
+                        className="w-20 h-20"
+                        uniqueId="kyc-gallery"
+                        showName={true}
                       />
                     </div>
                   );
                 })
               ) : (
-                <p className="text-gray-400 italic text-sm mt-1">
-                  No Images Found.
+                <p className="text-red-500 italic text-sm mt-1 pb-1">
+                  No documents found. Please upload the documents first.
                 </p>
               )
             ) : (
-              <div className="text-gray-400 italic text-sm mt-1">
-                <Spinner />
+              <div className="w-full text-gray-400 italic text-sm mt-1 pb-1 flex items-center justify-center">
+                <Spinner textColor="black" message={"fetching documents..."} />
               </div>
             )}
           </div>
+          {/* showing conflict user info here  */}
+          {error && (
+            <div className="mt-5 mb-3 text-sm text-red-600">
+              <p className="text-left">
+                These details are already linked to{" "}
+                <span className="capitalize font-semibold">
+                  {error?.name} ({error?.phone})
+                </span>
+                .
+              </p>
+            </div>
+          )}
+
           {/* continue form  */}
           <form onSubmit={handleSubmitAndChangeKYCStatus}>
             <div className="mb-2">
@@ -188,6 +216,7 @@ const UserKycApproveModal = () => {
                 item={"aadharNumber"}
                 require={true}
                 handlevalidateInput={validateInput}
+                disabled={!hasDocuments}
               />
               {formError.aadharNumber !== "" && (
                 <p className="text-sm text-red-500 text-left">
@@ -200,6 +229,7 @@ const UserKycApproveModal = () => {
                 item={"licenseNumber"}
                 require={true}
                 handlevalidateInput={validateInput}
+                disabled={!hasDocuments}
               />
               {formError.licenseNumber !== "" && (
                 <p className="text-sm text-red-500 text-left">
@@ -209,9 +239,10 @@ const UserKycApproveModal = () => {
             </div>
             <button
               type="submit"
-              className="bg-theme text-gray-100 rounded-md px-4 py-2.5 mt-2.5 disabled:bg-gray-400"
+              className="bg-theme text-gray-100 rounded-md px-4 py-2.5 mt-3 disabled:bg-theme/60 flex items-center w-full justify-center"
               disabled={
                 loading ||
+                !hasDocuments ||
                 formError?.aadharNumber !== "" ||
                 formError?.licenseNumber !== ""
               }

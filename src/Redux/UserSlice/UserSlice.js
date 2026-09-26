@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { decryptData, encryptData } from "../../utils/index";
+// import { decryptData, encryptData } from "../../utils/index";
 
 const UserSlice = createSlice({
   name: "user",
   initialState: {
     token: null,
+    // refreshToken: null,
     user: null,
     loggedInRole: "",
     userStation: null,
@@ -26,7 +27,9 @@ const UserSlice = createSlice({
       state.verifyLoading = action.payload;
     },
     handleSetToken: (state, action) => {
-      state.token = action.payload;
+      const { token } = action.payload;
+      state.token = token;
+      // state.refreshToken = refreshToken;
       state.loading = false;
     },
     SetLoggedInRole: (state, action) => {
@@ -35,13 +38,13 @@ const UserSlice = createSlice({
       state.userStation = userStation;
     },
     handleSignIn: (state, action) => {
-      const encryptedUser = encryptData(action.payload);
-      state.user = encryptedUser;
+      // const encryptedUser = encryptData(action.payload);
+      state.user = action.payload;
       state.loading = false;
     },
     handleCurrentUser: (state, action) => {
-      const decryptedUser = decryptData(action.payload);
-      state.currentUser = decryptedUser;
+      // const decryptedUser = decryptData(action.payload);
+      state.currentUser = action.payload;
       state.loading = false;
     },
     addCurrentUser: (state, action) => {

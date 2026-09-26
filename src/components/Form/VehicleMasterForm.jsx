@@ -15,7 +15,8 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
   const [image, setImage] = useState(null);
 
   //options for vehicleType
-  const vehicleTypeOptions = ["gear", "non-gear"];
+  const vehicleTypeOptions = ["gear", "non-gear", "electric"];
+  const vehicleCategoryOptions = ["two-wheeler", "four-wheeler"];
 
   useEffect(() => {
     if (id && vehicleMaster?.length === 1)
@@ -33,10 +34,23 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
             {/* for updating the value of the existing one  */}
 
             <div className="flex flex-wrap gap-2">
+              <SelectDropDown
+                item={"vehicleBrand"}
+                options={vehicleBrands}
+                value={id && vehicleMaster?.[0]?.vehicleBrand}
+                require={true}
+              />
               <Input
                 item={"vehicleName"}
                 value={id && vehicleMaster?.[0]?.vehicleName}
                 require={true}
+              />
+              <SelectDropDown
+                item={"vehicleCategory"}
+                options={vehicleCategoryOptions}
+                value={id && vehicleMaster?.[0]?.vehicleCategory}
+                require={true}
+                isSearchEnable={false}
               />
               <SelectDropDown
                 item={"vehicleType"}
@@ -45,11 +59,18 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
                 require={true}
                 isSearchEnable={false}
               />
-              <SelectDropDown
-                item={"vehicleBrand"}
-                options={vehicleBrands}
-                value={id && vehicleMaster?.[0]?.vehicleBrand}
+              <Input
+                item={"gstPercentage"}
+                value={id && vehicleMaster?.[0]?.gstPercentage}
+                type="number"
                 require={true}
+              />
+              <SelectDropDown
+                item={"status"}
+                options={["active", "inactive"]}
+                value={id && vehicleMaster?.[0]?.status}
+                require={true}
+                isSearchEnable={false}
               />
             </div>
           </div>
@@ -63,7 +84,7 @@ const VehicleMasterForm = ({ handleFormSubmit, loading }) => {
             />
           </div>
           <button
-            className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+            className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
             type="submit"
             disabled={loading || imagesUrl == ""}
           >

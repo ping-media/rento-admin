@@ -2,25 +2,30 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import CopyButton from "../../components/Buttons/CopyButton";
 import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../../Data";
-import { useEffect, useState } from "react";
-import PreLoader from "../../components/Skeleton/PreLoader";
+import { useCallback, useEffect, useState } from "react";
 import UserDocuments from "../../components/Form/User Components/UserDocuments";
 import { toogleKycModalActive } from "../../Redux/SideBarSlice/SideBarSlice";
-import {
-  addUserDocuments,
-  removeUserDocuments,
-} from "../../Redux/VehicleSlice/VehicleSlice";
+import { addUserDocuments } from "../../Redux/VehicleSlice/VehicleSlice";
 import { tableIcons } from "../../Data/Icons";
 import { Link } from "react-router-dom";
+import { DetailsStatusRow } from "../../components/Skeleton/DetailSkeleton";
 
-const BookingUserDetails = ({ data, userId }) => {
+const BookingUserDetails = ({ data, user }) => {
   const { token } = useSelector((state) => state.user);
   const { userDocuments } = useSelector((state) => state.vehicles);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
+  // if not of users data stop right here
+  if (Object.keys(user)?.length === 0) return null;
+
+  const { _id: userId } = user;
+
   // fetchDocument data
-  const handleFetchDocuments = async () => {
+  const handleFetchDocuments = useCallback(async () => {
+    if (!userId) return null;
+    if (loading) return;
+
     try {
       setLoading(true);
       const response = await getData(`/getDocument?userId=${userId}`, token);
@@ -34,23 +39,22 @@ const BookingUserDetails = ({ data, userId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, token, userDocuments, loading, dispatch]);
 
   useEffect(() => {
-    if (userId) {
-      handleFetchDocuments();
-    }
+    if (!userId) return;
+
+    handleFetchDocuments();
   }, [userId]);
 
-  useEffect(() => {
-    return () => {
-      dispatch(removeUserDocuments());
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     dispatch(removeUserDocuments());
+  //   };
+  // }, []);
 
   return (
     <>
-      {loading && <PreLoader />}
       {data?.user?.map((item, index) => (
         <div
           className={`flex justify-between items-center py-1.5 ${
@@ -58,11 +62,9 @@ const BookingUserDetails = ({ data, userId }) => {
           } border-gray-300`}
           key={index}
         >
-          <span className="font-semibold uppercase text-xs lg:text-sm">
-            {item?.key}
-          </span>{" "}
+          <span className="capitalize text-md">{item?.key}</span>{" "}
           <span
-            className={`text-gray-500 flex items-center text-xs lg:text-sm ${
+            className={`text-gray-500 flex items-center text-md ${
               item?.key === "Email" ? "" : "capitalize"
             }`}
           >
@@ -71,14 +73,18 @@ const BookingUserDetails = ({ data, userId }) => {
               item?.key === "Email" ||
               item?.key === "Alt Mobile Number") &&
               item?.value !== "NA" && <CopyButton textToCopy={item?.value} />}
+
             {/* data  */}
             {item.key === "Full Name" ? (
-              <Link
-                to={`/all-users/${userId}`}
-                className="hover:underline hover:text-theme"
-              >
-                {item?.value}
-              </Link>
+              <>
+                <CopyButton textToCopy={item?.value} />
+                <Link
+                  to={`/all-users/${userId}`}
+                  className="hover:underline hover:text-theme"
+                >
+                  {item?.value}
+                </Link>
+              </>
             ) : item.key === "Document Status" ? (
               <div className="flex gap-2 items-center">
                 {item?.value === "yes" ? (
@@ -120,8 +126,13 @@ const BookingUserDetails = ({ data, userId }) => {
           </span>
         </div>
       ))}
+
       {/* user documents  */}
-      <UserDocuments data={userDocuments?.[0]?.files} hookLoading={loading} />
+      {!loading ? (
+        <UserDocuments data={userDocuments?.[0]?.files} hookLoading={loading} />
+      ) : (
+        <DetailsStatusRow />
+      )}
     </>
   );
 };

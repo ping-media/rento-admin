@@ -1,17 +1,11 @@
 import { Link } from "react-router-dom";
 import { tableIcons } from "../../Data/Icons";
-import { useDispatch } from "react-redux";
-import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
-import { addBlockVehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
-// import MoreActionCell from "./MoreActionCell";
+// import { useDispatch } from "react-redux";
+// import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
+// import { addBlockVehicleId } from "../../Redux/VehicleSlice/VehicleSlice";
 
-const TableActions = ({
-  item,
-  // loadingStates,
-  // setLoadingStates,
-  handleDeleteVehicle,
-}) => {
-  const dispatch = useDispatch();
+const TableActions = ({ item, handleDeleteVehicle }) => {
+  // const dispatch = useDispatch();
   // for deleting the vehicle
   const handleDelete = (e, id) => {
     e.stopPropagation();
@@ -19,16 +13,16 @@ const TableActions = ({
   };
 
   // for blocking the vehicle
-  const handleBlockVehicle = (e, id) => {
-    e.stopPropagation();
-    dispatch(addBlockVehicleId(id));
-    dispatch(toggleVehicleServiceModal());
-  };
+  // const handleBlockVehicle = (e, id) => {
+  //   e.stopPropagation();
+  //   dispatch(addBlockVehicleId(id));
+  //   dispatch(toggleVehicleServiceModal());
+  // };
 
   return (
-    <td className="p-2 whitespace-nowrap text-sm items-center gap-1">
+    <td className="px-2 py-1 whitespace-nowrap text-sm items-center gap-1">
       <div className="flex">
-        {location.pathname == "/all-vehicles" && (
+        {/* {location.pathname == "/all-vehicles" && (
           <button
             type="button"
             className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:text-white hover:bg-gray-600 flex item-center"
@@ -37,12 +31,13 @@ const TableActions = ({
           >
             {tableIcons?.block}
           </button>
-        )}
+        )} */}
         {!(
           location.pathname == "/users-documents" ||
           location.pathname == "/payments" ||
           location.pathname == "/all-invoices" ||
-          location.pathname == "/all-bookings"
+          location.pathname == "/all-bookings" ||
+          location.pathname == "/logs"
         ) && (
           <Link
             className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:bg-indigo-600 flex item-center"
@@ -52,20 +47,12 @@ const TableActions = ({
             {tableIcons.edit}
           </Link>
         )}
-        {/* {location.pathname == "/all-bookings" && (
-        <>
-          <MoreActionCell
-            item={item}
-            loadingStates={loadingStates}
-            setLoadingStates={setLoadingStates}
-          />
-        </>
-      )} */}
         {!(
           location.pathname == "/users-documents" ||
           location.pathname == "/all-bookings" ||
           location.pathname == "/payments" ||
-          location.pathname == "/location-master"
+          location.pathname == "/location-master" ||
+          location.pathname == "/logs"
         ) && (
           <button
             className="p-1.5 rounded-full bg-white group transition-all duration-500 hover:bg-red-600 flex item-center"

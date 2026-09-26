@@ -1,17 +1,36 @@
 import { camelCaseToSpaceSeparated } from "../../utils/index";
 import React from "react";
-import CheckBoxInputToMultiple from "../InputAndDropdown/CheckBoxInputToMultiple";
+// import CheckBoxInputToMultiple from "../InputAndDropdown/CheckBoxInputToMultiple";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+
+const headerForBooking = [
+  { vehicleName: "vehicle" },
+  { BookingStartDateAndTime: "Pick Up" },
+  { BookingEndDateAndTime: "Drop Off" },
+  { bookingPrice: "Price" },
+];
+
+// const headerForVehicle = [{ currentBooking: "Booking Id" }];
+
+const headerForPayment = [
+  { payInitFrom: "Payment Type" },
+  { paymentgatewayOrderId: "Payment Order ID" },
+  { rrnNumber: "RRN Number" },
+];
+
+const pages = [
+  { page: "/all-bookings", header: headerForBooking },
+  { page: "/payments", header: headerForPayment },
+  // { page: "/all-vehicles", header: headerForVehicle },
+];
 
 const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
   const { loggedInRole } = useSelector((state) => state.user);
+  const location = useLocation();
 
-  const headerForBooking = [
-    { vehicleName: "vehicle" },
-    { BookingStartDateAndTime: "Pick Up" },
-    { BookingEndDateAndTime: "Drop Off" },
-    { bookingPrice: "Price" },
-  ];
+  const DynamicHeader = pages.find((p) => p.page === location.pathname);
+  const Header = DynamicHeader ? DynamicHeader.header : null;
 
   if (Columns?.length === 0) {
     return;
@@ -19,7 +38,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
 
   return (
     <>
-      {Columns?.length > 0 && location.pathname == "/all-vehicles" && (
+      {/* {Columns?.length > 0 && location.pathname == "/all-vehicles" && (
         <th
           scope="col"
           className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
@@ -29,18 +48,29 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             unique={"headerSelected"}
           />
         </th>
-      )}
+      )} */}
+
       <th
         scope="col"
         className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
       >
-        SL No.
+        SL
       </th>
+
+      {location.pathname === "/all-vehicles" && (
+        <th
+          scope="col"
+          className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+        >
+          Status
+        </th>
+      )}
+
       {Columns.filter(
         (item) =>
           !item.includes("status") &&
           !item.includes("Status") &&
-          !item.includes("Active")
+          !item.includes("Active"),
       ).map((item, index) => {
         if (item === "files") {
           const maxFiles =
@@ -52,7 +82,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
               {maxFiles.map((_, fileIndex) => (
                 <th
                   scope="col"
-                  className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                  className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
                   key={`Images-${fileIndex}`}
                 >
                   {`Images ${fileIndex + 1}`}
@@ -62,16 +92,17 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           );
         }
 
-        if (location?.pathname === "/all-bookings") {
-          const bookingHeader = headerForBooking.find(
-            (header) => Object.keys(header)[0] === item
+        if (Header !== null) {
+          const pageHeader = Header.find(
+            (header) => Object.keys(header)[0] === item,
           );
-          if (bookingHeader) {
-            const label = Object.values(bookingHeader)[0];
+
+          if (pageHeader) {
+            const label = Object.values(pageHeader)[0];
             return (
               <th
                 scope="col"
-                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
                 key={item}
               >
                 {label}
@@ -80,48 +111,69 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           }
         }
 
+        if (
+          location.pathname === "/all-vehicles" &&
+          item === "currentBooking"
+        ) {
+          return null;
+        }
+
+        if (location.pathname === "/all-vehicles" && item === "maintenance") {
+          return (
+            <th
+              scope="col"
+              className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              key={item}
+            >
+              Vehicle Status
+            </th>
+          );
+        }
+
         if (item === "userId") {
           return (
             <th
               scope="col"
-              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               key={"userId"}
             >
               {location.pathname == "/station-master" ? "Manager" : "User"}
             </th>
           );
         }
+
         if (item === "bookingPrice" && location.pathname === "/payments") {
           return (
-            <>
+            <React.Fragment key={"userPaymentRecived"}>
               <th
                 scope="col"
-                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
-                key={"userPaymentRecived"}
+                className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               >
                 Payment Recived
               </th>
               <th
                 scope="col"
-                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
                 key={"userPaid"}
               >
                 booking price
               </th>
-            </>
+            </React.Fragment>
           );
         }
+
         if (item === "openStartTime") {
           return (
             <th
               scope="col"
-              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               key={"openingHour"}
             >
               Opening Hours
             </th>
           );
         }
+
         if (
           location.pathname === "/all-invoices" ||
           location?.pathname === "/all-users" ||
@@ -131,7 +183,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             return (
               <th
                 scope="col"
-                className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+                className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
                 key={"userId"}
               >
                 User Name & Phone
@@ -142,12 +194,11 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             return null;
           }
         }
-        // if (item === "BookingStartDateAndTime" || item === "city") {
         if (item === "city") {
           return (
             <th
               scope="col"
-              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               key={
                 item === "BookingStartDateAndTime"
                   ? "startAndEndDate"
@@ -160,23 +211,26 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
             </th>
           );
         }
-        if (item === "isEmailVerified") {
+
+        // if (item === "isEmailVerified") {
+        if (item === "kycApproved") {
           return (
             <th
               scope="col"
-              className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+              className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
               key="UserVerification"
             >
-              User Verification
+              Verified
             </th>
           );
         }
+
         if (
-          // item === "BookingEndDateAndTime" ||
           item === "state" ||
           item === "isContactVerified" ||
           item === "isDocumentVerified" ||
-          item === "kycApproved" ||
+          item === "isEmailVerified" ||
+          // item === "kycApproved" ||
           item === "openEndTime"
         ) {
           return null;
@@ -184,7 +238,7 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
         return (
           <th
             scope="col"
-            className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+            className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
             key={index}
             onClick={() => sortData(item)}
           >
@@ -199,15 +253,17 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
         (item) =>
           item.includes("status") ||
           item.includes("Status") ||
-          item.includes("Active")
+          item.includes("Active"),
       ).map((item, index) => (
         <th
           scope="col"
-          className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+          className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
           key={`Status-${index}`}
           onClick={() => sortData(item)}
         >
-          {camelCaseToSpaceSeparated(item)}
+          {item === "isCouponActive"
+            ? "Status"
+            : camelCaseToSpaceSeparated(item)}
           {sortConfig.key === item &&
             (sortConfig.direction === "asc" ? "↑" : "↓")}
         </th>
@@ -219,12 +275,13 @@ const TableHeader = ({ Columns, sortConfig, sortData, newUpdatedData }) => {
           location?.pathname === "/payments" ||
           location?.pathname === "/all-pickup-image" ||
           location?.pathname === "/users-documents" ||
-          location.pathname == "/all-bookings"
+          location.pathname == "/all-bookings" ||
+          location.pathname == "/logs"
         ) &&
         loggedInRole !== "manager" && (
           <th
             scope="col"
-            className="p-3 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
+            className="p-2 text-left whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize cursor-pointer"
             key="Actions"
           >
             Actions

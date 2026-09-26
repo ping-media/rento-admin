@@ -5,36 +5,38 @@ import {
   removeLastTempId,
   updateTempId,
 } from "../../../Redux/VehicleSlice/VehicleSlice";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDebounce } from "../../../utils/Helper/debounce";
 
 const VehiclePlan = ({ collectedData, data }) => {
   const { tempIds } = useSelector((state) => state.vehicles);
   const [checkedPlans, setCheckedPlans] = useState({});
   const [planPrices, setPlanPrices] = useState({});
+  const [kmLimit, setKmLimit] = useState({});
   const [firstLoad, setFirstLoad] = useState(false);
   const newPlanPrice = useDebounce(planPrices, 500);
+  const newKmLimit = useDebounce(kmLimit, 500);
   const dispatch = useDispatch();
 
-  const handleCheckboxChange = (id) => {
+  const handleCheckboxChange = useCallback((id) => {
     setCheckedPlans((prev) => ({
       ...prev,
       [id]: !prev[id],
     }));
-  };
+  }, []);
 
-  const handleEditPlanId = (id, e) => {
+  const handleEditById = useCallback((id, e, setter) => {
     const value = typeof e === "number" ? e : Number(e.target.value);
-    setPlanPrices((prev) => ({
+    setter((prev) => ({
       ...prev,
       [id]: value,
     }));
-  };
+  }, []);
 
   // Respond to changes in checkedPlans state
   useEffect(() => {
     if (!firstLoad) return;
-    // console.log(collectedData);
+
     Object.keys(checkedPlans).forEach((id) => {
       const isChecked = checkedPlans[id];
       const existingPlan = tempIds.find((plan) => plan._id === id);
@@ -49,6 +51,7 @@ const VehiclePlan = ({ collectedData, data }) => {
               planPrice: planPrices[id] || 0,
               planName: otherPlanDetails?.planName,
               planDuration: otherPlanDetails?.planDuration,
+              kmLimit: otherPlanDetails?.kmLimit || 0,
             },
           ])
         );
@@ -69,19 +72,33 @@ const VehiclePlan = ({ collectedData, data }) => {
     }
   }, [newPlanPrice, checkedPlans, dispatch]);
 
+  // updating kmLimit for the selected plan
+  useEffect(() => {
+    if (newKmLimit) {
+      Object.keys(newKmLimit).forEach((id) => {
+        if (checkedPlans[id]) {
+          dispatch(updateTempId({ id, kmLimit: newKmLimit[id] }));
+        }
+      });
+    }
+  }, [newKmLimit, checkedPlans, dispatch]);
+
   // Initialize prefilled data
   useEffect(() => {
     if (data && data.length > 0) {
       const initialCheckedPlans = {};
       const initialPlanPrices = {};
+      const initialKmLimits = {};
 
       data.forEach((item) => {
         initialCheckedPlans[item._id] = true;
         initialPlanPrices[item._id] = item.planPrice || 0;
+        initialKmLimits[item._id] = item.kmLimit || 0;
       });
 
       setCheckedPlans(initialCheckedPlans);
       setPlanPrices(initialPlanPrices);
+      setKmLimit(initialKmLimits);
       dispatch(addTempIdsAll(data));
     }
     setFirstLoad(true);
@@ -98,7 +115,10 @@ const VehiclePlan = ({ collectedData, data }) => {
     <div className="flex flex-wrap items-center gap-2.5 my-2.5">
       {collectedData?.AllPlanDataId?.length > 0 ? (
         collectedData?.AllPlanDataId.map((plan) => (
-          <div className="w-[48%]" key={plan?._id}>
+          <div
+            className="flex flex-col w-fit lg:w-[48%] lg:flex-row gap-2 lg:gap-0"
+            key={plan?._id}
+          >
             <label
               className="inline-flex items-center whitespace-nowrap py-1.5 transition-all duration-300 ease-in-out"
               htmlFor={`checkbox_${plan?._id}`}
@@ -120,7 +140,17 @@ const VehiclePlan = ({ collectedData, data }) => {
               }`}
               placeholder="Enter Plan Price"
               value={planPrices[plan?._id] || ""}
-              onChange={(e) => handleEditPlanId(plan?._id, e)}
+              onChange={(e) => handleEditById(plan?._id, e, setPlanPrices)}
+              onKeyDown={handleKeyDown}
+            />
+            <input
+              type="number"
+              className={`rounded-md md:max-w-[25%] lg:max-w-[20%] px-4 py-1.5 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none ml-2 ${
+                checkedPlans[plan?._id] ? "" : "invisible"
+              }`}
+              placeholder="Enter Km Limit"
+              value={kmLimit[plan?._id] || ""}
+              onChange={(e) => handleEditById(plan?._id, e, setKmLimit)}
               onKeyDown={handleKeyDown}
             />
           </div>

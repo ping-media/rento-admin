@@ -6,6 +6,8 @@ import {
 } from "../Redux/SideBarSlice/SideBarSlice";
 import { toggleClearVehicle } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { handleAsyncError } from "./Helper/handleAsyncError";
+import { createTransform } from "redux-persist";
+import { format } from "date-fns";
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -102,14 +104,14 @@ const handleSignOutUser = (dispatch) => {
 const encryptData = (data) => {
   return CryptoJS.AES.encrypt(
     JSON.stringify(data),
-    import.meta.env.VITE_SECRET_KEY
+    import.meta.env.VITE_SECRET_KEY,
   ).toString();
 };
 
 const decryptData = (encryptedData) => {
   const bytes = CryptoJS.AES.decrypt(
     encryptedData,
-    import.meta.env.VITE_SECRET_KEY
+    import.meta.env.VITE_SECRET_KEY,
   );
   const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
   return JSON.parse(decryptedData);
@@ -151,6 +153,8 @@ const modifyUrl = (url) => {
 };
 
 const formatFullDateAndTime = (dateString) => {
+  if (!dateString) return "--";
+
   const date = new Date(dateString);
 
   // Format the date using Intl.DateTimeFormat with short month format
@@ -170,6 +174,13 @@ const formatFullDateAndTime = (dateString) => {
 const formatPrice = (price) => {
   return new Intl.NumberFormat("en-In", {
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(price);
+};
+
+const formatNumber = (price) => {
+  return new Intl.NumberFormat("en-In", {
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(price);
 };
@@ -224,7 +235,7 @@ const calculateTax = (amount, taxPercentage) => {
   const taxAmount = (taxPercentage / 100) * amount;
 
   // Round the result to 2 decimal places and return it
-  return parseInt(taxAmount);
+  return Math.round(taxAmount);
 };
 
 const formatDateForInvoice = (dateString) => {
@@ -242,7 +253,11 @@ const formatDateForInvoice = (dateString) => {
 
 const formatTimeStampToDate = (timestamp) => {
   // Convert to milliseconds
-  const date = new Date(timestamp * 1000);
+  const date =
+    String(timestamp).length === 10
+      ? new Date(timestamp * 1000) // seconds
+      : new Date(timestamp); // milliseconds
+  // const date = new Date(timestamp * 1000);
 
   // Extract day, month, and year
   const day = String(date.getDate()).padStart(2, "0"); // Adding leading zero
@@ -268,6 +283,55 @@ const formatTimeStampToDate = (timestamp) => {
   return formattedDateTime;
 };
 
+const formatTimeStampToDateNew = (timestamp) => {
+  if (timestamp === null || timestamp === undefined || timestamp === "") {
+    return "";
+  }
+
+  const ts = Number(timestamp);
+
+  let date;
+
+  if (!Number.isNaN(ts) && ts > 0) {
+    // numeric timestamp — detect seconds vs milliseconds
+    date = ts < 1e12 ? new Date(ts * 1000) : new Date(ts);
+  } else {
+    // ISO string or any other date string
+    date = new Date(timestamp);
+  }
+  // // force numeric conversion
+  // const ts = Number(timestamp);
+
+  // if (Number.isNaN(ts)) {
+  //   return "";
+  // }
+
+  // // detect seconds vs milliseconds
+  // const date =
+  //   ts < 1e12
+  //     ? new Date(ts * 1000) // seconds
+  //     : new Date(ts); // milliseconds
+
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear()).slice(-2);
+
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  const amPm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+
+  return `${day}/${month}/${year} ${String(hours).padStart(
+    2,
+    "0",
+  )}:${minutes} ${amPm}`;
+};
+
 const getDurationBetweenDates = (startDate, endDate) => {
   // Parse the dates
   const start = new Date(startDate);
@@ -279,7 +343,7 @@ const getDurationBetweenDates = (startDate, endDate) => {
   // Convert milliseconds to days, hours, minutes, and seconds
   const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
   const hours = Math.floor(
-    (diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    (diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
   );
   const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diffInMs % (1000 * 60)) / 1000);
@@ -325,7 +389,7 @@ const formatReadableDateTime = (dateString) => {
   return `${day} ${month} ${year} At ${formattedHours}:${formattedMinutes} ${period}`;
 };
 
-const getDurationInDays = (date1Str, date2Str) => {
+const getDurationInDays = (date1Str, date2Str, rounding = "floor") => {
   // Parse the input strings into Date objects
   const date1 = new Date(date1Str);
   const date2 = new Date(date2Str);
@@ -339,9 +403,10 @@ const getDurationInDays = (date1Str, date2Str) => {
   const differenceInMs = Math.abs(date2 - date1);
 
   // Convert milliseconds to days
-  const days = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
+  // const days = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
+  const days = differenceInMs / (1000 * 60 * 60 * 24);
 
-  return days;
+  return rounding === "ceil" ? Math.ceil(days) : Math.floor(days);
 };
 
 const formatDateTimeISTForUser = (input) => {
@@ -361,7 +426,7 @@ const formatDateTimeISTForUser = (input) => {
 
   // Format the time as per IST
   const formattedTime = new Date(
-    Date.UTC(year, istDate.getUTCMonth(), day, hours, minutes)
+    Date.UTC(year, istDate.getUTCMonth(), day, hours, minutes),
   )
     .toLocaleTimeString("en-US", {
       ...timeOptions,
@@ -431,7 +496,7 @@ const addDaysToDate = (dateString, days) => {
   const date = new Date(dateString);
   if (isNaN(date)) {
     throw new Error(
-      "Invalid date format. Please use a valid ISO 8601 date string."
+      "Invalid date format. Please use a valid ISO 8601 date string.",
     );
   }
   // Add the specified number of days to the date's timestamp
@@ -441,20 +506,26 @@ const addDaysToDate = (dateString, days) => {
 };
 
 const calculatePriceForExtendBooking = (
-  perDayCost,
-  extensionDays,
-  extraAddonPrice = 0
+  totalRentalCost,
+  // extensionDays,
+  extraAddonPrice = 0,
+  isGSTActive = false,
+  GSTPercentage = 18,
 ) => {
-  const bookingPrice = Number(perDayCost) * Number(extensionDays);
+  const bookingPrice = Number(totalRentalCost);
   const AddonPrice = Number(extraAddonPrice);
   const newAddOnPrice = AddonPrice;
   const newBookingPrice = bookingPrice + newAddOnPrice;
-  const tax = calculateTax(newBookingPrice, 18);
+  let tax = 0;
+  if (isGSTActive) {
+    tax = calculateTax(newBookingPrice, GSTPercentage);
+  }
   const extendAmount = Number(newBookingPrice) + Number(tax);
   return extendAmount;
 };
 
 const addOneMinute = (dateTimeString) => {
+  if (!dateTimeString) return "--";
   // Parse the input date-time string into a Date object
   const date = new Date(dateTimeString);
 
@@ -541,6 +612,29 @@ const getDurationInDaysAndHours = (date1Str, date2Str) => {
   return { days, hours };
 };
 
+const newGetDurationInDaysAndHours = (fromStr, toStr) => {
+  const from = new Date(fromStr);
+  const to = new Date(toStr);
+
+  if (isNaN(from) || isNaN(to)) {
+    throw new Error("Invalid date format");
+  }
+
+  // IMPORTANT: keep the sign
+  const diffMs = to.getTime() - from.getTime();
+
+  const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+  const days = Math.trunc(totalHours / 24);
+  const hours = totalHours % 24;
+
+  return {
+    days,
+    hours,
+    totalHours, // keep this, very useful
+  };
+};
+
 const removeSecondsFromDateAndTime = (dateStr) => {
   // Convert input to a Date object
   let date = new Date(dateStr);
@@ -573,8 +667,8 @@ const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-const getFullYearMonthOptions = () => {
-  const year = new Date().getFullYear();
+const getFullYearMonthOptions = (count = 12) => {
+  const now = new Date();
   const monthNames = [
     "January",
     "February",
@@ -590,20 +684,42 @@ const getFullYearMonthOptions = () => {
     "December",
   ];
 
-  return monthNames.map((month) => `${month} ${year}`);
+  const options = [];
+
+  for (let i = 0; i < count; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    options.push(`${month} ${year}`);
+  }
+
+  return options;
 };
 
 const calculateTotalAddOnPrice = (addOns, days) => {
-  return addOns.reduce((total, item) => {
-    const multiplied = item.amount * days;
+  return addOns.reduce(
+    (acc, item) => {
+      const multiplied = item.amount * days;
 
-    const finalAmount =
-      item.maxAmount > 0 && multiplied > item.maxAmount
-        ? item.maxAmount
-        : multiplied;
+      const finalAmount =
+        item.maxAmount > 0 && multiplied > item.maxAmount
+          ? item.maxAmount
+          : multiplied;
 
-    return total + finalAmount;
-  }, 0);
+      const taxAmount =
+        item.gstStatus === "active" && item.gstPercentage
+          ? calculateTax(finalAmount, item.gstPercentage)
+          : 0;
+
+      const addonTotal = finalAmount + taxAmount;
+
+      acc.totalAddonAmount += addonTotal;
+      acc.totalAddonTax += taxAmount;
+
+      return acc;
+    },
+    { totalAddonAmount: 0, totalAddonTax: 0 },
+  );
 };
 
 const formatMilliseconds = (ms) => {
@@ -617,9 +733,171 @@ const formatMilliseconds = (ms) => {
   });
 };
 
+const encryptedAdminTransform = createTransform(
+  // transform state on its way to being serialized and persisted
+  (inboundState) => {
+    const encrypted = CryptoJS.AES.encrypt(
+      JSON.stringify(inboundState),
+      import.meta.env.VITE_SECRET_KEY,
+    ).toString();
+    return encrypted;
+  },
+
+  // transform state being rehydrated
+  (outboundState) => {
+    try {
+      const bytes = CryptoJS.AES.decrypt(
+        outboundState,
+        import.meta.env.VITE_SECRET_KEY,
+      );
+      const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
+      return JSON.parse(decryptedStr);
+    } catch (error) {
+      console.error("Failed to decrypt admin state:", error);
+      return { email: null, userName: null, role: null, id: null };
+    }
+  },
+);
+
+const formatTimeWithoutSeconds = (timeStr) => {
+  const [time, period] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+  const seconds = new Date().getSeconds();
+
+  // Convert to 24-hour format
+  if (period === "PM" && hours !== 12) {
+    hours += 12;
+  } else if (period === "AM" && hours === 12) {
+    hours = 0;
+  }
+  // Round up to next hour if minutes or seconds > 0
+  if (minutes > 0 && seconds > 0) {
+    hours = (hours + 1) % 24;
+  }
+
+  // Convert back to 12-hour format
+  let formattedHour = hours % 12;
+  formattedHour = formattedHour === 0 ? 12 : formattedHour;
+  const formattedPeriod = hours >= 12 ? "PM" : "AM";
+
+  return `${formattedHour}:00 ${formattedPeriod}`;
+};
+
+const nextDayFromCurrent = (date, noOfDay = 1) => {
+  const nextDay = new Date(date);
+  nextDay.setDate(nextDay.getDate() + noOfDay);
+  return nextDay;
+};
+
+const parseTime = (timeString) => {
+  // Get the current date to attach to the time
+  const today = new Date();
+
+  // Extract the hours and minutes, and AM/PM part from the timeString
+  const [time, modifier] = timeString.split(/(AM|PM)/i);
+  let [hours, minutes] = time.split(":").map(Number);
+
+  // Adjust hours based on AM/PM
+  if (modifier.toLowerCase() === "pm" && hours < 12) {
+    hours += 12; // Convert PM hours to 24-hour format
+  } else if (modifier.toLowerCase() === "am" && hours === 12) {
+    hours = 0; // Convert 12 AM to 00 hours (midnight)
+  }
+
+  // Create a new Date object with today's date and the parsed time
+  const parsedDate = new Date(today.setHours(hours, minutes, 0, 0));
+
+  return parsedDate;
+};
+
+const compressImageToBlob = (file, quality = 0.7) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+    };
+
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+
+        // Convert canvas to blob (JPEG compression)
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Canvas toBlob failed"));
+            }
+          },
+          "image/jpeg",
+          quality,
+        );
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    img.onerror = (err) => {
+      reject(err);
+    };
+
+    reader.onerror = (err) => {
+      reject(err);
+    };
+
+    reader.readAsDataURL(file);
+  });
+};
+
+const getRoundedDateTime = (daysToAdd = 0) => {
+  const now = new Date();
+
+  // Round up to the next full hour
+  now.setMinutes(0, 0, 0); // clear minutes, seconds, ms
+  now.setHours(now.getHours() + 1); // go to next hour
+
+  // Add optional days
+  if (daysToAdd > 0) {
+    now.setDate(now.getDate() + daysToAdd);
+  }
+
+  // Format to YYYY-MM-DDTHH:MM
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const date = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${date}T${hours}:${minutes}`;
+};
+
+const millisecToReadableFormat = (timestamp) => {
+  if (!timestamp) return;
+
+  const formatted = format(new Date(timestamp), "MMM dd, yyyy, hh:mm a");
+  return formatted;
+};
+
+const isValidIndianMobile = (value) => {
+  return /^[6-9]\d{9}$/.test(String(value));
+};
+
+const hasUnpaid = (list) =>
+  list?.some((item) => item?.status !== "paid") ?? false;
+
 export {
   formatDate,
+  hasUnpaid,
   useIsMobile,
+  millisecToReadableFormat,
   timeStampUserFormated,
   handleKeyDown,
   handleSignOutUser,
@@ -659,4 +937,14 @@ export {
   getFullYearMonthOptions,
   calculateTotalAddOnPrice,
   formatMilliseconds,
+  encryptedAdminTransform,
+  formatTimeWithoutSeconds,
+  nextDayFromCurrent,
+  parseTime,
+  compressImageToBlob,
+  getRoundedDateTime,
+  formatNumber,
+  formatTimeStampToDateNew,
+  newGetDurationInDaysAndHours,
+  isValidIndianMobile,
 };

@@ -4,12 +4,34 @@ import userImage from "../../assets/logo/user.png";
 import { toggleSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { tableIcons } from "../../Data/Icons";
 import HeaderMenuList from "./HeaderMenuList";
+import { Link, useLocation, useParams } from "react-router-dom";
+import BackButton from "../../components/Buttons/BackButton";
+import TitleAndButton from "./TitleAndButton";
+import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
+
+const NON_TITLE_PAGE = [
+  "/dashboard",
+  "/notifications",
+  "/profile",
+  "/settings",
+];
+
+const isDev = import.meta.env.VITE_ENV === "development";
 
 const Header = () => {
+  const { id } = useParams();
   const [isVisible, setIsVisible] = useState(false);
   const dispatch = useDispatch();
   const adminRef = useRef(null);
   const { loggedInRole, userStation } = useSelector((state) => state.user);
+  const { filters } = useSelector((state) => state.pagination);
+  const { vehicleMaster } = useSelector((state) => state.vehicles);
+  const location = useLocation();
+
+  const isIDBasedPage =
+    (id ?? "")?.trim() !== "" ||
+    location.pathname.includes("/add-new") ||
+    NON_TITLE_PAGE.some((page) => location.pathname.startsWith(page));
 
   //for dropdown menu
   useEffect(() => {
@@ -64,15 +86,57 @@ const Header = () => {
               <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
           </button>
+
+          {!isIDBasedPage && <TitleAndButton className="flex md:hidden" />}
+
+          {/* for showing booking id in sidebar  */}
+          {location.pathname.includes("/all-bookings/details/") && (
+            <>
+              <BackButton endpoint={"/all-bookings"} />
+              <div className="relative capitalize shadow-md rounded-xl flex items-center gap-2 px-4 py-2.5 lg:py-3 dark:bg-gray-700">
+                <p className="text-theme text-base uppercase font-medium">
+                  Booking Id:
+                </p>
+                <p className="text-base">
+                  {vehicleMaster && vehicleMaster?.length > 0
+                    ? vehicleMaster[0]?.bookingId
+                    : "--"}
+                </p>
+              </div>
+            </>
+          )}
         </div>
+
         {/* user menu */}
         <div className="flex gap-2 items-center">
-          {loggedInRole && loggedInRole === "manager" && (
-            <div className="relative capitalize hover:shadow-none shadow-md rounded-xl cursor-pointer flex items-center gap-2 px-4 py-2.5 lg:py-3 dark:bg-gray-700">
-              {tableIcons?.map}{" "}
-              {userStation?.stationName || "No Station Assign"}
-            </div>
+          {isDev && !location.pathname.includes("/all-bookings/details/") && (
+            <Link
+              className="relative border-2 rounded-md hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-2 dark:bg-gray-700"
+              to={"/logs"}
+            >
+              View Logs
+            </Link>
           )}
+
+          {/* clearing extra filters in booking page */}
+          {location.pathname === "/all-bookings" && filters !== null && (
+            <button
+              className="relative border-2 rounded-md hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-2 dark:bg-gray-700"
+              onClick={() => dispatch(handleRestPagination())}
+            >
+              <span className="text-theme">X</span> Clear filters
+            </button>
+          )}
+
+          {loggedInRole &&
+            loggedInRole === "manager" &&
+            !location.pathname.includes("/all-bookings/details/") && (
+              <div className="relative capitalize hover:shadow-none shadow-md rounded-xl cursor-pointer hidden md:flex items-center gap-2 px-4 py-2.5 lg:py-3 dark:bg-gray-700">
+                {tableIcons?.map}{" "}
+                {userStation?.stationName || "No Station Assign"}
+              </div>
+            )}
+
           <button
             className="relative border-2 rounded-full hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-1.5 dark:bg-gray-700"
             ref={adminRef}

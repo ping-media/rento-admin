@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import InputDateAndTime from "../../InputAndDropdown/InputDateAndTime";
+import { useEffect, useState, useRef } from "react";
 import InputSearch from "../../InputAndDropdown/InputSearch";
 import SelectDropDownVehicle from "../../InputAndDropdown/SelectDropDownVehicle";
 import { getData } from "../../../Data/index";
@@ -10,34 +9,66 @@ import { endPointBasedOnKey } from "../../../Data/commonData";
 import SelectDropDown from "../../InputAndDropdown/SelectDropDown";
 import { fetchStationBasedOnLocation } from "../../../Data/Function";
 import { isDuration24Hours } from "../../../utils/index";
+import { DateRange } from "../../../components/DateTimePicker/DateRange";
+import { BookingPlan } from "./BookingPlan";
 
-const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
-  const [userId, setUserId] = useState("");
-  const [vehicleId, setVehicleId] = useState("");
-  const [stationId, setStationId] = useState("");
-  const [bookingStartDate, setBookingStartDate] = useState("");
-  const [bookingEndDate, setBookingEndDate] = useState("");
-  const [selectedVehicle, setSlectedVehicle] = useState(null);
+const BookingStepOne = ({
+  data,
+  vehicleMaster,
+  token,
+  onNext,
+  setFormData,
+}) => {
+  const [userId, setUserId] = useState(data?.userId || "");
+  const [vehicleId, setVehicleId] = useState(data?.vehicleId || "");
+  const [stationId, setStationId] = useState(data?.stationId || "");
+  const [bookingStartDate, setBookingStartDate] = useState(
+    data?.bookingStartDate || "",
+  );
+  const [bookingEndDate, setBookingEndDate] = useState(
+    data?.bookingEndDate || "",
+  );
+  const [selectedVehicle, setSlectedVehicle] = useState(
+    data?.selectedVehicle || null,
+  );
+  const [isLocationSelected, setIsLocationSelected] = useState(
+    data?.isLocationSelected || "",
+  );
+  const [duration, setDuration] = useState(data?.duration || 1);
+  const [selectedPackage, setSelectedPackage] = useState(data?.duration || 1);
   const [loading, setLoading] = useState(null);
   //vehicle suggestion list
   const [suggestedData, setSuggestionData] = useState(null);
   const [collectedData, setCollectedData] = useState(null);
   const [stationData, setStationData] = useState(null);
   const [error, setError] = useState("");
-  const [isLocationSelected, setIsLocationSelected] = useState("");
+
   const { loggedInRole, userStation } = useSelector((state) => state.user);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
   const dispatch = useDispatch();
 
-  const handleNext = () => {
-    onNext({
+  // Update parent formData whenever any value changes
+  useEffect(() => {
+    setFormData({
       userId,
       vehicleId,
+      stationId,
       bookingStartDate,
       bookingEndDate,
       selectedVehicle,
+      isLocationSelected,
+      duration,
     });
-  };
+  }, [
+    userId,
+    vehicleId,
+    stationId,
+    bookingStartDate,
+    bookingEndDate,
+    selectedVehicle,
+    isLocationSelected,
+    duration,
+  ]);
 
   //updating station based on location id
   useEffect(() => {
@@ -47,14 +78,21 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
         isLocationSelected,
         setStationData,
         token,
-        setLoading
+        setLoading,
       );
     }
   }, [isLocationSelected]);
 
   // getting free vehicle btw two dates through this
+  const fetchDebounceRef = useRef(null);
+
   useEffect(() => {
-    const fetchData = async () => {
+    // Clear any pending debounced call
+    if (fetchDebounceRef.current) {
+      clearTimeout(fetchDebounceRef.current);
+    }
+
+    fetchDebounceRef.current = setTimeout(async () => {
       if (
         (loggedInRole === "admin" &&
           bookingStartDate &&
@@ -78,13 +116,10 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
               ? `stationId=${userStation?.stationId}`
               : `stationId=${stationId}`;
 
-          // const response = await getData(
-          //   `/getVehicleTblData?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&page=1&limit=100`
-          // );
-          let endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&page=1&limit=50`;
+          let endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&includeUnavailable=true&page=1&limit=50`;
 
           if (vehiclesFilter?.bookingVehicleName !== "") {
-            endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&search=${vehiclesFilter?.bookingVehicleName}&page=1&limit=50`;
+            endpoint = `/getAllVehiclesAvailable?BookingStartDateAndTime=${bookingStartDate}&BookingEndDateAndTime=${bookingEndDate}&${changeEndPointBasedOnRole}&search=${vehiclesFilter?.bookingVehicleName}&includeUnavailable=true&page=1&limit=50`;
           }
 
           const response = await getData(endpoint);
@@ -100,9 +135,13 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
           setLoading(false);
         }
       }
-    };
+    }, 500); // 500ms debounce
 
-    fetchData();
+    return () => {
+      if (fetchDebounceRef.current) {
+        clearTimeout(fetchDebounceRef.current);
+      }
+    };
   }, [
     bookingStartDate,
     bookingEndDate,
@@ -118,7 +157,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
   const fetchCollectedData = async (locationUrl) => {
     const locationResponse = await getData(
       endPointBasedOnKey[locationUrl],
-      token
+      token,
     );
 
     if (locationResponse) {
@@ -144,7 +183,7 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
             <SelectDropDown
               item={"locationId"}
               options={collectedData?.locationId?.filter(
-                (location) => location?.locationStatus !== "inactive"
+                (location) => location?.locationStatus !== "inactive",
               )}
               setIsLocationSelected={setIsLocationSelected}
               require={true}
@@ -153,13 +192,32 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
           <div className="w-full lg:w-[48%]">
             <SelectDropDown
               item={"stationId"}
-              options={stationData && stationData}
+              options={
+                stationData &&
+                stationData.filter((station) => station?.status !== "inactive")
+              }
               setIsLocationSelected={setStationId}
               require={true}
             />
           </div>
         </>
       )}
+
+      <DateRange
+        {...{
+          error,
+          setBookingStartDate,
+          setBookingEndDate,
+          duration,
+          setDuration,
+          selectedPackage,
+          setSelectedPackage,
+        }}
+        className="lg:w-[48%]"
+      />
+
+      <BookingPlan {...{ duration, setDuration }} />
+
       <div className="w-full lg:w-[48%]">
         <InputSearch
           item={"User"}
@@ -168,38 +226,6 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
           require={true}
           setValueChanger={setUserId}
         />
-      </div>
-      <div className="w-full lg:w-[48%]">
-        <InputDateAndTime
-          item={"BookingStartDateAndTime"}
-          name={"BookingStartDateAndTime"}
-          require={true}
-          setValueChanger={setBookingStartDate}
-        />
-        <p
-          className={`italic text-sm ${
-            error ? "text-theme" : "text-gray-400"
-          } my-1`}
-        >
-          {error ||
-            "Always select time in round hours (e.g., 2:00, 3:00, etc.)."}
-        </p>
-      </div>
-      <div className="w-full lg:w-[48%]">
-        <InputDateAndTime
-          item={"BookingEndDateAndTime"}
-          namme={"BookingEndDateAndTime"}
-          require={true}
-          setValueChanger={setBookingEndDate}
-        />
-        <p
-          className={`italic text-sm ${
-            error ? "text-theme" : "text-gray-400"
-          } my-1`}
-        >
-          {error ||
-            "Always select time in round hours (e.g., 2:00, 3:00, etc.)."}
-        </p>
       </div>
       <div className="w-full lg:w-[48%]">
         <SelectDropDownVehicle
@@ -211,19 +237,6 @@ const BookingStepOne = ({ data, vehicleMaster, token, onNext }) => {
           require={true}
         />
       </div>
-      <button
-        className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
-        type="button"
-        onClick={handleNext}
-        disabled={
-          userId === "" ||
-          vehicleId === "" ||
-          bookingStartDate === "" ||
-          bookingEndDate === ""
-        }
-      >
-        Continue
-      </button>
     </>
   );
 };

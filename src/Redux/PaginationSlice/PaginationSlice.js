@@ -4,10 +4,14 @@ const initialState = {
   page: 1,
   limit: 100,
   searchTerm: null,
+  stationName: null,
+  filters: null,
+  activeFilterName: null,
   searchType: "all",
   vehiclesFilter: {
     vehicleName: "",
     search: "",
+    stationId: "",
     maintenanceType: "",
     bookingVehicleName: "",
     couponName: "",
@@ -33,11 +37,20 @@ const PaginationSlice = createSlice({
     handleRestSearchTerm: (state) => {
       state.searchTerm = null;
     },
+    setFilters: (state, action) => {
+      state.filters = action.payload;
+    },
+    setActiveFilterName: (state, action) => {
+      state.activeFilterName = action.payload;
+    },
     setVehicleName: (state, action) => {
       state.vehiclesFilter.vehicleName = action.payload;
     },
     setSearch: (state, action) => {
       state.vehiclesFilter.search = action.payload;
+    },
+    setStationId: (state, action) => {
+      state.vehiclesFilter.stationId = action.payload;
     },
     setMaintenanceType: (state, action) => {
       state.vehiclesFilter.maintenanceType = action.payload;
@@ -57,9 +70,13 @@ const PaginationSlice = createSlice({
     resetVehiclesFilter: (state) => {
       state.vehiclesFilter.vehicleName = "";
       state.vehiclesFilter.search = "";
+      state.vehiclesFilter.stationId = "";
       state.vehiclesFilter.maintenanceType = "";
       state.vehiclesFilter.bookingVehicleName = "";
       state.vehiclesFilter.couponName = "";
+    },
+    handleChangeStationName: (state, action) => {
+      state.stationName = action.payload;
     },
     handleRestPagination: () => initialState,
   },
@@ -75,12 +92,16 @@ export const {
   handleRestPagination,
   setVehicleName,
   setSearch,
+  setStationId,
   setMaintenanceType,
   resetVehiclesFilter,
   setBookingVehicleName,
   setCouponName,
   resetCouponName,
   resetBookingVehicleName,
+  setFilters,
+  handleChangeStationName,
+  setActiveFilterName,
 } = PaginationSlice.actions;
 
 export default PaginationSlice.reducer;

@@ -1,30 +1,17 @@
 import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
 import { useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { tableIcons } from "../../../Data/Icons";
 import { deleteDataById } from "../../../Data/index";
 import { handleUpdateImageData } from "../../../Redux/VehicleSlice/VehicleSlice";
-import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
-import PreLoader from "../../../components/Skeleton/PreLoader";
 import { Link, useParams } from "react-router-dom";
+import PhotoView from "./PhotoView";
 
 const UserDocuments = ({ data, dataId, hookLoading }) => {
   const [loading, setLoading] = useState(false);
   const { id } = useParams();
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (data?.length > 0) {
-      const lightbox = new PhotoSwipeLightbox({
-        gallery: "#user-documents-gallery",
-        children: "a",
-        pswpModule: () => import("photoswipe"),
-      });
-      lightbox.init();
-      return () => lightbox.destroy();
-    }
-  }, [data]);
 
   // delete image function
   const handleDeleteDocument = async (id, item) => {
@@ -47,13 +34,35 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
     }
   };
 
+  if (hookLoading || loading) {
+    return (
+      <div className="w-full">
+        <div className="flex items-center gap-2 flex-wrap mx-auto">
+          {[...Array(3)].map((_, index) => (
+            <div
+              key={index}
+              className="relative w-42 md:w-52 h-40 rounded-md overflow-hidden border border-gray-200 bg-gray-100 animate-pulse"
+            >
+              {/* image skeleton */}
+              <div className="w-full h-full bg-gray-300" />
+
+              {/* delete button skeleton */}
+              <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-gray-200 border border-gray-300" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="w-full">
       {!location.pathname.includes("/all-bookings/details/") && (
-        <div className="flex items-center justify-between">
+        <div className="flex w-full items-center justify-between">
           <h2 className="mb-2 uppercase text-theme font-bold text-lg">
             User Documents ({data?.length || 0})
           </h2>
+
           {data?.length < 5 && (
             <Link
               className="bg-theme px-4 py-2 rounded-lg text-gray-100 flex items-center hover:bg-theme-dark transition duration-200 ease-in-out"
@@ -65,62 +74,39 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
           )}
         </div>
       )}
-      {loading && <PreLoader />}
-      {!hookLoading && data?.length > 0 ? (
-        <div
-          id="user-documents-gallery"
-          className="flex items-center gap-2 flex-wrap"
-        >
-          {data.map((item) => (
-            <div
-              className={`relative ${
-                dataId ? "w-52" : "w-auto"
-              } border-2 rounded-md p-1 h-full`}
-              key={item?._id}
-            >
-              {dataId && (
-                <button
-                  className="absolute right-3 z-20"
-                  type="button"
-                  onClick={() => handleDeleteDocument(dataId, item)}
-                  disabled={loading}
-                >
-                  {tableIcons.delete}
-                </button>
-              )}
-              {!location.pathname.includes("/all-bookings/details/") ? (
-                <a
-                  href={item.imageUrl}
-                  data-pswp-width="1920"
-                  data-pswp-height="1080"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img
-                    src={item.imageUrl}
-                    alt={item.fileName}
-                    className="w-full h-full object-contain brightness-95"
-                  />
-                </a>
+
+      <div
+        className="flex items-center gap-2 flex-wrap mx-auto"
+        id="user-documents-gallery"
+      >
+        {(data ?? []).length > 0 ? (
+          (data ?? []).map((item) => (
+            <React.Fragment key={item?._id}>
+              {dataId ? (
+                <PhotoView
+                  item={item}
+                  className="w-42 md:w-52 max-h-40"
+                  uniqueId="user-documents-gallery"
+                  variant={"full"}
+                  deleteFn={handleDeleteDocument}
+                  dataId={dataId}
+                />
               ) : (
-                <a
-                  href={item.imageUrl}
-                  data-pswp-width="1920"
-                  data-pswp-height="1080"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1"
-                >
-                  {tableIcons?.image}
-                  {item?.fileName?.split("_")[3]}
-                </a>
+                <PhotoView
+                  item={item}
+                  className="w-20 h-20 flex items-center justify-center"
+                  uniqueId="user-documents-gallery"
+                  variant={"full"}
+                />
               )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="italic text-sm my-2 text-gray-400">No documents found.</p>
-      )}
+            </React.Fragment>
+          ))
+        ) : (
+          <p className="italic text-base text-center w-full my-2 text-gray-400">
+            No documents found.
+          </p>
+        )}
+      </div>
     </div>
   );
 };

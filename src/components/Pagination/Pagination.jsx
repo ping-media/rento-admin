@@ -1,6 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
 import { handleChangePage } from "../../Redux/PaginationSlice/PaginationSlice";
-// import { ScrollTopAfterEvent } from "../utils/utilFunction";
 
 const Pagination = ({ totalNumberOfPages, currentPage, setPageChanger }) => {
   const { limit, page } = useSelector((state) => state.pagination);

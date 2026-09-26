@@ -2,7 +2,7 @@ import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleRideEndModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postData } from "../../Data/index";
 import {
@@ -11,17 +11,21 @@ import {
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import {
   formatDateToISO,
+  formatNumber,
   formatPrice,
   getDurationInDaysAndHours,
+  hasUnpaid,
+  newGetDurationInDaysAndHours,
 } from "../../utils/index";
 import { useDebounce } from "../../utils/Helper/debounce";
 import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
 import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
+import { tableIcons } from "../../Data/Icons";
 
 const RideEndModal = ({ id }) => {
   const { isRideEndModalActive } = useSelector((state) => state.sideBar);
   const { vehicleMaster, vehiclePickupImage } = useSelector(
-    (state) => state.vehicles
+    (state) => state.vehicles,
   );
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
@@ -37,102 +41,152 @@ const RideEndModal = ({ id }) => {
   const meterDebounceValue = useDebounce(EndMeterReading, 300);
   const dispatch = useDispatch();
 
+  const booking = useMemo(() => vehicleMaster?.[0] ?? null, [vehicleMaster]);
+
+  const pickupData = useMemo(() => {
+    const vehiclePickupImageData =
+      vehiclePickupImage?.[0]?.data?.updatedData ?? [];
+    const vehicleMasterPickupImageData =
+      vehicleMaster?.[0]?.pickupImage?.data?.updatedData ?? [];
+
+    return vehiclePickupImageData.length > 0
+      ? vehiclePickupImageData
+      : vehicleMasterPickupImageData.length > 0
+        ? vehicleMasterPickupImageData
+        : [];
+  }, [vehiclePickupImage, vehicleMaster]);
+
+  const previousVehiclesKm = useMemo(() => {
+    return pickupData.reduce((sum, entry) => {
+      const ran = Math.max(
+        0,
+        Number(entry.oldVehicleEndMeterReading || 0) -
+          Number(entry.startMeterReading || 0),
+      );
+      return sum + ran;
+    }, 0);
+  }, [pickupData]);
+
+  const hasVehicleChanges = pickupData.length > 0;
+
+  if (!booking) return null;
+
   const calculateLateFeeBeforeRidend = () => {
     const {
       BookingStartDateAndTime,
       BookingEndDateAndTime,
       vehicleBasic,
       bookingPrice,
-      extendBooking,
-    } = vehicleMaster[0];
-    // void calulating the rate before end date
-    const isCurrentDateIsSmall =
-      BookingEndDateAndTime.split("T")[0] >
-      formatDateToISO(new Date()).split("T")[0];
+    } = vehicleMaster?.[0];
 
-    const newBookingEndDateAndTime = extendBooking?.originalEndDate
-      ? extendBooking?.originalEndDate
-      : BookingEndDateAndTime;
+    const nowIso = formatDateToISO(new Date()).replace(".000Z", "Z");
 
-    const bookingDuration = getDurationInDaysAndHours(
-      BookingStartDateAndTime,
-      newBookingEndDateAndTime
-    );
-    let extendBookingDuration = null;
+    const bookingStartDate = BookingStartDateAndTime.split("T")[0];
+    const bookingEndDate = BookingEndDateAndTime.split("T")[0];
+    const bookingEndTime = BookingEndDateAndTime.split("T")[1];
 
-    if (extendBooking?.originalEndDate) {
-      extendBookingDuration = getDurationInDaysAndHours(
-        extendBooking?.originalEndDate,
-        BookingEndDateAndTime
-      );
-    }
+    const nowDate = nowIso.split("T")[0];
+    const nowTime = nowIso.split("T")[1];
 
-    const duration = getDurationInDaysAndHours(
-      BookingEndDateAndTime,
-      formatDateToISO(new Date()).replace(".000Z", "Z")
-    );
-
+    /* ---------------------------------
+     REFUND LOGIC
+     --------------------------------- */
     let refundAmount = 0;
-    let extensionAmount = 0;
-    if (isCurrentDateIsSmall) {
-      const totalPrice =
-        bookingPrice?.discountTotalPrice > 0
-          ? bookingPrice?.discountTotalPrice
-          : bookingPrice?.totalPrice;
-      if (Number(bookingDuration?.days) > 0) {
-        refundAmount =
-          (Number(totalPrice) / Number(bookingDuration?.days)) *
-          Number(duration?.days);
-      } else if (extendBookingDuration !== null) {
-        if (bookingPrice?.extendAmount?.length === 0) return;
-        const totalAmount =
-          bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
-            ?.status === "paid"
-            ? bookingPrice?.extendAmount[bookingPrice?.extendAmount?.length - 1]
-                ?.amount
-            : 0;
-        if (totalAmount > 0) {
-          extensionAmount =
-            (Number(totalAmount) / Number(extendBookingDuration?.days)) *
-            Number(duration?.days);
-        }
+
+    const totalPrice =
+      bookingPrice?.discountTotalPrice > 0
+        ? Number(bookingPrice.discountTotalPrice)
+        : Number(bookingPrice?.totalPrice || 0);
+
+    // CASE 1: Same-day close → FULL refund
+    if (nowDate === bookingStartDate) {
+      refundAmount = totalPrice;
+    }
+
+    // CASE 2: Close between start & end → per-day refund
+    else if (nowDate > bookingStartDate && nowDate < bookingEndDate) {
+      const totalDurationDays = getDurationInDaysAndHours(
+        BookingStartDateAndTime,
+        BookingEndDateAndTime,
+      ).days;
+
+      const remainingDurationDays = getDurationInDaysAndHours(
+        nowIso,
+        BookingEndDateAndTime,
+      ).days;
+
+      if (totalDurationDays > 0 && remainingDurationDays > 0) {
+        refundAmount = Math.round(
+          totalPrice * (remainingDurationDays / totalDurationDays),
+        );
       }
-      const totalRefundAmount =
-        (refundAmount > 0 ? refundAmount : 0) +
-        (extensionAmount > 0 ? extensionAmount : 0);
-      setRefundAmount(Math.round(totalRefundAmount));
     }
 
-    let lateFeeBasedOnHour;
-    if (isCurrentDateIsSmall !== true) {
-      lateFeeBasedOnHour =
-        Number(vehicleBasic?.lateFee) *
-          (duration?.days * 24 + duration?.hours) || 0;
+    // CASE 3: On or after booking end → NO refund
+    else {
+      refundAmount = 0;
     }
 
-    const lateKm =
-      (Number(meterDebounceValue) > Number(oldMeterReading) &&
-        Number(meterDebounceValue) - Number(oldMeterReading)) ||
-      0;
+    setRefundAmount(refundAmount);
 
-    const daysBtwDates = getDurationInDaysAndHours(
-      BookingStartDateAndTime,
-      BookingEndDateAndTime
+    /* ---------------------------------
+     HOUR LATE FEE
+     --------------------------------- */
+    let lateFeeBasedOnHour = 0;
+
+    if (
+      bookingEndDate < nowDate ||
+      (bookingEndDate === nowDate && nowTime > bookingEndTime)
+    ) {
+      const duration = newGetDurationInDaysAndHours(
+        BookingEndDateAndTime,
+        nowIso,
+      );
+
+      if (duration?.totalHours > 0) {
+        // const totalLateHours = duration.days * 24 + duration.hours;
+        const totalLateHours = duration.totalHours;
+        lateFeeBasedOnHour =
+          totalLateHours * Number(vehicleBasic?.lateFee || 0);
+      }
+    }
+
+    /* ---------------------------------
+     KM LATE FEE
+     --------------------------------- */
+    const currentVehicleKm = Math.max(
+      0,
+      Number(meterDebounceValue) - Number(oldMeterReading),
     );
-    let allowKm =
-      (Number(daysBtwDates?.days) === 0 ? 1 : Number(daysBtwDates?.days)) *
-      Number(vehicleBasic?.freeLimit);
 
-    if (isCurrentDateIsSmall) {
-      const removeKm = Number(duration?.days) * Number(vehicleBasic?.freeLimit);
-      allowKm = allowKm - removeKm;
-    }
-    const lateFeeBasedOnKM = (lateKm - allowKm) * vehicleBasic?.extraKmCharge;
-    console.log(allowKm, lateFeeBasedOnKM);
+    // 👇 Add KMs from all previous vehicles before the change
+    const totalDrivenKm = currentVehicleKm + previousVehiclesKm;
 
+    // const totalDrivenKm = Math.max(
+    //   0,
+    //   Number(meterDebounceValue) - Number(oldMeterReading),
+    // );
+
+    const paidExtends =
+      bookingPrice?.extendAmount?.filter((b) => b.status === "paid") || [];
+
+    const extendKmLimit = paidExtends.reduce(
+      (sum, e) => sum + Number(e?.freeLimit || 0),
+      0,
+    );
+
+    const allowedKm = Number(vehicleBasic?.freeLimit || 0) + extendKmLimit;
+
+    const extraKm = Math.max(0, totalDrivenKm - allowedKm);
+
+    const lateFeeBasedOnKM = extraKm * Number(vehicleBasic?.extraKmCharge || 0);
+
+    /* ---------------------------------
+     FINAL SET
+     --------------------------------- */
     setLateFees({
-      lateFeeBasedOnHour: lateFeeBasedOnHour || 0,
-      lateFeeBasedOnKM: lateFeeBasedOnKM > 0 ? lateFeeBasedOnKM : 0,
+      lateFeeBasedOnHour,
+      lateFeeBasedOnKM,
     });
   };
 
@@ -148,7 +202,8 @@ const RideEndModal = ({ id }) => {
     const result = Object.fromEntries(formData.entries());
     if (endRide === 0 && EndMeterReading === 0 && oldMeterReading === 0)
       return handleAsyncError(dispatch, "all fields required.");
-    if (vehicleMaster[0]?.bookingStatus === "completed")
+
+    if (booking?.bookingStatus === "completed")
       return handleAsyncError(dispatch, "Ride Already Completed!.Refresh Page");
 
     if (lateFees?.lateFeeBasedOnKM > 0 || lateFees?.lateFeeBasedOnHour > 0) {
@@ -158,35 +213,42 @@ const RideEndModal = ({ id }) => {
       }
     }
 
+    if (Number(EndMeterReading) < Number(oldMeterReading)) {
+      return handleAsyncError(
+        dispatch,
+        `End meter reading must be greater than or equal to ${oldMeterReading} Km.`,
+      );
+    }
+
     setFormLoading(true);
     try {
       let data = {
-        _id: vehicleMaster[0]?._id,
-        userId: vehicleMaster[0]?.userId?._id,
+        _id: booking?._id,
+        userId: booking?.userId?._id,
         startMeterReading: oldMeterReading,
         endMeterReading: EndMeterReading,
         rideEndDate: formatDateToISO(new Date()).replace(".000Z", "Z"),
         rideOtp: endRide,
         rideStatus: "completed",
-        bookingId: vehicleMaster[0]?.bookingId,
+        bookingId: booking?.bookingId,
         lateFeeBasedOnHour: Number(lateFees?.lateFeeBasedOnHour) || 0,
         lateFeeBasedOnKM: Number(lateFees?.lateFeeBasedOnKM) || 0,
         additionalPrice: Number(additionalPrice),
         paymentMode: result?.PaymentMode || "NA",
+        endDateTime: Date.now(),
       };
-      // this is for preclosing the ride
-      if (
-        formatDateToISO(new Date()).replace(".000Z", "Z") <
-        vehicleMaster[0]?.BookingEndDateAndTime
-      ) {
+      const LateFeeAmount = data
+        ? data.lateFeeBasedOnHour + data.lateFeeBasedOnKM
+        : 0;
+
+      if (refundAmount > 0) {
         data = {
           ...data,
           closingDate: formatDateToISO(new Date()).replace(".000Z", "Z"),
-          refundAmount: refundAmount,
+          refundAmount: Number(refundAmount ?? 0) ?? 0,
         };
       }
-      // console.log(data);
-      // return;
+
       const response = await postData("/rideUpdate", data, token, "put");
       if (response.status === 200) {
         handleAsyncError(dispatch, "Ride completed successfully", "success");
@@ -199,6 +261,9 @@ const RideEndModal = ({ id }) => {
                 refundAmount > 0
                   ? "Booking Ended & Refunded"
                   : "Booking Completed",
+              refundAmount: Number(refundAmount ?? 0) ?? 0,
+              paymentAmount: LateFeeAmount > 0 ? Number(LateFeeAmount) : 0,
+              paymentMode: result?.PaymentMode || "",
               date: Date.now(),
             },
           ],
@@ -221,14 +286,20 @@ const RideEndModal = ({ id }) => {
   useEffect(() => {
     if (vehiclePickupImage !== null) {
       setOldMeterReading(vehiclePickupImage[0]?.startMeterReading);
+    } else if (booking?.pickupImage !== null) {
+      setOldMeterReading(booking?.pickupImage?.startMeterReading);
     }
-  }, [vehiclePickupImage]);
+  }, [vehiclePickupImage, vehicleMaster]);
 
-  // after closing the modal clear all the state to default
+  // closing modal and clear all the state to default
   const handleCloseModal = () => {
     SetEndRide(0);
     dispatch(toggleRideEndModal());
   };
+
+  const hasPendingPayments =
+    hasUnpaid(booking?.bookingPrice?.diffAmount) ||
+    hasUnpaid(booking?.bookingPrice?.extendAmount);
 
   return (
     <div
@@ -236,10 +307,10 @@ const RideEndModal = ({ id }) => {
         !isRideEndModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-lg">
-        <div className="flex justify-between p-2">
+      <div className="relative top-20 md:top-14 mx-auto shadow-xl rounded-md bg-white max-w-lg">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
-            Finish Ride
+            End Ride
           </h2>
           <button
             onClick={handleCloseModal}
@@ -247,145 +318,238 @@ const RideEndModal = ({ id }) => {
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
             disabled={formLoading || false}
           >
-            <svg
-              className="w-5 h-5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              ></path>
-            </svg>
+            {tableIcons?.X}
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
-          {/* if payment are pending this message will be show  */}
-          {((vehicleMaster[0]?.bookingPrice?.diffAmount &&
-            vehicleMaster[0]?.bookingPrice?.diffAmount?.every(
-              (item) => item.status === "paid"
-            ) === false) ||
-            (vehicleMaster[0]?.bookingPrice?.extendAmount &&
-              vehicleMaster[0]?.bookingPrice?.extendAmount?.every(
-                (item) => item.status === "paid"
-              ) === false)) && (
-            <p className="italic text-xs lg:text-sm my-2 text-red-300 font-bold text-left">
-              Warning: Some payments are pending. Please clear them before
-              ending your ride.
-            </p>
-          )}
-          {/* end ride form */}
-          <form onSubmit={handleEndBooking}>
-            <div className="mb-2 text-left">
-              <p className="text-gray-400 mb-1">
-                <span className="font-semibold">Start Meter Reading:</span>{" "}
-                {oldMeterReading}
+        <div className="p-6 lg:p-4 pt-0 text-center">
+          <div className="lg:h-[30rem] overflow-y-scroll px-0">
+            {/* if payment are pending this message will be show  */}
+            {hasPendingPayments && (
+              <p className="italic text-sm my-2 text-red-300 font-bold text-left">
+                Warning: Some payments are pending. Please clear them before
+                ending your ride.
               </p>
-              {refundAmount > 0 && (
-                <div className="text-theme mb-1 flex items-center">
-                  <span className="font-semibold text-gray-400">
-                    Refund Amount:
-                  </span>{" "}
-                  <ChangeTextToInput
-                    value={Number(refundAmount)}
-                    setValue={(e) => setRefundAmount(e.target.value)}
-                    type={"number"}
-                  />
+            )}
+
+            {/* show distance breakdown if there are vehicle changes during the ride  */}
+            {hasVehicleChanges && (
+              <div className="text-left mb-5">
+                <h3 className="font-semibold text-lg text-gray-600 mb-2">
+                  Distance Breakdown:
+                </h3>
+
+                {/* Previous vehicles from updatedData */}
+                {/* {(vehiclePickupImage?.[0]?.data?.updatedData ?? []).map( */}
+                {pickupData.map((entry, index) => {
+                  const driven = Math.max(
+                    0,
+                    Number(entry.oldVehicleEndMeterReading || 0) -
+                      Number(entry.startMeterReading || 0),
+                  );
+                  return (
+                    <div key={index} className="mb-3 border-b pb-2">
+                      <p className="font-semibold text-medium text-gray-700">
+                        {entry.vehicleNumber}:
+                      </p>
+                      <p className="text-base text-gray-500">
+                        End reading: {entry.oldVehicleEndMeterReading} Km
+                      </p>
+                      <p className="text-base text-gray-500">
+                        Start reading: {entry.startMeterReading} Km
+                      </p>
+                      <p className="text-base text-gray-500">
+                        Distance driven: {driven} Km
+                      </p>
+                    </div>
+                  );
+                })}
+
+                {/* Current vehicle */}
+                <div className="mb-3 border-b pb-2">
+                  <p className="font-semibold text-medium text-gray-700">
+                    {booking?.vehicleBasic?.vehicleNumber}:
+                  </p>
+                  <p className="text-base text-gray-500">
+                    End reading: {EndMeterReading || "—"} Km
+                  </p>
+                  <p className="text-base text-gray-500">
+                    Start reading: {oldMeterReading} Km
+                  </p>
+                  <p className="text-base text-gray-500">
+                    Distance driven:{" "}
+                    {Math.max(
+                      0,
+                      Number(EndMeterReading || 0) - Number(oldMeterReading),
+                    )}{" "}
+                    Km
+                  </p>
                 </div>
-              )}
-              {lateFees?.lateFeeBasedOnKM > 0 && (
-                <div className="text-theme mb-1 flex items-center">
-                  <span className="font-semibold text-gray-400">
-                    late Fee Based On KM:
-                  </span>{" "}
-                  <ChangeTextToInput
-                    value={Number(lateFees?.lateFeeBasedOnKM)}
-                    setValue={(e) =>
-                      setLateFees({
-                        ...lateFees,
-                        lateFeeBasedOnKM: e.target.value,
-                      })
-                    }
-                    type={"number"}
-                  />
+
+                {/* Totals */}
+                <div className="mt-2">
+                  <p className="font-bold text-base text-gray-700">
+                    Total Km driven:{" "}
+                    {Math.max(
+                      0,
+                      Number(EndMeterReading || 0) - Number(oldMeterReading),
+                    ) + previousVehiclesKm}{" "}
+                    Km
+                  </p>
+                  <p className="font-bold text-base text-gray-700">
+                    Km limit:{" "}
+                    {Number(booking?.vehicleBasic?.freeLimit || 0) +
+                      (
+                        booking?.bookingPrice?.extendAmount?.filter(
+                          (e) => e.status === "paid",
+                        ) || []
+                      ).reduce((s, e) => s + Number(e?.freeLimit || 0), 0)}{" "}
+                    Km
+                  </p>
+                  <p className="font-bold text-base text-gray-700">
+                    Extra Km:{" "}
+                    {Math.max(
+                      0,
+                      Math.max(
+                        0,
+                        Number(EndMeterReading || 0) - Number(oldMeterReading),
+                      ) +
+                        previousVehiclesKm -
+                        (Number(booking?.vehicleBasic?.freeLimit || 0) +
+                          (
+                            booking?.bookingPrice?.extendAmount?.filter(
+                              (e) => e.status === "paid",
+                            ) || []
+                          ).reduce((s, e) => s + Number(e?.freeLimit || 0), 0)),
+                    )}{" "}
+                    Km
+                  </p>
                 </div>
-              )}
-              {lateFees?.lateFeeBasedOnHour > 0 && (
-                <div className="text-theme flex items-center">
-                  <span className="font-semibold text-gray-400 mb-2">
-                    late Fee Based On Hour:
-                  </span>{" "}
-                  <ChangeTextToInput
-                    value={Number(lateFees?.lateFeeBasedOnHour)}
-                    setValue={(e) =>
-                      setLateFees({
-                        ...lateFees,
-                        lateFeeBasedOnHour: e.target.value,
-                      })
-                    }
-                    type={"number"}
-                  />
-                </div>
-              )}
-              {(lateFees?.lateFeeBasedOnKM > 0 ||
-                lateFees?.lateFeeBasedOnHour > 0) && (
-                <p className="text-theme">
-                  <span className="font-semibold text-gray-400">
-                    Total Late Fee:
-                  </span>{" "}
-                  ₹
-                  {formatPrice(
-                    Number(lateFees?.lateFeeBasedOnHour) +
-                      Number(lateFees?.lateFeeBasedOnKM)
-                  )}
-                </p>
-              )}
-            </div>
-            <div className="mb-2">
-              <Input
-                item={"endMeterReading"}
-                setValueChange={SetEndMeterReading}
-                type="number"
-                require={true}
-              />
-            </div>
-            <div className="mb-2">
-              <Input
-                item={"additionalPrice"}
-                setValueChange={setAdditionalPrice}
-                type="number"
-              />
-            </div>
-            {(lateFees?.lateFeeBasedOnKM > 0 ||
-              lateFees?.lateFeeBasedOnHour > 0) && (
-              <div className="text-left mb-2">
-                <SelectDropDown
-                  options={["cash", "online"]}
-                  item="PaymentMode"
-                  require={true}
-                  isSearchEnable={false}
-                />
               </div>
             )}
-            <div className="mb-2">
-              <Input
-                item={"OTP"}
-                setValueChange={SetEndRide}
-                type="number"
-                require={true}
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
-              disabled={formLoading || endRide === 0}
-            >
-              {!formLoading ? "End Ride" : <Spinner message={"loading..."} />}
-            </button>
-          </form>
+
+            {/* end-ride form */}
+            <form onSubmit={handleEndBooking}>
+              <div className="mb-2 text-left">
+                {/* <p className="text-gray-700 mb-1">
+                  <span className="font-semibold">Start Meter Reading:</span>{" "}
+                  {formatNumber(Number(oldMeterReading))} km
+                </p> */}
+                {lateFees?.lateFeeBasedOnKM >= 0 && (
+                  <div className="text-theme mb-1 flex items-center">
+                    <span className="font-semibold text-base text-gray-700 mr-1">
+                      {/* late Fee Based On KM: */}
+                      Extra KM Charge:
+                    </span>{" "}
+                    <ChangeTextToInput
+                      value={Number(lateFees?.lateFeeBasedOnKM)}
+                      setValue={(e) =>
+                        setLateFees({
+                          ...lateFees,
+                          lateFeeBasedOnKM: e.target.value,
+                        })
+                      }
+                      type={"number"}
+                    />
+                  </div>
+                )}
+                {lateFees?.lateFeeBasedOnHour >= 0 && (
+                  <div className="text-theme flex items-center">
+                    <span className="font-semibold text-base text-gray-700 mr-1 mb-2">
+                      {/* late Fee Based On Hour: */}
+                      Extra Hour Charge:
+                    </span>{" "}
+                    <ChangeTextToInput
+                      value={Number(lateFees?.lateFeeBasedOnHour)}
+                      setValue={(e) =>
+                        setLateFees({
+                          ...lateFees,
+                          lateFeeBasedOnHour: e.target.value,
+                        })
+                      }
+                      type={"number"}
+                    />
+                  </div>
+                )}
+
+                {refundAmount >= 0 && (
+                  <div className="text-theme mb-1 flex items-center mt-2">
+                    <span className="font-semibold text-base text-gray-700 mr-1">
+                      Refund Amount:
+                    </span>
+                    <ChangeTextToInput
+                      value={Number(refundAmount)}
+                      setValue={(e) => setRefundAmount(e.target.value)}
+                      type={"number"}
+                      isnormal
+                    />
+                  </div>
+                )}
+
+                {(lateFees?.lateFeeBasedOnKM > 0 ||
+                  lateFees?.lateFeeBasedOnHour > 0) && (
+                  <p className="text-theme border-t">
+                    <span className="font-semibold text-base text-gray-700">
+                      Total Late Charges:
+                    </span>{" "}
+                    ₹
+                    {formatPrice(
+                      Number(lateFees?.lateFeeBasedOnHour) +
+                        Number(lateFees?.lateFeeBasedOnKM),
+                    )}
+                  </p>
+                )}
+              </div>
+              <div className="mb-2">
+                <Input
+                  item={"endMeterReading"}
+                  setValueChange={SetEndMeterReading}
+                  type="number"
+                  require={true}
+                />
+
+                <p className="mt-1 text-sm text-red-600 text-left">
+                  Start Meter Reading: {formatNumber(Number(oldMeterReading))}{" "}
+                  Km
+                </p>
+              </div>
+              <div className="mb-2">
+                <Input
+                  item={"additionalPrice"}
+                  setValueChange={setAdditionalPrice}
+                  value={0}
+                  type="number"
+                />
+              </div>
+              {(lateFees?.lateFeeBasedOnKM > 0 ||
+                lateFees?.lateFeeBasedOnHour > 0) && (
+                <div className="text-left mb-2">
+                  <SelectDropDown
+                    options={["cash"]}
+                    value="cash"
+                    item="PaymentMode"
+                    require={true}
+                    isSearchEnable={false}
+                  />
+                </div>
+              )}
+              <div className="mb-2">
+                <Input
+                  item={"OTP"}
+                  setValueChange={SetEndRide}
+                  type="number"
+                  require={true}
+                />
+              </div>
+              <button
+                type="submit"
+                className="mt-2 text-center bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/60 w-full items-center justify-center"
+                disabled={formLoading || endRide === 0}
+              >
+                {!formLoading ? "End Ride" : <Spinner message={"loading..."} />}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

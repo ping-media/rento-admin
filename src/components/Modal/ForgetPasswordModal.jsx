@@ -24,7 +24,11 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
       const response = await postData("/forgetPassword", formData, token);
       if (response?.status === 200) {
         dispatch(toggleForgetPasswordModal());
-        return handleAsyncError(dispatch, response?.message, "success");
+        return handleAsyncError(
+          dispatch,
+          "Password Successfully Changed",
+          "success",
+        );
       } else {
         return handleAsyncError(dispatch, response?.message);
       }
@@ -41,7 +45,7 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
       (contactInput && contactInput === "") ||
       (contactInput && contactInput === 0)
     )
-      return handleAsyncError(dispatch, "Contact should not empty");
+      return handleAsyncError(dispatch, "Enter valid mobile number");
     const data = {
       contact: contactInput,
     };
@@ -51,7 +55,7 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
       token,
       dispatch,
       handleAsyncError,
-      setOtpLoading
+      setOtpLoading,
     );
   };
 
@@ -61,8 +65,8 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
         !isForgetModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-20 lg:top-40 mx-auto shadow-xl rounded-md bg-white max-w-lg">
-        <div className="flex justify-between p-2">
+      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-md">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             {`${
               location.pathname.includes("/all-users/") ? "Change" : "Forget"
@@ -89,12 +93,12 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
+        <div className="p-6 pt-2 text-center">
           <form onSubmit={handleChangeVehicle}>
             <div className="mb-2">
               <Input
                 item={"contact_For"}
-                placeholder={"Phone Number"}
+                placeholder={"Registered Mobile Number"}
                 type="number"
                 value={contactInput}
                 setValueChange={setContactInput}
@@ -104,44 +108,40 @@ const ForgetPasswordModal = ({ userType = "", contact = "" }) => {
             <div className="mb-2">
               <Input
                 item={"password_For"}
-                placeholder={"password"}
+                placeholder={"new password"}
                 type="password"
+                isPassword
                 require={true}
               />
             </div>
             {userType !== "admin" && (
-              <div className="mb-2">
-                <Input item={"otp"} type="number" require={true} />
-                <div className="text-left mt-2">
-                  <button
-                    type="button"
-                    className="border-2 rounded-md text-theme hover:bg-theme hover:text-gray-100 border-theme p-1 disabled:border-gray-400 disabled:text-gray-400"
-                    disabled={otpLoading}
-                    onClick={handleSendPhoneOtp}
-                  >
-                    {!otpLoading ? (
-                      "Send OTP"
-                    ) : (
-                      <Spinner textColor="black" message={"sending..."} />
-                    )}
-                  </button>
-                </div>
+              <div className="mb-3">
+                <Input
+                  item={"otp"}
+                  placeholder={"OTP"}
+                  type="number"
+                  require={true}
+                  isbtn={true}
+                  btnFn={handleSendPhoneOtp}
+                  btnLoading={otpLoading}
+                  btnLabel={
+                    <>
+                      {!otpLoading ? (
+                        "Send OTP"
+                      ) : (
+                        <Spinner textColor="black" message={"sending..."} />
+                      )}
+                    </>
+                  }
+                />
               </div>
             )}
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 items-center w-full justify-center"
               disabled={formLoading}
             >
-              {!formLoading ? (
-                `${
-                  location.pathname.includes("/all-users/")
-                    ? "Change"
-                    : "Forget"
-                } Password`
-              ) : (
-                <Spinner message={"loading..."} />
-              )}
+              {!formLoading ? `Submit` : <Spinner message={"loading..."} />}
             </button>
           </form>
         </div>

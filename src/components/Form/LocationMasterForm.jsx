@@ -25,19 +25,41 @@ const LocationMasterForm = ({ handleFormSubmit, loading }) => {
             setImageChanger={setImage}
             imagesUrl={imagesUrl}
             setImageUrlChanger={setImageUrl}
+            isRequired={!id}
           />
         </div>
         <div className="w-full">
           {/* for updating the value of the existing one  */}
-          <div className="w-full">
+          <div className="w-full mb-1">
             <Input
               item={"locationName"}
               value={(id && vehicleMaster?.[0]?.locationName) || ""}
             />
           </div>
+          <div className="w-full mb-1">
+            <Input
+              item={"latitude"}
+              value={(id && vehicleMaster?.[0]?.latitude) || ""}
+              type="number"
+            />
+          </div>
+          <div className="w-full mb-1">
+            <Input
+              item={"longitude"}
+              value={(id && vehicleMaster?.[0]?.longitude) || ""}
+              type="number"
+            />
+          </div>
+          <div className="w-full">
+            <Input
+              item={"radiusKm"}
+              value={(id && vehicleMaster?.[0]?.radiusKm) || ""}
+              type="number"
+            />
+          </div>
         </div>
         <button
-          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
           type="submit"
           disabled={loading}
         >

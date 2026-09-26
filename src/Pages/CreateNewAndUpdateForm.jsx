@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState } from "react";
+import { lazy, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -16,38 +16,47 @@ import { removeTempIds } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { tableIcons } from "../Data/Icons.jsx";
 import {
   toggleForgetPasswordModal,
-  // toogleKycModalActive,
+  toogleKycModalActive,
 } from "../Redux/SideBarSlice/SideBarSlice.js";
-const ForgetPasswordModal = lazy(() =>
-  import("../components/Modal/ForgetPasswordModal.jsx")
+const ForgetPasswordModal = lazy(
+  () => import("../components/Modal/ForgetPasswordModal.jsx"),
 );
-// const UserKycApproveModal = lazy(() =>
-//   import("../components/Modal/UserKycApproveModal.jsx")
-// );
+const UserKycApproveModal = lazy(
+  () => import("../components/Modal/UserKycApproveModal.jsx"),
+);
 
 const CreateNewAndUpdateForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [formLoading, setFormLoading] = useState(false);
   const { id } = useParams();
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
   const { loading, vehicleMaster, tempIds } = useSelector(
-    (state) => state.vehicles
+    (state) => state.vehicles,
   );
+
+  const isId = Boolean(id?.trim());
+  const isUsersPageWithoutId = useMemo(() => {
+    return (
+      ["/all-users/", "/all-managers/"].some((path) =>
+        location.pathname.includes(path),
+      ) && isId
+    );
+  }, [location.pathname, isId]);
 
   // fetch data based on id taking from url
   useEffect(() => {
-    if (id) {
-      fetchVehicleMasterById(
-        dispatch,
-        id,
-        token,
-        location?.pathname.includes("/all-users/") ||
-          location.pathname.includes("/all-managers/")
-          ? "/getDocument?userId="
-          : endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")]
-      );
-    }
+    if (!isId) return;
+
+    fetchVehicleMasterById(
+      dispatch,
+      id,
+      token,
+      location?.pathname.includes("/all-users/") ||
+        location.pathname.includes("/all-managers/")
+        ? "/getDocument?userId="
+        : endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")],
+    );
   }, [dispatch, id, token]);
 
   // Dynamically select the form to render based on the URL
@@ -60,10 +69,8 @@ const CreateNewAndUpdateForm = () => {
 
   return !loading ? (
     <>
-      {/* {(location.pathname.includes("/all-users/") ||
-        location.pathname.includes("/all-managers/")) && (
-        <UserKycApproveModal />
-      )} */}
+      {isUsersPageWithoutId && <UserKycApproveModal />}
+
       {location.pathname.includes("/all-managers/") &&
         !location.pathname.includes("/add-new") && (
           <ForgetPasswordModal
@@ -73,44 +80,59 @@ const CreateNewAndUpdateForm = () => {
             }
           />
         )}
+
       <div className="flex items-center flex-wrap justify-between gap-1 lg:gap-0 mb-5">
         <div className="flex items-center gap-2">
-          {/* back button visiable on mobile screen  */}
-          <button
-            className="flex lg:hidden items-center gap-1 p-1 rounded-lg hover:bg-theme hover:text-gray-100"
-            type="button"
-            onClick={() => handlePreviousPage(navigate)}
-          >
-            {tableIcons?.backArrow}
-          </button>
+          {location.pathname.startsWith("/all-users/") &&
+            loggedInRole !== "manager" && (
+              <button
+                className="flex items-center gap-1 p-1 rounded-lg"
+                type="button"
+                onClick={() => handlePreviousPage(navigate)}
+              >
+                {tableIcons?.backArrow}
+              </button>
+            )}
           {/* heading render dynamically based on url  */}
-          <h1 className="text-xl lg:text-2xl uppercase font-bold text-theme">
+          <h1 className="text-xl lg:text-2xl capitalize font-bold text-theme">
             {location.pathname.includes("/all-bookings/")
-              ? `${id ? "Edit" : "Add"} Booking${
+              ? `${id ? "Edit" : "Create"} Booking${
                   id ? `: #${vehicleMaster[0]?.bookingId}` : ""
                 }`
               : location.pathname.includes("/all-plans/")
-              ? `${id ? "Edit" : "Add"} Plan Master`
-              : location.pathname.includes("/all-vehicles/")
-              ? `${id ? "Edit" : "Add"} Vehicle`
-              : location.pathname.includes("/all-users/")
-              ? `${id ? "Edit" : "Add"} User`
-              : location.pathname.includes("/all-managers/")
-              ? `${id ? "Edit" : "Add"} Manager`
-              : location.pathname.includes("/all-coupons/")
-              ? `${id ? "Edit" : "Add"} Coupon`
-              : location.pathname.includes("/location-master/")
-              ? `${id ? "Edit" : "Add"} City`
-              : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
-                  location.pathname
-                )}`}
+                ? `${id ? "Edit" : "Add"} Plan Master`
+                : location.pathname.includes("/all-vehicles/")
+                  ? `${id ? "Edit" : "Add"} Vehicle`
+                  : location.pathname.includes("/all-users/")
+                    ? `${id ? "Edit" : "Create"} Customer`
+                    : location.pathname.includes("/all-managers/")
+                      ? `${id ? "Edit" : "Add"} Manager`
+                      : location.pathname.includes("/all-coupons/")
+                        ? `${id ? "Edit" : "Add"} Coupon`
+                        : location.pathname.includes("/location-master/")
+                          ? `${id ? "Edit" : "Add"} City`
+                          : location.pathname.includes("/station-master/")
+                            ? `${id ? "Edit" : "Add"} Station`
+                            : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
+                                location.pathname,
+                              )}`}
           </h1>
         </div>
-        {/* for kyc approval  */}
-        {(location.pathname.includes("/all-users/") ||
-          location.pathname.includes("/all-managers/")) && (
+        {isUsersPageWithoutId && (
           <div className="flex items-center gap-2">
-            <div className="bg-theme/90 text-gray-100 p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md">
+            <button
+              className="bg-theme/90 text-gray-100 p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md"
+              type="button"
+              onClick={() => dispatch(toogleKycModalActive())}
+              disabled={
+                (vehicleMaster &&
+                  vehicleMaster[0] &&
+                  vehicleMaster[0]?.userId?.kycApproved === "yes") ||
+                (vehicleMaster && vehicleMaster?.kycApproved === "yes")
+                  ? true
+                  : false
+              }
+            >
               {vehicleMaster && vehicleMaster[0] ? (
                 vehicleMaster[0]?.userId?.kycApproved === "yes" ? (
                   <>{tableIcons?.verify} Verified</>
@@ -122,7 +144,7 @@ const CreateNewAndUpdateForm = () => {
               ) : (
                 <>{tableIcons?.unVerify} Not Verified</>
               )}
-            </div>
+            </button>
             {location.pathname.includes("/all-managers/") &&
               !location.pathname.includes("/add-new") && (
                 <button
@@ -147,7 +169,7 @@ const CreateNewAndUpdateForm = () => {
                 navigate,
                 tempIds,
                 removeTempIds,
-                id
+                id,
               )
             }
             loading={formLoading}
