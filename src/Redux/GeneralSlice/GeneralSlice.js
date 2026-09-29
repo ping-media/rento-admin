@@ -66,6 +66,9 @@ const GeneralSlice = createSlice({
     addGeneralSlides: (state, action) => {
       state.general.slides = action.payload;
     },
+    updateShowVehicleCount: (state, action) => {
+      state.general.showVehicleCount = action.payload;
+    },
     removeGeneralSlides: (state, action) => {
       state.general.slides = state.general.slides.filter(
         (s) => s._id !== action.payload,
@@ -109,6 +112,7 @@ export const {
   stopLoading,
   stopAddOnLoading,
   updateGSTStatus,
+  updateShowVehicleCount,
   resetGeneral,
 } = GeneralSlice.actions;
 export default GeneralSlice.reducer;

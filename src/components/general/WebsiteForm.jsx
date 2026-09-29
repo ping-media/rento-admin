@@ -9,11 +9,12 @@ import { updateGeneralInfo } from "../../Redux/GeneralSlice/GeneralSlice";
 import Spinner from "../Spinner/Spinner";
 import SocialMedia from "./SocialMedia.jsx";
 import GeneralForm from "./GeneralForm";
+import VehicleSettings from "./VehicleSettings";
 
 const Button = ({ label = "update", disabled = false }) => (
   <button
     type="submit"
-    className="bg-theme px-3 py-1.5 rounded-md text-white disabled:bg-theme/80"
+    className="bg-theme min-w-24 w-fit h-9 rounded-md text-white disabled:opacity-75"
     disabled={disabled}
   >
     {label}
@@ -36,7 +37,7 @@ const WebsiteForm = () => {
       const response = await postData(
         "/updateGeneralBasic",
         { updates: result },
-        token
+        token,
       );
       if (response?.success) {
         dispatch(updateGeneralInfo(result));
@@ -81,19 +82,21 @@ const WebsiteForm = () => {
         </div>
         <div className="text-left">
           <Button
-            label={
-              formLoading ? (
-                <div className="flex items-center gap-2">
-                  <Spinner /> updating
-                </div>
-              ) : (
-                "update"
-              )
-            }
+            label={formLoading ? <Spinner /> : "Update"}
             disabled={formLoading}
           />
         </div>
       </form>
+
+      <div className="mt-2.5 mb-2.5">
+        <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
+          Vehicle Settings
+        </h2>
+
+        <div className="flex items-center mb-3">
+          <VehicleSettings showVehicleCount={general?.showVehicleCount} />
+        </div>
+      </div>
 
       <GeneralForm />
     </>

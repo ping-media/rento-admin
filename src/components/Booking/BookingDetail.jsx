@@ -4,6 +4,7 @@ import { DetailsSkeleton } from "../../components/Skeleton/DetailSkeleton";
 import CancelNoteSection from "./_components/left-booking-details/CancelNoteSection";
 import CustomerSection from "./_components/left-booking-details/CustomerSection";
 import RightSection from "./_components/right-booking-details/RightSection";
+import { Star } from "@mui/icons-material";
 
 const ChangeVehicleModal = lazy(
   () => import("../../components/Modal/ChangeVehicleModal"),
@@ -39,6 +40,19 @@ const buildBookingData = (booking, setOdometerModal) => {
       {
         key: "Alt Mobile Number",
         value: vm?.userId?.altContact || "NA",
+        isVisible: true,
+      },
+      {
+        key: "Customer Rating",
+        value: (
+          <div className="flex items-center gap-1">
+            <Star className="size-4" />
+            <p>
+              {Number(vm?.userId?.rating?.average ?? 0).toFixed(1)} (
+              {vm?.userId?.rating?.totalReviews ?? 0})
+            </p>
+          </div>
+        ),
         isVisible: true,
       },
       {

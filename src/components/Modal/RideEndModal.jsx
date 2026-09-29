@@ -21,8 +21,9 @@ import { useDebounce } from "../../utils/Helper/debounce";
 import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
 import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
 import { tableIcons } from "../../Data/Icons";
+import RideEndImages from "../../components/ImageComponent/RideEndImages";
 
-const RideEndModal = ({ id }) => {
+const RideEndModal = ({ id, setRatingActive }) => {
   const { isRideEndModalActive } = useSelector((state) => state.sideBar);
   const { vehicleMaster, vehiclePickupImage } = useSelector(
     (state) => state.vehicles,
@@ -36,6 +37,11 @@ const RideEndModal = ({ id }) => {
     lateFeeBasedOnKM: 0,
     lateFeeBasedOnHour: 0,
   });
+
+  const [endImageLinks, setEndImageLinks] = useState([]);
+  const [imagesKey, setImagesKey] = useState(0);
+  const [isImageUploading, setIsImageUploading] = useState(false);
+
   const [additionalPrice, setAdditionalPrice] = useState(0);
   const [refundAmount, setRefundAmount] = useState(0);
   const meterDebounceValue = useDebounce(EndMeterReading, 300);
@@ -236,6 +242,7 @@ const RideEndModal = ({ id }) => {
         additionalPrice: Number(additionalPrice),
         paymentMode: result?.PaymentMode || "NA",
         endDateTime: Date.now(),
+        imageLinks: endImageLinks,
       };
       const LateFeeAmount = data
         ? data.lateFeeBasedOnHour + data.lateFeeBasedOnKM
@@ -271,7 +278,9 @@ const RideEndModal = ({ id }) => {
         postData("/createTimeline", timeLineData, token);
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
+        resetEndImages();
         handleCloseModal();
+        setRatingActive?.(true); // as soon as this model close show rating model
         return dispatch(handleUpdateCompleteRide(response?.data));
       }
       if (response?.status !== 200)
@@ -297,6 +306,11 @@ const RideEndModal = ({ id }) => {
     dispatch(toggleRideEndModal());
   };
 
+  const resetEndImages = () => {
+    setEndImageLinks([]);
+    setImagesKey((k) => k + 1);
+  };
+
   const hasPendingPayments =
     hasUnpaid(booking?.bookingPrice?.diffAmount) ||
     hasUnpaid(booking?.bookingPrice?.extendAmount);
@@ -307,7 +321,7 @@ const RideEndModal = ({ id }) => {
         !isRideEndModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-20 md:top-14 mx-auto shadow-xl rounded-md bg-white max-w-lg">
+      <div className="relative top-20 md:top-14 mx-auto shadow-xl rounded-md bg-white max-w-xl">
         <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             End Ride
@@ -322,7 +336,7 @@ const RideEndModal = ({ id }) => {
           </button>
         </div>
 
-        <div className="p-6 lg:p-4 pt-0 text-center">
+        <div className="p-4 pt-0 text-center">
           <div className="lg:h-[30rem] overflow-y-scroll px-0">
             {/* if payment are pending this message will be show  */}
             {hasPendingPayments && (
@@ -340,7 +354,6 @@ const RideEndModal = ({ id }) => {
                 </h3>
 
                 {/* Previous vehicles from updatedData */}
-                {/* {(vehiclePickupImage?.[0]?.data?.updatedData ?? []).map( */}
                 {pickupData.map((entry, index) => {
                   const driven = Math.max(
                     0,
@@ -431,10 +444,6 @@ const RideEndModal = ({ id }) => {
             {/* end-ride form */}
             <form onSubmit={handleEndBooking}>
               <div className="mb-2 text-left">
-                {/* <p className="text-gray-700 mb-1">
-                  <span className="font-semibold">Start Meter Reading:</span>{" "}
-                  {formatNumber(Number(oldMeterReading))} km
-                </p> */}
                 {lateFees?.lateFeeBasedOnKM >= 0 && (
                   <div className="text-theme mb-1 flex items-center">
                     <span className="font-semibold text-base text-gray-700 mr-1">
@@ -533,7 +542,7 @@ const RideEndModal = ({ id }) => {
                   />
                 </div>
               )}
-              <div className="mb-2">
+              <div className="mb-5">
                 <Input
                   item={"OTP"}
                   setValueChange={SetEndRide}
@@ -541,10 +550,18 @@ const RideEndModal = ({ id }) => {
                   require={true}
                 />
               </div>
+              <div className="mb-2">
+                <RideEndImages
+                  key={`${booking?._id}-${imagesKey}`}
+                  userId={booking?.userId?._id}
+                  onChange={setEndImageLinks}
+                  onUploadingChange={setIsImageUploading}
+                />
+              </div>
               <button
                 type="submit"
                 className="mt-2 text-center bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/60 w-full items-center justify-center"
-                disabled={formLoading || endRide === 0}
+                disabled={formLoading || endRide === 0 || isImageUploading}
               >
                 {!formLoading ? "End Ride" : <Spinner message={"loading..."} />}
               </button>

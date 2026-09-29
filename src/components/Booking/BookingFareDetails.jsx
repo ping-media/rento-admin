@@ -186,11 +186,6 @@ const BookingFareDetails = ({ rides }) => {
                           key === "bookingPrice" ? baseBookingPrice : value,
                         )}`}
                       </p>
-                      {/* <p>
-                        {`₹${formatPrice(
-                          key === "bookingPrice" ? totalBookingPrice : value,
-                        )}`}
-                      </p> */}
                     </li>
                   );
                 }

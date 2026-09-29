@@ -73,17 +73,6 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
     event.preventDefault();
     setLoading(true);
 
-    // if (!isDev) {
-    //   const isAnyImageMissing = Object.values(imagesUrl).some(
-    //     (value) => value === "",
-    //   );
-
-    //   if (isAnyImageMissing) {
-    //     setLoading(false);
-    //     return handleAsyncError(dispatch, "All Images Required!.");
-    //   }
-    // }
-
     if (!tempVehicleData) {
       setLoading(false);
       return handleAsyncError(dispatch, "All fields required.");

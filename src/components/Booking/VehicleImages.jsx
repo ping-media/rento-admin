@@ -1,8 +1,13 @@
 import PhotoView from "../../components/Form/User Components/PhotoView";
 import React from "react";
 
-const VehicleImages = ({ pickupImage }) => {
-  const files = Object.entries(pickupImage?.files || {});
+const VehicleImages = ({ pickupImage, type = "pickup" }) => {
+  const rawFiles =
+    type === "pickup"
+      ? (pickupImage?.files ?? {})
+      : (pickupImage?.endFiles ?? {});
+  const files = Object.entries(rawFiles);
+  // const files = Object.entries(pickupImage?.files || {});
   if (!files.length) return null;
 
   return (

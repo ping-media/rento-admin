@@ -29,9 +29,9 @@ const General = () => {
   return (
     <>
       <div className="flex items-center flex-wrap justify-between">
-        <h1 className="text-2xl captialize font-bold text-theme mb-5">
+        <h2 className="text-4xl captialize font-bold text-theme mb-5">
           Settings
-        </h1>
+        </h2>
         <div className="w-full md:w-2/5 lg:w-1/5  mb-5 md:mb-0">
           <DropdownTab options={TAB_LIST} tab={tab} setTab={setTab} />
         </div>

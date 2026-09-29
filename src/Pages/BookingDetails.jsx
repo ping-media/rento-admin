@@ -20,6 +20,7 @@ const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(
   () => import("../components/Modal/UploadPickupImageModal"),
 );
+const RateUserModal = lazy(() => import("../components/Modal/RateUserModal"));
 const RideEndModal = lazy(() => import("../components/Modal/RideEndModal"));
 const RescheduleModal = lazy(
   () => import("../components/Modal/RescheduleModal"),
@@ -37,6 +38,7 @@ const BookingDetails = () => {
   const { token, currentUser } = useSelector((state) => state.user);
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
   const [tab, setTab] = useState("customer");
+  const [rateCustomer, setRateCustomer] = useState(false);
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [Note, setNote] = useState("");
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
@@ -178,7 +180,14 @@ const BookingDetails = () => {
         {/* Kyc modal */}
         <UserKycApproveModal />
         {/* ride end modal */}
-        <RideEndModal id={bookingId} />
+        <RideEndModal id={bookingId} setRatingActive={setRateCustomer} />
+
+        <RateUserModal
+          isActive={rateCustomer}
+          setIsActive={setRateCustomer}
+          userId={booking?.userId?._id}
+          bookingId={booking?._id}
+        />
       </Suspense>
 
       {/* main booking details start here */}
@@ -188,6 +197,7 @@ const BookingDetails = () => {
           booking={vehicleMaster && vehicleMaster[0]}
           handleCancelBooking={handleCancelBooking}
           vehicleLoading={vehicleLoading}
+          setRateCustomer={setRateCustomer}
         />
       </div>
       <div className="mt-5">

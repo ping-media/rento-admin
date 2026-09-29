@@ -13,7 +13,7 @@ const VEHICLE_FIELD_CONFIG = [
   { key: "freeKms", label: "Free Kms" },
   { key: "extraKmsCharges", label: "Extra Kms", isPrice: true },
   { key: "lastServiceDate", label: "Last Service Date", isDate: true },
-  { key: "lastMeterReading", label: "Last Metre Reading" },
+  { key: "kmsRun", label: "Last Metre Reading" },
 ];
 
 const formatDate = (dateStr) => {

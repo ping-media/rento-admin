@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { lazy, Suspense, useMemo, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Input from "../../InputAndDropdown/Input";
@@ -8,6 +8,8 @@ import { userType, userTypeWithoutAdmin } from "../../../Data/commonData";
 import UserRideTimeLine from "../../Booking/UserRideTimeLine";
 import { format, parseISO } from "date-fns";
 import KycData from "./KycData";
+import { Star, StarHalf, StarBorder } from "@mui/icons-material";
+const UserReviewModal = lazy(() => import("../../Modal/UserReviewModal"));
 
 const formatDateTime = (isoString) => {
   if (!isoString) return null;
@@ -20,6 +22,7 @@ const formatDateTime = (isoString) => {
 const CustomerForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { loggedInRole } = useSelector((state) => state.user);
+  const [review, setReview] = useState(false);
   const { id } = useParams();
   const location = useLocation();
 
@@ -41,6 +44,13 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
     vehicleMaster?._id ||
     "";
 
+  const rating =
+    vehicleMaster?.[0]?.userId?.rating ||
+    vehicleMaster?.userId?.rating ||
+    vehicleMaster?.[0]?.rating ||
+    vehicleMaster?.rating ||
+    null;
+
   const isAddCustomer = location.pathname.endsWith("/all-users/add-new");
 
   const isAllCustomerEditable = useMemo(() => {
@@ -50,6 +60,14 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <UserReviewModal
+          isActive={review}
+          setIsActive={setReview}
+          userId={id}
+        />
+      </Suspense>
+
       <div
         className={`${
           isAllCustomerEditable
@@ -72,11 +90,31 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
           {userCreatedAt && userCreatedAt?.trim() !== "" && !isProfile && (
             <div className="mb-3">
               <p className="text-base">
-                <span className="font-semibold">User Created at:</span>{" "}
+                <span className="font-semibold">Created at:</span>{" "}
                 {formatDateTime(userCreatedAt)}
               </p>
             </div>
           )}
+
+          {rating !== null && (
+            <div className="flex items-center gap-3 flex-wrap mb-3">
+              <div className="flex items-center">
+                <p className="font-semibold text-base mr-0.5 sm:mr-1">
+                  Rating:
+                </p>
+                <RatingStars rating={rating} />
+              </div>
+
+              <button
+                type="button"
+                className="text-theme hover:underline underline-offset-4 transition-all ease-in-out"
+                onClick={() => setReview(true)}
+              >
+                View Review
+              </button>
+            </div>
+          )}
+
           {!isProfile && <KycData userId={userId} />}
 
           <div className="flex flex-wrap gap-4 border-t pt-3">
@@ -311,3 +349,45 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
 };
 
 export default CustomerForm;
+
+const RatingStars = ({ rating }) => {
+  if (!rating) return null;
+
+  const value = rating.average ?? 0;
+  const fullStars = Math.floor(value);
+  const remainder = value - fullStars;
+
+  const hasHalfStar = remainder > 0 && remainder < 0.5;
+  const roundUpToFull = remainder >= 0.5;
+
+  const filledCount = hasHalfStar
+    ? fullStars
+    : fullStars + (roundUpToFull ? 1 : 0);
+  const emptyCount = 5 - filledCount - (hasHalfStar ? 1 : 0);
+
+  return (
+    <div className="flex items-center">
+      <p className="text-base font-semibold mr-1">{value.toFixed(1)}</p>
+      <div className="flex items-center gap-0.1 sm:gap-0.4 mr-0.5 sm:mr-1">
+        {[...Array(filledCount)].map((_, i) => (
+          <Star
+            className="text-yellow-500"
+            fontSize="medium"
+            key={`full-${i}`}
+          />
+        ))}
+        {hasHalfStar && (
+          <StarHalf className="text-yellow-500" fontSize="small" />
+        )}
+        {[...Array(emptyCount)].map((_, i) => (
+          <StarBorder
+            className="text-yellow-500"
+            fontSize="small"
+            key={`empty-${i}`}
+          />
+        ))}
+      </div>
+      <p className="text-base">({rating.totalReviews})</p>
+    </div>
+  );
+};

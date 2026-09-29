@@ -58,6 +58,8 @@ export const EXCLUDED_KEYS = new Set([
   "vehicleAssigned",
   "weekendCost",
   "weekendFreeKms",
+  "rating",
+  "isRated",
 ]);
 
 export const ALL_BOOKINGS_EXCLUDED_KEYS = new Set([

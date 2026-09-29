@@ -41,8 +41,11 @@ const LocationCard = ({ latitude, longitude, capturedAt }) => {
           scrollWheelZoom={false}
           className="h-full w-full"
         >
-          {/* <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" /> */}
-          <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+          {/* <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" /> */}
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            maxZoom={19}
+          />
           <Marker position={[latitude, longitude]} icon={customIcon} />
         </MapContainer>
       </div>

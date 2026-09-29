@@ -18,6 +18,7 @@ const BookingDetailsButton = ({
   booking,
   handleCancelBooking,
   vehicleLoading,
+  setRateCustomer,
 }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const [reminderLoading, setReminderLoading] = useState(false);
@@ -197,6 +198,10 @@ const BookingDetailsButton = ({
             loading={reminderLoading}
             customLoadingMessage="sending"
           />
+        )}
+
+        {booking?.rideStatus === "completed" && booking?.isRated === false && (
+          <Button title={"Rate Customer"} fn={() => setRateCustomer(true)} />
         )}
 
         {booking?.bookingStatus !== "canceled" &&

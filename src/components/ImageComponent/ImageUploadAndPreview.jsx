@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   camelCaseToSpaceSeparated,
   compressImageToBlob,
@@ -22,11 +22,16 @@ const ImageUploadAndPreview = ({
   isDisableRemove = false,
   isLabel = true,
   userId,
+  onUploadingChange,
 }) => {
   const fileInputRef = useRef(null);
   const dispatch = useDispatch();
   const [isCompressing, setIsCompressing] = useState(false);
   const { token } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    onUploadingChange?.(isCompressing);
+  }, [isCompressing]);
 
   const handleImageChange = async (e) => {
     try {

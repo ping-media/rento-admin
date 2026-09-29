@@ -5,8 +5,6 @@ import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
 import VehicleSearchInput from "../../components/InputAndDropdown/vehicle-search-input";
 import useRideStart from "../../hooks/use-ride-start";
 
-// const isDev = import.meta.env.VITE_ENV === "development";
-
 const UploadPickupImageModal = ({
   isBookingIdPresent = false,
   onVehicleChange = null,

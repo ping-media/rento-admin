@@ -13,9 +13,6 @@ export const calculateBookingPrice = (price) => {
     )
     ?.at(-1);
 
-  // if (mergedVehicleChange) {
-  //   total += Number(mergedVehicleChange.newAmount || 0);
-  // }
   if (mergedVehicleChange) {
     if (price.discountTotalPrice > 0) {
       total += Number(price.discountTotalPrice);
@@ -31,11 +28,6 @@ export const calculateBookingPrice = (price) => {
   } else {
     total += Number(price.totalPrice || 0) + Number(price.tax || 0);
   }
-  // if (price.discountTotalPrice > 0) {
-  //   total += Number(price.discountTotalPrice);
-  // } else {
-  //   total += Number(price.totalPrice || 0) + Number(price.tax || 0);
-  // }
 
   // diffAmount adjustments
   if (Array.isArray(price.diffAmount)) {

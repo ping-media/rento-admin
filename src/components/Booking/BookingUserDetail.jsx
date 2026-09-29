@@ -47,12 +47,6 @@ const BookingUserDetails = ({ data, user }) => {
     handleFetchDocuments();
   }, [userId]);
 
-  // useEffect(() => {
-  //   return () => {
-  //     dispatch(removeUserDocuments());
-  //   };
-  // }, []);
-
   return (
     <>
       {data?.user?.map((item, index) => (

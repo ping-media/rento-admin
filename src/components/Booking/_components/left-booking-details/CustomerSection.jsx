@@ -8,8 +8,10 @@ import { OrderSummaryList } from "../OrderSummaryList";
 import { Timeline } from "../Timeline";
 
 const CustomerSection = ({ booking, data, tab, tabs, setTab }) => {
-  const isVehicleImages =
+  const isPickupVehicleImages =
     Object.keys(booking?.pickupImage?.files ?? {}).length > 0;
+  const isDropVehicleImages =
+    Object.keys(booking?.pickupImage?.endFiles ?? {}).length > 0;
 
   return (
     <>
@@ -47,11 +49,25 @@ const CustomerSection = ({ booking, data, tab, tabs, setTab }) => {
         </div>
         <div>
           <h2 className="text-base lg:text-lg font-semibold text-gray-500 mt-5">
-            Vehicle Images
+            {isPickupVehicleImages && isDropVehicleImages
+              ? "Pickup Images \u0026 Drop Images"
+              : isPickupVehicleImages
+                ? "Pickup Images"
+                : "Drop Images"}
           </h2>
-          {/* {booking?.pickupImage !== null ? ( */}
-          {isVehicleImages ? (
+
+          {isPickupVehicleImages && isDropVehicleImages ? (
+            <>
+              <div className="mb-4">
+                <VehicleImages pickupImage={booking?.pickupImage} />
+              </div>
+
+              <VehicleImages pickupImage={booking?.pickupImage} type="drop" />
+            </>
+          ) : isPickupVehicleImages ? (
             <VehicleImages pickupImage={booking?.pickupImage} />
+          ) : isDropVehicleImages ? (
+            <VehicleImages pickupImage={booking?.pickupImage} type="drop" />
           ) : (
             <p className="text-sm italic text-gray-400">
               No vehicles Images Found.

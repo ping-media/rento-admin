@@ -46,6 +46,9 @@ const vehicleSlice = createSlice({
     addTimeLineData: (state, action) => {
       state.timeLineData = action.payload;
     },
+    updateIsRated: (state) => {
+      state.vehicleMaster[0]["isRated"] = true;
+    },
     updateBookingDates: (state, action) => {
       const { BookingEndDateAndTime, BookingStartDateAndTime } = action.payload;
       if (BookingStartDateAndTime) {
@@ -507,5 +510,6 @@ export const {
   updateStationPayment,
   removeStationAddOn,
   updateTimeLineNoteData,
+  updateIsRated,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;
