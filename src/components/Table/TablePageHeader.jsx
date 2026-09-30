@@ -12,7 +12,7 @@ import useSidebarFilter from "../../hooks/use-sidebar-filter";
 import ExportButton from "../../components/ExcelExport/ExportButton";
 import TitleAndButton from "../../components/Header/TitleAndButton";
 import { useDebounce } from "../../utils/Helper/debounce";
-import useListParams from "../../hooks/useListParams";
+import useListParams from "../../hooks/use-list-params";
 
 const FILTER_ENABLED_ROUTES = [
   "/all-users",

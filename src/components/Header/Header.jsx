@@ -8,7 +8,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import BackButton from "../../components/Buttons/BackButton";
 import TitleAndButton from "./TitleAndButton";
 // import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
-import useListParams from "../../hooks/useListParams";
+import useListParams from "../../hooks/use-list-params";
 import { LogoutBtn } from "./HeaderMenuList";
 
 const NON_TITLE_PAGE = [
@@ -155,7 +155,7 @@ const Header = () => {
             />
             {isVisible && <HeaderMenuList />}
           </button> */}
-          <LogoutBtn className="flex sm:hidden" />
+          <LogoutBtn className="flex sm:hidden p-0" />
         </div>
       </div>
     </header>

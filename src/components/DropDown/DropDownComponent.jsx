@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { handleChangeLimit } from "../../Redux/PaginationSlice/PaginationSlice";
-import useListParams from "../../hooks/useListParams";
+import useListParams from "../../hooks/use-list-params";
 
 const DropDownComponent = ({ options, customLimit, setLimitChanger }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);

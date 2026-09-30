@@ -4,7 +4,7 @@ import { tableIcons } from "../../Data/Icons";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { formatPathNameToTitle } from "../../utils";
-import useListParams from "../../hooks/useListParams";
+import useListParams from "../../hooks/use-list-params";
 
 const ROUTE_TITLES = {
   "/station-master": "Stations",

@@ -12,6 +12,7 @@ const SideBar = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const isMobile = useIsMobile();
+
   const { is_open } = useSelector((state) => state.sideBar);
   const { loggedInRole } = useSelector((state) => state.user);
 
@@ -108,18 +109,20 @@ const SideBar = () => {
               >
                 <li
                   className={`px-4 py-1.5 group capitalize text-sm ${
-                    active ? "bg-theme text-white" : "hover:bg-theme"
-                  } transition duration-300 ease-in-out rounded-md flex items-center gap-1 mb-2 dark:text-gray-100`}
+                    active
+                      ? "bg-theme text-white"
+                      : "hover:bg-transparent sm:hover:bg-theme"
+                  } transition duration-300 ease-in-out rounded-md flex items-center gap-1 mb-2`}
                 >
                   <div
-                    className={`w-7 h-7 group-hover:text-gray-100 text-sm ${
+                    className={`w-7 h-7 sm:group-hover:text-gray-100 text-sm ${
                       active ? "text-white" : ""
                     }`}
                   >
                     {/* menuItem icon  */}
                     {item?.menuImg}
                   </div>
-                  <span className="group-hover:text-white">
+                  <span className="sm:group-hover:text-white">
                     {item?.menuTitle}
                   </span>
                 </li>

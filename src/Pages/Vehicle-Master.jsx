@@ -21,7 +21,7 @@ const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
 const VehicleStationModal = lazy(
   () => import("../components/Modal/StationModal"),
 );
-import useListParams from "../hooks/useListParams";
+import useListParams from "../hooks/use-list-params";
 
 const VehicleMaster = () => {
   const { vehicleMaster, deletevehicleId, tempLoading, loading, refresh } =

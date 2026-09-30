@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addVehicleIdToDelete } from "../Redux/VehicleSlice/VehicleSlice";
 import { toggleDeleteModal } from "../Redux/SideBarSlice/SideBarSlice";
-import useListParams from "./useListParams";
+import useListParams from "./use-list-params";
 
 const useDataTable = ({ searchTermQuery, pagination }) => {
   const [loadingStates, setLoadingStates] = useState({});

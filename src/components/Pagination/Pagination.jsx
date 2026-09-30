@@ -1,6 +1,6 @@
 // import { useDispatch, useSelector } from "react-redux";
 // import { handleChangePage } from "../../Redux/PaginationSlice/PaginationSlice";
-import useListParams from "../../hooks/useListParams";
+import useListParams from "../../hooks/use-list-params";
 
 const Pagination = ({
   totalNumberOfPages,
