@@ -96,7 +96,7 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
             </div>
           )}
 
-          {rating !== null && (
+          {rating !== null && !isProfile && (
             <div className="flex items-center gap-3 flex-wrap mb-3">
               <div className="flex items-center">
                 <p className="font-semibold text-base mr-0.5 sm:mr-1">
@@ -117,7 +117,9 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
 
           {!isProfile && <KycData userId={userId} />}
 
-          <div className="flex flex-wrap gap-4 border-t pt-3">
+          <div
+            className={`flex flex-wrap gap-4 pt-3 ${!isProfile ? "border-t" : ""}`}
+          >
             <>
               <div className="w-full lg:w-[48%]">
                 <Input

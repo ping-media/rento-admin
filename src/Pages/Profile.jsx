@@ -72,7 +72,7 @@ const Profile = () => {
 
               {loggedInRole === "manager" && (
                 <>
-                  <h2 className="text-2xl mt-2 mb-5 border-t-2">
+                  <h2 className="text-2xl mt-2 mb-5 border-t-2 pt-2">
                     Station Info
                   </h2>
 

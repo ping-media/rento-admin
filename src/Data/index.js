@@ -1,5 +1,23 @@
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
+
+let unauthorizedHandler = null;
+let sessionExpiredHandled = false;
+
+export const setUnauthorizedHandler = (fn) => {
+  unauthorizedHandler = fn;
+  sessionExpiredHandled = false;
+};
+
+const SESSION_EXPIRED_MESSAGE = "Session expired, please log in again.";
+
+const isAuthError = (error) => error?.response?.status === 401;
+
+const handleUnauthorized = () => {
+  if (sessionExpiredHandled) return; // parallel requests fire this only once
+  sessionExpiredHandled = true;
+  unauthorizedHandler?.();
+};
 
 const getData = async (url, token, retries = 5, delay = 500) => {
   const headers = {
@@ -27,14 +45,25 @@ const getData = async (url, token, retries = 5, delay = 500) => {
         throw new Error(response?.message || "Unexpected response");
       }
     } catch (error) {
+      if (isAuthError(error)) {
+        handleUnauthorized();
+        error.message = SESSION_EXPIRED_MESSAGE;
+        throw error;
+      }
       if (attempt < retries) {
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
         console.error("All retry attempts failed.");
-        const navigate = useNavigate();
-        navigate("*");
         throw error;
       }
+      // if (attempt < retries) {
+      //   await new Promise((resolve) => setTimeout(resolve, delay));
+      // } else {
+      //   console.error("All retry attempts failed.");
+      //   const navigate = useNavigate();
+      //   navigate("*");
+      //   throw error;
+      // }
     }
   }
 };
@@ -67,15 +96,25 @@ const getFullData = async (url, token, retries = 5, delay = 500) => {
         throw new Error(response?.message || "Unexpected response");
       }
     } catch (error) {
+      if (isAuthError(error)) {
+        handleUnauthorized();
+        return `Error fetching Data: ${SESSION_EXPIRED_MESSAGE}`;
+      }
       if (attempt < retries) {
-        // console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
         console.error("All retry attempts failed.");
-        const navigate = useNavigate(); // React Router navigation
-        navigate("*");
         return `Error fetching Data: ${error.message}`;
       }
+      // if (attempt < retries) {
+      //   // console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+      //   await new Promise((resolve) => setTimeout(resolve, delay));
+      // } else {
+      //   console.error("All retry attempts failed.");
+      //   const navigate = useNavigate(); // React Router navigation
+      //   navigate("*");
+      //   return `Error fetching Data: ${error.message}`;
+      // }
     }
   }
 };
@@ -123,6 +162,11 @@ const postData = async (url, data, token, requestType = "post") => {
     }
     return response?.data;
   } catch (error) {
+    // expired token on the app-load validation call
+    if (url === "/validedToken" && error?.response?.status === 401) {
+      handleUnauthorized();
+      return { isUserValid: false, message: SESSION_EXPIRED_MESSAGE };
+    }
     return `Error :${error?.message}`;
   }
 };

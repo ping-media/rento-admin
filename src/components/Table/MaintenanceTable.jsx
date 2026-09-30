@@ -384,6 +384,7 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
                       }
                       currentPage={currentPage}
                       setPageChanger={setCurrentPage}
+                      syncUrl={false}
                     />
                   </div>
                 )}

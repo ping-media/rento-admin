@@ -121,7 +121,19 @@ const BookingTimeLine = () => {
 
       <div className="container mx-auto py-4">
         <div className="relative wrap overflow-hidden">
-          <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-[29.3%] md:left-[37.5%]"></div>
+          {/* <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-[29.3%] md:left-[37.5%]"></div> */}
+          <div
+            className={`absolute top-0 border-opacity-20 border-gray-700 border left-[29.3%] md:left-[37.5%] ${
+              timeLineData?.timeLine?.length > 0 &&
+              ["Completed", "Ended", "Cancelled"].some((status) =>
+                timeLineData.timeLine[
+                  timeLineData.timeLine.length - 1
+                ]?.title?.includes(status),
+              )
+                ? "bottom-9 sm:bottom-5"
+                : "bottom-0"
+            }`}
+          />
 
           {!loading &&
             timeLineData != null &&

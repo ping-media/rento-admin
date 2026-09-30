@@ -299,18 +299,6 @@ const formatTimeStampToDateNew = (timestamp) => {
     // ISO string or any other date string
     date = new Date(timestamp);
   }
-  // // force numeric conversion
-  // const ts = Number(timestamp);
-
-  // if (Number.isNaN(ts)) {
-  //   return "";
-  // }
-
-  // // detect seconds vs milliseconds
-  // const date =
-  //   ts < 1e12
-  //     ? new Date(ts * 1000) // seconds
-  //     : new Date(ts); // milliseconds
 
   if (isNaN(date.getTime())) {
     return "";
@@ -573,20 +561,6 @@ function timelineFormatDate(input) {
   return `${day}, ${month} ${year}, ${hours}:${minutes} ${amPm}`;
 }
 
-// const isDuration24Hours = (startDate, endDate) => {
-//   // Parse the dates
-//   const start = new Date(startDate);
-//   const end = new Date(endDate);
-
-//   // Calculate the difference in milliseconds
-//   const durationInMilliseconds = end - start;
-
-//   // Convert milliseconds to hours
-//   const durationInHours = durationInMilliseconds / (1000 * 60 * 60);
-
-//   // Check if the duration is exactly 24 hours
-//   return durationInHours === 24;
-// };
 const isDuration24Hours = (startDate, endDate) => {
   return (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60) >= 24;
 };

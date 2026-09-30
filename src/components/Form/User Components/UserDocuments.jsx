@@ -85,7 +85,7 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
               {dataId ? (
                 <PhotoView
                   item={item}
-                  className="w-42 md:w-52 max-h-40"
+                  className="w-24 lg:w-32 h-24 lg:h-32"
                   uniqueId="user-documents-gallery"
                   variant={"full"}
                   deleteFn={handleDeleteDocument}
@@ -94,7 +94,7 @@ const UserDocuments = ({ data, dataId, hookLoading }) => {
               ) : (
                 <PhotoView
                   item={item}
-                  className="w-20 h-20 flex items-center justify-center"
+                  className="w-14 lg:w-20 h-14 lg:h-20"
                   uniqueId="user-documents-gallery"
                   variant={"full"}
                 />

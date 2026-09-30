@@ -4,6 +4,7 @@ import { tableIcons } from "../../Data/Icons";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { formatPathNameToTitle } from "../../utils";
+import useListParams from "../../hooks/useListParams";
 
 const ROUTE_TITLES = {
   "/station-master": "Stations",
@@ -40,7 +41,9 @@ const NO_ADD_BUTTON_ROUTES = [
 ];
 
 const TitleAndButton = ({ className = "flex" }) => {
-  const { activeFilterName } = useSelector((state) => state.pagination);
+  // const { activeFilterName } = useSelector((state) => state.pagination);
+  const { filterName } = useListParams();
+  const activeFilterName = filterName || null; // keeps the old null-when-empty behavior
   const location = useLocation();
   const showAddButton = !NO_ADD_BUTTON_ROUTES.includes(location.pathname);
   const pageTitle = getPageTitle(location.pathname, activeFilterName);

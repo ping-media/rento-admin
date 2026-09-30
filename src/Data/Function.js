@@ -153,22 +153,23 @@ const fetchVehicleMasterWithPagination = debounce(
     try {
       dispatch(fetchVehicleStart());
 
-      const shouldResetPage =
-        Boolean(isSearchTermPresent?.trim()) ||
-        (searchBasedOnFilter?.trim() &&
-          !["userType=customer", "userType=manager"].includes(
-            searchBasedOnFilter,
-          )) ||
-        Boolean(
-          vehiclesFilter &&
-          (vehiclesFilter.vehicleName?.trim() ||
-            vehiclesFilter.search?.trim() ||
-            vehiclesFilter.stationId?.trim() ||
-            vehiclesFilter.maintenanceType?.trim()),
-        );
+      //       const shouldResetPage =
+      //         Boolean(isSearchTermPresent?.trim()) ||
+      //         (searchBasedOnFilter?.trim() &&
+      //           !["userType=customer", "userType=manager"].includes(
+      //             searchBasedOnFilter,
+      //           )) ||
+      //         Boolean(
+      //           vehiclesFilter &&
+      //           (vehiclesFilter.vehicleName?.trim() ||
+      //             vehiclesFilter.search?.trim() ||
+      //             vehiclesFilter.stationId?.trim() ||
+      //             vehiclesFilter.maintenanceType?.trim()),
+      //         );
 
-      const currentPage = shouldResetPage ? 1 : page;
-      // console.log("PAGE DEBUG =>", { page, currentPage });
+      //       const currentPage = shouldResetPage ? 1 : page;
+
+      const currentPage = page;
 
       let dynamicEndpoint = `${endpoint}?page=${currentPage}&limit=${limit}`;
 
@@ -246,7 +247,7 @@ const fetchVehicleMasterWithPagination = debounce(
       dispatch(fetchVehicleEnd());
     }
   },
-  50,
+  300,
 );
 
 const fetchVehicleMasterById = debounce(
@@ -304,7 +305,7 @@ const fetchVehicleMasterById = debounce(
       dispatch(fetchVehicleEnd());
     }
   },
-  50,
+  300,
 );
 
 const handleCreateAndUpdateVehicle = async (
@@ -523,6 +524,7 @@ const validateUser = debounce(
     dispatch,
     setPreLoaderLoading,
     retries = 3,
+    navigate,
   ) => {
     try {
       if (!token) return;
@@ -540,18 +542,29 @@ const validateUser = debounce(
           const isUserValid = response?.isUserValid;
 
           if (isUserValid === true) {
-            if (location.pathname === "/") {
+            if (location.pathname === "/" && typeof navigate === "function") {
               navigate(
                 loggedInRole === "manager" ? "/all-bookings" : "/dashboard",
               );
-              return;
             }
             return;
+            // if (location.pathname === "/") {
+            //   navigate(
+            //     loggedInRole === "manager" ? "/all-bookings" : "/dashboard",
+            //   );
+            //   return;
+            // }
+            // return;
           } else {
             handleLogoutUser(dispatch);
             return;
           }
         } catch (error) {
+          if (error?.response?.status === 401) {
+            handleLogoutUser(dispatch);
+            handleAsyncError(dispatch, "Session expired, please log in again.");
+            return;
+          }
           if (attempt === retries) {
             console.error(`Validation failed after ${retries} attempts`, error);
             handleLogoutUser(dispatch);
@@ -564,7 +577,7 @@ const validateUser = debounce(
       setPreLoaderLoading && dispatch(setPreLoaderLoading(false));
     }
   },
-  60,
+  100,
 );
 
 const handleLogoutUser = (dispatch) => {

@@ -202,3 +202,27 @@ table.dataTable tbody tr:hover {
   border-top: 1px solid #d1d5db;
   margin: 20px 0;
 }
+
+/* thin scrollbar that only shows while hovering the sidebar list */
+.sidebar-scroll {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: transparent transparent; /* hidden by default */
+}
+.sidebar-scroll:hover {
+  scrollbar-color: rgba(107, 114, 128, 0.5) transparent; /* visible on hover */
+}
+
+/* Chrome, Edge, Safari */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 9999px;
+}
+.sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(107, 114, 128, 0.5);
+}

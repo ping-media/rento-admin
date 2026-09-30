@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { lazy, useCallback, useEffect, useState } from "react";
 import Header from "../Header/Header";
@@ -20,7 +20,7 @@ import {
   removeTempIds,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { handleLogoutUser, validateUser } from "../../Data/Function";
-import { getData } from "../../Data/index";
+import { getData, setUnauthorizedHandler } from "../../Data/index";
 import {
   addGeneral,
   startLoading,
@@ -30,17 +30,6 @@ import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 // modals
 const SignOutModal = lazy(() => import("../Modal/SignOutModal"));
 const DeleteModal = lazy(() => import("../Modal/DeleteModal"));
-
-// const excludedRoutes = [
-//   "/all-bookings",
-//   //  "/all-vehicles", "/all-users"
-// ];
-
-// const excludedPrefixes = [
-//   "/all-bookings/details/",
-//   // "/all-vehicles/details/",
-//   // "/all-users/",
-// ];
 
 const Layout = () => {
   const dispatch = useDispatch();
@@ -54,6 +43,7 @@ const Layout = () => {
   const { currentUser, token, user, loading } = useSelector(
     (state) => state.user,
   );
+  const navigate = useNavigate();
   const location = useLocation();
 
   const getGeneralSettings = useCallback(async () => {
@@ -72,6 +62,15 @@ const Layout = () => {
       dispatch(stopLoading());
     }
   }, [dispatch, token]);
+
+  // any API call that gets a 401 (expired token) ends up here
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      handleLogoutUser(dispatch);
+      handleAsyncError(dispatch, "Session expired, please log in again.");
+    });
+    return () => setUnauthorizedHandler(null);
+  }, [dispatch]);
 
   //decrypting loggedIn userData and storing in the state
   useEffect(() => {
@@ -96,6 +95,8 @@ const Layout = () => {
           handleLogoutUser,
           dispatch,
           handleVerifyLoading,
+          undefined,
+          navigate,
         );
       } finally {
         setValidateLoading(false);
@@ -105,11 +106,6 @@ const Layout = () => {
 
   //need to reset some value when ever user change page
   useEffect(() => {
-    // const isExcluded =
-    //   excludedRoutes.includes(location.pathname) ||
-    //   excludedPrefixes.some((prefix) => location.pathname.startsWith(prefix));
-
-    // if (!isExcluded) {
     if (
       location.pathname !== "/all-bookings" &&
       !location.pathname.startsWith("/all-bookings/details/")
@@ -161,7 +157,8 @@ const Layout = () => {
           }`}
         >
           <div className="flex flex-1 h-svh overflow-hidden">
-            <aside className="hidden lg:block w-[210px] h-full overflow-y-auto bg-white dark:bg-slate-900 border-r">
+            {/* <aside className="hidden lg:block w-[210px] h-full overflow-y-auto bg-white dark:bg-slate-900 border-r"> */}
+            <aside className="hidden lg:flex lg:flex-col w-[210px] h-full min-h-0 bg-white dark:bg-slate-900 border-r">
               <SideBar />
             </aside>
 

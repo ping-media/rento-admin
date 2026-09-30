@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState, memo } from "react";
+import { memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import userImage from "../../assets/logo/user.png";
+// import userImage from "../../assets/logo/user.png";
 import { toggleSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { tableIcons } from "../../Data/Icons";
-import HeaderMenuList from "./HeaderMenuList";
+// import HeaderMenuList from "./HeaderMenuList";
 import { Link, useLocation, useParams } from "react-router-dom";
 import BackButton from "../../components/Buttons/BackButton";
 import TitleAndButton from "./TitleAndButton";
-import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
+// import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
+import useListParams from "../../hooks/useListParams";
+import { LogoutBtn } from "./HeaderMenuList";
 
 const NON_TITLE_PAGE = [
   "/dashboard",
@@ -20,11 +22,13 @@ const isDev = import.meta.env.VITE_ENV === "development";
 
 const Header = () => {
   const { id } = useParams();
-  const [isVisible, setIsVisible] = useState(false);
+  // const [isVisible, setIsVisible] = useState(false);
   const dispatch = useDispatch();
-  const adminRef = useRef(null);
+  // const adminRef = useRef(null);
   const { loggedInRole, userStation } = useSelector((state) => state.user);
-  const { filters } = useSelector((state) => state.pagination);
+  // const { filters } = useSelector((state) => state.pagination);
+  const { filters: urlFilters, clearAll } = useListParams();
+  const filters = urlFilters || null;
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const location = useLocation();
 
@@ -34,36 +38,36 @@ const Header = () => {
     NON_TITLE_PAGE.some((page) => location.pathname.startsWith(page));
 
   //for dropdown menu
-  useEffect(() => {
-    if (isVisible) {
-      setIsVisible(!isVisible);
-    }
-  }, [window.location.href]);
+  // useEffect(() => {
+  //   if (isVisible) {
+  //     setIsVisible(!isVisible);
+  //   }
+  // }, [window.location.href]);
 
-  const handleToggleVisibility = () => {
-    setIsVisible(!isVisible);
-  };
+  // const handleToggleVisibility = () => {
+  //   setIsVisible(!isVisible);
+  // };
 
   // for closing dropdown menu when user click outside anywhere on screen
-  const handleClickOutside = (event) => {
-    if (adminRef.current && !adminRef.current.contains(event.target)) {
-      setIsVisible(false);
-    }
-  };
+  // const handleClickOutside = (event) => {
+  //   if (adminRef.current && !adminRef.current.contains(event.target)) {
+  //     setIsVisible(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    // Bind the event listener
-    document.addEventListener("mousedown", handleClickOutside);
+  // useEffect(() => {
+  //   // Bind the event listener
+  //   document.addEventListener("mousedown", handleClickOutside);
 
-    // Cleanup the event listener on component unmount
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  //   // Cleanup the event listener on component unmount
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
 
   return (
     <header>
-      <div className="flex items-center justify-between px-5 py-1.5 shadow bg-white">
+      <div className="flex items-center justify-between px-4 py-1.5 shadow bg-white">
         {/* hamburger menu  */}
         <div className="flex items-center gap-4">
           <button
@@ -122,7 +126,8 @@ const Header = () => {
           {location.pathname === "/all-bookings" && filters !== null && (
             <button
               className="relative border-2 rounded-md hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-2 dark:bg-gray-700"
-              onClick={() => dispatch(handleRestPagination())}
+              // onClick={() => dispatch(handleRestPagination())}
+              onClick={clearAll}
             >
               <span className="text-theme">X</span> Clear filters
             </button>
@@ -137,7 +142,7 @@ const Header = () => {
               </div>
             )}
 
-          <button
+          {/* <button
             className="relative border-2 rounded-full hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-1.5 dark:bg-gray-700"
             ref={adminRef}
             onClick={handleToggleVisibility}
@@ -149,7 +154,8 @@ const Header = () => {
               alt="USERIMAGE"
             />
             {isVisible && <HeaderMenuList />}
-          </button>
+          </button> */}
+          <LogoutBtn className="flex sm:hidden" />
         </div>
       </div>
     </header>

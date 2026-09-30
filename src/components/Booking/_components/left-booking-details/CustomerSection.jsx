@@ -48,6 +48,33 @@ const CustomerSection = ({ booking, data, tab, tabs, setTab }) => {
           )}
         </div>
         <div>
+          <h2 className="text-base lg:text-lg font-semibold text-gray-500 mt-5 mb-3">
+            Pickup Images
+          </h2>
+
+          {isPickupVehicleImages ? (
+            <VehicleImages pickupImage={booking?.pickupImage} />
+          ) : (
+            <p className="text-sm italic text-gray-400">
+              No pickup vehicle images found.
+            </p>
+          )}
+        </div>
+
+        <div>
+          <h2 className="text-base lg:text-lg font-semibold text-gray-500 mt-5 mb-3">
+            Drop Images
+          </h2>
+
+          {isDropVehicleImages ? (
+            <VehicleImages pickupImage={booking?.pickupImage} type="drop" />
+          ) : (
+            <p className="text-sm italic text-gray-400">
+              No drop vehicle images found.
+            </p>
+          )}
+        </div>
+        {/* <div>
           <h2 className="text-base lg:text-lg font-semibold text-gray-500 mt-5">
             {isPickupVehicleImages && isDropVehicleImages
               ? "Pickup Images \u0026 Drop Images"
@@ -73,7 +100,7 @@ const CustomerSection = ({ booking, data, tab, tabs, setTab }) => {
               No vehicles Images Found.
             </p>
           )}
-        </div>
+        </div> */}
 
         {/* ride summary */}
         <div className="border px-2 rounded-md my-4 py-2 lg:hidden w-full mt-8">

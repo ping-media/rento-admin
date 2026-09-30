@@ -302,11 +302,12 @@ const RideEndModal = ({ id, setRatingActive }) => {
 
   // closing modal and clear all the state to default
   const handleCloseModal = () => {
-    SetEndRide(0);
+    // SetEndRide(0);
     dispatch(toggleRideEndModal());
   };
 
   const resetEndImages = () => {
+    SetEndRide(0);
     setEndImageLinks([]);
     setImagesKey((k) => k + 1);
   };

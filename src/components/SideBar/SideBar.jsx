@@ -6,6 +6,7 @@ import React, { useEffect, useMemo } from "react";
 import { menuList } from "./menuList";
 import SideBarDropDown from "./SideBarDropDown";
 import rentoLogo from "../../assets/logo/rento-full-red.png";
+import HeaderMenuList from "../Header/HeaderMenuList";
 
 const SideBar = () => {
   const location = useLocation();
@@ -45,9 +46,12 @@ const SideBar = () => {
   };
 
   return (
-    <div className="shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200">
+    <div className="relative flex flex-col h-dvh overflow-hidden shadow-lg dark:shadow-gray-500 bg-white border-r-2 border-gray-200">
+      {/* <div className="shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200"> */}
+
       {/* close button  */}
-      <div className="lg:hidden float-right px-5 py-4">
+      {/* <div className="lg:hidden float-right px-5 py-4"> */}
+      <div className="lg:hidden absolute right-0 top-0 z-10 px-5 py-4">
         <button
           className="border border-gray-300 rounded-lg p-2 dark:border-gray-100"
           title="close"
@@ -70,20 +74,21 @@ const SideBar = () => {
         </button>
       </div>
 
-      <div className="py-[0.5rem]">
+      <div className="py-[0.5rem] shrink-0">
         <div className="h-14 lg:h-16">
           <img
             src={rentoLogo}
-            className="w-[48%] lg:w-3/4 h-full object-contain mx-auto"
+            className="w-[48%] lg:w-3/4 h-full object-contain ml-5 lg:mx-auto"
             loading="lazy"
             alt="RENTO_BIKES"
           />
         </div>
       </div>
-      <div
+      {/* <div
         className="px-3.5 py-3 overflow-y-scroll w-full"
         style={{ height: "calc(100vh - 88px)" }}
-      >
+      > */}
+      <div className="sidebar-scroll px-3.5 py-3 flex-1 min-h-0 overflow-y-auto w-full">
         <ul className="leading-9">
           {filteredMenu.map((item, index) => {
             if (item.nestedLink) {
@@ -122,6 +127,12 @@ const SideBar = () => {
             );
           })}
         </ul>
+      </div>
+      <div className="shrink-0">
+        <HeaderMenuList
+          variant="sidebar"
+          onNavigate={() => isMobile && dispatch(toggleSideBar())}
+        />
       </div>
     </div>
   );
