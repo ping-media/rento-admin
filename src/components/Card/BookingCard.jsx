@@ -55,7 +55,7 @@ const BookingCard = ({ item }) => {
   let BookingEndDateAndTime = item?.BookingEndDateAndTime;
   if (extendAmount.length > 0) {
     const lastExtend = extendAmount[extendAmount.length - 1];
-    if (lastExtend?.bookingEndDateAndTime) {
+    if (lastExtend?.bookingEndDateAndTime && lastExtend?.status !== "unpaid") {
       BookingEndDateAndTime = lastExtend.bookingEndDateAndTime;
     }
   }
