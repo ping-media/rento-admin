@@ -8,6 +8,7 @@ import useRideStart from "../../hooks/use-ride-start";
 const UploadPickupImageModal = ({
   isBookingIdPresent = false,
   onVehicleChange = null,
+  setWhatsappModal,
 }) => {
   const {
     loggedInRole,
@@ -31,7 +32,7 @@ const UploadPickupImageModal = ({
     handleFormValueChange,
     cachedVehicles,
     setCachedVehicles,
-  } = useRideStart({ isBookingIdPresent, onVehicleChange });
+  } = useRideStart({ isBookingIdPresent, onVehicleChange, setWhatsappModal });
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
 
   if (!isUploadPickupImageActive) return null;

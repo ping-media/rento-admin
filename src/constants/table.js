@@ -60,6 +60,7 @@ export const EXCLUDED_KEYS = new Set([
   "weekendFreeKms",
   "rating",
   "isRated",
+  "googleReviewLink",
 ]);
 
 export const ALL_BOOKINGS_EXCLUDED_KEYS = new Set([

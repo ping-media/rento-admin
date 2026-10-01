@@ -10,15 +10,17 @@ import {
   toggleRideEndModal,
 } from "../../../Redux/SideBarSlice/SideBarSlice";
 import GenerateInvoiceButton from "../../Table/GenerateInvoiceButton";
-import { postData } from "../../../Data/index";
+import { getData } from "../../../Data/index";
 import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
 import { addTempVehicleData } from "../../../Redux/VehicleSlice/VehicleSlice";
+import { handleWhatsappLink } from "../../../utils/whatsapp";
 
 const BookingDetailsButton = ({
   booking,
   handleCancelBooking,
   vehicleLoading,
   setRateCustomer,
+  setWhatsappModal,
 }) => {
   const { isUploadPickupImageActive } = useSelector((state) => state.sideBar);
   const [reminderLoading, setReminderLoading] = useState(false);
@@ -74,16 +76,16 @@ const BookingDetailsButton = ({
   const handleSendRemainder = async () => {
     try {
       setReminderLoading(true);
-      const data = {
-        ...booking,
-        contact: booking?.userId?.contact,
-        firstName: booking?.userId?.firstName,
-        managerContact: booking?.stationMasterUserId?.contact,
-        userEmail: booking?.userId?.email,
-      };
-      const response = await postData("/sendReminder", data, token);
-      if (response?.status === 200) {
-        return handleAsyncError(dispatch, response?.message, "success");
+      const response = await getData(
+        `/booking/${booking?._id}/reminder-link`,
+        token,
+      );
+      if (response?.status === 200 && response?.whatsappUrl) {
+        handleWhatsappLink(
+          response.whatsappUrl,
+          "Reminder link ready!",
+          setWhatsappModal,
+        );
       } else {
         return handleAsyncError(dispatch, response?.message);
       }
@@ -93,6 +95,28 @@ const BookingDetailsButton = ({
       setReminderLoading(false);
     }
   };
+  // const handleSendRemainder = async () => {
+  //   try {
+  //     setReminderLoading(true);
+  //     const data = {
+  //       ...booking,
+  //       contact: booking?.userId?.contact,
+  //       firstName: booking?.userId?.firstName,
+  //       managerContact: booking?.stationMasterUserId?.contact,
+  //       userEmail: booking?.userId?.email,
+  //     };
+  //     const response = await postData("/sendReminder", data, token);
+  //     if (response?.status === 200) {
+  //       return handleAsyncError(dispatch, response?.message, "success");
+  //     } else {
+  //       return handleAsyncError(dispatch, response?.message);
+  //     }
+  //   } catch (error) {
+  //     handleAsyncError(dispatch, error?.message);
+  //   } finally {
+  //     setReminderLoading(false);
+  //   }
+  // };
 
   return (
     // <div className="flex flex-wrap gap-2">

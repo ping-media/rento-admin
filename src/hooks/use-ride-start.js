@@ -9,10 +9,15 @@ import {
 } from "../Redux/VehicleSlice/VehicleSlice";
 import { isValidIndianMobile } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
+import { handleWhatsappLink } from "../utils/whatsapp";
 
 // const isDev = import.meta.env.VITE_ENV === "development";
 
-const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
+const useRideStart = ({
+  isBookingIdPresent,
+  onVehicleChange,
+  setWhatsappModal,
+}) => {
   const { token, loggedInRole } = useSelector((state) => state.user);
   const { tempVehicleData, vehicleMaster } = useSelector(
     (state) => state.vehicles,
@@ -250,6 +255,11 @@ const useRideStart = ({ isBookingIdPresent, onVehicleChange }) => {
         setCachedVehicles(null);
         onVehicleChange && onVehicleChange();
         dispatch(togglePickupImageModal());
+        handleWhatsappLink(
+          responseImage?.whatsappUrl,
+          "Ride started successfully!",
+          setWhatsappModal,
+        );
 
         if (isChange) {
           const targetId =

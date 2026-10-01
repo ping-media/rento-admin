@@ -22,8 +22,9 @@ import PreLoader from "../../components/Skeleton/PreLoader";
 import { debounce } from "lodash";
 import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
 import TextArea from "../../components/InputAndDropdown/TextArea";
+import { handleWhatsappLink } from "../../utils/whatsapp";
 
-const ExtendBookingModal = ({ bookingData }) => {
+const ExtendBookingModal = ({ bookingData, setWhatsappModal }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
   const { token, loggedInRole, currentUser } = useSelector(
     (state) => state.user,
@@ -259,6 +260,13 @@ const ExtendBookingModal = ({ bookingData }) => {
             ? "Ride extended successfully"
             : "Extend Request Placed successfully",
           "success",
+        );
+        handleWhatsappLink(
+          order?.whatsappUrl,
+          extensionMode === "cash"
+            ? "Extension confirmed!"
+            : "Extension payment link ready!",
+          setWhatsappModal,
         );
         handleCloseModal();
         event.target.reset();

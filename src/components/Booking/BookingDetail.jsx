@@ -105,7 +105,12 @@ const buildBookingData = (booking, setOdometerModal) => {
   };
 };
 
-const BookingDetail = ({ tabs, booking, onVehicleChange = null }) => {
+const BookingDetail = ({
+  tabs,
+  booking,
+  onVehicleChange = null,
+  setWhatsappModal,
+}) => {
   const [odometerModal, setOdometerModal] = useState(false);
   const [tab, setTab] = useState("booking");
 
@@ -127,7 +132,10 @@ const BookingDetail = ({ tabs, booking, onVehicleChange = null }) => {
           bookingData={booking}
           onVehicleChange={onVehicleChange}
         />
-        <ExtendBookingModal bookingData={booking} />
+        <ExtendBookingModal
+          bookingData={booking}
+          setWhatsappModal={setWhatsappModal}
+        />
         <OdometerReadingModal
           isActive={odometerModal}
           setIsActive={setOdometerModal}

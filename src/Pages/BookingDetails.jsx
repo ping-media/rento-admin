@@ -16,6 +16,9 @@ import UpdateBookingPayment from "../components/Modal/UpdateBookingPayment";
 import NoData from "../components/Error/NoData";
 import TabButton from "../components/TabButton/TabButton";
 import BookingDetailsButton from "../components/Form/BookingComponents/BookingDetailsButton";
+const WhatsappLinkModal = lazy(
+  () => import("../components/Modal/WhatsappLinkModal"),
+);
 const CancelModal = lazy(() => import("../components/Modal/CancelModal"));
 const UploadPickupImageModal = lazy(
   () => import("../components/Modal/UploadPickupImageModal"),
@@ -42,6 +45,12 @@ const BookingDetails = () => {
   const [vehicleLoading, setVehicleLoading] = useState(false);
   const [Note, setNote] = useState("");
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
+
+  const [whatsappModal, setWhatsappModal] = useState({
+    active: false,
+    title: "",
+    link: "",
+  });
 
   // using to refresh the data after vehicle change or any update in booking details
   const [isRefresh, setIsRefresh] = useState(false);
@@ -172,6 +181,15 @@ const BookingDetails = () => {
         <UploadPickupImageModal
           isBookingIdPresent={!!bookingId}
           onVehicleChange={() => setIsRefresh((prev) => !prev)}
+          setWhatsappModal={setWhatsappModal}
+        />
+        <WhatsappLinkModal
+          active={whatsappModal.active}
+          setActive={(val) =>
+            setWhatsappModal((prev) => ({ ...prev, active: val }))
+          }
+          title={whatsappModal.title}
+          link={whatsappModal.link}
         />
         <RescheduleModal />
         <AddonModal />
@@ -180,7 +198,11 @@ const BookingDetails = () => {
         {/* Kyc modal */}
         <UserKycApproveModal />
         {/* ride end modal */}
-        <RideEndModal id={bookingId} setRatingActive={setRateCustomer} />
+        <RideEndModal
+          id={bookingId}
+          setRatingActive={setRateCustomer}
+          setWhatsappModal={setWhatsappModal}
+        />
 
         <RateUserModal
           isActive={rateCustomer}
@@ -198,6 +220,7 @@ const BookingDetails = () => {
           handleCancelBooking={handleCancelBooking}
           vehicleLoading={vehicleLoading}
           setRateCustomer={setRateCustomer}
+          setWhatsappModal={setWhatsappModal}
         />
       </div>
       <div className="mt-5">
@@ -218,6 +241,7 @@ const BookingDetails = () => {
           tabs={tab}
           booking={booking}
           onVehicleChange={() => setIsRefresh((prev) => !prev)}
+          setWhatsappModal={setWhatsappModal}
         />
       </div>
     </>

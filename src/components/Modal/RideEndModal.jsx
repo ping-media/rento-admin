@@ -22,8 +22,9 @@ import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
 import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
 import { tableIcons } from "../../Data/Icons";
 import RideEndImages from "../../components/ImageComponent/RideEndImages";
+import { handleWhatsappLink } from "../../utils/whatsapp";
 
-const RideEndModal = ({ id, setRatingActive }) => {
+const RideEndModal = ({ id, setRatingActive, setWhatsappModal }) => {
   const { isRideEndModalActive } = useSelector((state) => state.sideBar);
   const { vehicleMaster, vehiclePickupImage } = useSelector(
     (state) => state.vehicles,
@@ -280,6 +281,11 @@ const RideEndModal = ({ id, setRatingActive }) => {
         dispatch(updateTimeLineData(timeLineData));
         resetEndImages();
         handleCloseModal();
+        handleWhatsappLink(
+          response?.data?.whatsappUrl,
+          "Ride ended successfully!",
+          setWhatsappModal,
+        );
         setRatingActive?.(true); // as soon as this model close show rating model
         return dispatch(handleUpdateCompleteRide(response?.data));
       }

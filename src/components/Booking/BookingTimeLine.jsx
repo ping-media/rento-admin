@@ -122,7 +122,7 @@ const BookingTimeLine = () => {
       <div className="container mx-auto py-4">
         <div className="relative wrap overflow-hidden">
           {/* <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-[29.3%] md:left-[37.5%]"></div> */}
-          <div
+          {/* <div
             className={`absolute top-0 border-opacity-20 border-gray-700 border left-[29.3%] md:left-[37.5%] ${
               timeLineData?.timeLine?.length > 0 &&
               ["Completed", "Ended", "Cancelled"].some((status) =>
@@ -133,13 +133,22 @@ const BookingTimeLine = () => {
                 ? "bottom-9 sm:bottom-5"
                 : "bottom-0"
             }`}
-          />
+          /> */}
 
           {!loading &&
             timeLineData != null &&
             timeLineData?.timeLine?.map((item, index) => {
               return (
                 <div
+                  className={`relative ${
+                    index !== timeLineData.timeLine.length - 1 ? "pb-5" : ""
+                  } flex justify-between w-full`}
+                  key={index}
+                >
+                  {index !== timeLineData.timeLine.length - 1 && (
+                    <div className="absolute top-4 bottom-0 left-[29.3%] md:left-[37.5%] w-px bg-gray-700/55" />
+                  )}
+                  {/* <div
                   className={`${
                     ["Completed", "Ended", "Cancelled"].some((status) =>
                       item?.title?.includes(status),
@@ -148,7 +157,7 @@ const BookingTimeLine = () => {
                       : "mb-5"
                   } flex justify-between  w-full`}
                   key={index}
-                >
+                > */}
                   <div className="order-1 w-3/12 md:w-4/12 text-right">
                     <p className="text-gray-700 text-sm leading-tight whitespace-pre-line">
                       {typeof item?.date === "number"
@@ -162,7 +171,8 @@ const BookingTimeLine = () => {
                     </p>
                   </div>
 
-                  <div className="z-10 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative"></div>
+                  {/* <div className="z-10 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative"></div> */}
+                  <div className="z-10 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative shrink-0" />
                   <div className="order-1 w-8/12 md:w-7/12 text-left">
                     {!(
                       item?.title?.includes("Link") ||

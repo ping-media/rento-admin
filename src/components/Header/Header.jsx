@@ -65,6 +65,9 @@ const Header = () => {
   //   };
   // }, []);
 
+  const showClearFilters =
+    location.pathname === "/all-bookings" && filters !== null;
+
   return (
     <header>
       <div className="flex items-center justify-between px-4 py-1.5 shadow bg-white">
@@ -115,7 +118,7 @@ const Header = () => {
         <div className="flex gap-2 items-center">
           {isDev && !location.pathname.includes("/all-bookings/details/") && (
             <Link
-              className="relative border-2 rounded-md hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-2 dark:bg-gray-700"
+              className="relative hidden sm:flex border-2 rounded-md hover:shadow-none shadow-md cursor-pointer items-center gap-2 p-2 dark:bg-gray-700"
               to={"/logs"}
             >
               View Logs
@@ -123,7 +126,7 @@ const Header = () => {
           )}
 
           {/* clearing extra filters in booking page */}
-          {location.pathname === "/all-bookings" && filters !== null && (
+          {showClearFilters && (
             <button
               className="relative border-2 rounded-md hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-2 dark:bg-gray-700"
               // onClick={() => dispatch(handleRestPagination())}
@@ -155,7 +158,9 @@ const Header = () => {
             />
             {isVisible && <HeaderMenuList />}
           </button> */}
-          <LogoutBtn className="flex sm:hidden p-0" />
+          <LogoutBtn
+            className={`flex sm:hidden p-0 ${showClearFilters ? "hidden" : ""}`}
+          />
         </div>
       </div>
     </header>
