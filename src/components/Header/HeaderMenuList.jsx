@@ -22,9 +22,10 @@ const HeaderMenuList = ({ variant = "dropdown", onNavigate }) => {
   const { currentUser, loggedInRole } = useSelector((state) => state.user);
 
   if (variant === "sidebar") {
-    const fullName =
-      `${currentUser?.firstName ?? ""} ${currentUser?.lastName ?? ""}`.trim() ||
-      "--";
+    // const fullName =
+    //   `${currentUser?.firstName ?? ""} ${currentUser?.lastName ?? ""}`.trim() ||
+    //   "--";
+    const fullName = `${currentUser?.firstName ?? ""}`.trim() || "--";
 
     return (
       <div className="flex items-center gap-2 border-t border-gray-200 dark:border-gray-700 px-3 py-3">

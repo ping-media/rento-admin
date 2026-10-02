@@ -134,7 +134,7 @@ const TablePageHeader = ({
           {/* export to excel button  */}
           {showExport && <ExportButton data={bookingData} />}
 
-          {location.pathname === "/all-users" && (
+          {/* {location.pathname === "/all-users" && (
             <Link
               className="flex border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
               title="Send push notification"
@@ -143,7 +143,7 @@ const TablePageHeader = ({
               {tableIcons.bellAlert}{" "}
               <span className="block md:hidden ml-1">Push Notification</span>
             </Link>
-          )}
+          )} */}
 
           {/* most used filters button */}
           {isBookings && (

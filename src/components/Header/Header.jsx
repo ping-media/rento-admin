@@ -70,7 +70,7 @@ const Header = () => {
 
   return (
     <header>
-      <div className="flex items-center justify-between px-4 py-1.5 shadow bg-white">
+      <div className="flex items-center justify-between px-4 py-1.5 shadow bg-white min-h-14">
         {/* hamburger menu  */}
         <div className="flex items-center gap-4">
           <button
@@ -158,6 +158,15 @@ const Header = () => {
             />
             {isVisible && <HeaderMenuList />}
           </button> */}
+
+          <Link
+            className={`${showClearFilters ? "hidden" : "flex"} border sm:hover:border-theme sm:hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in`}
+            title="Send push notification"
+            to={"/notifications"}
+          >
+            {tableIcons.bellAlert}
+          </Link>
+
           <LogoutBtn
             className={`flex sm:hidden p-0 ${showClearFilters ? "hidden" : ""}`}
           />
