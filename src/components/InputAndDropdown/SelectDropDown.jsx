@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { camelCaseToSpaceSeparated, formatPrice } from "../../utils/index";
 import { tableIcons } from "../../Data/Icons";
+import { useLocation } from "react-router-dom";
 
 const SelectDropDown = ({
   item,
@@ -14,15 +15,21 @@ const SelectDropDown = ({
   placeholder,
   isSearchEnable = true,
   zIndex = "z-10",
+  setCity,
+  isLabel = true,
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
+  const [openDirection, setOpenDirection] = useState("bottom");
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef();
+  const { pathname } = useLocation();
 
   const title = {
     stationId: "Station",
-    locationId: "Location",
+    locationId: pathname?.endsWith("all-bookings/add-new")
+      ? "City"
+      : "Location",
     userId: "User",
     vehicleMasterId: "Vehicle",
     vehicleTableId: "Vehicle",
@@ -30,11 +37,12 @@ const SelectDropDown = ({
 
   const isDisabled = !options || options.length === 0;
 
-  const handleChangeValue = (selectedValue) => {
-    setInputSelect(selectedValue);
+  const handleChangeValue = (selectedValueId, selectedValue) => {
+    setInputSelect(selectedValueId);
+    setCity && setCity(selectedValue);
     setIsOpen(false);
-    if (setIsLocationSelected) setIsLocationSelected(selectedValue);
-    if (onChangeFn) onChangeFn(selectedValue);
+    if (setIsLocationSelected) setIsLocationSelected(selectedValueId);
+    if (onChangeFn) onChangeFn(selectedValueId);
   };
 
   useEffect(() => {
@@ -112,38 +120,48 @@ const SelectDropDown = ({
     return String(label).toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  // const displayLabel =
-  //   inputSelect === "default" || !inputSelect
-  //     ? isDisabled
-  //       ? `No ${title[item] || item} Found`
-  //       : `Select ${
-  //           camelCaseToSpaceSeparated(title[item]) ||
-  //           camelCaseToSpaceSeparated(placeholder || item)
-  //         }`
-  //     : getLabel(options.find((o) => getValue(o) === inputSelect));
   const matchedOption = options?.find((o) => getValue(o) === inputSelect);
   const displayLabel =
     !matchedOption || inputSelect === "default"
       ? isDisabled
         ? `No ${title[item] || item} Found`
         : `Select ${
-            camelCaseToSpaceSeparated(title[item]) ||
+            camelCaseToSpaceSeparated(placeholder || title[item]) ||
             camelCaseToSpaceSeparated(placeholder || item)
           }`
       : getLabel(matchedOption);
 
+  const toggleDropDown = () => {
+    if (!isDisabled) {
+      if (!isOpen && dropdownRef.current) {
+        const rect = dropdownRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+
+        if (spaceBelow < 200 && spaceAbove > 200) {
+          setOpenDirection("top");
+        } else {
+          setOpenDirection("bottom");
+        }
+      }
+      setIsOpen((prev) => !prev);
+    }
+  };
+
   return (
     <div className="w-full" ref={dropdownRef}>
-      <label
-        htmlFor={item}
-        className="block text-gray-800 font-semibold text-sm capitalize text-left"
-      >
-        Select{" "}
-        {placeholder ||
-          camelCaseToSpaceSeparated(title[item]) ||
-          camelCaseToSpaceSeparated(item)}
-        {require && <span className="ml-1 text-red-500">*</span>}
-      </label>
+      {isLabel && (
+        <label
+          htmlFor={item}
+          className="block text-gray-800 font-semibold text-sm capitalize text-left"
+        >
+          Select{" "}
+          {placeholder ||
+            camelCaseToSpaceSeparated(title[item]) ||
+            camelCaseToSpaceSeparated(item)}
+          {require && <span className="ml-1 text-red-500">*</span>}
+        </label>
+      )}
       <input type="hidden" name={item} value={inputSelect} />
       <div className="mt-2 relative">
         <div
@@ -152,9 +170,7 @@ const SelectDropDown = ({
               ? "bg-gray-300 bg-opacity-30 cursor-not-allowed"
               : "bg-white cursor-pointer"
           } text-gray-800 capitalize focus:outline-none focus:ring-0`}
-          onClick={() => {
-            if (!isDisabled) setIsOpen((prev) => !prev);
-          }}
+          onClick={toggleDropDown}
         >
           {displayLabel}
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-600">
@@ -164,7 +180,9 @@ const SelectDropDown = ({
 
         {isOpen && !isDisabled && (
           <div
-            className={`absolute ${zIndex} mt-2 w-full max-h-40 overflow-y-auto bg-white shadow-lg border border-gray-300 rounded-md`}
+            className={`absolute ${zIndex} w-full max-h-40 overflow-y-auto bg-white shadow-lg border border-gray-300 rounded-md ${
+              openDirection === "top" ? "bottom-full mb-2" : "mt-2"
+            }`}
           >
             {isSearchEnable && (
               <input
@@ -175,26 +193,32 @@ const SelectDropDown = ({
                 className="w-full px-4 py-2 border-b border-gray-300 outline-none focus:ring-0 focus:outline-none"
               />
             )}
-            <div
+            {/* <div
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer capitalize"
               onClick={() => handleChangeValue("default")}
             >
               {isDisabled
                 ? `No ${title[item] || item} Found`
                 : `Select ${
-                    camelCaseToSpaceSeparated(title[item]) ||
+                    camelCaseToSpaceSeparated(placeholder || title[item]) ||
                     camelCaseToSpaceSeparated(placeholder || item)
                   }`}
-            </div>
-            {filteredOptions?.map((opt, i) => (
-              <div
-                key={getValue(opt) + i}
-                onClick={() => handleChangeValue(getValue(opt))}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer capitalize"
-              >
-                {getLabel(opt)}
-              </div>
-            ))}
+            </div> */}
+            {filteredOptions?.length === 0 ? (
+              <div className="px-4 py-2 text-gray-400">No options found</div>
+            ) : (
+              filteredOptions?.map((opt, i) => (
+                <div
+                  key={getValue(opt) + i}
+                  onClick={() =>
+                    handleChangeValue(getValue(opt), getLabel(opt))
+                  }
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer capitalize"
+                >
+                  {getLabel(opt)}
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>

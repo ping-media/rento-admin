@@ -1,24 +1,14 @@
 import DropDownComponent from "../DropDown/DropDownComponent.jsx";
 import {
   changeNumberIntoTime,
-  formatFullDateAndTime,
   formatPathNameToTitle,
-  formatPrice,
-  formatTimeStampToDate,
 } from "../../utils/index.js";
 import Pagination from "../Pagination/Pagination.jsx";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { toggleDeleteModal } from "../../Redux/SideBarSlice/SideBarSlice.js";
-import { addVehicleIdToDelete } from "../../Redux/VehicleSlice/VehicleSlice.js";
+import React, { useEffect } from "react";
 import InputSwitch from "../InputAndDropdown/InputSwitch.jsx";
-import CheckBoxInput from "../InputAndDropdown/CheckBoxInput.jsx";
 import StatusChange from "./StatusChange.jsx";
 import TableNotFound from "../Skeleton/TableNotFound.jsx";
 import TableHeader from "./TableHeader.jsx";
-import { useDebounce } from "../../utils/Helper/debounce.js";
-import { handleChangeSearchTerm } from "../../Redux/PaginationSlice/PaginationSlice.js";
-import TableDataLoading from "../../components/Skeleton/TableDataLoading.jsx";
 import TableActions from "./TableActions.jsx";
 import UserDisplayCell from "./UserDisplayCell.jsx";
 import BookingDateAndCityCell from "./BookingDateAndCityCell.jsx";
@@ -26,260 +16,64 @@ import TablePageHeader from "./TablePageHeader.jsx";
 import UserStatusCell from "./UserStatusCell.jsx";
 import CopyButton from "../../components/Buttons/CopyButton.jsx";
 import TableImage from "./TableImageWithPopupShow.jsx";
-import BookingCard from "../../components/Card/BookingCard.jsx";
-import { useNavigate } from "react-router-dom";
-import CardNotFound from "../../components/Skeleton/CardNotFound.jsx";
-import CardDataLoading from "../../components/Skeleton/CardDataLoading.jsx";
-import MaintenanceStatusBadge from "./MaintenanceBadge.jsx";
+import RenderCellContent from "./RenderCellContent.jsx";
+import PriceCell from "./PriceCell.jsx";
+import useDataTable from "../../hooks/use-data-table.js";
+import {
+  SELF_CONTAINED,
+  SKIP_COLUMNS,
+  USER_PAGES,
+} from "../../constants/table.js";
+import BookingCardView from "./BookingCardView.jsx";
+import TableSkeleton from "./TableSkeleton.jsx";
 
 const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
-  const [loadingStates, setLoadingStates] = useState({});
-  const { limit } = useSelector((state) => state.pagination);
-  const { loggedInRole } = useSelector((state) => state.user);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const showRecordsOptions = [25, 50, 100, 200, 500];
-  //   sorting
-  const [sortedData, setSortedData] = useState([]);
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const [Columns, setColumns] = useState([]);
-  const [newUpdatedData, setNewUpdatedData] = useState([]);
-  const [inputSearchQuery, setInputSearchQuery] = useState("");
-  const searchTerm = useDebounce(inputSearchQuery, 500);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const loadFiltersAndData = () => {
-    if (newUpdatedData && pagination) {
-      const pageCount = Number(pagination?.totalPages);
-      setTotalPages(pageCount);
-      const start = (Number(pagination?.currentPage) - 1) * limit;
-      const end = start + limit;
-      // if there is data in sortedData
-      if (sortedData) return setNewUpdatedData(sortedData?.slice(start, end));
-    }
-  };
+  const {
+    loadFiltersAndData,
+    sortData,
+    getTableHeader,
+    getTableValue,
+    handleDeleteVehicle,
+    handleViewData,
+    loadingStates,
+    setLoadingStates,
+    limit,
+    loggedInRole,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    showRecordsOptions,
+    setSortedData,
+    sortConfig,
+    Columns,
+    setColumns,
+    newUpdatedData,
+    setNewUpdatedData,
+    inputSearchQuery,
+    setInputSearchQuery,
+    location,
+  } = useDataTable({ searchTermQuery, pagination });
 
   // resting the table data after every page change
   useEffect(() => {
     setColumns([]);
     setNewUpdatedData([]);
-  }, [location.href]);
-
-  // Sorting function
-  const sortData = (key) => {
-    if (newUpdatedData) {
-      const direction =
-        sortConfig.key === key && sortConfig.direction === "asc"
-          ? "desc"
-          : "asc";
-      const sorted = [...newUpdatedData].sort((a, b) => {
-        if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-        if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-        return 0;
-      });
-      setSortedData(sorted);
-      setNewUpdatedData(sorted);
-      setSortConfig({ key, direction });
-    }
-  };
-
-  // for table header
-  const getTableHeader = (Data) => {
-    if (Data.length == 0) return;
-    const keys = Object.keys(Data[0]);
-
-    let filteredKeys = keys.filter(
-      (key) =>
-        ![
-          "_id",
-          "vehicleMasterId",
-          "vehicleTableId",
-          "stationMasterUserId",
-          "vehiclePlan",
-          // "perDayCost",
-          "vehicleBrand",
-          "vehicleBasic",
-          "stationId",
-          "createdAt",
-          "updatedAt",
-          "latitude",
-          "longitude",
-          "imageFileName",
-          "__v",
-          "locationId",
-          "freeKms",
-          "extraKmsCharges",
-          "vehicleModel",
-          "vehicleBookingStatus",
-          "refundableDeposit",
-          "lateFee",
-          "speedLimit",
-          "kmsRun",
-          "condition",
-          "lastServiceDate",
-          "country",
-          "altContact",
-          "dateofbirth",
-          "gender",
-          "addressProof",
-          "drivingLicence",
-          "paymentUpdates",
-          "lastMeterReading",
-          // "userId",
-        ].includes(key)
-    );
-
-    if (location.pathname == "/all-bookings") {
-      filteredKeys = filteredKeys.filter(
-        (item) =>
-          ![
-            "paySuccessId",
-            "vehicleImage",
-            "vehicleBrand",
-            "paymentgatewayOrderId",
-            "paymentgatewayReceiptId",
-            "paymentInitiatedDate",
-            "discountCuopon",
-            "stationName",
-            "paymentMethod",
-            "payInitFrom",
-            "notes",
-            "extendBooking",
-            "changeVehicle",
-            "paymentStatus",
-          ].includes(item)
-      );
-    }
-
-    if (
-      location.pathname == "/payments" ||
-      location.pathname == "/all-invoices"
-      // location.pathname == "/users-documents"
-    ) {
-      filteredKeys = filteredKeys.filter(
-        (item) => !["userId", "paymentMethod"].includes(item)
-      );
-    }
-
-    if (
-      location.pathname == "/all-invoices"
-      // location.pathname == "/users-documents"
-    ) {
-      filteredKeys = filteredKeys.filter(
-        (item) => !["userId", "email", "paidInvoice"].includes(item)
-      );
-    }
-
-    let header = [...filteredKeys];
-
-    // header = header.map((key) =>
-    //   key === "isCouponActive" ? "Coupon Status" : key
-    // );
-
-    const statusColumns = header.filter(
-      (key) => key.includes("Status") || key.includes("Active")
-    );
-
-    const filteredHeader = header.filter(
-      (key) => !key.includes("Status") && !key.includes("Active")
-    );
-
-    const finalHeader = [...filteredHeader, ...statusColumns].filter(Boolean);
-
-    setColumns(finalHeader);
-  };
-
-  // for table value
-  const getTableValue = (Data) => {
-    if (Data.length == 0) return;
-    setNewUpdatedData(Data);
-    setSortedData(Data);
-  };
+    setSortedData([]);
+  }, [location.pathname]);
 
   //filtering data selecting only field we need
   useEffect(() => {
-    if (Data) {
-      if (searchTermQuery == null) {
-        getTableHeader(Data);
-      }
-      loadFiltersAndData();
-      // clear the previous data
+    if (!Data?.length) {
       setNewUpdatedData([]);
-      getTableValue(Data);
+      return;
     }
+
+    getTableHeader(Data);
+    loadFiltersAndData();
+
+    setNewUpdatedData([]);
+    getTableValue(Data);
   }, [Data, totalPages]);
-
-  // for changing data based on search query
-  useEffect(() => {
-    if (searchTerm) {
-      dispatch(handleChangeSearchTerm(searchTerm));
-    } else {
-      dispatch(handleChangeSearchTerm(null));
-    }
-  }, [searchTerm]);
-
-  // for delete the data
-  const handleDeleteVehicle = (id) => {
-    dispatch(addVehicleIdToDelete(id));
-    dispatch(toggleDeleteModal());
-  };
-
-  // let user enter in view page or edit page when click on table row
-  const handleViewData = (id) => {
-    navigate(
-      location.pathname === "/all-bookings" ||
-        location.pathname === "/all-vehicles" ||
-        location.pathname === "/all-invoices"
-        ? `details/${id}`
-        : location?.pathname === "/payments"
-        ? "#"
-        : `${id}`
-    );
-  };
-
-  const renderCellContent = (column, value) => {
-    if (!value && value !== 0) return "";
-
-    if (
-      column.includes("Charges") ||
-      column.includes("Deposit") ||
-      column.includes("Cost") ||
-      column.includes("Price")
-    ) {
-      return `₹ ${formatPrice(value)}`;
-    }
-
-    if (column.includes("Duration")) {
-      return `${value} Days`;
-    }
-
-    if (column.includes("email")) {
-      return (
-        <div title={value} className="truncate">
-          {value}
-        </div>
-      );
-    }
-
-    if (column.includes("DateAndTime")) {
-      return formatFullDateAndTime(value);
-    }
-
-    if (column?.includes("InitiatedDate")) {
-      return value !== "NA" ? formatTimeStampToDate(value) : "--";
-    }
-
-    if (column?.includes("bookingId")) {
-      return `#${value}`;
-    }
-
-    if (column?.includes("paymentMethod")) {
-      return value === "partiallyPay" ? "online" : value;
-    }
-
-    return value;
-  };
 
   return (
     <>
@@ -293,6 +87,7 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
         <TablePageHeader
           inputSearchQuery={inputSearchQuery}
           setInputSearchQuery={setInputSearchQuery}
+          bookingData={newUpdatedData}
         />
       </div>
 
@@ -303,277 +98,291 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
         } mt-5`}
       >
         <div className="flex flex-col">
-          <div className=" overflow-x-auto pb-4 no-scrollbar">
+          <div className=" overflow-x-auto pb-4">
             <div className="min-w-full inline-block align-middle">
-              <div className="overflow-hidden border shadow-lg rounded-lg border-gray-200 w-full">
-                <table className="table-auto min-w-full rounded-xl">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <TableHeader
-                        Columns={Columns}
-                        sortConfig={sortConfig}
-                        sortData={sortData}
-                        newUpdatedData={newUpdatedData}
-                      />
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-300">
-                    {!dataLoading && Data ? (
-                      newUpdatedData && newUpdatedData.length > 0 ? (
+              <div className="relative overflow-hidden border shadow-lg rounded-lg border-gray-200 w-full">
+                {dataLoading ? (
+                  <TableSkeleton />
+                ) : (
+                  <table className="table-auto min-w-full rounded-xl">
+                    <thead>
+                      <tr className="bg-gray-50 h-14 sm:h-12">
+                        <TableHeader
+                          Columns={Columns}
+                          sortConfig={sortConfig}
+                          sortData={sortData}
+                          newUpdatedData={newUpdatedData}
+                        />
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-300">
+                      {newUpdatedData?.length > 0 ? (
                         newUpdatedData.map((item, index) => (
                           <tr
-                            className="bg-white transition-all duration-500 hover:bg-gray-50 max-h-[10vh] cursor-pointer"
+                            className={`bg-white p-3.5 md:p-0 transition-all duration-500 hover:bg-gray-50 h-14 sm:h-12 ${location.pathname === "/payments" ? "" : "cursor-pointer"}`}
                             key={`row-${item._id}-${index}`}
-                            onClick={() => handleViewData(item?._id)}
+                            onClick={() => handleViewData(item)}
                           >
-                            {/* Checkbox column for all-vehicles page */}
-                            {location.pathname === "/all-vehicles" && (
+                            {/* Checkbox — vehicles page only */}
+                            {/* {location.pathname === "/all-vehicles" && (
                               <td
-                                className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                                className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
                                 key={`checkbox-${item._id}-${index}`}
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <CheckBoxInput isId={item?._id} />
                               </td>
-                            )}
+                            )} */}
+
+                            {/* Serial number */}
                             <td
-                              className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                              className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
                               key={`slNo-${index}`}
                             >
-                              {index + 1 < 10 ? `0${index + 1}` : index + 1}
+                              {(() => {
+                                const page =
+                                  Number(pagination?.currentPage) || 1;
+                                const pageLimit = Number(limit) || 10;
+                                const serial =
+                                  (page - 1) * pageLimit + index + 1;
+                                return serial < 10 ? `0${serial}` : `${serial}`;
+                              })()}
                             </td>
-                            {/* Main columns render - filtering out status and special columns */}
+
+                            {location.pathname === "/all-vehicles" && (
+                              <td
+                                className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <InputSwitch
+                                  value={item["vehicleStatus"]}
+                                  id={item?._id}
+                                />
+                              </td>
+                            )}
+
+                            {/* Main columns */}
                             {Columns.filter(
-                              (column) =>
-                                !column.includes("Status") &&
-                                !column.includes("status") &&
-                                !column.includes("Active") &&
-                                !column.includes("Invoice")
+                              (col) =>
+                                !col.includes("Status") &&
+                                !col.includes("status") &&
+                                !col.includes("Active") &&
+                                !col.includes("Invoice"),
                             ).map((column, columnIndex) => {
-                              // Skip certain columns that should not be rendered
+                              if (SKIP_COLUMNS.has(column)) return null;
+
                               if (
-                                column === "state" ||
-                                column === "isContactVerified" ||
-                                column === "isDocumentVerified" ||
-                                column === "kycApproved" ||
-                                column === "openEndTime" ||
-                                (["lastName", "contact"].includes(column) &&
-                                  [
-                                    "/all-invoices",
-                                    "/all-users",
-                                    "/all-managers",
-                                  ].includes(location.pathname))
-                              ) {
+                                ["lastName", "contact"].includes(column) &&
+                                USER_PAGES.has(location.pathname)
+                              )
                                 return null;
-                              }
+
                               const cellKey = `cell-${item._id}-${column}-${columnIndex}-${index}`;
 
-                              if (column === "userId") {
-                                return (
-                                  <UserDisplayCell
-                                    key={cellKey}
-                                    item={item}
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                );
-                              }
+                              const renderCell = () => {
+                                if (column === "userId")
+                                  return (
+                                    <UserDisplayCell
+                                      item={item}
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  );
 
-                              if (column === "city") {
-                                return (
-                                  <BookingDateAndCityCell
-                                    key={cellKey}
-                                    item={item}
-                                    column={column}
-                                  />
-                                );
-                              }
+                                if (column === "city")
+                                  return (
+                                    <BookingDateAndCityCell
+                                      item={item}
+                                      column={column}
+                                    />
+                                  );
 
-                              if (column === "isEmailVerified") {
-                                return (
-                                  <UserStatusCell
-                                    key={cellKey}
-                                    item={item}
-                                    index={columnIndex}
-                                  />
-                                );
-                              }
+                                // if (column === "isEmailVerified")
+                                if (column === "kycApproved")
+                                  return (
+                                    <UserStatusCell
+                                      item={item}
+                                      index={columnIndex}
+                                    />
+                                  );
 
-                              if (column === "couponName") {
+                                if (column === "couponName")
+                                  return (
+                                    <td
+                                      className="px-2 py-1 max-w-36 lg:max-w-24 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900 flex items-center"
+                                      key={cellKey}
+                                    >
+                                      {item[column]}{" "}
+                                      <CopyButton textToCopy={item[column]} />
+                                    </td>
+                                  );
+
+                                if (column === "openStartTime")
+                                  return (
+                                    <td
+                                      className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                      key={cellKey}
+                                    >
+                                      <p>{`${changeNumberIntoTime(item?.openStartTime)} - ${changeNumberIntoTime(item?.openEndTime)}`}</p>
+                                    </td>
+                                  );
+
+                                if (
+                                  column === "firstName" &&
+                                  USER_PAGES.has(location.pathname)
+                                )
+                                  return (
+                                    <UserDisplayCell
+                                      firstName={item?.firstName}
+                                      lastName={item?.lastName}
+                                      Contact={item?.contact}
+                                    />
+                                  );
+
+                                if (column.includes("Image"))
+                                  return (
+                                    <TableImage item={item} column={column} />
+                                  );
+
+                                if (
+                                  typeof item[column] === "object" &&
+                                  column === "currentBooking"
+                                )
+                                  return null;
+
+                                if (typeof item[column] === "object")
+                                  return (
+                                    <React.Fragment key={cellKey}>
+                                      <PriceCell
+                                        key={`booking-${item._id}-${column}-${columnIndex}-${index}`}
+                                        item={item}
+                                        column={column}
+                                      />
+                                    </React.Fragment>
+                                  );
+
                                 return (
                                   <td
-                                    className="p-2 max-w-36 lg:max-w-24 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center"
+                                    className={`px-2 py-1 text-md lg:text-sm font-medium text-gray-900 ${
+                                      column?.includes("email")
+                                        ? ""
+                                        : "capitalize"
+                                    } ${
+                                      [
+                                        "address",
+                                        "email",
+                                        "stationName",
+                                        "message",
+                                      ].includes(column)
+                                        ? "max-w-32 truncate"
+                                        : column.includes("vehicleName")
+                                          ? "max-w-24 truncate"
+                                          : "whitespace-nowrap"
+                                    }`}
                                     key={cellKey}
+                                    title={
+                                      column === "message"
+                                        ? item[column]?.toString() || ""
+                                        : undefined
+                                    }
                                   >
-                                    {item[column]}{" "}
-                                    <CopyButton textToCopy={item[column]} />
+                                    {RenderCellContent(
+                                      column,
+                                      item[column],
+                                      item,
+                                      location,
+                                    )}
                                   </td>
                                 );
-                              }
+                              };
 
-                              if (column === "openStartTime") {
-                                return (
-                                  <td
-                                    className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
-                                    key={cellKey}
-                                  >
-                                    <p>{`${changeNumberIntoTime(
-                                      item?.openStartTime
-                                    )} - ${changeNumberIntoTime(
-                                      item?.openEndTime
-                                    )}`}</p>
-                                  </td>
-                                );
-                              }
+                              const rendered = renderCell();
+                              if (!rendered) return null;
 
+                              // Components that return their own <td> don't need a wrapper
                               if (
-                                column === "firstName" &&
-                                [
-                                  "/all-invoices",
-                                  "/all-users",
-                                  "/all-managers",
-                                ].includes(location.pathname)
+                                SELF_CONTAINED.has(column) ||
+                                column === "userId" ||
+                                column === "city" ||
+                                column === "isEmailVerified" ||
+                                (column === "firstName" &&
+                                  USER_PAGES.has(location.pathname)) ||
+                                column.includes("Image") ||
+                                typeof item[column] === "object"
                               ) {
                                 return (
-                                  <UserDisplayCell
-                                    key={cellKey}
-                                    firstName={item?.firstName}
-                                    lastName={item?.lastName}
-                                    Contact={item?.contact}
-                                  />
-                                );
-                              }
-
-                              if (column.includes("Image")) {
-                                return (
-                                  <TableImage
-                                    key={cellKey}
-                                    item={item}
-                                    column={column}
-                                  />
-                                );
-                              }
-
-                              if (typeof item[column] === "object") {
-                                const paymentKey = `payment-${item._id}-${column}-${columnIndex}-${index}`;
-                                const priceKey = `price-${item._id}-${column}-${columnIndex}-${index}`;
-
-                                return (
                                   <React.Fragment key={cellKey}>
-                                    {location?.pathname === "/payments" && (
-                                      <td
-                                        className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
-                                        key={paymentKey}
-                                      >
-                                        ₹{" "}
-                                        {item?.paymentStatus ===
-                                          "partially_paid" ||
-                                        item?.paymentStatus === "partiallyPay"
-                                          ? formatPrice(
-                                              item?.bookingPrice?.userPaid
-                                            )
-                                          : item?.bookingPrice
-                                              ?.discountTotalPrice > 0
-                                          ? formatPrice(
-                                              item?.bookingPrice
-                                                ?.discountTotalPrice
-                                            )
-                                          : formatPrice(
-                                              item?.bookingPrice?.totalPrice
-                                            )}
-                                      </td>
-                                    )}
-                                    <td
-                                      className={`p-2 whitespace-nowrap text-sm font-medium text-gray-900 ${
-                                        column.includes("maintenance")
-                                          ? "capitalize"
-                                          : ""
-                                      }`}
-                                      key={priceKey}
-                                    >
-                                      {column.includes("maintenance") &&
-                                        console.log()}
-                                      {column.includes(
-                                        "files"
-                                      ) ? null : column.includes(
-                                          // ) //   ) //     `${item[column]?.length} Plan Applied` //   ) : ( //     "No Plan Applied" //   item[column]?.length === 0 ? ( // column.includes("Plan") ? (
-                                          "maintenance"
-                                        ) ? (
-                                        <MaintenanceStatusBadge
-                                          maintenanceList={item[column]}
-                                        />
-                                      ) : (
-                                        `₹${formatPrice(
-                                          item[column]?.isDiscountZero ===
-                                            true ||
-                                            (item[column]?.discountTotalPrice &&
-                                              item[column]
-                                                ?.discountTotalPrice != 0)
-                                            ? item[column]?.discountTotalPrice
-                                            : item[column]?.totalPrice
-                                        )}`
-                                      )}
-                                    </td>
+                                    {rendered}
                                   </React.Fragment>
                                 );
                               }
 
-                              return (
-                                <td
-                                  className={`p-2 text-sm font-medium text-gray-900 ${
-                                    column?.includes("email")
-                                      ? ""
-                                      : "capitalize"
-                                  } ${
-                                    [
-                                      "address",
-                                      "vehicleName",
-                                      "email",
-                                    ].includes(column)
-                                      ? "max-w-40"
-                                      : "whitespace-nowrap"
-                                  }`}
-                                  key={cellKey}
-                                >
-                                  {renderCellContent(column, item[column])}
-                                </td>
-                              );
+                              return rendered;
                             })}
 
-                            {/* Status columns render */}
+                            {/* Status columns — always rendered on the right */}
                             {Columns.filter(
-                              (column) =>
-                                column.includes("Status") ||
-                                column.includes("status") ||
-                                column.includes("Active") ||
-                                column.includes("Invoice")
+                              (col) =>
+                                col.includes("Status") ||
+                                col.includes("status") ||
+                                col.includes("Active") ||
+                                col.includes("Invoice"),
                             ).map((column, columnIndex) => {
-                              const isVehicleOrLocationStatus =
-                                (location?.pathname === "/location-master" &&
-                                  column.includes("Status")) ||
-                                (location?.pathname === "/all-vehicles" &&
-                                  column.includes("vehicleStatus"));
-
                               const statusKey = `status-${item._id}-${column}-${columnIndex}-${index}`;
 
-                              return isVehicleOrLocationStatus ? (
-                                <td
-                                  className="p-2 whitespace-nowrap text-sm font-medium text-gray-900 pl-4"
-                                  key={statusKey}
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <InputSwitch
-                                    value={item[column]}
-                                    id={item?._id}
-                                  />
-                                </td>
-                              ) : (
-                                <td
-                                  className="p-2 whitespace-nowrap text-sm font-medium text-gray-900"
-                                  key={statusKey}
-                                >
-                                  <StatusChange item={item} column={column} />
-                                </td>
-                              );
+                              const isToggleStatus =
+                                (location.pathname === "/location-master" &&
+                                  column.includes("Status")) ||
+                                (location.pathname === "/all-vehicles" &&
+                                  column.includes("vehicleStatus")) ||
+                                (location.pathname === "/station-master" &&
+                                  column.includes("status")) ||
+                                (location.pathname === "/vehicle-master" &&
+                                  column.includes("status"));
+
+                              const renderStatusCell = () => {
+                                if (isToggleStatus)
+                                  return (
+                                    <td
+                                      className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                      key={statusKey}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <InputSwitch
+                                        value={item[column]}
+                                        id={item?._id}
+                                      />
+                                    </td>
+                                  );
+
+                                if (column.includes("rideStatus"))
+                                  return (
+                                    <td
+                                      className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                      key={statusKey}
+                                    >
+                                      <p className="bg-gray-300/20 border border-gray-300/60 tracking-wider p-1 text-center rounded-md uppercase text-xs">
+                                        {["pending", "canceled"].includes(
+                                          item[column],
+                                        )
+                                          ? "Not Started"
+                                          : item[column] === "completed"
+                                            ? item[column]
+                                            : "Started"}
+                                      </p>
+                                    </td>
+                                  );
+
+                                return (
+                                  <td
+                                    className="px-2 py-1 md:max-w-16 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
+                                    key={statusKey}
+                                  >
+                                    <StatusChange item={item} column={column} />
+                                  </td>
+                                );
+                              };
+
+                              return renderStatusCell();
                             })}
 
                             {/* Action buttons */}
@@ -589,13 +398,17 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                           </tr>
                         ))
                       ) : (
-                        <TableNotFound />
-                      )
-                    ) : (
-                      <TableDataLoading />
-                    )}
-                  </tbody>
-                </table>
+                        <TableNotFound
+                          ColumnsCount={
+                            (location.pathname === "/all-vehicles"
+                              ? Columns?.length + 2
+                              : Columns?.length + 1) || 7
+                          }
+                        />
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </div>
@@ -604,26 +417,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
 
       {/* card view for bookings page only  */}
       {location.pathname === "/all-bookings" && (
-        <div
-          className={`${
-            location.pathname === "/all-bookings" ? "lg:hidden" : ""
-          } mt-5`}
-        >
-          {!dataLoading && Data ? (
-            newUpdatedData && newUpdatedData.length > 0 ? (
-              newUpdatedData.map((item) => (
-                <BookingCard item={item} key={item?._id} />
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center h-52 bg-white rounded-xl shadow-xl">
-                <CardNotFound />
-              </div>
-            )
-          ) : (
-            <div className="flex items-center justify-center h-52 bg-white rounded-xl">
-              <CardDataLoading />
-            </div>
-          )}
+        <div className="lg:hidden mt-5">
+          <BookingCardView
+            dataLoading={dataLoading}
+            Data={Data}
+            newUpdatedData={newUpdatedData}
+          />
         </div>
       )}
 

@@ -14,20 +14,24 @@ const SelectDropDownCoupon = ({
   setCoupon,
   removeCoupon,
   coupon,
+  onSearchChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [openDirection, setOpenDirection] = useState("bottom");
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
   const debounceTimerRef = useRef(null);
   const dispatch = useDispatch();
 
-  const handleOptionClick = (val) => {
+  const handleOptionClick = async (e, val) => {
+    e.preventDefault();
+
     setInputSelect && setInputSelect(val?.couponName);
-    setIsOpen(false);
-    // console.log(val);
     setCoupon &&
       setCoupon({ ...coupon, couponName: val?.couponName, couponId: val?._id });
+
+    setIsOpen(false);
   };
 
   const handleClickOutside = (e) => {
@@ -48,6 +52,7 @@ const SelectDropDownCoupon = ({
     }
     debounceTimerRef.current = setTimeout(() => {
       dispatch(setCouponName(searchTerm));
+      onSearchChange && onSearchChange(searchTerm);
     }, 300);
 
     return () => {
@@ -57,7 +62,22 @@ const SelectDropDownCoupon = ({
     };
   }, [searchTerm]);
 
+  // const handleToggleDropdown = () => {
+  //   setIsOpen((prev) => !prev);
+  // };
+
   const handleToggleDropdown = () => {
+    if (!isOpen && dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      if (spaceBelow < 200 && spaceAbove > 200) {
+        setOpenDirection("top");
+      } else {
+        setOpenDirection("bottom");
+      }
+    }
     setIsOpen((prev) => !prev);
   };
 
@@ -105,12 +125,14 @@ const SelectDropDownCoupon = ({
             ? `${
                 options?.find(
                   (opt) =>
-                    opt.couponName?.toLowerCase() === inputSelect?.toLowerCase()
+                    opt.couponName?.toLowerCase() ===
+                    inputSelect?.toLowerCase(),
                 )?.couponName || ""
               } | ${
                 options?.find(
                   (opt) =>
-                    opt.couponName?.toLowerCase() === inputSelect?.toLowerCase()
+                    opt.couponName?.toLowerCase() ===
+                    inputSelect?.toLowerCase(),
                 )?.discountType || ""
               }`
             : `Select ${item}`}
@@ -119,7 +141,11 @@ const SelectDropDownCoupon = ({
           {tableIcons.downArrow}
         </div>
         {isOpen && (
-          <div className="absolute z-50 bg-white mt-2 w-full max-h-28 lg:max-h-40 overflow-y-auto rounded-md shadow-md border border-gray-300">
+          <div
+            className={`absolute z-50 bg-white w-full max-h-28 lg:max-h-40 overflow-y-auto rounded-md shadow-md border border-gray-300 ${
+              openDirection === "top" ? "bottom-full mb-2" : "mt-2"
+            }`}
+          >
             <input
               type="text"
               ref={searchInputRef}
@@ -133,7 +159,7 @@ const SelectDropDownCoupon = ({
               options.map((opt) => (
                 <div
                   key={opt._id}
-                  onClick={() => handleOptionClick(opt)}
+                  onClick={(e) => handleOptionClick(e, opt)}
                   className="px-4 py-2 hover:bg-gray-100 text-sm capitalize cursor-pointer"
                 >
                   {opt.couponName} | {opt.discountType}

@@ -1,7 +1,7 @@
 const StatusChange = ({ item, column }) => {
   return (
     <div
-      className={`p-1 lg:py-1.5 lg:px-2.5 ${
+      className={`p-1 lg:py-1.5 lg:px-2.5 border ${
         item[column] === "active" ||
         item[column] === "available" ||
         item[column] == "done" ||
@@ -10,15 +10,15 @@ const StatusChange = ({ item, column }) => {
         item[column] === "partiallyPay" ||
         item[column] === "completed" ||
         item[column] === "extended"
-          ? "bg-emerald-50"
+          ? "bg-emerald-50 border-emerald-100"
           : item[column] === "ongoing" || item[column] === "pending"
-          ? "bg-orange-50"
-          : item[column] === "refunded"
-          ? "bg-gray-400/50"
-          : item[column] === "failed"
-          ? "bg-red-100"
-          : "bg-red-50"
-      } rounded-full flex justify-center w-24 items-center gap-1`}
+            ? "bg-orange-50 border-orange-100"
+            : item[column] === "refunded"
+              ? "bg-gray-400/50 border-gray-400/90"
+              : item[column] === "failed"
+                ? "bg-red-100 border-red-200"
+                : "bg-red-50 border-red-100"
+      } rounded-md flex justify-center min-w-24 items-center uppercase gap-1`}
     >
       <svg
         width="5"
@@ -42,18 +42,18 @@ const StatusChange = ({ item, column }) => {
             item[column] === "extended"
               ? "#059669"
               : item[column] == "ongoing" || item[column] === "pending"
-              ? "#FFA500"
-              : item[column] === "refunded"
-              ? // ? "#FFC145"
-                "#808080"
-              : item[column] === "failed"
-              ? "#C62300"
-              : "#E23844"
+                ? "#FFA500"
+                : item[column] === "refunded"
+                  ? // ? "#FFC145"
+                    "#808080"
+                  : item[column] === "failed"
+                    ? "#C62300"
+                    : "#E23844"
           }`}
         ></circle>
       </svg>
       <span
-        className={`font-medium text-xs ${
+        className={`font-medium text-sm md:text-xs ${
           item[column] === "active" ||
           item[column] === "available" ||
           item[column] === "done" ||
@@ -62,19 +62,25 @@ const StatusChange = ({ item, column }) => {
           item[column] === "partiallyPay" ||
           item[column] === "completed" ||
           item[column] === "extended"
-            ? "text-emerald-600"
+            ? "text-emerald-800"
             : item[column] === "ongoing" || item[column] === "pending"
-            ? "text-orange-600"
-            : item[column] === "refunded"
-            ? "text-white"
-            : item[column] === "failed"
-            ? "text-red-700"
-            : "text-red-600"
+              ? "text-orange-800"
+              : item[column] === "refunded"
+                ? "text-white"
+                : item[column] === "failed"
+                  ? "text-red-800"
+                  : "text-red-700"
         }`}
       >
         {item[column] === "partially_paid"
           ? item[column].replace("_", " ")
-          : item[column]}
+          : location.pathname === "/all-bookings" && item[column] === "done"
+            ? "Booked"
+            : location.pathname === "/all-bookings" && column === "rideStatus"
+              ? item[column] === "pending"
+                ? "Not Started"
+                : item[column]
+              : item[column]}
       </span>
     </div>
   );

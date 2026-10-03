@@ -2,13 +2,13 @@ import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-// import AdjustRoundedIcon from "@mui/icons-material/AdjustRounded";
 import EmojiTransportationOutlinedIcon from "@mui/icons-material/EmojiTransportationOutlined";
 import LoyaltyOutlinedIcon from "@mui/icons-material/LoyaltyOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import {
   AccountCircleOutlined,
+  AccountTreeOutlined,
   EventAvailableOutlined,
   InventoryOutlined,
   PeopleOutlineOutlined,
@@ -35,31 +35,17 @@ const menuList = [
     roles: ["admin", "manager"],
   },
   {
+    menuImg: <AccountTreeOutlined />,
+    menuTitle: "Extra Addon",
+    menuLink: "/extra-addon",
+    roles: ["manager"],
+  },
+  {
     menuImg: <PersonOutlinedIcon />,
     menuTitle: "Customers",
     menuLink: "/all-users",
     roles: ["admin"],
   },
-  // {
-  //   menuImg: <PersonOutlinedIcon />,
-  //   menuTitle: "Users",
-  //   menuLink: "#",
-  //   roles: ["admin"],
-  //   nestedLink: [
-  //     {
-  //       menuImg: <AdjustRoundedIcon />,
-  //       menuTitle: "All Customers",
-  //       menuLink: "/all-users",
-  //       roles: ["admin"],
-  //     },
-  //     {
-  //       menuImg: <AdjustRoundedIcon />,
-  //       menuTitle: "All Managers",
-  //       menuLink: "/all-managers",
-  //       roles: ["admin"],
-  //     },
-  //   ],
-  // },
   {
     menuImg: <AccountBalanceOutlinedIcon />,
     menuTitle: "Payments",
@@ -76,11 +62,11 @@ const menuList = [
     menuImg: <ReceiptOutlinedIcon />,
     menuTitle: "Invoices",
     menuLink: "/all-invoices",
-    roles: ["admin", "manager"],
+    roles: ["admin"],
   },
   {
     menuImg: <LoyaltyOutlinedIcon />,
-    menuTitle: "All Coupons",
+    menuTitle: "Coupons",
     menuLink: "/all-coupons",
     roles: ["admin"],
   },

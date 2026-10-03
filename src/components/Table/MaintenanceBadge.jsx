@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const formatDateTime = () => {
   const now = new Date();
@@ -15,7 +16,10 @@ const formatDateTime = () => {
   return formatted;
 };
 
-const MaintenanceStatusBadge = ({ maintenanceList = [] }) => {
+const MaintenanceStatusBadge = ({
+  maintenanceList = [],
+  currentBooking = null,
+}) => {
   const currentDateTimeISO = formatDateTime();
 
   // Find active maintenance
@@ -60,7 +64,9 @@ const MaintenanceStatusBadge = ({ maintenanceList = [] }) => {
   let reason = "No Schedule";
   if (isActive) {
     reason = activeMaintenance.reason;
+    // reason = "Block";
   } else if (isUpcoming) {
+    // reason = "Upcoming Block";
     reason = upcomingMaintenance.reason;
   }
 
@@ -73,15 +79,32 @@ const MaintenanceStatusBadge = ({ maintenanceList = [] }) => {
       {isUpcoming && (
         <div className="mb-3">
           <span className="text-xs italic p-1 bg-gray-400/60 text-gray-100 rounded-md">
-            Maintenance: upcoming
+            upcoming
           </span>
         </div>
       )}
-      <span
-        className={`p-1 lg:px-2 lg:py-1 ${bgClass} text-gray-100 rounded-md inline-block min-w-24`}
-      >
-        {reason}
-      </span>
+
+      {reason !== "No Schedule" ? (
+        <span
+          className={`p-1 lg:px-2 lg:py-1 ${bgClass} text-gray-100 rounded-md inline-block max-w-28 truncate`}
+        >
+          {reason}
+        </span>
+      ) : (
+        <Link
+          to={
+            currentBooking !== null
+              ? `/all-bookings/details/${currentBooking?._id}_${currentBooking?.bookingId}`
+              : "#"
+          }
+        >
+          <span
+            className={`${currentBooking === null ? "bg-green-500/30" : "bg-yellow-500/35"} rounded-md px-4 py-2`}
+          >
+            {currentBooking?.bookingId ?? "Available"}
+          </span>
+        </Link>
+      )}
     </>
   );
 };

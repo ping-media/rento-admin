@@ -17,17 +17,27 @@ const UserDisplayCell = ({ item, firstName, lastName, Contact }) => {
   const contact = user?.contact || Contact || "NA";
 
   const shouldLink = !["/all-users", "/all-managers"].includes(
-    location.pathname
+    location.pathname,
   );
 
   return (
     <td
-      className="p-2 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize text-left"
+      className="px-2 py-1 whitespace-nowrap text-md lg:text-sm leading-5 font-medium text-gray-900 capitalize text-left max-w-32"
       key={item?._id}
       onClick={(e) => e.stopPropagation()}
     >
-      <p className={shouldLink ? "hover:text-theme hover:underline" : ""}>
-        <Link to={shouldLink ? `/all-users/${userId}` : "#"}>
+      <p
+        className={
+          shouldLink
+            ? "max-w-[160px] hover:text-theme truncate hover:underline"
+            : ""
+        }
+      >
+        <Link
+          to={shouldLink ? `/all-users/${userId}` : "#"}
+          className="block truncate"
+          title={`${displayFirstName} ${displayLastName}`}
+        >
           {`${displayFirstName} ${displayLastName}`}
         </Link>
       </p>

@@ -1,15 +1,15 @@
 import { useDispatch, useSelector } from "react-redux";
-import Input from "../../components/InputAndDropdown/Input";
+// import Input from "../InputAndDropdown/Input";
 import React, { useState } from "react";
-import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
-import Spinner from "../../components/Spinner/Spinner";
+// import SelectDropDown from "../InputAndDropdown/SelectDropDown";
+import Spinner from "../Spinner/Spinner";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { postData } from "../../Data/index";
 import { addGeneral } from "../../Redux/GeneralSlice/GeneralSlice";
-import GeneralTable from "../../components/Table/GeneralTable";
+import GeneralTable from "../Table/GeneralTable";
 import GerneralAddAndUpdateForm from "./GerneralAddAndUpdateForm";
 import { tableIcons } from "../../Data/Icons";
-import GSTTable from "../Table/GSTTable";
+// import GSTTable from "../Table/GSTTable";
 
 const GeneralForm = () => {
   const { general, loading } = useSelector((state) => state.general);
@@ -21,39 +21,39 @@ const GeneralForm = () => {
   });
   const dispatch = useDispatch();
 
-  const handleUpdatweakendSettings = async (e) => {
-    e.preventDefault();
+  // const handleUpdatweakendSettings = async (e) => {
+  //   e.preventDefault();
 
-    const formData = new FormData(e.target);
-    const result = Object.fromEntries(formData.entries());
+  //   const formData = new FormData(e.target);
+  //   const result = Object.fromEntries(formData.entries());
 
-    if (!result.weakendPrice || !["+", "-"].includes(result.weakendPriceType)) {
-      handleAsyncError(dispatch, "All fields required!");
-      return;
-    }
+  //   if (!result.weakendPrice || !["+", "-"].includes(result.weakendPriceType)) {
+  //     handleAsyncError(dispatch, "All fields required!");
+  //     return;
+  //   }
 
-    try {
-      setFormLoading((prev) => ({ ...prev, weakendLoading: true }));
-      const response = await postData(
-        "/updateGeneral",
-        {
-          weakendPrice: Number(result.weakendPrice),
-          weakendPriceType: result.weakendPriceType,
-        },
-        token
-      );
-      if (response.success === true) {
-        const newData = { ...general, weakend: response?.data?.weakend };
-        dispatch(addGeneral(newData));
-        handleAsyncError(dispatch, response?.message, "success");
-        return;
-      }
-    } catch (error) {
-      handleAsyncError(dispatch, "Unable to update weakend price! try again");
-    } finally {
-      setFormLoading((prev) => ({ ...prev, weakendLoading: false }));
-    }
-  };
+  //   try {
+  //     setFormLoading((prev) => ({ ...prev, weakendLoading: true }));
+  //     const response = await postData(
+  //       "/updateGeneral",
+  //       {
+  //         weakendPrice: Number(result.weakendPrice),
+  //         weakendPriceType: result.weakendPriceType,
+  //       },
+  //       token
+  //     );
+  //     if (response.success === true) {
+  //       const newData = { ...general, weakend: response?.data?.weakend };
+  //       dispatch(addGeneral(newData));
+  //       handleAsyncError(dispatch, response?.message, "success");
+  //       return;
+  //     }
+  //   } catch (error) {
+  //     handleAsyncError(dispatch, "Unable to update weakend price! try again");
+  //   } finally {
+  //     setFormLoading((prev) => ({ ...prev, weakendLoading: false }));
+  //   }
+  // };
 
   const handleUpdateSpecialSettings = async (e) => {
     e.preventDefault();
@@ -117,14 +117,15 @@ const GeneralForm = () => {
 
   return (
     <>
-      <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
+      {/* <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
         Enable/Disable GST
       </h2>
-      <GSTTable />
+      <GSTTable /> */}
 
-      <h2 className="text-md lg:text-lg font-semibold mt-2 mb-3 border-b uppercase">
+      {/* <h2 className="text-md lg:text-lg font-semibold mt-2 mb-3 border-b uppercase">
         Weekend Price
       </h2>
+
       <form onSubmit={handleUpdatweakendSettings} className="mb-5">
         <div className="flex items-center flex-wrap gap-4 lg:mb-2">
           <div className="w-full lg:w-[49%] mb-2 lg:mb-0">
@@ -161,7 +162,7 @@ const GeneralForm = () => {
         >
           {formLoading.weakendLoading ? "Updating" : "Update"}
         </button>
-      </form>
+      </form> */}
 
       <div className="border-b mb-3 flex items-center justify-between py-1">
         <div className="flex items-center gap-2">
