@@ -19,14 +19,14 @@ const formatDateTime = (isoString) => {
   return format(date, "dd MMM yyyy, hh:mm a");
 };
 
-const CustomerForm = ({ handleFormSubmit, loading }) => {
+const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const { loggedInRole } = useSelector((state) => state.user);
   const [review, setReview] = useState(false);
   const { id } = useParams();
   const location = useLocation();
 
-  const isProfile = location.pathname === "/profile";
+  // const isProfile = location.pathname === "/profile";
   const isAdmin = loggedInRole === "admin";
   const USER_ROLE = isAdmin ? userType : userTypeWithoutAdmin;
 
@@ -183,7 +183,7 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
                           })()
                         : ""
                     }
-                    require={location.pathname !== "/profile" ? true : false}
+                    require={!isProfile ? true : false}
                   />
                 </div>
               )}
@@ -202,7 +202,8 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
                   require={true}
                 />
               </div>
-              {location.pathname !== "/profile" && !isAddCustomer && (
+              {/* {location.pathname !== "/profile" && !isAddCustomer && ( */}
+              {!isProfile && !isAddCustomer && (
                 <div className="w-full lg:w-[48%]">
                   <Input
                     item={"addressProof"}
@@ -217,7 +218,8 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
                 </div>
               )}
 
-              {location.pathname !== "/profile" && !isAddCustomer && (
+              {/* {location.pathname !== "/profile" && !isAddCustomer && ( */}
+              {!isProfile && !isAddCustomer && (
                 <div className="w-full lg:w-[48%]">
                   <Input
                     type="date"
@@ -239,13 +241,14 @@ const CustomerForm = ({ handleFormSubmit, loading }) => {
               )}
             </>
 
-            {!id && !isAddCustomer && (
+            {/* {!id && !isAddCustomer && (
               <div className="w-full lg:w-[48%]">
                 <Input item={"password"} type="password" isPassword={true} />
               </div>
-            )}
+            )} */}
 
-            {location.pathname != "/profile" && (
+            {/* {location.pathname != "/profile" && ( */}
+            {!isProfile && (
               <>
                 {!location.pathname.includes("/add-new") ? (
                   <div className="w-full lg:w-[48%]">

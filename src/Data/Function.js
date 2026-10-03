@@ -67,7 +67,10 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
 
         handleAsyncError(dispatch, "Login Successfully", "success");
       } else {
-        handleAsyncError(dispatch, "Login failed! try again");
+        handleAsyncError(
+          dispatch,
+          response?.message ?? "Login failed! try again",
+        );
       }
     } else {
       handleAsyncError(dispatch, "Invalid Email & Password");
@@ -171,6 +174,13 @@ const fetchVehicleMasterWithPagination = debounce(
 
       const currentPage = page;
 
+      const encSearch = encodeURIComponent(isSearchTermPresent?.trim() || "");
+      const encVehicleSearch = encodeURIComponent(
+        vehiclesFilter?.search?.toLowerCase() || "",
+      );
+      const encVehicleName = encodeURIComponent(
+        vehiclesFilter?.vehicleName?.toLowerCase() || "",
+      );
       let dynamicEndpoint = `${endpoint}?page=${currentPage}&limit=${limit}`;
 
       if (filters && filters?.trim() !== "") {
@@ -196,22 +206,22 @@ const fetchVehicleMasterWithPagination = debounce(
         vehiclesFilter.stationId !== "" &&
         vehiclesFilter.maintenanceType !== ""
       ) {
-        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&stationId=${vehiclesFilter?.stationId}&maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?vehicleName=${encVehicleName}&search=${encVehicleSearch}&stationId=${vehiclesFilter?.stationId}&maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
       } else if (
         vehiclesFilter.vehicleName !== "" ||
         vehiclesFilter.search !== "" ||
         vehiclesFilter.stationId !== ""
       ) {
-        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&stationId=${vehiclesFilter?.stationId}&page=${currentPage}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?vehicleName=${encVehicleName}&search=${encVehicleSearch}&stationId=${vehiclesFilter?.stationId}&page=${currentPage}&limit=${limit}`;
       } else if (vehiclesFilter.maintenanceType !== "") {
         dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
       } else if (isSearchTermPresent && isSearchTermPresent.trim() !== "") {
         if (searchType !== "all") {
-          dynamicEndpoint = `${endpoint}?${searchType}=${isSearchTermPresent}&page=${currentPage}&limit=${limit}`;
+          dynamicEndpoint = `${endpoint}?${searchType}=${encSearch}&page=${currentPage}&limit=${limit}`;
         } else if (searchBasedOnFilter === "") {
-          dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&page=${currentPage}&limit=${limit}`;
+          dynamicEndpoint = `${endpoint}?search=${encSearch}&page=${currentPage}&limit=${limit}`;
         } else {
-          dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
+          dynamicEndpoint = `${endpoint}?search=${encSearch}&${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
         }
       } else if (searchBasedOnFilter !== "") {
         if (filters && filters.trim() !== "") {
@@ -220,9 +230,6 @@ const fetchVehicleMasterWithPagination = debounce(
           dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
         }
       }
-      // else if (searchBasedOnFilter !== "") {
-      //   dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
-      // }
 
       const url = new URL(dynamicEndpoint, window.location.origin);
 
@@ -398,11 +405,15 @@ const handleUpdateAdminProfile = async (
   setFormLoading(true);
   const response = new FormData(event.target);
   let result = Object.fromEntries(response.entries());
-  if (id) {
-    result = Object.assign(result, { _id: id, userType: userType });
-  }
+  // if (id) {
+  result = Object.assign(result, { userType: userType });
+  // }
+  // if (id) {
+  //   result = Object.assign(result, { _id: id, userType: userType });
+  // }
 
-  const endpoint = `/updateProfile?_id=${id}`;
+  // const endpoint = `/updateProfile?_id=${id}`;
+  const endpoint = `/updateProfile`;
 
   try {
     const response = await postData(endpoint, result, token);

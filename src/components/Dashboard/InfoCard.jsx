@@ -3,6 +3,14 @@ import { Link } from "react-router-dom";
 import { camelCaseToSpaceSeparated } from "../../utils/index";
 
 const InfoCard = ({ item }) => {
+  const count = Number(item?.count) || 0;
+  const isRevenue = item?.title?.includes("REVENUE");
+  const hasData = count > 0;
+
+  const emptyText = isRevenue
+    ? "No revenue yet"
+    : `No ${camelCaseToSpaceSeparated(item?.title || "records").toLowerCase()} yet`;
+
   return (
     <Link to={item?.link}>
       <div className="shadow-md rounded-xl bg-white px-4 py-4">
@@ -17,14 +25,22 @@ const InfoCard = ({ item }) => {
             >
               {camelCaseToSpaceSeparated(item?.title)}
             </p>
-            <h1 className="lg:text-xl font-bold text-center lg:text-start">
-              {item?.title?.includes("REVENUE") ? "₹" : ""}
-              {Number(item?.count ?? 0) > 0 ? (
-                <CountUp className="ml-1" end={item?.count} />
-              ) : (
-                "-"
-              )}
-            </h1>
+            {hasData ? (
+              <h2 className="lg:text-xl font-bold text-center lg:text-start">
+                <CountUp
+                  end={count}
+                  prefix={isRevenue ? "₹" : ""}
+                  separator=","
+                />
+              </h2>
+            ) : (
+              <p
+                className="text-sm font-medium text-gray-800 text-center lg:text-start truncate max-w-[140px]"
+                title={emptyText}
+              >
+                {emptyText}
+              </p>
+            )}
           </div>
         </div>
       </div>

@@ -163,7 +163,7 @@ const App = () => {
                 }
               />
               <Route
-                path="notifications"
+                path="all-users/notifications"
                 exact
                 element={
                   <PrivateRouteBasedOnUser

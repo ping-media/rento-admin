@@ -297,6 +297,10 @@ const BarChart = ({ data, onBarClick }) => {
     { totalBookings: 0, totalRevenue: 0 },
   );
 
+  const hasChartData =
+    Array.isArray(chartData?.totalPrice) &&
+    chartData.totalPrice.some((value) => Number(value) > 0);
+
   return (
     <div className="w-full bg-white sm:px-4 md:px-6 px-2 py-4 rounded-lg">
       {/* View Mode Buttons */}
@@ -309,9 +313,10 @@ const BarChart = ({ data, onBarClick }) => {
                 viewMode === mode
                   ? "bg-theme text-gray-100 border-theme"
                   : "text-theme"
-              }`}
+              } disabled:opacity-80 disabled:cursor-not-allowed`}
               onClick={() => setViewMode(mode)}
               key={index}
+              disabled={!hasChartData}
             >
               {tableIcons?.dateCalender} {mode}
             </button>
@@ -320,16 +325,31 @@ const BarChart = ({ data, onBarClick }) => {
       </div>
 
       {/* Total Price Chart */}
-      <div className="w-full overflow-x-auto">
-        <div className="min-w-[600px]">
-          <Chart
-            options={totalPriceOptions}
-            series={[{ name: "Total Revenue", data: chartData.totalPrice }]}
-            type="bar"
-            height={400}
-          />
+      {hasChartData ? (
+        <div className="w-full overflow-x-auto">
+          <div className="min-w-[600px]">
+            <Chart
+              options={totalPriceOptions}
+              series={[{ name: "Total Revenue", data: chartData.totalPrice }]}
+              type="bar"
+              height={400}
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="w-full h-[400px] flex flex-col items-center justify-center text-center text-gray-400">
+          <div className="mb-3 text-theme/60 [&>svg]:size-16 md:[&>svg]:size-20">
+            {tableIcons?.dateCalender}
+          </div>
+          <p className="text-base font-semibold text-gray-500">
+            No revenue data available
+          </p>
+          <p className="text-sm mt-1">
+            There is no revenue recorded for this {viewMode.toLowerCase()}{" "}
+            period.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,19 +1,16 @@
 import { memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import userImage from "../../assets/logo/user.png";
 import { toggleSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { tableIcons } from "../../Data/Icons";
-// import HeaderMenuList from "./HeaderMenuList";
 import { Link, useLocation, useParams } from "react-router-dom";
 import BackButton from "../../components/Buttons/BackButton";
 import TitleAndButton from "./TitleAndButton";
-// import { handleRestPagination } from "../../Redux/PaginationSlice/PaginationSlice";
 import useListParams from "../../hooks/use-list-params";
 import { LogoutBtn } from "./HeaderMenuList";
 
 const NON_TITLE_PAGE = [
   "/dashboard",
-  "/notifications",
+  "all-users/notifications",
   "/profile",
   "/settings",
 ];
@@ -162,9 +159,10 @@ const Header = () => {
           <Link
             className={`${showClearFilters ? "hidden" : "flex"} border sm:hover:border-theme sm:hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in`}
             title="Send push notification"
-            to={"/notifications"}
+            to={"/all-users/notifications"}
           >
-            {tableIcons.bellAlert}
+            <div className="-rotate-45">{tableIcons.send}</div>
+            <span className="hidden sm:block ml-1">Push Notification</span>
           </Link>
 
           <LogoutBtn

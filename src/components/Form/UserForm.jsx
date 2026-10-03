@@ -26,7 +26,7 @@ const UserForm = ({ handleFormSubmit, loading }) => {
   return (
     (vehicleMaster || isAddUsers) && (
       <>
-        <CustomerForm {...{ handleFormSubmit, loading }} />
+        <CustomerForm {...{ handleFormSubmit, loading, isProfile }} />
 
         {/* user location     */}
         {!isAddUsers && normalizedUser && !isProfile && (
