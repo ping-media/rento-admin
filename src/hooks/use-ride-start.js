@@ -10,8 +10,35 @@ import {
 import { isValidIndianMobile } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 import { handleWhatsappLink } from "../utils/whatsapp";
+import { calculateBookingPrice } from "../utils/calculateBookingPrice";
 
 // const isDev = import.meta.env.VITE_ENV === "development";
+
+const getPartialRemaining = (bp) => {
+  if (!bp) return 0;
+  if (bp.AmountLeftAfterUserPaid?.status !== "unpaid") return 0;
+
+  const base =
+    Number(bp.discountTotalPrice) > 0
+      ? Number(bp.discountTotalPrice)
+      : Number(bp.totalPrice || 0) + Number(bp.tax || 0);
+
+  // latest merged vehicle-change difference (same rule as calculateBookingPrice)
+  const merged = (Array.isArray(bp.diffAmount) ? bp.diffAmount : [])
+    .filter(
+      (d) =>
+        d?.title === "changedVehicle" &&
+        d?.mergedIntoBookingBalance &&
+        Number(d?.newAmount) > Number(d?.oldAmount),
+    )
+    .at(-1);
+
+  const mergedDelta = merged
+    ? Number(merged.newAmount || 0) - Number(merged.oldAmount || 0)
+    : 0;
+
+  return Math.max(0, base + mergedDelta - Number(bp.userPaid || 0));
+};
 
 const useRideStart = ({
   isBookingIdPresent,
@@ -255,11 +282,6 @@ const useRideStart = ({
         setCachedVehicles(null);
         onVehicleChange && onVehicleChange();
         dispatch(togglePickupImageModal());
-        handleWhatsappLink(
-          responseImage?.whatsappUrl,
-          "Ride started successfully!",
-          setWhatsappModal,
-        );
 
         if (isChange) {
           const targetId =
@@ -313,10 +335,11 @@ const useRideStart = ({
               ? vehicleMaster[0]?.bookingPrice?.AmountLeftAfterUserPaid?.amount
               : 0;
         } else if (vehicleMaster[0]?.paymentMethod === "cash") {
-          amount =
-            vehicleMaster[0]?.bookingPrice?.discountTotalPrice > 0
-              ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice
-              : vehicleMaster[0]?.bookingPrice?.totalPrice;
+          amount = calculateBookingPrice(vehicleMaster[0]?.bookingPrice);
+          // amount =
+          //   vehicleMaster[0]?.bookingPrice?.discountTotalPrice > 0
+          //     ? vehicleMaster[0]?.bookingPrice?.discountTotalPrice
+          //     : vehicleMaster[0]?.bookingPrice?.totalPrice;
         }
 
         const TimelineVehicleNumber =
@@ -344,7 +367,13 @@ const useRideStart = ({
         await postData("/createTimeline", timeLineData, token);
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
+
         handleAsyncError(dispatch, responseImage?.message, "success");
+        handleWhatsappLink(
+          responseImage?.whatsappUrl,
+          "Ride started successfully!",
+          setWhatsappModal,
+        );
       } else {
         if (responseImage?.isKyc === false) {
           setIsKycApproved(true);

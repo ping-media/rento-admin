@@ -25,6 +25,11 @@ const buildBookingData = (booking, setOdometerModal) => {
     ? vm?.bookingPrice?.diffAmount[vm?.bookingPrice?.diffAmount?.length - 1]
     : null;
 
+  const OriginalEndDate = vm?.extendBooking?.originalEndDate?.trim();
+  const BookingEnd = OriginalEndDate
+    ? vm.extendBooking.originalEndDate
+    : vm?.BookingEndDateAndTime;
+
   return {
     user: [
       {
@@ -79,7 +84,7 @@ const buildBookingData = (booking, setOdometerModal) => {
       },
       {
         key: "Booking End",
-        value: `${vm?.BookingEndDateAndTime && formatFullDateAndTime(vm?.BookingEndDateAndTime)}`,
+        value: `${BookingEnd && formatFullDateAndTime(BookingEnd)}`,
         isVisible: true,
       },
       {

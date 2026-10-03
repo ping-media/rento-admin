@@ -231,7 +231,7 @@ const AdditionalInfo = () => {
           </div>
         )}
         <div className="flex items-center justify-between">
-          <h2 className="md:text-base font-medium">Total Price:</h2>
+          <h2 className="md:text-base font-semibold">Total Price:</h2>
           <p className="text-theme font-semibold">
             ₹{formatPrice(finalTotalPrice)}
           </p>
