@@ -245,9 +245,9 @@ const RideEndModal = ({ id, setRatingActive, setWhatsappModal }) => {
         endDateTime: Date.now(),
         imageLinks: endImageLinks,
       };
-      const LateFeeAmount = data
-        ? data.lateFeeBasedOnHour + data.lateFeeBasedOnKM
-        : 0;
+      // const LateFeeAmount = data
+      //   ? data.lateFeeBasedOnHour + data.lateFeeBasedOnKM
+      //   : 0;
 
       if (refundAmount > 0) {
         data = {
@@ -261,24 +261,28 @@ const RideEndModal = ({ id, setRatingActive, setWhatsappModal }) => {
       if (response.status === 200) {
         handleAsyncError(dispatch, "Ride completed successfully", "success");
         // updating the timeline for booking
-        const timeLineData = {
-          currentBooking_id: id,
-          timeLine: [
-            {
-              title:
-                refundAmount > 0
-                  ? "Booking Ended & Refunded"
-                  : "Booking Completed",
-              refundAmount: Number(refundAmount ?? 0) ?? 0,
-              paymentAmount: LateFeeAmount > 0 ? Number(LateFeeAmount) : 0,
-              paymentMode: result?.PaymentMode || "",
-              date: Date.now(),
-            },
-          ],
-        };
-        postData("/createTimeline", timeLineData, token);
+        // const timeLineData = {
+        //   currentBooking_id: id,
+        //   timeLine: [
+        //     {
+        //       title:
+        //         refundAmount > 0
+        //           ? "Booking Ended & Refunded"
+        //           : "Booking Completed",
+        //       refundAmount: Number(refundAmount ?? 0) ?? 0,
+        //       paymentAmount: LateFeeAmount > 0 ? Number(LateFeeAmount) : 0,
+        //       paymentMode: result?.PaymentMode || "",
+        //       date: Date.now(),
+        //     },
+        //   ],
+        // };
+        // postData("/createTimeline", timeLineData, token);
         // for updating timeline redux data
-        dispatch(updateTimeLineData(timeLineData));
+        // dispatch(updateTimeLineData(timeLineData));
+
+        if (response?.data?.timeLineData) {
+          dispatch(updateTimeLineData(response.data.timeLineData));
+        }
         resetEndImages();
         handleCloseModal();
         handleWhatsappLink(
