@@ -1,13 +1,18 @@
+import { lazy, Suspense, useMemo } from "react";
 import { useSelector } from "react-redux";
 import UserDocuments from "./User Components/UserDocuments";
 import CustomerForm from "./User Components/CustomerForm";
 import LocationCard from "../Card/LocationCard";
 import AddressCard from "../Card/AddressCard";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+const UserRideTimeLine = lazy(
+  () => import("../../components/Booking/UserRideTimeLine"),
+);
 
 const UserAndManagerPage = ["/all-managers/add-new", "/all-users/add-new"];
 
 const UserForm = ({ handleFormSubmit, loading }) => {
+  const { id } = useParams();
   const { vehicleMaster } = useSelector((state) => state.vehicles);
   const location = useLocation();
 
@@ -22,6 +27,11 @@ const UserForm = ({ handleFormSubmit, loading }) => {
     normalizedUser?.lastLocation ?? normalizedUser?.userId?.lastLocation;
   const userAddressData =
     normalizedUser?.address ?? normalizedUser?.userId?.addresses ?? null;
+
+  const isAllCustomerEditable = useMemo(() => {
+    const sanitizeId = id && id.trim() !== "";
+    return location.pathname.includes("/all-users/") && sanitizeId;
+  }, [id, location.pathname]);
 
   return (
     (vehicleMaster || isAddUsers) && (
@@ -52,6 +62,17 @@ const UserForm = ({ handleFormSubmit, loading }) => {
               hookLoading={loading}
             />
           )}
+
+        {isAllCustomerEditable && (
+          <div className="w-full flex sm:hidden flex-col mt-5">
+            <h2 className="text-lg text-theme font-semibold uppercase">
+              Rides History
+            </h2>
+            <Suspense fallback={null}>
+              <UserRideTimeLine />
+            </Suspense>
+          </div>
+        )}
       </>
     )
   );

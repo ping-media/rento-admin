@@ -60,6 +60,10 @@ const BookingCard = ({ item }) => {
     }
   }
 
+  if (item?.extendBooking?.originalEndDate?.trim()) {
+    BookingEndDateAndTime = item?.extendBooking?.originalEndDate;
+  }
+
   return (
     <div
       onClick={() => navigate(`details/${item?._id}_${item?.bookingId}`)}

@@ -35,6 +35,14 @@ const BookingDetailsButton = ({
   const isChange = useMemo(() => diffData?.rideStatus === false, [diffData]);
   const isBookingCanceled = booking?.bookingStatus === "canceled";
 
+  const isOnlinePaymentMode = booking?.paymentMethod === "online";
+  const ispartiallyPayMode = booking?.paymentMethod === "partiallyPay";
+  const hasValidPaySuccessId =
+    !!booking?.paySuccessId?.trim() &&
+    booking?.paySuccessId?.trim().toLowerCase() !== "na";
+  const isFullPaymentPending =
+    (isOnlinePaymentMode || ispartiallyPayMode) && !hasValidPaySuccessId;
+
   const isStartRideVisible = useMemo(() => {
     const rideStatus = booking?.rideStatus;
     const lastDiff = booking?.bookingPrice?.diffAmount?.slice(-1)[0];
@@ -95,6 +103,7 @@ const BookingDetailsButton = ({
       setReminderLoading(false);
     }
   };
+
   // const handleSendRemainder = async () => {
   //   try {
   //     setReminderLoading(true);
@@ -119,7 +128,6 @@ const BookingDetailsButton = ({
   // };
 
   return (
-    // <div className="flex flex-wrap gap-2">
     <div className="overflow-hidden pb-0">
       <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide bg-white -mb-4 pb-4">
         {/* for starting & completing ride  */}
@@ -132,8 +140,16 @@ const BookingDetailsButton = ({
             }
             fn={handleStartRideAndAddImages}
             disable={
+              isFullPaymentPending ||
               booking?.bookingStatus === "canceled" ||
               booking?.rideStatus === "completed"
+            }
+            onDisabledClick={() =>
+              isFullPaymentPending &&
+              handleAsyncError(
+                dispatch,
+                "Booking not confirmed yet! Confirm the payment first.",
+              )
             }
           />
         )}

@@ -78,7 +78,7 @@ const ManagerStationForm = () => {
             require={true}
           />
         </div>
-        <div className="w-full lg:w-[48%]">
+        {/* <div className="w-full lg:w-[48%]">
           <SelectDropDown
             item={"weekendPriceIncrease"}
             options={["active", "inactive"]}
@@ -94,7 +94,7 @@ const ManagerStationForm = () => {
             type="number"
             require={true}
           />
-        </div>
+        </div> */}
 
         <button
           className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"

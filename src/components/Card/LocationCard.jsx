@@ -1,7 +1,23 @@
+import { useLayoutEffect, useState } from "react";
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import L from "leaflet";
 
+const customIcon = new L.Icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+  iconSize: [30, 30],
+  iconAnchor: [15, 30],
+});
+
 const LocationCard = ({ latitude, longitude, capturedAt }) => {
+  const [mapReady, setMapReady] = useState(false);
+
+  // Cleanup also runs when Suspense hides this component, so the old map
+  // is destroyed and a fresh one is created when it shows again.
+  useLayoutEffect(() => {
+    setMapReady(true);
+    return () => setMapReady(false);
+  }, []);
+
   if (latitude === null || longitude === null || capturedAt === null)
     return (
       <div className="bg-white rounded-lg shadow-md w-full max-w-md mx-auto flex flex-col">
@@ -24,30 +40,25 @@ const LocationCard = ({ latitude, longitude, capturedAt }) => {
     })
     .replace(" at", ":");
 
-  const customIcon = new L.Icon({
-    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-  });
-
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden w-full">
       {/* Map */}
       <div className="h-48 w-full">
-        <MapContainer
-          key={`${latitude}-${longitude}`}
-          center={[latitude, longitude]}
-          zoom={15}
-          scrollWheelZoom={false}
-          className="h-full w-full"
-        >
-          {/* <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" /> */}
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            maxZoom={19}
-          />
-          <Marker position={[latitude, longitude]} icon={customIcon} />
-        </MapContainer>
+        {mapReady && (
+          <MapContainer
+            key={`${latitude}-${longitude}`}
+            center={[latitude, longitude]}
+            zoom={15}
+            scrollWheelZoom={false}
+            className="h-full w-full"
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              maxZoom={19}
+            />
+            <Marker position={[latitude, longitude]} icon={customIcon} />
+          </MapContainer>
+        )}
       </div>
 
       {/* Info */}

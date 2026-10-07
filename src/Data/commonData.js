@@ -34,8 +34,10 @@ const endPointBasedOnURL = {
   "all-vehicles/": "/createVehicle",
   "all-users": "/admin/getAllUsers",
   "all-managers": "/admin/getAllUsers",
-  "all-users/": "/signup",
-  "all-managers/": "/signup",
+  "all-users/add-new": "/signup",
+  "all-managers/add-new": "/signup",
+  "all-users/": "/change-user-profile",
+  "all-managers/": "/change-user-profile",
   "users-documents": "/getAllDocument",
   "users-documents/": "/uploadDocument",
   "all-bookings": "/getBooking",
@@ -47,6 +49,8 @@ const endPointBasedOnURL = {
   "all-invoices/": "/createInvoice",
   "all-pickup-image": "/getPickupImage",
 };
+
+const NO_NAVIGATE_PATHS = ["/all-users/", "/all-managers/"];
 
 //tofetchData for based on key
 const endPointBasedOnKey = {
@@ -184,4 +188,5 @@ export {
   blockReasonList,
   monthNames,
   PAYMENT_LABELS,
+  NO_NAVIGATE_PATHS,
 };

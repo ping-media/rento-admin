@@ -43,6 +43,14 @@ const vehicleSlice = createSlice({
       state.vehicleMaster = action.payload;
       state.loading = false;
     },
+    patchMasterUser: (state, action) => {
+      const m = state.vehicleMaster;
+      const target = m?.[0]?.userId || m?.userId || m?.[0] || m;
+
+      if (target && typeof target === "object") {
+        Object.assign(target, action.payload);
+      }
+    },
     addTimeLineData: (state, action) => {
       state.timeLineData = action.payload;
     },
@@ -511,5 +519,6 @@ export const {
   removeStationAddOn,
   updateTimeLineNoteData,
   updateIsRated,
+  patchMasterUser,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

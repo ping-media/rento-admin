@@ -83,16 +83,18 @@ const CreateNewAndUpdateForm = () => {
 
       <div className="flex items-center flex-wrap justify-between gap-1 lg:gap-0 mb-5">
         <div className="flex items-center gap-2">
-          {location.pathname.startsWith("/all-users/") &&
-            loggedInRole !== "manager" && (
-              <button
-                className="flex items-center gap-1 p-1 rounded-lg"
-                type="button"
-                onClick={() => handlePreviousPage(navigate)}
-              >
-                {tableIcons?.backArrow}
-              </button>
-            )}
+          {/* {(location.pathname.startsWith("/all-users/") ||
+            location.pathname.startsWith("/all-managers/")) &&
+            loggedInRole !== "manager" && ( */}
+          {loggedInRole !== "manager" && (
+            <button
+              className="flex items-center gap-1 p-1 rounded-lg"
+              type="button"
+              onClick={() => handlePreviousPage(navigate)}
+            >
+              {tableIcons?.backArrow}
+            </button>
+          )}
           {/* heading render dynamically based on url  */}
           <h1 className="text-xl lg:text-2xl capitalize font-bold text-theme">
             {location.pathname.includes("/all-bookings/")
@@ -121,7 +123,7 @@ const CreateNewAndUpdateForm = () => {
         {isUsersPageWithoutId && (
           <div className="flex items-center gap-2">
             <button
-              className="bg-theme/90 text-gray-100 p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md"
+              className="bg-theme/90 text-white p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md"
               type="button"
               onClick={() => dispatch(toogleKycModalActive())}
               disabled={
@@ -148,9 +150,10 @@ const CreateNewAndUpdateForm = () => {
             {location.pathname.includes("/all-managers/") &&
               !location.pathname.includes("/add-new") && (
                 <button
-                  className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+                  className="bg-theme flex items-center gap-1 text-white p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
                   onClick={() => dispatch(toggleForgetPasswordModal())}
                 >
+                  {tableIcons?.lock}
                   Change Password
                 </button>
               )}

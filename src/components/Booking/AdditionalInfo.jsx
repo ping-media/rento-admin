@@ -168,7 +168,7 @@ const AdditionalInfo = () => {
                 )}
               </p>
               <p className="w-full flex items-center justify-between text-sm text-theme">
-                <span className="mr-1">Late KM Charges:</span>₹
+                <span className="mr-1">Extra KM Charges:</span>₹
                 {formatPrice(
                   Number(vehicleMaster[0]?.bookingPrice?.lateFeeBasedOnKM || 0),
                 )}

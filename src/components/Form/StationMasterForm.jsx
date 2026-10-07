@@ -18,7 +18,6 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
   const { id } = useParams();
   const { token } = useSelector((state) => state.user);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
-  // const [collectedData, setCollectedData] = useState(null);
   const [zipCodeValue, setZipcodeValue] = useState(null);
   // station open and close time
   const [openStationTime, setOpenStationTime] = useState(null);
@@ -105,22 +104,34 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               <input
                 type="hidden"
                 name="latitude"
-                value={id ? Number(vehicleMaster?.[0]?.latitude) : latitude}
+                value={
+                  latitude !== ""
+                    ? latitude
+                    : id
+                      ? Number(vehicleMaster?.[0]?.latitude)
+                      : ""
+                }
               />
               <input
                 type="hidden"
                 name="longitude"
-                value={id ? Number(vehicleMaster?.[0]?.longitude) : longitude}
+                value={
+                  longitude !== ""
+                    ? longitude
+                    : id
+                      ? Number(vehicleMaster?.[0]?.longitude)
+                      : ""
+                }
               />
               <input
                 type="hidden"
                 name="mapLink"
-                value={id ? vehicleMaster?.[0]?.mapLink || mapUrl : mapUrl}
+                value={mapUrl || (id ? vehicleMaster?.[0]?.mapLink : "") || ""}
               />
               <input
                 type="hidden"
                 name="city"
-                value={id ? vehicleMaster?.[0]?.city || cityValue : cityValue}
+                value={cityValue || (id ? vehicleMaster?.[0]?.city : "") || ""}
               />
               {/* seaching address & lat & long  */}
               <GoogleSearchLocation
@@ -139,7 +150,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
                 require={true}
               />
             </div>
-            <div className="w-full lg:w-[48%]">
+            {/* <div className="w-full lg:w-[48%]">
               <SelectDropDown
                 item={"weekendPriceIncrease"}
                 options={["active", "inactive"]}
@@ -165,7 +176,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
                 placeholder="Weekend Amount or Percentage"
                 require={true}
               />
-            </div>
+            </div> */}
             <div className="w-full lg:w-[48%]">
               <SelectDropDown
                 item={"isGstActive"}
@@ -189,7 +200,7 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
                 require={true}
               />
             </div>
-            <div className="w-full">
+            <div className="w-full lg:w-[48%]">
               <Input
                 item={"googleReviewLink"}
                 value={id && vehicleMaster?.[0]?.googleReviewLink}

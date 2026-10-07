@@ -7,7 +7,7 @@ import {
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { getData } from "../../Data";
 import PreLoader from "../Skeleton/PreLoader";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Add } from "@mui/icons-material";
 
 const InputSearch = ({
@@ -21,6 +21,7 @@ const InputSearch = ({
   token,
   setValueChanger,
 }) => {
+  const [isSearching, setIsSearching] = useState(false);
   const [userId, setUserId] = useState(value);
   const [inputValue, setInputValue] = useState("");
   const [timeoutId, setTimeoutId] = useState(null);
@@ -32,9 +33,12 @@ const InputSearch = ({
   // search user data based on query entered
   const handleSelectUser = async (e) => {
     const value = e.target.value;
+
     setInputValue(value);
+    setIsSearching(true);
     // remove data if there is not search query
     if (value?.length == 0) {
+      setIsSearching(false);
       dispatch(removeTempVehicleData());
     }
     // Clear the previous timeout to prevent immediate API calls
@@ -45,7 +49,7 @@ const InputSearch = ({
     const newTimeoutId = setTimeout(async () => {
       if (value) {
         const data = await fetchUserDataBasedOnQuery(
-          `/admin/getAllUsers?search=${value}`,
+          `/admin/getAllUsers?search=${encodeURIComponent(value)}`,
           token,
         );
         dispatch(addTempVehicleData(data));
@@ -60,6 +64,7 @@ const InputSearch = ({
     setUserId(item?._id);
     setValueChanger && setValueChanger(item?._id);
     setInputValue(`${item?.firstName} | ${item?.contact} | ${item?.userType}`);
+    setIsSearching(false);
     dispatch(removeTempVehicleData());
   };
 
@@ -129,7 +134,7 @@ const InputSearch = ({
         />
       </div>
 
-      {inputValue?.length > 0 && inputValue?.length <= 10 && (
+      {isSearching && inputValue?.length > 0 && (
         <div className="absolute top-20 w-full rounded-md px-3 py-2 bg-white border-2 z-30">
           <ul>
             {!tempVehicleData && (

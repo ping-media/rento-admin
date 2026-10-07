@@ -37,7 +37,6 @@ const UserRideTimeLine = () => {
     };
   }, [userId]);
 
-  // if (loading) {
   if (ridesLoading) {
     return (
       <div className="container mx-auto py-2">
@@ -47,8 +46,7 @@ const UserRideTimeLine = () => {
   }
 
   return (
-    <div className="container mx-auto py-2">
-      {/* {userRideInfo !== null && userRideInfo?.length > 0 ? ( */}
+    <div className="container mx-auto h-full sm:max-h-[80svh] overflow-y-auto py-2">
       {Array.isArray(userRideInfo) && userRideInfo.length > 0 ? (
         <div className="relative wrap overflow-hidden">
           <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-1/2"></div>

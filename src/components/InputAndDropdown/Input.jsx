@@ -178,7 +178,7 @@ const Input = ({
                   ? ""
                   : "capitalize"
               : ""
-          } relative disabled:bg-gray-400/20 disabled:bg-opacity-20`}
+          } relative disabled:bg-gray-400/20 disabled:bg-opacity-20 read-only:bg-gray-500/15`}
           value={
             item === "vehicleNumber" || item === "couponName"
               ? inputValue.toUpperCase()

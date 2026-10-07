@@ -38,18 +38,24 @@ const GoogleSearchLocation = ({
         if (place && place.geometry && place.geometry.location) {
           const latitude = place.geometry.location.lat();
           const longitude = place.geometry.location.lng();
-          const url = place.url;
+          const url = place.url ?? "";
 
-          // Use the most appropriate address component
-          const formattedAddress =
-            place.formatted_address || place.vicinity || place.name || input;
-          setInput(formattedAddress);
+          if (latitude && longitude && url) {
+            // Use the most appropriate address component
+            const formattedAddress =
+              place.formatted_address || place.vicinity || place.name || input;
+            setInput(formattedAddress);
 
-          // Update coordinates only if they're valid
-          if (latitude && longitude) {
+            // Update coordinates only if they're valid
             setLatitude && setLatitude(latitude);
             setLongitude && setLongitude(longitude);
             setUrl && setUrl(url);
+          } else {
+            // No usable map link: restore old address, clear new values
+            setInput(value || "");
+            setLatitude && setLatitude("");
+            setLongitude && setLongitude("");
+            setUrl && setUrl("");
           }
         }
       } catch (error) {

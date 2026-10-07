@@ -30,7 +30,7 @@ import {
 } from "../Redux/VehicleSlice/VehicleSlice";
 import { modifyUrl, removeAfterSecondSlash } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
-import { endPointBasedOnURL } from "./commonData";
+import { endPointBasedOnURL, NO_NAVIGATE_PATHS } from "./commonData";
 import { debounce } from "lodash";
 import { store } from "../Redux/store.js";
 
@@ -384,7 +384,14 @@ const handleCreateAndUpdateVehicle = async (
       handleAsyncError(dispatch, response?.message);
     } else {
       handleAsyncError(dispatch, response?.message, "success");
-      navigate(removeAfterSecondSlash(location?.pathname));
+
+      const shouldSkipNavigate = NO_NAVIGATE_PATHS.some((path) =>
+        location?.pathname?.includes(path),
+      );
+
+      if (!shouldSkipNavigate) {
+        navigate(removeAfterSecondSlash(location?.pathname));
+      }
     }
   } catch (error) {
     handleAsyncError(dispatch, error?.message);

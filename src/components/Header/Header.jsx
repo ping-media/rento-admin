@@ -19,11 +19,8 @@ const isDev = import.meta.env.VITE_ENV === "development";
 
 const Header = () => {
   const { id } = useParams();
-  // const [isVisible, setIsVisible] = useState(false);
   const dispatch = useDispatch();
-  // const adminRef = useRef(null);
   const { loggedInRole, userStation } = useSelector((state) => state.user);
-  // const { filters } = useSelector((state) => state.pagination);
   const { filters: urlFilters, clearAll } = useListParams();
   const filters = urlFilters || null;
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -34,40 +31,12 @@ const Header = () => {
     location.pathname.includes("/add-new") ||
     NON_TITLE_PAGE.some((page) => location.pathname.startsWith(page));
 
-  //for dropdown menu
-  // useEffect(() => {
-  //   if (isVisible) {
-  //     setIsVisible(!isVisible);
-  //   }
-  // }, [window.location.href]);
-
-  // const handleToggleVisibility = () => {
-  //   setIsVisible(!isVisible);
-  // };
-
-  // for closing dropdown menu when user click outside anywhere on screen
-  // const handleClickOutside = (event) => {
-  //   if (adminRef.current && !adminRef.current.contains(event.target)) {
-  //     setIsVisible(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   // Bind the event listener
-  //   document.addEventListener("mousedown", handleClickOutside);
-
-  //   // Cleanup the event listener on component unmount
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, []);
-
   const showClearFilters =
     location.pathname === "/all-bookings" && filters !== null;
 
   return (
     <header>
-      <div className="flex items-center justify-between px-4 py-1.5 shadow bg-white min-h-14">
+      <div className="flex items-center justify-between gap-1.5 sm:gap-0 px-4 py-1.5 shadow bg-white min-h-14">
         {/* hamburger menu  */}
         <div className="flex items-center gap-4">
           <button
@@ -125,8 +94,7 @@ const Header = () => {
           {/* clearing extra filters in booking page */}
           {showClearFilters && (
             <button
-              className="relative border-2 rounded-md hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-2 dark:bg-gray-700"
-              // onClick={() => dispatch(handleRestPagination())}
+              className="relative min-h-10 border-2 rounded-md hover:shadow-none shadow-md cursor-pointer flex items-center gap-0.5 sm:gap-2 p-1 sm:p-2 dark:bg-gray-700 text-sm sm:text-base"
               onClick={clearAll}
             >
               <span className="text-theme">X</span> Clear filters
@@ -142,22 +110,8 @@ const Header = () => {
               </div>
             )}
 
-          {/* <button
-            className="relative border-2 rounded-full hover:shadow-none shadow-md cursor-pointer flex items-center gap-2 p-1.5 dark:bg-gray-700"
-            ref={adminRef}
-            onClick={handleToggleVisibility}
-          >
-            <img
-              src={userImage}
-              className="w-8 h-8 rounded-xl"
-              loading="lazy"
-              alt="USERIMAGE"
-            />
-            {isVisible && <HeaderMenuList />}
-          </button> */}
-
           <Link
-            className={`${showClearFilters ? "hidden" : "flex"} border sm:hover:border-theme sm:hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in`}
+            className={`${location.pathname.includes("/all-bookings/details/") || showClearFilters ? "hidden" : "flex"} border sm:hover:border-theme sm:hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in`}
             title="Send push notification"
             to={"/all-users/notifications"}
           >
