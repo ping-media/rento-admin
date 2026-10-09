@@ -30,7 +30,7 @@ import {
 } from "../Redux/VehicleSlice/VehicleSlice";
 import { modifyUrl, removeAfterSecondSlash } from "../utils";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
-import { endPointBasedOnURL } from "./commonData";
+import { endPointBasedOnURL, NO_NAVIGATE_PATHS } from "./commonData";
 import { debounce } from "lodash";
 import { store } from "../Redux/store.js";
 
@@ -53,23 +53,30 @@ const handleOtpLogin = async (event, dispatch, navigate, setLoading) => {
           SetLoggedInRole({
             loggedInRole: response?.data?.userType,
             userStation: response?.Station,
-          })
+          }),
         );
         // decrypting the user data and setting data
         dispatch(handleNavigateLoad(true));
-        dispatch(handleSetToken(response?.token));
+        dispatch(handleSetToken({ token: response?.token }));
+        // dispatch(handleSetToken({ token: response?.accessToken }));
+
         dispatch(handleSignIn(response?.data));
+
         const userType = response?.data?.userType?.toLowerCase();
         navigate(userType === "manager" ? "/all-bookings" : "/dashboard");
+
         handleAsyncError(dispatch, "Login Successfully", "success");
       } else {
-        handleAsyncError(dispatch, response?.message);
+        handleAsyncError(
+          dispatch,
+          response?.message ?? "Login failed! try again",
+        );
       }
     } else {
       handleAsyncError(dispatch, "Invalid Email & Password");
     }
   } catch (error) {
-    handleAsyncError(dispatch, error?.message);
+    handleAsyncError(dispatch, "Unable to login! try after sometime");
   } finally {
     setLoading(false);
     dispatch(handleNavigateLoad(false));
@@ -83,43 +90,32 @@ const fetchDashboardData = async (
   roleBaseFilter,
   navigate,
   currentMonthAndYear,
-  dasboardDataCount
+  // dasboardDataCount
 ) => {
   try {
     dispatch(handleLoadingDashboardData());
-    if (dasboardDataCount === null) {
-      const [dashboardResponse, paymentResponse] = await Promise.all([
-        getData(`/getAllDataCount${roleBaseFilter}`, token),
-        getData(
-          `/getGraphData${roleBaseFilter}${
-            roleBaseFilter ? "&" : "?"
-          }monthYear=${currentMonthAndYear}`,
-          token
-        ),
-      ]);
-
-      dispatch(
-        handleDashboardData({
-          dashboard: dashboardResponse?.data,
-          payments: paymentResponse?.data,
-        })
-      );
-    } else {
-      const graphData = await getData(
+    // if (dasboardDataCount === null) {
+    const [dashboardResponse, paymentResponse] = await Promise.all([
+      getData(
+        `/getAllDataCount${roleBaseFilter}${roleBaseFilter ? "&" : "?"}month=${
+          currentMonthAndYear?.split(" ")[0]
+        }&year=${currentMonthAndYear?.split(" ")[1]}`,
+        token,
+      ),
+      getData(
         `/getGraphData${roleBaseFilter}${
           roleBaseFilter ? "&" : "?"
         }monthYear=${currentMonthAndYear}`,
-        token
-      );
-      if (graphData?.status === 200) {
-        dispatch(
-          handleDashboardData({
-            dashboard: dasboardDataCount?.dashboard,
-            payments: graphData?.data,
-          })
-        );
-      }
-    }
+        token,
+      ),
+    ]);
+
+    dispatch(
+      handleDashboardData({
+        dashboard: dashboardResponse?.data,
+        payments: paymentResponse?.data,
+      }),
+    );
   } catch (error) {
     dispatch(resetDashboardData());
     handleAsyncError(dispatch, error?.message);
@@ -153,83 +149,114 @@ const fetchVehicleMasterWithPagination = debounce(
     limit,
     searchBasedOnFilter = "",
     searchType,
-    vehiclesFilter
+    vehiclesFilter,
+    filters,
+    stationId,
   ) => {
     try {
       dispatch(fetchVehicleStart());
-      let dynamicEndpoint = `${endpoint}?page=${page}&limit=${limit}`;
+
+      //       const shouldResetPage =
+      //         Boolean(isSearchTermPresent?.trim()) ||
+      //         (searchBasedOnFilter?.trim() &&
+      //           !["userType=customer", "userType=manager"].includes(
+      //             searchBasedOnFilter,
+      //           )) ||
+      //         Boolean(
+      //           vehiclesFilter &&
+      //           (vehiclesFilter.vehicleName?.trim() ||
+      //             vehiclesFilter.search?.trim() ||
+      //             vehiclesFilter.stationId?.trim() ||
+      //             vehiclesFilter.maintenanceType?.trim()),
+      //         );
+
+      //       const currentPage = shouldResetPage ? 1 : page;
+
+      const currentPage = page;
+
+      const encSearch = encodeURIComponent(isSearchTermPresent?.trim() || "");
+      const encVehicleSearch = encodeURIComponent(
+        vehiclesFilter?.search?.toLowerCase() || "",
+      );
+      const encVehicleName = encodeURIComponent(
+        vehiclesFilter?.vehicleName?.toLowerCase() || "",
+      );
+      let dynamicEndpoint = `${endpoint}?page=${currentPage}&limit=${limit}`;
+
+      if (filters && filters?.trim() !== "") {
+        dynamicEndpoint = `${endpoint}?${filters}&page=${currentPage}&limit=${limit}`;
+
+        if (stationId && stationId?.trim() !== "") {
+          dynamicEndpoint += `&stationId=${stationId}`;
+        }
+      }
+
+      // if station id is present
+      if (stationId && stationId?.trim() !== "") {
+        dynamicEndpoint += `&stationId=${stationId}`;
+
+        if (filters && filters?.trim() !== "") {
+          dynamicEndpoint += `&${filters}`;
+        }
+      }
 
       if (
         vehiclesFilter.vehicleName !== "" &&
         vehiclesFilter.search !== "" &&
+        vehiclesFilter.stationId !== "" &&
         vehiclesFilter.maintenanceType !== ""
       ) {
-        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&filteredVehicles?.length&page=${page}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?vehicleName=${encVehicleName}&search=${encVehicleSearch}&stationId=${vehiclesFilter?.stationId}&maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
       } else if (
         vehiclesFilter.vehicleName !== "" ||
-        vehiclesFilter.search !== ""
+        vehiclesFilter.search !== "" ||
+        vehiclesFilter.stationId !== ""
       ) {
-        dynamicEndpoint = `${endpoint}?vehicleName=${vehiclesFilter?.vehicleName?.toLowerCase()}&search=${vehiclesFilter?.search?.toLowerCase()}&page=${page}&limit=${limit}`;
+        dynamicEndpoint = `${endpoint}?vehicleName=${encVehicleName}&search=${encVehicleSearch}&stationId=${vehiclesFilter?.stationId}&page=${currentPage}&limit=${limit}`;
       } else if (vehiclesFilter.maintenanceType !== "") {
-        dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${page}&limit=${limit}`;
-      } else if (isSearchTermPresent !== null) {
+        dynamicEndpoint = `${endpoint}?maintenanceType=${vehiclesFilter?.maintenanceType?.toLowerCase()}&page=${currentPage}&limit=${limit}`;
+      } else if (isSearchTermPresent && isSearchTermPresent.trim() !== "") {
         if (searchType !== "all") {
-          dynamicEndpoint = `${endpoint}?${searchType}=${isSearchTermPresent}&page=${page}&limit=${limit}`;
+          dynamicEndpoint = `${endpoint}?${searchType}=${encSearch}&page=${currentPage}&limit=${limit}`;
         } else if (searchBasedOnFilter === "") {
-          dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&page=${page}&limit=${limit}`;
+          dynamicEndpoint = `${endpoint}?search=${encSearch}&page=${currentPage}&limit=${limit}`;
         } else {
-          dynamicEndpoint = `${endpoint}?search=${isSearchTermPresent}&${searchBasedOnFilter}&page=${page}&limit=${limit}`;
+          dynamicEndpoint = `${endpoint}?search=${encSearch}&${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
         }
       } else if (searchBasedOnFilter !== "") {
-        dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${page}&limit=${limit}`;
+        if (filters && filters.trim() !== "") {
+          dynamicEndpoint = `${endpoint}?${filters}&${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
+        } else {
+          dynamicEndpoint = `${endpoint}?${searchBasedOnFilter}&page=${currentPage}&limit=${limit}`;
+        }
       }
+
+      const url = new URL(dynamicEndpoint, window.location.origin);
+
+      const uniqueParams = new URLSearchParams();
+
+      for (const [key, value] of url.searchParams.entries()) {
+        if (!uniqueParams.has(key)) {
+          uniqueParams.append(key, value);
+        }
+      }
+
+      dynamicEndpoint = `${url.pathname}?${uniqueParams.toString()}`;
 
       const response = await getFullData(dynamicEndpoint, token);
       if (response?.status == 200) {
         dispatch(fetchVehicleMasterData(response?.data));
-      } else {
-        dispatch(fetchVehicleEnd());
       }
     } catch (error) {
       dispatch(fetchVehicleEnd());
       handleAsyncError(dispatch, error?.message);
+    } finally {
+      dispatch(fetchVehicleEnd());
     }
   },
-  50
+  300,
 );
 
-// const fetchVehicleMasterById = debounce(
-//   async (dispatch, id, token, endpoint, secondEndpoint = "") => {
-//     try {
-//       dispatch(fetchVehicleStart());
-//       const response = await getData(
-//         `${endpoint}${
-//           location.pathname !== "/profile" && endpoint.includes("?userId")
-//             ? ""
-//             : "?_id="
-//         }${id}`,
-//         token
-//       );
-//       if (response?.status == 200) {
-//         if (secondEndpoint !== "") {
-//           const timeLineResponse = await getData(
-//             `${secondEndpoint}?bookingId=${response?.data[0]?.bookingId}`,
-//             token
-//           );
-//           dispatch(addTimeLineData(timeLineResponse?.data));
-//         }
-//         dispatch(fetchVehicleMasterData(response?.data));
-//       } else {
-//         dispatch(fetchVehicleMasterData([]));
-//         dispatch(fetchVehicleEnd());
-//       }
-//     } catch (error) {
-//       dispatch(fetchVehicleEnd());
-//       handleAsyncError(dispatch, error?.message);
-//     }
-//   },
-//   50
-// );
 const fetchVehicleMasterById = debounce(
   async (
     dispatch,
@@ -237,7 +264,7 @@ const fetchVehicleMasterById = debounce(
     token,
     endpoint,
     secondEndpoint = "",
-    thirdEndpoint = ""
+    thirdEndpoint = "",
   ) => {
     try {
       dispatch(fetchVehicleStart());
@@ -256,7 +283,7 @@ const fetchVehicleMasterById = debounce(
         const extraCalls = [];
         if (secondEndpoint) {
           extraCalls.push(
-            getData(`${secondEndpoint}?bookingId=${bookingId}`, token)
+            getData(`${secondEndpoint}?bookingId=${bookingId}`, token),
           );
         }
         if (thirdEndpoint) {
@@ -274,18 +301,18 @@ const fetchVehicleMasterById = debounce(
             dispatch(addUserRideInfo(thirdData.data));
           }
         }
-
         dispatch(fetchVehicleMasterData(response.data));
       } else {
         dispatch(fetchVehicleMasterData([]));
-        dispatch(fetchVehicleEnd());
       }
     } catch (error) {
       dispatch(fetchVehicleEnd());
       handleAsyncError(dispatch, error?.message);
+    } finally {
+      dispatch(fetchVehicleEnd());
     }
   },
-  50
+  300,
 );
 
 const handleCreateAndUpdateVehicle = async (
@@ -296,7 +323,7 @@ const handleCreateAndUpdateVehicle = async (
   navigate,
   tempIds,
   removeTempIds,
-  id
+  id,
 ) => {
   event.preventDefault();
   setFormLoading(true);
@@ -306,12 +333,20 @@ const handleCreateAndUpdateVehicle = async (
   if (id) {
     result = Object.assign(result, { _id: id });
   }
+
   if (tempIds && tempIds.length > 0) {
     result = Object.assign(result, { vehiclePlan: tempIds });
     dispatch(removeTempIds());
   }
 
-  // if someone bymistake pass brand in vehicleName too in that case replace the remove the brand from vehicleName
+  if (location?.pathname?.includes("/all-vehicles/")) {
+    result = Object.assign(result, {
+      condition: "new",
+      vehicleBookingStatus: "available",
+    });
+  }
+
+  // if someone bymistake pass brand in vehicleName too in that case remove the brand from vehicleName
   if (
     location?.pathname.includes("/vehicle-master/") &&
     result.vehicleName &&
@@ -323,10 +358,11 @@ const handleCreateAndUpdateVehicle = async (
     }
   }
 
-  // for (const [key, value] of Object.entries(result)) {
-  //   console.log(`${key}: ${value}`);
-  // }
-  // return;
+  if (location?.pathname?.includes("/station-master/")) {
+    if (result?.userId && result.userId === "") {
+      return handleAsyncError(dispatch, "Please assign manager first!");
+    }
+  }
 
   const endpoint = id
     ? `${
@@ -341,13 +377,23 @@ const handleCreateAndUpdateVehicle = async (
         ]
       }?_id=${id}`
     : `${endPointBasedOnURL[modifyUrl(location?.pathname)]}`;
+
   try {
     const response = await postData(endpoint, result, token);
     if (response?.status !== 200) {
       handleAsyncError(dispatch, response?.message);
     } else {
       handleAsyncError(dispatch, response?.message, "success");
-      navigate(removeAfterSecondSlash(location?.pathname));
+
+      const shouldSkipNavigate = NO_NAVIGATE_PATHS.some(
+        (path) =>
+          location?.pathname?.includes(path) &&
+          !location?.pathname?.endsWith("/add-new"),
+      );
+
+      if (!shouldSkipNavigate) {
+        navigate(removeAfterSecondSlash(location?.pathname));
+      }
     }
   } catch (error) {
     handleAsyncError(dispatch, error?.message);
@@ -362,17 +408,22 @@ const handleUpdateAdminProfile = async (
   id,
   userType,
   token,
-  navigate
+  navigate,
 ) => {
   event.preventDefault();
   setFormLoading(true);
   const response = new FormData(event.target);
   let result = Object.fromEntries(response.entries());
-  if (id) {
-    result = Object.assign(result, { _id: id, userType: userType });
-  }
+  // if (id) {
+  result = Object.assign(result, { userType: userType });
+  // }
+  // if (id) {
+  //   result = Object.assign(result, { _id: id, userType: userType });
+  // }
 
-  const endpoint = `/signup?_id=${id}`;
+  // const endpoint = `/updateProfile?_id=${id}`;
+  const endpoint = `/updateProfile`;
+
   try {
     const response = await postData(endpoint, result, token);
     if (response?.status != 200) {
@@ -380,6 +431,9 @@ const handleUpdateAdminProfile = async (
     } else {
       dispatch(updateCurrentUser(result));
       dispatch(handleSignIn(response?.data));
+      if (response?.token) {
+        dispatch(handleSetToken({ token: response?.token }));
+      }
       handleAsyncError(dispatch, response?.message, "success");
       navigate(removeAfterSecondSlash(location?.pathname));
     }
@@ -394,7 +448,7 @@ const fetchStationBasedOnLocation = async (
   isLocationSelected,
   setStationData,
   token,
-  setLoading
+  setLoading,
 ) => {
   try {
     setLoading && setLoading(true);
@@ -402,12 +456,12 @@ const fetchStationBasedOnLocation = async (
     if (vehicleMaster && vehicleMaster?.length == 1) {
       stationResponse = await getData(
         `/getStationData?locationId=${isLocationSelected}`,
-        token
+        token,
       );
     } else {
       stationResponse = await getData(
         `/getStationData?locationId=${isLocationSelected}`,
-        token
+        token,
       );
     }
     if (stationResponse?.status === 200) {
@@ -443,7 +497,7 @@ const handleGenerateInvoice = async (
   token,
   setLoadingStates,
   bookingData,
-  handleInvoiceCreated
+  handleInvoiceCreated,
 ) => {
   if (!id && !bookingData)
     return handleAsyncError(dispatch, "failed to create Invoice! try again.");
@@ -465,7 +519,7 @@ const handleGenerateInvoice = async (
     const response = await postData(
       "/createInvoice",
       { currentBookingId: id },
-      token
+      token,
     );
     if (response?.status === 200) {
       dispatch(handleInvoiceCreated(updatedBooking));
@@ -489,7 +543,8 @@ const validateUser = debounce(
     handleLogoutUser,
     dispatch,
     setPreLoaderLoading,
-    retries = 3
+    retries = 3,
+    navigate,
   ) => {
     try {
       if (!token) return;
@@ -502,23 +557,34 @@ const validateUser = debounce(
           const response = await postData(
             `/validedToken`,
             { token: token, dataFlag: false },
-            token
+            token,
           );
           const isUserValid = response?.isUserValid;
 
           if (isUserValid === true) {
-            if (location.pathname === "/") {
+            if (location.pathname === "/" && typeof navigate === "function") {
               navigate(
-                loggedInRole === "manager" ? "/all-bookings" : "/dashboard"
+                loggedInRole === "manager" ? "/all-bookings" : "/dashboard",
               );
-              return;
             }
             return;
+            // if (location.pathname === "/") {
+            //   navigate(
+            //     loggedInRole === "manager" ? "/all-bookings" : "/dashboard",
+            //   );
+            //   return;
+            // }
+            // return;
           } else {
             handleLogoutUser(dispatch);
             return;
           }
         } catch (error) {
+          if (error?.response?.status === 401) {
+            handleLogoutUser(dispatch);
+            handleAsyncError(dispatch, "Session expired, please log in again.");
+            return;
+          }
           if (attempt === retries) {
             console.error(`Validation failed after ${retries} attempts`, error);
             handleLogoutUser(dispatch);
@@ -531,7 +597,7 @@ const validateUser = debounce(
       setPreLoaderLoading && dispatch(setPreLoaderLoading(false));
     }
   },
-  60
+  100,
 );
 
 const handleLogoutUser = (dispatch) => {
@@ -539,7 +605,7 @@ const handleLogoutUser = (dispatch) => {
   dispatch(toggleClearModals());
 };
 
-const handleDeleteAndEditAllData = async (
+const handleDeleteAndEditAllData = async ({
   data,
   operation,
   handleAsyncError,
@@ -550,14 +616,14 @@ const handleDeleteAndEditAllData = async (
   restvehicleMaster,
   token,
   handleIsHeaderChecked,
-  handleCloseModal
-) => {
+  handleCloseModal,
+}) => {
   dispatch(changeTempLoadingTrue(operation));
   try {
     const response = await postData("/updateMultipleVehicles", data, token);
     if (response?.status == 200) {
       dispatch(removeTempIds());
-      dispatch(restvehicleMaster());
+      restvehicleMaster && dispatch(restvehicleMaster());
       handleIsHeaderChecked && dispatch(handleIsHeaderChecked(false));
       handleAsyncError(dispatch, response?.message, "success");
       handleCloseModal && handleCloseModal();
@@ -576,13 +642,13 @@ const cancelBookingById = async (
   id,
   data,
   token,
-  endpoint = "/createBooking"
+  endpoint = "/createBooking",
 ) => {
   try {
     const response = await postData(
       endpoint === "/createBooking" ? `/createBooking?_id=${id}` : endpoint,
       data,
-      token
+      token,
     );
     if (response?.status !== 200) {
       return response?.message;
@@ -633,57 +699,27 @@ const updateTimeLineForPayment = async (
   data,
   token,
   title,
-  isvehicleNumbers = ""
+  isvehicleNumbers = "",
 ) => {
-  const { _id, extendAmount, bookingPrice, bookingId } = data;
+  const { _id, extendAmount, bookingPrice } = data;
 
   const finalAmount =
     (extendAmount && extendAmount?.amount) ||
     (bookingPrice?.diffAmount &&
       Number(
-        bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.amount
+        bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.amount,
       ));
-  // creating order id for the payment when finalAmount is greater than 0
-  let orderId = "";
-  if (finalAmount > 0) {
-    let generateOrderId = await postDataWithRetry(
-      "/createOrderId",
-      { amount: finalAmount, booking_id: bookingId },
-      token
-    );
-    if (generateOrderId?.status === "created") {
-      orderId = generateOrderId?.id;
-    } else {
-      return "unable to update timeline for booking";
-    }
-  }
-  const baseUrl = import.meta.env.VITE_FRONTEND_URL;
-  const isChange = isvehicleNumbers !== "" ? "change" : "extend";
+  const refundAmount =
+    bookingPrice?.diffAmount?.length > 0
+      ? bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]
+          ?.refundAmount
+      : 0;
+
   const paymentId =
     (isvehicleNumbers === "" && extendAmount?.id) ||
     (isvehicleNumbers !== "" &&
       bookingPrice?.diffAmount[bookingPrice?.diffAmount?.length - 1]?.id) ||
     0;
-
-  // encoding the data before creating a link
-  const payload = {
-    id: _id,
-    order: orderId,
-    for: isChange,
-    paymentId: paymentId,
-    finalAmount: finalAmount,
-  };
-
-  // requesting jwt token here from backend
-  const encodePayload = await postDataWithRetry(
-    "/GeneratePaymentToken",
-    { payload: payload },
-    token
-  );
-
-  // creating payment link only when amount is greater than 0
-  const paymentLink =
-    finalAmount > 0 ? `${baseUrl}/payment/${encodePayload?.token}` : "";
 
   // updating the timeline for booking
   const timeLineData = {
@@ -692,9 +728,9 @@ const updateTimeLineForPayment = async (
       {
         title: title,
         date: Date.now(),
-        PaymentLink: paymentLink,
         paymentAmount: finalAmount,
         changeToVehicle: isvehicleNumbers || "",
+        refundAmount: refundAmount > 0 ? refundAmount : 0,
         id: paymentId,
       },
     ],
@@ -710,8 +746,8 @@ const CreatePaymentLinkAndTimeline = async (data, token, title) => {
     bookingPrice?.discountTotalPrice > 0
       ? bookingPrice?.discountTotalPrice
       : bookingPrice?.userPaid > 0
-      ? bookingPrice?.userPaid
-      : bookingPrice?.totalPrice;
+        ? bookingPrice?.userPaid
+        : bookingPrice?.totalPrice;
   const baseUrl = import.meta.env.VITE_FRONTEND_URL;
   // encoding the data before creating a link
   const payload = {
@@ -725,7 +761,7 @@ const CreatePaymentLinkAndTimeline = async (data, token, title) => {
   const encodePayload = await postDataWithRetry(
     "/GeneratePaymentToken",
     { payload: payload },
-    token
+    token,
   );
 
   const paymentLink =

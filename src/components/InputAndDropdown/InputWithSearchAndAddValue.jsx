@@ -12,7 +12,7 @@ const InputWithSearchAndAddValue = ({ item, disabled = false, endpoint }) => {
     setInputValue(e.target.value);
     try {
       const response = await getData(`${endpoint}/${e.target.value}`);
-      console.log(response?.data);
+      // console.log(response?.data);
       if (response?.data.length > 0) {
         setIsVisible(true);
         return setUserList(response?.data);

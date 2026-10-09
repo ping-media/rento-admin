@@ -65,7 +65,7 @@ const MultipleImageAndPreview = ({
         {imagesUrl?.length > 0 ? (
           //  image preview only shows when there user select any image
           <>
-            <div className="flex items-center w-full gap-4 flex-wrap w-full mx-auto">
+            <div className="flex items-center w-full gap-4 flex-wrap mx-auto">
               {/* remove image if user want to reupload another image */}
               {imagesUrl?.map((image, index) => (
                 <div key={index}>
