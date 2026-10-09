@@ -385,8 +385,10 @@ const handleCreateAndUpdateVehicle = async (
     } else {
       handleAsyncError(dispatch, response?.message, "success");
 
-      const shouldSkipNavigate = NO_NAVIGATE_PATHS.some((path) =>
-        location?.pathname?.includes(path),
+      const shouldSkipNavigate = NO_NAVIGATE_PATHS.some(
+        (path) =>
+          location?.pathname?.includes(path) &&
+          !location?.pathname?.endsWith("/add-new"),
       );
 
       if (!shouldSkipNavigate) {

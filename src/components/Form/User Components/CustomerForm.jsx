@@ -225,7 +225,6 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                   </div>
                 )}
 
-                {/* {location.pathname !== "/profile" && !isAddCustomer && ( */}
                 {!isProfile && !isAddCustomer && (
                   <div className="w-full lg:w-[48%]">
                     <Input
@@ -246,9 +245,19 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                     />
                   </div>
                 )}
+
+                {!id && !isAddCustomer && (
+                  <div className="w-full lg:w-[48%]">
+                    <Input
+                      item={"password"}
+                      type="password"
+                      isPassword={true}
+                      require
+                    />
+                  </div>
+                )}
               </>
 
-              {/* {location.pathname != "/profile" && ( */}
               {!isProfile && (
                 <>
                   {!location.pathname.includes("/add-new") ? (

@@ -135,6 +135,11 @@ const removeAfterSecondSlash = (url) => {
 };
 
 const modifyUrl = (url) => {
+  // if there is add-new in the url than send that url as it is
+  if (url.endsWith("add-new")) {
+    return url.slice(1);
+  }
+
   // Find the index of the first slash
   const firstSlashIndex = url.indexOf("/");
 
