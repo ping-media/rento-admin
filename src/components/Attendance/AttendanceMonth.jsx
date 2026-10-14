@@ -276,7 +276,7 @@ const AttendanceMonth = ({ userId, isAdmin, refreshKey = 0 }) => {
 
       {isAdmin && data?.user && (
         <div className="mb-3 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
-          <p className="text-sm font-medium capitalize text-gray-700 dark:text-gray-200">
+          <p className="text-base sm:text-lg font-semibold capitalize text-gray-700">
             {data.user.firstName} {data.user.lastName}
           </p>
           <div className="flex items-center gap-2 text-sm">

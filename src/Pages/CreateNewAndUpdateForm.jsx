@@ -82,10 +82,7 @@ const CreateNewAndUpdateForm = () => {
         )}
 
       <div className="flex items-center flex-wrap justify-between gap-1 lg:gap-0 mb-5">
-        <div className="flex items-center gap-2">
-          {/* {(location.pathname.startsWith("/all-users/") ||
-            location.pathname.startsWith("/all-managers/")) &&
-            loggedInRole !== "manager" && ( */}
+        <div className="flex items-center gap-2 min-w-0 max-w-full">
           {loggedInRole !== "manager" && (
             <button
               className="flex items-center gap-1 p-1 rounded-lg"
@@ -96,7 +93,7 @@ const CreateNewAndUpdateForm = () => {
             </button>
           )}
           {/* heading render dynamically based on url  */}
-          <h2 className="text-xl lg:text-2xl capitalize font-bold text-theme">
+          <h2 className="text-xl lg:text-2xl capitalize font-bold text-theme break-words min-w-0">
             {location.pathname.includes("/all-bookings/")
               ? `${id ? "Edit" : "Create"} Booking${
                   id ? `: #${vehicleMaster[0]?.bookingId}` : ""
@@ -171,24 +168,22 @@ const CreateNewAndUpdateForm = () => {
           </div>
         )}
       </div>
-      <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-3 lg:p-5 mx-auto bg-white">
-        <>
-          <FormComponent
-            handleFormSubmit={(event) =>
-              handleCreateAndUpdateVehicle(
-                event,
-                dispatch,
-                setFormLoading,
-                token,
-                navigate,
-                tempIds,
-                removeTempIds,
-                id,
-              )
-            }
-            loading={formLoading}
-          />
-        </>
+      <div className="w-full max-w-full lg:w-[95%] shadow-lg rounded-xl p-3 lg:p-5 mx-auto bg-white overflow-x-hidden">
+        <FormComponent
+          handleFormSubmit={(event) =>
+            handleCreateAndUpdateVehicle(
+              event,
+              dispatch,
+              setFormLoading,
+              token,
+              navigate,
+              tempIds,
+              removeTempIds,
+              id,
+            )
+          }
+          loading={formLoading}
+        />
       </div>
     </>
   ) : (

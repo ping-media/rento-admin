@@ -22,9 +22,6 @@ const HeaderMenuList = ({ variant = "dropdown", onNavigate }) => {
   const { currentUser, loggedInRole } = useSelector((state) => state.user);
 
   if (variant === "sidebar") {
-    // const fullName =
-    //   `${currentUser?.firstName ?? ""} ${currentUser?.lastName ?? ""}`.trim() ||
-    //   "--";
     const fullName = `${currentUser?.firstName ?? ""}`.trim() || "--";
 
     return (
@@ -53,7 +50,7 @@ const HeaderMenuList = ({ variant = "dropdown", onNavigate }) => {
         </button>
 
         {/* logout */}
-        <LogoutBtn />
+        <LogoutBtn onNavigate={onNavigate} />
       </div>
     );
   }
@@ -94,7 +91,7 @@ const HeaderMenuList = ({ variant = "dropdown", onNavigate }) => {
 
 export default HeaderMenuList;
 
-export const LogoutBtn = ({ className = "" }) => {
+export const LogoutBtn = ({ className = "", onNavigate }) => {
   const dispatch = useDispatch();
 
   return (
@@ -102,7 +99,10 @@ export const LogoutBtn = ({ className = "" }) => {
       type="button"
       className={`shrink-0 p-2 rounded-md hover:bg-theme hover:text-white transition ${className}`}
       title="Logout"
-      onClick={() => dispatch(toggleModal())}
+      onClick={() => {
+        onNavigate?.();
+        dispatch(toggleModal());
+      }}
     >
       {tableIcons.logout}
     </button>
