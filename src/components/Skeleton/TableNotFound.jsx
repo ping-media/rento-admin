@@ -1,11 +1,11 @@
 import notFoundImg from "../../assets/logo/internet.png";
 
-const TableNotFound = () => {
+const TableNotFound = ({ ColumnsCount = 7 }) => {
   return (
     <tr>
       <td
         className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 text-center capitalize"
-        colSpan={7}
+        colSpan={ColumnsCount}
       >
         <div className="w-16 h-16 mx-auto">
           <img

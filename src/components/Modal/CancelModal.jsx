@@ -10,6 +10,7 @@ const CancelModal = ({
   isNoteRequired = false,
   value,
   setValueChange,
+  wordCount,
 }) => {
   const dispatch = useDispatch();
   const { isDeleteModalActive } = useSelector((state) => state.sideBar);
@@ -73,7 +74,7 @@ const CancelModal = ({
           <button
             className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 disabled:bg-gray-600 disabled:bg-opacity-40"
             onClick={handleDelete}
-            disabled={loading || value?.length < 10 || false}
+            disabled={loading || value?.length < wordCount || false}
           >
             {!loading ? "Yes, I'm sure" : <Spinner message={"updating..."} />}
           </button>

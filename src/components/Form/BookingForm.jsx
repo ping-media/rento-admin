@@ -1,34 +1,46 @@
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   calculateTax,
   calculateTotalAddOnPrice,
   getDurationBetweenDates,
-  getDurationInDays,
 } from "../../utils";
 import BookingStepOne from "./BookingComponents/BookingStepOne";
 import BookingStepTwo from "./BookingComponents/BookingStepTwo";
-import BookingStepThree from "./BookingComponents/BookingStepThree";
-import { createOrderId, getData, postData } from "../../Data/index";
+import { postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
-import { CreatePaymentLinkAndTimeline } from "../../Data/Function";
-import { updateTimeLineData } from "../../Redux/VehicleSlice/VehicleSlice";
-import { tableIcons } from "../../Data/Icons";
+import { addNewAddOnData } from "../../Redux/GeneralSlice/GeneralSlice";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
-  const { GST } = useSelector((state) => state.general);
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(id ? 3 : 1);
   const [formLoading, setFormLoading] = useState(false);
   const [formData, setFormData] = useState({
-    stepOneData: {},
-    stepTwoData: {},
+    userId: "",
+    vehicleId: "",
+    stationId: "",
+    bookingStartDate: "",
+    bookingEndDate: "",
+    selectedVehicle: null,
+    isLocationSelected: "",
+    duration: 1,
   });
+
+  const [stepTwoData, setStepTwoData] = useState({
+    bookingPrice: 0,
+    rentAmount: 0,
+    extraAddonPrice: 0,
+    tax: 0,
+    addonTax: 0,
+    totalPrice: 0,
+  });
+
+  const [GST, setGST] = useState(null);
   const [coupon, setCoupon] = useState({
     couponName: "",
     couponId: "",
@@ -55,20 +67,27 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
     bookingStartDate,
     bookingEndDate,
     selectedVehicle,
-    addOnArr
-    // extraAddonPrice = 0
+    addOnArr,
   ) => {
     const durationBetweenStartAndEnd = getDurationBetweenDates(
       bookingStartDate,
-      bookingEndDate
+      bookingEndDate,
     );
+
+    // setting global gst and addon based on specific station
+    const gstSettings = {
+      status: selectedVehicle?.stationData?.isGstActive || "inactive",
+      percentage: selectedVehicle?.vehicleMasterData?.gstPercentage || 1,
+    };
+    dispatch(addNewAddOnData(selectedVehicle?.stationData?.extraAddOn));
+    setGST(gstSettings);
 
     let hasMatchPlan = null;
     if (selectedVehicle?.vehiclePlan?.length > 0) {
       hasMatchPlan = selectedVehicle?.vehiclePlan?.filter(
         (plan) =>
           Number(plan?.planDuration) ===
-          Number(durationBetweenStartAndEnd?.days)
+          Number(durationBetweenStartAndEnd?.days),
       )[0];
       setPlanData((prev) => ({ ...prev, data: hasMatchPlan }));
     } else {
@@ -78,8 +97,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
     const bookingPrice =
       hasMatchPlan !== null && hasMatchPlan?.planPrice > 0
         ? hasMatchPlan?.planPrice
-        : Number(durationBetweenStartAndEnd?.days) *
-          Number(selectedVehicle?.perDayCost);
+        : Number(selectedVehicle?.totalRentalCost);
     const rentAmount = Number(selectedVehicle?.perDayCost);
 
     if (addOnArr?.length > 0) {
@@ -88,54 +106,40 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       setAddOn([]);
     }
 
-    const totalExtraAddOnPrice = Math.round(
-      Number(
-        calculateTotalAddOnPrice(addOnArr, durationBetweenStartAndEnd?.days)
-      )
+    const { totalAddonAmount, totalAddonTax } = calculateTotalAddOnPrice(
+      addOnArr,
+      durationBetweenStartAndEnd?.days,
     );
 
     let tax = 0;
-    if (GST?.status === "active") {
-      tax = Math.round(calculateTax(bookingPrice + totalExtraAddOnPrice, 18));
+    if (selectedVehicle?.stationData?.isGstActive === "active") {
+      tax =
+        selectedVehicle?.tax ||
+        Math.round(
+          calculateTax(
+            bookingPrice,
+            Number(selectedVehicle?.vehicleMasterData?.gstPercentage),
+          ),
+        );
     }
 
-    const totalPrice = bookingPrice + totalExtraAddOnPrice + tax;
+    const totalPrice =
+      bookingPrice + Math.round(Number(totalAddonAmount)) + tax + totalAddonTax;
 
     const combinedData = {
       bookingPrice,
       rentAmount,
-      extraAddonPrice: totalExtraAddOnPrice,
+      extraAddonPrice: Math.round(Number(totalAddonAmount)),
       tax,
+      addonTax: totalAddonTax,
       totalPrice,
     };
 
     // Update the form data with the new stepTwoData
-    setFormData({ ...formData, stepTwoData: combinedData });
+    setStepTwoData(combinedData);
 
     return combinedData;
   };
-
-  const handlePrevious = () => {
-    setCurrentStep(currentStep - 1);
-  };
-
-  // for fetching package data
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       setPlanData((prev) => ({ ...prev, loading: true }));
-  //       const planResponse = await getData(
-  //         "/getPlanData?page=1&limit=50",
-  //         token
-  //       );
-  //       if (planResponse?.status === 200) {
-  //         setPlanData((prev) => ({ ...prev, data: planResponse?.data }));
-  //       }
-  //     } finally {
-  //       setPlanData((prev) => ({ ...prev, loading: false }));
-  //     }
-  //   })();
-  // }, []);
 
   // for creating new booking
   const handleFormSubmitForNew = async (event) => {
@@ -152,38 +156,67 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
       let AmountLeftAfterUserPaid = 0;
       if (paymentMethodStatus === "partiallyPay") {
         const needToPay =
-          (Number(formData?.stepTwoData?.totalPrice) * 20) / 100;
+          !coupon?.isDiscountZero && coupon?.discountPrice > 0
+            ? (Number(coupon?.discountPrice) * 20) / 100
+            : (Number(stepTwoData?.totalPrice) * 20) / 100;
+
         userPaid = Number(needToPay);
         AmountLeftAfterUserPaid =
-          Number(formData?.stepTwoData?.totalPrice) - Number(userPaid);
+          Number(stepTwoData?.totalPrice) - Number(userPaid);
       }
       // ride starting otp
       const startRideOtp = Math.floor(1000 + Math.random() * 9000);
+
+      // calculating the free km limit
+      const isPackage =
+        formData?.selectedVehicle?.appliedPlans?.length > 0
+          ? formData?.selectedVehicle?.appliedPlans
+          : null;
+
+      const daysBreakdowns =
+        formData?.selectedVehicle?._daysBreakdown ||
+        formData?.selectedVehicle?.daysBreakdown ||
+        null;
+
+      const freeKmLimitForPlan =
+        isPackage !== null
+          ? isPackage.reduce((sum, plan) => {
+              return sum + plan.kmLimit * plan.count;
+            }, 0)
+          : 0;
+
+      const freeKmLimitForDays =
+        daysBreakdowns !== null
+          ? daysBreakdowns?.length * formData?.selectedVehicle?.freeKms
+          : 0;
+
+      const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;
+
       // creating booking data
       let data = {
-        vehicleMasterId:
-          formData?.stepOneData?.selectedVehicle?.vehicleMasterId,
-        vehicleTableId: formData?.stepOneData?.vehicleId,
-        vehicleImage: formData?.stepOneData?.selectedVehicle?.vehicleImage,
-        vehicleBrand: formData?.stepOneData?.selectedVehicle?.vehicleBrand,
-        vehicleName: formData?.stepOneData?.selectedVehicle?.vehicleName,
-        stationId: formData?.stepOneData?.selectedVehicle?.stationId,
-        stationName: formData?.stepOneData?.selectedVehicle?.stationName,
-        userId: formData?.stepOneData?.userId,
-        BookingStartDateAndTime: formData?.stepOneData?.bookingStartDate,
-        BookingEndDateAndTime: formData?.stepOneData?.bookingEndDate,
+        vehicleMasterId: formData?.selectedVehicle?.vehicleMasterId,
+        vehicleTableId: formData?.vehicleId,
+        vehicleImage: formData?.selectedVehicle?.vehicleImage,
+        vehicleBrand: formData?.selectedVehicle?.vehicleBrand,
+        vehicleName: formData?.selectedVehicle?.vehicleName,
+        stationId: formData?.selectedVehicle?.stationId,
+        stationName: formData?.selectedVehicle?.stationName,
+        userId: formData?.userId,
+        BookingStartDateAndTime: formData?.bookingStartDate,
+        BookingEndDateAndTime: formData?.bookingEndDate,
         bookingPrice: {
-          bookingPrice: formData?.stepTwoData?.bookingPrice,
-          vehiclePrice: formData?.stepTwoData?.bookingPrice,
+          bookingPrice: stepTwoData?.bookingPrice,
+          vehiclePrice: stepTwoData?.bookingPrice,
           extraAddonDetails: addOns,
-          extraAddonPrice: formData?.stepTwoData?.extraAddonPrice,
-          tax: formData?.stepTwoData?.tax,
+          extraAddonPrice: stepTwoData?.extraAddonPrice,
+          tax: stepTwoData?.tax || 0,
+          addonTax: stepTwoData?.addonTax || 0,
           totalPrice:
             coupon?.couponName != "" &&
             coupon?.couponId != "" &&
             coupon?.totalPrice > 0
-              ? coupon?.totalPrice
-              : formData?.stepTwoData?.totalPrice,
+              ? coupon?.totalPrice + stepTwoData?.extraAddonPrice
+              : stepTwoData?.totalPrice,
           discountPrice:
             coupon?.couponName != "" &&
             coupon?.couponId != "" &&
@@ -196,7 +229,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             coupon?.discountPrice > 0
               ? coupon?.discountPrice
               : 0,
-          rentAmount: formData?.stepTwoData?.rentAmount,
+          isDiscountZero: coupon?.isDiscountZero,
+          rentAmount: stepTwoData?.rentAmount,
           userPaid: Math.round(userPaid),
           AmountLeftAfterUserPaid: {
             amount: Math.round(AmountLeftAfterUserPaid),
@@ -207,17 +241,22 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
             planData?.selectedPlan?.length > 0
               ? true
               : false,
+          daysBreakdown:
+            formData?.selectedVehicle?._daysBreakdown ||
+            formData?.selectedVehicle?.daysBreakdown ||
+            [],
+          appliedPlan: formData?.selectedVehicle?.appliedPlans || [],
           extendAmount: [],
         },
         vehicleBasic: {
-          refundableDeposit:
-            formData?.stepOneData?.selectedVehicle?.refundableDeposit,
-          speedLimit: formData?.stepOneData?.selectedVehicle?.speedLimit,
-          vehicleNumber: formData?.stepOneData?.selectedVehicle?.vehicleNumber,
-          freeLimit: formData?.stepOneData?.selectedVehicle?.freeKms,
-          lateFee: formData?.stepOneData?.selectedVehicle?.lateFee,
-          extraKmCharge:
-            formData?.stepOneData?.selectedVehicle?.extraKmsCharges,
+          refundableDeposit: formData?.selectedVehicle?.refundableDeposit,
+          speedLimit: formData?.selectedVehicle?.speedLimit,
+          vehicleNumber:
+            formData?.selectedVehicle?.vehicleNumber ||
+            formData?.selectedVehicle?.vehicleDetails[0]?.vehicleNumber,
+          freeLimit: freeLimit || 0,
+          lateFee: formData?.selectedVehicle?.lateFee,
+          extraKmCharge: formData?.selectedVehicle?.extraKmsCharges,
           startRide: Number(startRideOtp),
           endRide: 0,
         },
@@ -225,6 +264,7 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           oldBooking: [],
           transactionIds: [],
         },
+        bookedFrom: "admin",
         payInitFrom: result?.paymentMethod === "cash" ? "Cash" : "Razorpay",
         paySuccessId: "NA",
         paymentgatewayOrderId: "",
@@ -240,98 +280,53 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         rideStatus: result?.rideStatus || "pending",
       };
 
-      // console.log(data);
+      // console.log("Booking Data to send:", data);
       // return;
 
-      if (result?.paymentMethod === "cash") {
-        data = {
-          ...data,
-          payInitFrom: "Cash",
-          bookingStatus: "done",
+      const bookingResponse = await postData(
+        "/initiate-booking",
+        {
+          bookingData: data,
           paymentMethod: result?.paymentMethod,
-        };
-      }
-
-      const bookingResponse = await postData("/createBooking", data, token);
-      if (bookingResponse?.status === 200) {
-        // updating the timeline for booking
-        const timeLineData = {
-          userId: bookingResponse?.data?.userId,
-          bookingId: bookingResponse?.data?.bookingId,
-          currentBooking_id: bookingResponse?.data?._id,
-          isStart: true,
-          timeLine: [
-            {
-              title: "Booking Created",
-              date: Date.now(),
-            },
-          ],
-        };
-        // for creating booking
-        await postData("/createTimeline", timeLineData, token);
-        if (bookingResponse?.data?.paymentMethod === "cash") {
-          const timeLineData = {
-            currentBooking_id: bookingResponse?.data?._id,
-            timeLine: [
-              {
-                title: "Pay Later",
-                date: Date.now(),
-                paymentAmount:
-                  bookingResponse?.data?.bookingPrice?.discountTotalPrice > 0
-                    ? bookingResponse?.data?.bookingPrice?.discountTotalPrice
-                    : bookingResponse?.data?.bookingPrice?.totalPrice,
-              },
-            ],
-          };
-          await postData("/createTimeline", timeLineData, token);
-          handleAsyncError(dispatch, "Ride Created Successfully", "success");
-          navigate(`/all-bookings/details/${bookingResponse?.data?._id}`);
-          return;
-        }
-      } else {
-        return handleAsyncError(dispatch, bookingResponse?.message);
-      }
-
-      if (bookingResponse?.status !== 200)
-        return handleAsyncError(dispatch, "unable to make booking! try again.");
-      const generateOrder = await createOrderId(bookingResponse?.data);
-      // updating the data but order id
-      data = {
-        ...bookingResponse?.data,
-        paymentgatewayOrderId: generateOrder?.id,
-        paymentgatewayReceiptId: generateOrder?.receipt,
-        paymentInitiatedDate: generateOrder?.created_at,
-      };
-
-      const UpdatedBookingResponse = await postData(
-        `/createBooking?_id=${bookingResponse?.data?._id}`,
-        data,
-        token
+          isAdminBooking: true,
+        },
+        token,
       );
-      if (UpdatedBookingResponse?.status === 200) {
-        // updating the timeline for booking
-        const timeLineData = {
-          currentBooking_id: UpdatedBookingResponse?.data?._id,
-          timeLine: [
+
+      if (result?.paymentMethod === "cash") {
+        if (bookingResponse?.status === 200) {
+          handleAsyncError(dispatch, "Ride booked successfully", "success");
+          navigate(
+            `/all-bookings/details/${bookingResponse?.data?._id}_${bookingResponse?.data?.bookingId}`,
+          );
+          return;
+        } else {
+          handleAsyncError(dispatch, bookingResponse?.message);
+        }
+      } else if (["online", "partiallyPay"].includes(paymentMethodStatus)) {
+        const { orderId, booking_id, payableAmount } = bookingResponse.data;
+        if (orderId && orderId !== "") {
+          const paymentLinkResponse = await postData(
+            "/create-payment-link",
             {
-              title: "Payment Initiated",
-              date: Date.now(),
+              bookingId: booking_id,
+              amount: payableAmount,
+              orderId,
+              type:
+                paymentMethodStatus === "partiallyPay" ? "partiallyPay" : "",
             },
-          ],
-        };
-        // for creating booking
-        await postData("/createTimeline", timeLineData, token);
-        // for updating sending link in it
-        const updateTimeLineDataToPush = await CreatePaymentLinkAndTimeline(
-          UpdatedBookingResponse?.data,
-          token,
-          "Payment Link Created"
-        );
-        dispatch(updateTimeLineData(updateTimeLineDataToPush));
-        handleAsyncError(dispatch, "Ride Created Successfully", "success");
-        navigate(`/all-bookings/details/${UpdatedBookingResponse?.data?._id}`);
-      } else {
-        return handleAsyncError(dispatch, UpdatedBookingResponse?.message);
+            token,
+          );
+          if (paymentLinkResponse?.linkCreated === true) {
+            handleAsyncError(dispatch, "Ride booked successfully", "success");
+            navigate(
+              `/all-bookings/details/${bookingResponse?.data?.booking_id}_${bookingResponse?.data?.bookingId}`,
+            );
+            return;
+          } else {
+            handleAsyncError(dispatch, paymentLinkResponse?.message);
+          }
+        }
       }
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
@@ -341,68 +336,53 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   };
 
   return (
-    <form onSubmit={id ? handleFormSubmit : handleFormSubmitForNew}>
-      <div className="flex items-center gap-2 border-b-2 mb-3 pb-2">
-        {currentStep !== 1 && (
-          <button className="p-1" type="button" onClick={handlePrevious}>
-            {tableIcons?.backArrow}
-          </button>
-        )}
-        <h2 className="text-theme-dark font-semibold text-md lg:text-xl uppercase">
-          {(currentStep === 1 && "Basic Info") ||
-            (currentStep === 2 && "Confirm Booking") ||
-            (currentStep === 3 && "Confirm Booking")}
-        </h2>
-      </div>
+    <form onSubmit={handleFormSubmitForNew}>
       <div className="flex flex-wrap gap-4">
         <>
-          {currentStep === 1 && (
-            <BookingStepOne
-              data={formData?.stepOneData}
-              token={token}
-              onNext={handleNext}
-            />
-          )}
+          <BookingStepOne
+            data={formData?.stepOneData}
+            token={token}
+            onNext={handleNext}
+            setFormData={setFormData}
+          />
 
-          {currentStep === 2 && (
-            <BookingStepTwo
-              data={formData?.stepOneData}
-              priceCalculate={changePriceAccordingtoData}
-              setCoupon={setCoupon}
-              coupon={coupon}
-              setFormData={setFormData}
-              plan={planData}
-              setPlan={setPlanData}
-              // onNext={handleNext}
-            />
-          )}
-
-          {id && currentStep === 3 && (
-            <BookingStepThree id={id} onPrevious={handlePrevious} />
-          )}
+          {formData.bookingStartDate &&
+            formData.bookingEndDate &&
+            formData.selectedVehicle && (
+              <BookingStepTwo
+                data={formData}
+                priceCalculate={changePriceAccordingtoData}
+                gst={GST}
+                setCoupon={setCoupon}
+                coupon={coupon}
+                setFormData={setFormData}
+                plan={planData}
+                setPlan={setPlanData}
+                stepTwoData={stepTwoData}
+                setStepTwoData={setStepTwoData}
+              />
+            )}
         </>
       </div>
-      {(currentStep === 2 || (id && currentStep === 3)) && (
-        <button
-          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
-          type="submit"
-          disabled={formLoading || loading}
-        >
-          {formLoading || loading ? (
-            <Spinner
-              message={
-                id
-                  ? "uploading"
-                  : "booking. Do not refresh or press back button"
-              }
-            />
-          ) : id ? (
-            "Update"
-          ) : (
-            "Book Ride"
-          )}
-        </button>
-      )}
+
+      <button
+        className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-5 focus:outline-none focus:ring-2 disabled:bg-gray-400"
+        type="submit"
+        disabled={
+          formLoading ||
+          loading ||
+          formData.userId === "" ||
+          formData.vehicleId === "" ||
+          formData.bookingStartDate === "" ||
+          formData.bookingEndDate === ""
+        }
+      >
+        {formLoading || loading ? (
+          <Spinner message={"booking. Do not refresh or press back button"} />
+        ) : (
+          "Create Booking"
+        )}
+      </button>
     </form>
   );
 };

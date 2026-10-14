@@ -51,7 +51,7 @@ const SearchForm = ({
           </div>
         </div>
         <button
-          className="bg-theme-blue hover:bg-theme-blue-light text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400"
+          className="bg-theme-blue hover:bg-theme-blue-light text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
           type="submit"
           disabled={loading}
         >

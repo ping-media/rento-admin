@@ -8,20 +8,13 @@ const UserStatusCell = ({ item, index }) => {
       ? true
       : false;
   return (
-    <td
-      className="p-2 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 capitalize"
-      key={`UserVerification_${index}`}
-    >
+    <td className="px-2 py-1 whitespace-nowrap text-md lg:text-sm leading-6 font-medium text-gray-900 capitalize">
       <p
         className={`flex items-center gap-1 ${
           isVerify ? "text-green-500" : "text-red-500/90"
         }`}
       >
-        {isVerify ? (
-          <>{tableIcons?.verify} verified</>
-        ) : (
-          <>{tableIcons?.unVerify} not verified</>
-        )}
+        {isVerify ? <>{tableIcons?.verify}</> : <>{tableIcons?.unVerify}</>}
       </p>
     </td>
   );
