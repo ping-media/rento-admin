@@ -4,10 +4,6 @@ import { toggleFilterSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useMemo } from "react";
 import { bookingSearchList } from "../../Data/commonData";
-import {
-  handleChangeSearchTerm,
-  handleChangeSearchType,
-} from "../../Redux/PaginationSlice/PaginationSlice";
 import useSidebarFilter from "../../hooks/use-sidebar-filter";
 import ExportButton from "../../components/ExcelExport/ExportButton";
 import TitleAndButton from "../../components/Header/TitleAndButton";
@@ -30,6 +26,7 @@ const TablePageHeader = ({
     vehiclesFilter,
     searchTerm: urlSearchTerm,
     searchType,
+    attendanceUser,
     setSearchTerm,
     updateParams,
   } = useListParams();
@@ -41,7 +38,10 @@ const TablePageHeader = ({
   const dispatch = useDispatch();
 
   const isBookings = pathname === "/all-bookings";
-  const showFilters = FILTER_ENABLED_ROUTES.includes(pathname);
+  const isAttendance = pathname.endsWith("/attendance");
+  const isAllManagers = pathname === "/all-managers";
+  const showFilters = FILTER_ENABLED_ROUTES.includes(pathname) || isAttendance;
+
   const showExport =
     loggedInRole === "admin" &&
     ["/all-bookings", "/all-users", "/all-vehicles"].includes(pathname);
@@ -52,8 +52,11 @@ const TablePageHeader = ({
     if (vehiclesFilter.search) count++;
     if (vehiclesFilter.maintenanceType) count++;
     if (vehiclesFilter.stationId) count++;
+    if (pathname.endsWith("/attendances")) {
+      if (isAttendance && attendanceUser) count++;
+    }
     return count;
-  }, [vehiclesFilter]);
+  }, [vehiclesFilter, isAttendance, attendanceUser]);
 
   // typing -> URL (after the debounce)
   useEffect(() => {
@@ -79,7 +82,11 @@ const TablePageHeader = ({
 
       {!(location.pathname == "/users-documents") && (
         <div className="flex items-center flex-wrap lg:flex-nowrap gap-2">
-          <div className="w-full bg-white rounded-md shadow-lg">
+          <div
+            className={`w-full bg-white rounded-md shadow-lg ${
+              isAttendance ? "hidden" : ""
+            }`}
+          >
             <form
               onSubmit={(e) => e.preventDefault()}
               className="flex items-center justify-center p-2"
@@ -131,19 +138,17 @@ const TablePageHeader = ({
             </form>
           </div>
 
+          {isAllManagers && (
+            <Link
+              to={"attendance"}
+              className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-1.5 lg:p-2.5 flex items-center justify-center transition-all duration-200 ease-in relative"
+            >
+              Attendance
+            </Link>
+          )}
+
           {/* export to excel button  */}
           {showExport && <ExportButton data={bookingData} />}
-
-          {/* {location.pathname === "/all-users" && (
-            <Link
-              className="flex border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in"
-              title="Send push notification"
-              to={"/all-users/notifications"}
-            >
-              {tableIcons.bellAlert}{" "}
-              <span className="block md:hidden ml-1">Push Notification</span>
-            </Link>
-          )} */}
 
           {/* most used filters button */}
           {isBookings && (
@@ -190,7 +195,10 @@ const TablePageHeader = ({
                   {filterCount}
                 </span>
               )}
-              {tableIcons?.filter} <span className="ml-1">Filters</span>
+              {!isAttendance && tableIcons?.filter}{" "}
+              <span className={`${isAttendance ? "" : "ml-1"}`}>
+                {isAttendance ? "Select manager / fleet" : "Filters"}
+              </span>
             </button>
           )}
         </div>

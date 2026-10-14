@@ -3,7 +3,6 @@ import { useLocation, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Input from "../../InputAndDropdown/Input";
 import Spinner from "../../Spinner/Spinner";
-// import { userType, userTypeWithoutAdmin } from "../../../Data/commonData";
 import UserRideTimeLine from "../../Booking/UserRideTimeLine";
 import { format, parseISO } from "date-fns";
 import KycData from "./KycData";
@@ -28,6 +27,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
 
   // const isProfile = location.pathname === "/profile";
   const isAdmin = loggedInRole === "admin";
+  const isManager = location.pathname.includes("/all-managers/");
   // const USER_ROLE = isAdmin ? userType : userTypeWithoutAdmin;
 
   const userCreatedAt =
@@ -101,7 +101,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
               </div>
             )}
 
-            {rating !== null && !isProfile && (
+            {rating !== null && !isProfile && !isManager && (
               <div className="flex items-center gap-3 flex-wrap mb-3">
                 <div className="flex items-center">
                   <p className="font-semibold text-base mr-0.5 sm:mr-1">
@@ -120,9 +120,9 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
               </div>
             )}
 
-            {!isProfile && !location.pathname.includes("/add-new") && (
-              <KycData userId={userId} />
-            )}
+            {!isProfile &&
+              !location.pathname.includes("/add-new") &&
+              !isManager && <KycData userId={userId} />}
 
             <div
               className={`flex flex-wrap gap-4 pt-3 ${!isProfile && !location.pathname.includes("/add-new") ? "border-t" : ""}`}
@@ -246,7 +246,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                   </div>
                 )}
 
-                {!id && !isAddCustomer && (
+                {!id && !isAddCustomer && !isProfile && (
                   <div className="w-full lg:w-[48%]">
                     <Input
                       item={"password"}
@@ -258,101 +258,21 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                 )}
               </>
 
-              {!isProfile && (
+              {!isProfile && location.pathname.includes("/add-new") && (
                 <>
-                  {!location.pathname.includes("/add-new") ? (
-                    <>
-                      {/*  <div className="w-full lg:w-[48%]">
-                     <SelectDropDown
-                       item={"userType"}
-                       options={USER_ROLE}
-                       value={
-                         id
-                           ? vehicleMaster[0]?.userId?.userType ||
-                             vehicleMaster?.userType ||
-                             vehicleMaster[0]?.userType
-                           : ""
-                       }
-                       require={true}
-                       isSearchEnable={false}
-                     />
-                   </div> */}
-                    </>
-                  ) : (
-                    <>
-                      <input
-                        type="hidden"
-                        name="userType"
-                        value={isAddCustomer ? "customer" : "manager"}
-                      />
-                      <input
-                        type="hidden"
-                        name="isContactVerified"
-                        value="no"
-                      />
-                      <input type="hidden" name="isEmailVerified" value="no" />
-                      <input type="hidden" name="status" value="active" />
-                    </>
-                  )}
-
-                  {/* {!isAddCustomer && (
-                    <>
-                      <div className="w-full lg:w-[48%]">
-                        <SelectDropDown
-                          item={"isContactVerified"}
-                          placeholder={"Contact Verified"}
-                          options={["yes", "no"]}
-                          value={
-                            id
-                              ? vehicleMaster[0]?.userId?.isContactVerified ||
-                                vehicleMaster?.isContactVerified ||
-                                vehicleMaster[0]?.isContactVerified
-                              : "no"
-                          }
-                          require={true}
-                          isSearchEnable={false}
-                        />
-                      </div>
-
-                      <div className="w-full lg:w-[48%]">
-                        <SelectDropDown
-                          item={"isEmailVerified"}
-                          placeholder={"Email Verified"}
-                          options={["yes", "no"]}
-                          value={
-                            id
-                              ? vehicleMaster[0]?.userId?.isEmailVerified ||
-                                vehicleMaster?.isEmailVerified ||
-                                vehicleMaster[0]?.isEmailVerified
-                              : "no"
-                          }
-                          require={true}
-                          isSearchEnable={false}
-                        />
-                      </div>
-
-                      <div className="w-full lg:w-[48%]">
-                        <SelectDropDown
-                          item={"status"}
-                          options={["active", "inactive"]}
-                          value={
-                            id
-                              ? vehicleMaster[0]?.userId?.status ||
-                                vehicleMaster?.status ||
-                                vehicleMaster[0]?.status
-                              : "active"
-                          }
-                          require={true}
-                          isSearchEnable={false}
-                        />
-                      </div>
-                    </>
-                  )} */}
+                  <input
+                    type="hidden"
+                    name="userType"
+                    value={isAddCustomer ? "customer" : "manager"}
+                  />
+                  <input type="hidden" name="isContactVerified" value="no" />
+                  <input type="hidden" name="isEmailVerified" value="no" />
+                  <input type="hidden" name="status" value="active" />
                 </>
               )}
             </div>
 
-            {isAdmin && (
+            {(isProfile || isAdmin) && (
               <button
                 className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
                 type="submit"

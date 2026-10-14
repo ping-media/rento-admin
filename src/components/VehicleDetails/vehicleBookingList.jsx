@@ -1,5 +1,6 @@
 import React from "react";
 import { formatFullDateAndTime } from "../../utils";
+import { Link } from "react-router-dom";
 
 const VehicleBookingList = ({ currentBooking }) => {
   if (currentBooking === null) return null;
@@ -8,14 +9,17 @@ const VehicleBookingList = ({ currentBooking }) => {
     {
       label: "Booking Id",
       value: `#${currentBooking.bookingId}`,
+      isLink: true,
     },
     {
       label: "Pickup Date",
       value: formatFullDateAndTime(currentBooking.BookingStartDateAndTime),
+      isLink: false,
     },
     {
       label: "Dropoff Date",
       value: formatFullDateAndTime(currentBooking.BookingEndDateAndTime),
+      isLink: false,
     },
   ];
 
@@ -31,7 +35,18 @@ const VehicleBookingList = ({ currentBooking }) => {
           >
             <span className="font-medium capitalize">{data.label}</span>
 
-            <span className="text-gray-500 capitalize">{data.value}</span>
+            {data.isLink ? (
+              <Link
+                className="text-gray-500 font-semibold sm:hover:underline hover:no-underline underline-offset-4 capitalize"
+                to={`/all-bookings/details/${currentBooking?._id}_${currentBooking?.bookingId}`}
+              >
+                {data.value}
+              </Link>
+            ) : (
+              <span className="text-gray-500 font-semibold capitalize">
+                {data.value}
+              </span>
+            )}
           </div>
         ))}
       </div>

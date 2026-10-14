@@ -3,7 +3,7 @@ import { getData } from "../../Data";
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-const StationFilter = ({ stationId, setStationId }) => {
+const StationFilter = ({ stationId, setStationId, compact = false }) => {
   const { token } = useSelector((state) => state.user);
   const [stations, setStations] = useState(null);
   const [resetDropdown, setResetDropdown] = useState(false);
@@ -33,7 +33,7 @@ const StationFilter = ({ stationId, setStationId }) => {
   const isStationId = stationId && stationId?.trim() !== "";
 
   return (
-    <div className="mt-2 mb-5">
+    <div className={compact ? "" : "mt-2 mb-5"}>
       <div className="flex gap-2 items-center">
         <div className="flex-1">
           <div className="flex items-center justify-between">

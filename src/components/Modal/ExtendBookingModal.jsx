@@ -69,6 +69,9 @@ const ExtendBookingModal = ({ bookingData, setWhatsappModal }) => {
       ".000Z",
       "Z",
     );
+    if (!bookingData?.vehicleTableId)
+      return handleAsyncError(dispatch, "No Vehicle Assigned yet! try again");
+
     if (newDate === startDate) return;
     try {
       setPriceLoading(true);
@@ -292,19 +295,6 @@ const ExtendBookingModal = ({ bookingData, setWhatsappModal }) => {
       }));
     }
   }, [bookingData]);
-
-  // useEffect(() => {
-  //   if (!bookingData || !newDate) return;
-
-  //   const debouncedCheck = debounce(() => {
-  //     checkFreeVehicle();
-  //   }, 200);
-  //   debouncedCheck();
-
-  //   return () => {
-  //     debouncedCheck.cancel();
-  //   };
-  // }, [bookingData, newDate]);
 
   useEffect(() => {
     if (!bookingData || !newDate) return;

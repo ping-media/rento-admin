@@ -275,12 +275,14 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
                           (endDateToDisplay &&
                             formatDateTimeIN(endDateToDisplay)) ||
                           {};
-                        // const { date: EndDate, time: EndTime } =
-                        //   (item?.endDate && formatDateTimeIN(item?.endDate)) ||
-                        //   {};
                         return (
                           <tr
-                            className="bg-white transition-all duration-500 hover:bg-gray-50"
+                            // className="bg-white transition-all duration-500 hover:bg-gray-50"
+                            className={`bg-white transition-all duration-500 hover:bg-gray-50 ${
+                              item?.isActive
+                                ? "[&_td]:!font-bold [&_td]:!text-theme"
+                                : ""
+                            }`}
                             key={index}
                           >
                             <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ">

@@ -123,6 +123,10 @@ const BookingDetails = () => {
                 title: "Booking Cancelled",
                 date: new Date().toLocaleString(),
                 cancelNote: Note,
+                createdBy: {
+                  id: currentUser._id,
+                  firstName: currentUser.firstName,
+                },
               },
             ],
           };

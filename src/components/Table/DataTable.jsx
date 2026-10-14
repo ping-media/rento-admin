@@ -196,12 +196,12 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                     />
                                   );
 
-                                // if (column === "isEmailVerified")
                                 if (column === "kycApproved")
                                   return (
                                     <UserStatusCell
+                                      key={`${item?._id}-${column}`}
                                       item={item}
-                                      index={columnIndex}
+                                      index={`${columnIndex}-${index}`}
                                     />
                                   );
 

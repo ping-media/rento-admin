@@ -1,6 +1,6 @@
 import { lazy, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   formatPathNameToTitle,
   handlePreviousPage,
@@ -96,7 +96,7 @@ const CreateNewAndUpdateForm = () => {
             </button>
           )}
           {/* heading render dynamically based on url  */}
-          <h1 className="text-xl lg:text-2xl capitalize font-bold text-theme">
+          <h2 className="text-xl lg:text-2xl capitalize font-bold text-theme">
             {location.pathname.includes("/all-bookings/")
               ? `${id ? "Edit" : "Create"} Booking${
                   id ? `: #${vehicleMaster[0]?.bookingId}` : ""
@@ -118,10 +118,10 @@ const CreateNewAndUpdateForm = () => {
                             : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
                                 location.pathname,
                               )}`}
-          </h1>
+          </h2>
         </div>
         {isUsersPageWithoutId && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               className="bg-theme/90 text-white p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md"
               type="button"
@@ -156,6 +156,17 @@ const CreateNewAndUpdateForm = () => {
                   {tableIcons?.lock}
                   Change Password
                 </button>
+              )}
+            {location.pathname.includes("/all-managers/") &&
+              !location.pathname.includes("/add-new") &&
+              id?.trim() !== "" && (
+                <Link
+                  className="bg-theme flex items-center gap-1 text-white p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+                  to={`/all-managers/attendance?user=${id}`}
+                >
+                  {tableIcons?.dateCalender}
+                  View Attendance
+                </Link>
               )}
           </div>
         )}

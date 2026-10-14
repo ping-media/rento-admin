@@ -16,7 +16,7 @@ const ManagerStationForm = () => {
 
   if (loading) return <PreLoader />;
 
-  const stationInfo = vehicleMaster && vehicleMaster?.[0]?.station[0];
+  const stationInfo = vehicleMaster && vehicleMaster?.[0]?.station?.[0];
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();

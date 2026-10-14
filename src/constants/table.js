@@ -61,6 +61,15 @@ export const EXCLUDED_KEYS = new Set([
   "rating",
   "isRated",
   "googleReviewLink",
+  "fleetIds",
+  "attendanceRadiusMeters",
+  "requiredCheckIn",
+  "lateGraceMinutes",
+  "requiredCheckOut",
+  "earlyLeaveGraceMinutes",
+  "weeklyOff",
+  "attendanceRules",
+  "showLocationName",
 ]);
 
 export const ALL_BOOKINGS_EXCLUDED_KEYS = new Set([

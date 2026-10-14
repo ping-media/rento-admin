@@ -16,6 +16,7 @@ const ROUTE_TITLES = {
   "/all-managers": "Managers",
   "/location-master": "Cities",
   "/all-invoices": "Invoices",
+  "/all-managers/attendance": "Manager's Attendance",
 };
 
 export function getPageTitle(pathname, activeFilterName) {
@@ -37,11 +38,12 @@ const NO_ADD_BUTTON_ROUTES = [
   "/payments",
   "/all-invoices",
   "/users-documents",
+  "/all-managers/attendance",
+  "/attendance",
   "/logs",
 ];
 
 const TitleAndButton = ({ className = "flex" }) => {
-  // const { activeFilterName } = useSelector((state) => state.pagination);
   const { filterName } = useListParams();
   const activeFilterName = filterName || null; // keeps the old null-when-empty behavior
   const location = useLocation();

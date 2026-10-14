@@ -19,6 +19,10 @@ const KEYS = {
   vehicleSearch: "vSearch", // vehiclesFilter.search
   vehicleStationId: "vStation", // vehiclesFilter.stationId
   maintenanceType: "vMaint", // vehiclesFilter.maintenanceType
+  dateFrom: "from", // attendance report start date
+  dateTo: "to", // attendance report end date
+  attendanceUser: "user", // person shown on the attendance page (admin)
+  month: "month", // attendance month, "YYYY-MM"
 };
 
 const toPositiveInt = (value, fallback) => {
@@ -47,6 +51,12 @@ const useListParams = () => {
   const vehicleSearch = searchParams.get(KEYS.vehicleSearch) ?? "";
   const vehicleStationId = searchParams.get(KEYS.vehicleStationId) ?? "";
   const maintenanceType = searchParams.get(KEYS.maintenanceType) ?? "";
+
+  const dateFrom = searchParams.get(KEYS.dateFrom) ?? "";
+  const dateTo = searchParams.get(KEYS.dateTo) ?? "";
+
+  const attendanceUser = searchParams.get(KEYS.attendanceUser) ?? "";
+  const month = searchParams.get(KEYS.month) ?? "";
 
   // same shape as your old redux `vehiclesFilter`, memoized so it stays
   // stable for useCallback/useEffect dependencies
@@ -158,6 +168,10 @@ const useListParams = () => {
     filterName,
     stationId,
     vehiclesFilter,
+    dateFrom,
+    dateTo,
+    attendanceUser,
+    month,
     // writers
     updateParams,
     setPage,

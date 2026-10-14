@@ -136,7 +136,10 @@ const removeAfterSecondSlash = (url) => {
 
 const modifyUrl = (url) => {
   // if there is add-new in the url than send that url as it is
-  if (url.endsWith("add-new")) {
+  if (
+    url.endsWith("all-users/add-new") ||
+    url.endsWith("all-managers/add-new")
+  ) {
     return url.slice(1);
   }
 

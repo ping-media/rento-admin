@@ -108,6 +108,12 @@ const BookingTimeLine = () => {
     );
   }
 
+  const timelineItems = timeLineData?.timeLine ?? [];
+  const lastItem = timelineItems[timelineItems.length - 1];
+  const isTimelineClosed = ["Completed", "Ended", "Cancelled"].some((status) =>
+    lastItem?.title?.includes(status),
+  );
+
   return (
     <>
       <Suspense fallback={<PreLoader />}>
@@ -121,43 +127,34 @@ const BookingTimeLine = () => {
 
       <div className="container mx-auto py-4">
         <div className="relative wrap overflow-hidden">
-          {/* <div className="border-2-2 absolute border-opacity-20 border-gray-700 h-full border left-[29.3%] md:left-[37.5%]"></div> */}
-          {/* <div
-            className={`absolute top-0 border-opacity-20 border-gray-700 border left-[29.3%] md:left-[37.5%] ${
-              timeLineData?.timeLine?.length > 0 &&
-              ["Completed", "Ended", "Cancelled"].some((status) =>
-                timeLineData.timeLine[
-                  timeLineData.timeLine.length - 1
-                ]?.title?.includes(status),
-              )
-                ? "bottom-9 sm:bottom-5"
-                : "bottom-0"
-            }`}
-          /> */}
-
           {!loading &&
             timeLineData != null &&
             timeLineData?.timeLine?.map((item, index) => {
               return (
                 <div
                   className={`relative ${
-                    index !== timeLineData.timeLine.length - 1 ? "pb-5" : ""
+                    index !== timeLineData.timeLine.length - 1 ||
+                    !isTimelineClosed
+                      ? "pb-5"
+                      : ""
                   } flex justify-between w-full`}
                   key={index}
                 >
-                  {index !== timeLineData.timeLine.length - 1 && (
+                  {(index !== timeLineData.timeLine.length - 1 ||
+                    !isTimelineClosed) && (
                     <div className="absolute top-4 bottom-0 left-[29.3%] md:left-[37.5%] w-px bg-gray-700/55" />
                   )}
+
                   {/* <div
-                  className={`${
-                    ["Completed", "Ended", "Cancelled"].some((status) =>
-                      item?.title?.includes(status),
-                    )
-                      ? ""
-                      : "mb-5"
-                  } flex justify-between  w-full`}
-                  key={index}
-                > */}
+                //   className={`relative ${
+                //     index !== timeLineData.timeLine.length - 1 ? "pb-5" : ""
+                //   } flex justify-between w-full`}
+                //   key={index}
+                // >
+                //   {index !== timeLineData.timeLine.length - 1 && (
+                //     <div className="absolute top-4 bottom-0 left-[29.3%] md:left-[37.5%] w-px bg-gray-700/55" />
+                //   )} */}
+
                   <div className="order-1 w-3/12 md:w-4/12 text-right">
                     <p className="text-gray-700 text-sm leading-tight whitespace-pre-line">
                       {typeof item?.date === "number"
@@ -171,7 +168,6 @@ const BookingTimeLine = () => {
                     </p>
                   </div>
 
-                  {/* <div className="z-10 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative"></div> */}
                   <div className="z-10 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative shrink-0" />
                   <div className="order-1 w-8/12 md:w-7/12 text-left">
                     {!(
@@ -292,6 +288,8 @@ const BookingTimeLine = () => {
                             )}
                           </div>
                         )}
+
+                        <CreatedByTag createdBy={item?.createdBy} />
                       </>
                     ) : (
                       <div>
@@ -396,6 +394,7 @@ const BookingTimeLine = () => {
                             TxID: {item.paymentId}
                           </p>
                         )}
+                        <CreatedByTag createdBy={item?.createdBy} />
                       </div>
                     )}
                   </div>
@@ -420,6 +419,23 @@ const AddNoteBtn = ({ onClick }) => (
     {tableIcons.add}
   </button>
 );
+
+const CreatedByTag = ({ createdBy }) => {
+  const name =
+    typeof createdBy?.firstName === "string" ? createdBy.firstName.trim() : "";
+
+  if (!name) return null;
+
+  return (
+    <span
+      title={`Performed by ${name}`}
+      className="inline-flex mt-1 px-2 py-0.5 text-xs leading-tight rounded bg-yellow-100 text-yellow-800 border border-yellow-300 shadow-sm capitalize items-center gap-1"
+    >
+      {tableIcons.user}
+      Performed By {name}
+    </span>
+  );
+};
 
 const BookingTimelineSkeleton = () => {
   return (

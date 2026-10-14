@@ -80,7 +80,7 @@ const RideEndModal = ({ id, setRatingActive, setWhatsappModal }) => {
 
   const calculateLateFeeBeforeRidend = () => {
     const {
-      BookingStartDateAndTime,
+      // BookingStartDateAndTime,
       BookingEndDateAndTime,
       vehicleBasic,
       bookingPrice,
@@ -88,7 +88,7 @@ const RideEndModal = ({ id, setRatingActive, setWhatsappModal }) => {
 
     const nowIso = formatDateToISO(new Date()).replace(".000Z", "Z");
 
-    const bookingStartDate = BookingStartDateAndTime.split("T")[0];
+    // const bookingStartDate = BookingStartDateAndTime.split("T")[0];
     const bookingEndDate = BookingEndDateAndTime.split("T")[0];
     const bookingEndTime = BookingEndDateAndTime.split("T")[1];
 
@@ -98,43 +98,43 @@ const RideEndModal = ({ id, setRatingActive, setWhatsappModal }) => {
     /* ---------------------------------
      REFUND LOGIC
      --------------------------------- */
-    let refundAmount = 0;
+    // let refundAmount = 0;
 
-    const totalPrice =
-      bookingPrice?.discountTotalPrice > 0
-        ? Number(bookingPrice.discountTotalPrice)
-        : Number(bookingPrice?.totalPrice || 0);
+    // const totalPrice =
+    //   bookingPrice?.discountTotalPrice > 0
+    //     ? Number(bookingPrice.discountTotalPrice)
+    //     : Number(bookingPrice?.totalPrice || 0);
 
-    // CASE 1: Same-day close → FULL refund
-    if (nowDate === bookingStartDate) {
-      refundAmount = totalPrice;
-    }
+    // // CASE 1: Same-day close → FULL refund
+    // if (nowDate === bookingStartDate) {
+    //   refundAmount = totalPrice;
+    // }
 
-    // CASE 2: Close between start & end → per-day refund
-    else if (nowDate > bookingStartDate && nowDate < bookingEndDate) {
-      const totalDurationDays = getDurationInDaysAndHours(
-        BookingStartDateAndTime,
-        BookingEndDateAndTime,
-      ).days;
+    // // CASE 2: Close between start & end → per-day refund
+    // else if (nowDate > bookingStartDate && nowDate < bookingEndDate) {
+    //   const totalDurationDays = getDurationInDaysAndHours(
+    //     BookingStartDateAndTime,
+    //     BookingEndDateAndTime,
+    //   ).days;
 
-      const remainingDurationDays = getDurationInDaysAndHours(
-        nowIso,
-        BookingEndDateAndTime,
-      ).days;
+    //   const remainingDurationDays = getDurationInDaysAndHours(
+    //     nowIso,
+    //     BookingEndDateAndTime,
+    //   ).days;
 
-      if (totalDurationDays > 0 && remainingDurationDays > 0) {
-        refundAmount = Math.round(
-          totalPrice * (remainingDurationDays / totalDurationDays),
-        );
-      }
-    }
+    //   if (totalDurationDays > 0 && remainingDurationDays > 0) {
+    //     refundAmount = Math.round(
+    //       totalPrice * (remainingDurationDays / totalDurationDays),
+    //     );
+    //   }
+    // }
 
-    // CASE 3: On or after booking end → NO refund
-    else {
-      refundAmount = 0;
-    }
+    // // CASE 3: On or after booking end → NO refund
+    // else {
+    //   refundAmount = 0;
+    // }
 
-    setRefundAmount(refundAmount);
+    // setRefundAmount(refundAmount);
 
     /* ---------------------------------
      HOUR LATE FEE
@@ -166,13 +166,8 @@ const RideEndModal = ({ id, setRatingActive, setWhatsappModal }) => {
       Number(meterDebounceValue) - Number(oldMeterReading),
     );
 
-    // 👇 Add KMs from all previous vehicles before the change
+    // Add KMs from all previous vehicles before the change
     const totalDrivenKm = currentVehicleKm + previousVehiclesKm;
-
-    // const totalDrivenKm = Math.max(
-    //   0,
-    //   Number(meterDebounceValue) - Number(oldMeterReading),
-    // );
 
     const paidExtends =
       bookingPrice?.extendAmount?.filter((b) => b.status === "paid") || [];
@@ -229,6 +224,10 @@ const RideEndModal = ({ id, setRatingActive, setWhatsappModal }) => {
 
     setFormLoading(true);
     try {
+      const nowIso = formatDateToISO(new Date()).replace(".000Z", "Z");
+      const scheduledEnd = vehicleMaster?.[0]?.BookingEndDateAndTime;
+      const isEarlyClose = !!scheduledEnd && nowIso < scheduledEnd;
+
       let data = {
         _id: booking?._id,
         userId: booking?.userId?._id,
@@ -245,11 +244,9 @@ const RideEndModal = ({ id, setRatingActive, setWhatsappModal }) => {
         endDateTime: Date.now(),
         imageLinks: endImageLinks,
       };
-      // const LateFeeAmount = data
-      //   ? data.lateFeeBasedOnHour + data.lateFeeBasedOnKM
-      //   : 0;
 
-      if (refundAmount > 0) {
+      // if (refundAmount > 0) {
+      if (refundAmount > 0 || isEarlyClose) {
         data = {
           ...data,
           closingDate: formatDateToISO(new Date()).replace(".000Z", "Z"),
@@ -260,25 +257,6 @@ const RideEndModal = ({ id, setRatingActive, setWhatsappModal }) => {
       const response = await postData("/rideUpdate", data, token, "put");
       if (response.status === 200) {
         handleAsyncError(dispatch, "Ride completed successfully", "success");
-        // updating the timeline for booking
-        // const timeLineData = {
-        //   currentBooking_id: id,
-        //   timeLine: [
-        //     {
-        //       title:
-        //         refundAmount > 0
-        //           ? "Booking Ended & Refunded"
-        //           : "Booking Completed",
-        //       refundAmount: Number(refundAmount ?? 0) ?? 0,
-        //       paymentAmount: LateFeeAmount > 0 ? Number(LateFeeAmount) : 0,
-        //       paymentMode: result?.PaymentMode || "",
-        //       date: Date.now(),
-        //     },
-        //   ],
-        // };
-        // postData("/createTimeline", timeLineData, token);
-        // for updating timeline redux data
-        // dispatch(updateTimeLineData(timeLineData));
 
         if (response?.data?.timeLineData) {
           dispatch(updateTimeLineData(response.data.timeLineData));

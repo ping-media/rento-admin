@@ -45,7 +45,7 @@ const useRideStart = ({
   onVehicleChange,
   setWhatsappModal,
 }) => {
-  const { token, loggedInRole } = useSelector((state) => state.user);
+  const { token, loggedInRole, user } = useSelector((state) => state.user);
   const { tempVehicleData, vehicleMaster } = useSelector(
     (state) => state.vehicles,
   );
@@ -249,9 +249,6 @@ const useRideStart = ({
         );
       }
 
-      // console.log(Object.fromEntries(finalFormData.entries()));
-      // return;
-
       const responseImage = await postData("/start-ride", finalFormData, token);
 
       if (responseImage?.status === 200) {
@@ -358,9 +355,12 @@ const useRideStart = ({
               date: Date.now(),
               vehicleName: vehicleMaster[0]?.vehicleName,
               vehicleNumber: TimelineVehicleNumber,
-              // vehicleNumber: vehicleMaster[0]?.vehicleBasic?.vehicleNumber,
               remaining_amount: amount,
               paymentMode: !isChange ? updatePaymentMode : "",
+              createdBy: {
+                id: user._id,
+                firstName: user.firstName,
+              },
             },
           ],
         };

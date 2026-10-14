@@ -12,6 +12,7 @@ import General from "./General";
 import AddDocuments from "./AddDocuments";
 import AddonManager from "./AddonManager";
 import Notification from "./Notification";
+import Attendance from "./Attendance";
 
 export {
   Profile,
@@ -28,4 +29,5 @@ export {
   AddDocuments,
   AddonManager,
   Notification,
+  Attendance,
 };

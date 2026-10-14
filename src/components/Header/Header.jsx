@@ -6,7 +6,6 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import BackButton from "../../components/Buttons/BackButton";
 import TitleAndButton from "./TitleAndButton";
 import useListParams from "../../hooks/use-list-params";
-import { LogoutBtn } from "./HeaderMenuList";
 
 const NON_TITLE_PAGE = [
   "/dashboard",
@@ -14,6 +13,8 @@ const NON_TITLE_PAGE = [
   "/profile",
   "/settings",
 ];
+
+const SHOW_PUSH_NOTIFICATION = ["/all-users", "/all-bookings"];
 
 const isDev = import.meta.env.VITE_ENV === "development";
 
@@ -111,17 +112,13 @@ const Header = () => {
             )}
 
           <Link
-            className={`${location.pathname.includes("/all-bookings/details/") || showClearFilters ? "hidden" : "flex"} border sm:hover:border-theme sm:hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in`}
+            className={`${!SHOW_PUSH_NOTIFICATION.includes(location.pathname) || showClearFilters ? "hidden" : "flex"} border sm:hover:border-theme sm:hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 items-center transition-all duration-200 ease-in`}
             title="Send push notification"
             to={"/all-users/notifications"}
           >
             <div className="-rotate-45">{tableIcons.send}</div>
             <span className="hidden sm:block ml-1">Push Notification</span>
           </Link>
-
-          <LogoutBtn
-            className={`flex sm:hidden p-0 ${showClearFilters ? "hidden" : ""}`}
-          />
         </div>
       </div>
     </header>

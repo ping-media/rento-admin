@@ -7,9 +7,6 @@ import { useSelector } from "react-redux";
 import ErrorBoundaryWrapper from "./components/Error/ErrorBoundaryWrapper";
 import { Dashboard } from "./Pages/index";
 
-// const Dashboard = lazy(() =>
-//   import("./Pages/index").then((module) => ({ default: module.Dashboard })),
-// );
 const NotFound = lazy(() =>
   import("./Pages/index").then((module) => ({ default: module.NotFound })),
 );
@@ -19,6 +16,11 @@ const Unauthorized = lazy(() =>
 const VehicleDetails = lazy(() =>
   import("./Pages/index").then((module) => ({
     default: module.VehicleDetails,
+  })),
+);
+const Attendance = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.Attendance,
   })),
 );
 const Notification = lazy(() =>
@@ -428,6 +430,19 @@ const App = () => {
                 }
               />
               <Route
+                path="all-managers/attendance"
+                exact
+                element={
+                  <PrivateRouteBasedOnUser
+                    allowedRoles={["admin"]}
+                    userRole={loggedInRole}
+                    isLoading={verifyLoading}
+                  >
+                    <Attendance />
+                  </PrivateRouteBasedOnUser>
+                }
+              />
+              <Route
                 path="all-users/:id"
                 exact
                 element={
@@ -530,6 +545,20 @@ const App = () => {
                     isLoading={verifyLoading}
                   >
                     <BookingDetails />
+                  </PrivateRouteBasedOnUser>
+                }
+              />
+              {/* managers attendance route  */}
+              <Route
+                path="attendance"
+                exact
+                element={
+                  <PrivateRouteBasedOnUser
+                    allowedRoles={["manager"]}
+                    userRole={loggedInRole}
+                    isLoading={verifyLoading}
+                  >
+                    <Attendance />
                   </PrivateRouteBasedOnUser>
                 }
               />

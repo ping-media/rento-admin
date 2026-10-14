@@ -48,10 +48,7 @@ const SideBar = () => {
 
   return (
     <div className="relative flex flex-col h-dvh overflow-hidden shadow-lg dark:shadow-gray-500 bg-white border-r-2 border-gray-200">
-      {/* <div className="shadow-lg min-h-screen dark:shadow-gray-500 bg-white border-r-2 border-gray-200"> */}
-
       {/* close button  */}
-      {/* <div className="lg:hidden float-right px-5 py-4"> */}
       <div className="lg:hidden absolute right-0 top-0 z-10 px-5 py-4">
         <button
           className="border border-gray-300 rounded-lg p-2 dark:border-gray-100"
@@ -85,10 +82,7 @@ const SideBar = () => {
           />
         </div>
       </div>
-      {/* <div
-        className="px-3.5 py-3 overflow-y-scroll w-full"
-        style={{ height: "calc(100vh - 88px)" }}
-      > */}
+
       <div className="sidebar-scroll px-3.5 py-3 flex-1 min-h-0 overflow-y-auto w-full">
         <ul className="leading-9">
           {filteredMenu.map((item, index) => {

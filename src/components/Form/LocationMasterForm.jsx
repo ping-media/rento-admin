@@ -4,6 +4,7 @@ import Input from "../InputAndDropdown/Input";
 import Spinner from "../Spinner/Spinner";
 import ImageUploadAndPreview from "../ImageComponent/ImageUploadAndPreview";
 import { useParams } from "react-router-dom";
+import ArrowSelect from "../../components/InputAndDropdown/ArrowSelect";
 
 const LocationMasterForm = ({ handleFormSubmit, loading }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -35,6 +36,26 @@ const LocationMasterForm = ({ handleFormSubmit, loading }) => {
               item={"locationName"}
               value={(id && vehicleMaster?.[0]?.locationName) || ""}
             />
+          </div>
+          <div className="w-full mb-1">
+            <label className="block text-left text-sm font-semibold text-gray-800">
+              Show location name
+            </label>
+            <ArrowSelect
+              wrapperClassName="mt-2"
+              name="showLocationName"
+              defaultValue={String(
+                (id && vehicleMaster?.[0]?.showLocationName) || false,
+              )}
+              className="w-full rounded-md ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none px-5 py-3"
+            >
+              <option value="false">No, hide the name</option>
+              <option value="true">Yes, show the name</option>
+            </ArrowSelect>
+            <p className="mt-1 text-xs text-gray-500">
+              Controls whether the location name is displayed on the
+              website/app.
+            </p>
           </div>
           <div className="w-full mb-1">
             <Input

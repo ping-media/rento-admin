@@ -10,6 +10,7 @@ import {
   AccountCircleOutlined,
   AccountTreeOutlined,
   EventAvailableOutlined,
+  EventNoteOutlined,
   InventoryOutlined,
   PeopleOutlineOutlined,
   TwoWheelerOutlined,
@@ -93,6 +94,12 @@ const menuList = [
     menuTitle: "Plan Master",
     menuLink: "/all-plans",
     roles: ["admin"],
+  },
+  {
+    menuImg: <EventNoteOutlined />,
+    menuTitle: "Attendance",
+    menuLink: "/attendance",
+    roles: ["manager"],
   },
   {
     menuImg: <AccountCircleOutlined />,

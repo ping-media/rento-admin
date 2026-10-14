@@ -358,10 +358,20 @@ const handleCreateAndUpdateVehicle = async (
     }
   }
 
+  // if (location?.pathname?.includes("/station-master/")) {
+  //   if (result?.userId && result.userId === "") {
+  //     return handleAsyncError(dispatch, "Please assign manager first!");
+  //   }
+  // }
   if (location?.pathname?.includes("/station-master/")) {
-    if (result?.userId && result.userId === "") {
+    const userIds = (result.userId || "").split(",").filter(Boolean);
+
+    if (userIds.length === 0) {
+      setFormLoading(false);
       return handleAsyncError(dispatch, "Please assign manager first!");
     }
+
+    result.userId = userIds;
   }
 
   const endpoint = id
@@ -568,15 +578,12 @@ const validateUser = debounce(
               );
             }
             return;
-            // if (location.pathname === "/") {
-            //   navigate(
-            //     loggedInRole === "manager" ? "/all-bookings" : "/dashboard",
-            //   );
-            //   return;
-            // }
-            // return;
           } else {
             handleLogoutUser(dispatch);
+            handleAsyncError(
+              dispatch,
+              response?.message ?? "session expired! login again.",
+            );
             return;
           }
         } catch (error) {
