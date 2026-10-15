@@ -20,7 +20,7 @@ const InputSearchMulti = ({
   const [userLoading, setUserLoading] = useState(false);
   const navigate = useNavigate();
   const { inputValue, isSearching, tempVehicleData, filteredUsers, search } =
-    useUserSearch(token);
+    useUserSearch({ token, isManagerSearch: true });
 
   const selectedIds = selected.map((u) => u._id);
   const availableUsers = filteredUsers.filter(

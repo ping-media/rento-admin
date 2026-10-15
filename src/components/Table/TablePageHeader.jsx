@@ -186,7 +186,7 @@ const TablePageHeader = ({
 
           {showFilters && (
             <button
-              className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-1.5 lg:p-2.5 flex items-center transition-all duration-200 ease-in relative"
+              className={`border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-1.5 lg:p-2.5 items-center transition-all duration-200 ease-in relative ${isAttendance ? " hidden sm:flex" : "flex"}`}
               title="filters"
               onClick={() => dispatch(toggleFilterSideBar())}
             >

@@ -7,6 +7,9 @@ import { getFullData, postData } from "../Data/index";
 import { handleAsyncError } from "../utils/Helper/handleAsyncError";
 import { fmtDate, fmtTime } from "../utils/attendance";
 import TablePageHeader from "../components/Table/TablePageHeader";
+const AttendancePersonFilter = lazy(
+  () => import("../components/Attendance/AttendancePersonFilter"),
+);
 const ConfirmModal = lazy(() => import("../components/Modal/ConfirmModal"));
 const FilterSideBar = lazy(() => import("../components/SideBar/FilterSideBar"));
 
@@ -113,6 +116,16 @@ const Attendance = () => {
       {isAdmin && (
         <>
           <div className="mb-4">
+            <div className="w-full sm:hidden">
+              <Suspense
+                fallback={
+                  <div className="h-12 w-full rounded-md bg-gray-200 animate-pulse" />
+                }
+              >
+                <AttendancePersonFilter variant="compact" />
+              </Suspense>
+            </div>
+
             <TablePageHeader
               inputSearchQuery={searchInput}
               setInputSearchQuery={setSearchInput}
@@ -127,7 +140,6 @@ const Attendance = () => {
 
       {!isAdmin && (
         <div className="mb-4 w-full rounded-xl bg-white p-4 shadow">
-          {/* <div className="mx-auto mb-4 w-full max-w-xl rounded-xl bg-white p-4 shadow dark:bg-slate-800"> */}
           {todayData ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>

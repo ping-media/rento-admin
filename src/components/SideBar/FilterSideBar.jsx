@@ -184,7 +184,11 @@ const FilterSideBar = ({ stationId, setStationId }) => {
             </>
           )}
 
-          {isAttendance && <AttendancePersonFilter />}
+          {isAttendance && (
+            <AttendancePersonFilter
+              onNavigate={() => dispatch(toggleFilterSideBar())}
+            />
+          )}
         </div>
       </div>
     </div>

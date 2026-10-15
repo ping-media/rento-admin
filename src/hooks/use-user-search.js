@@ -7,7 +7,7 @@ import {
   removeTempVehicleData,
 } from "../Redux/VehicleSlice/VehicleSlice";
 
-export const useUserSearch = (token) => {
+export const useUserSearch = ({ token, isManagerSearch = false }) => {
   const [inputValue, setInputValue] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const timeoutRef = useRef(null);
@@ -40,8 +40,14 @@ export const useUserSearch = (token) => {
 
     setIsSearching(true);
     timeoutRef.current = setTimeout(async () => {
+      const params = new URLSearchParams({ search: value });
+
+      if (isManagerSearch) {
+        params.set("userType", "manager");
+      }
+
       const data = await fetchUserDataBasedOnQuery(
-        `/admin/getAllUsers?search=${encodeURIComponent(value)}`,
+        `/admin/getAllUsers?${params.toString()}`,
         token,
       );
       dispatch(addTempVehicleData(data));
