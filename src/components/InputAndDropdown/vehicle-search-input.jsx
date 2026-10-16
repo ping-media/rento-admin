@@ -34,7 +34,7 @@ const VehicleSearchInput = ({
     vehicleName: booking?.vehicleName,
     bookingStartDateTime: booking?.BookingStartDateAndTime,
     bookingEndDateTime: booking?.BookingEndDateAndTime,
-    excludeBookingId: booking?.vehicleTableId !== null ? booking?._id : null,
+    excludeBookingId: booking?._id,
     limit: 10,
   });
 

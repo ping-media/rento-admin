@@ -30,7 +30,7 @@ const Identity = () => {
     e.preventDefault();
 
     const isAnyImageMissing = Object.values(imagesUrl).some(
-      (value) => value === ""
+      (value) => value === "",
     );
     if (isAnyImageMissing) {
       return handleAsyncError(dispatch, "All Images Required!.");
@@ -57,7 +57,7 @@ const Identity = () => {
     if (!hasFiles) {
       return handleAsyncError(
         dispatch,
-        "Unable to upload! No images provided."
+        "Unable to upload! No images provided.",
       );
     }
 
@@ -68,8 +68,9 @@ const Identity = () => {
       const response = await postMultipleData(
         "/uploadDocument",
         finalFormData,
-        token
+        token,
       );
+
       if (response?.status == 200) {
         handleAsyncError(dispatch, response?.message, "success");
         setImage({
