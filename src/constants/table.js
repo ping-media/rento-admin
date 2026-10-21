@@ -70,6 +70,7 @@ export const EXCLUDED_KEYS = new Set([
   "weeklyOff",
   "attendanceRules",
   "showLocationName",
+  "stationWeeklyOff",
 ]);
 
 export const ALL_BOOKINGS_EXCLUDED_KEYS = new Set([

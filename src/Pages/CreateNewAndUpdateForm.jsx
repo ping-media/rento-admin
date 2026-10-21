@@ -1,6 +1,6 @@
-import { lazy, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   formatPathNameToTitle,
   handlePreviousPage,
@@ -12,12 +12,24 @@ import {
 } from "../Data/Function.js";
 import PreLoader from "../components/Skeleton/PreLoader.jsx";
 import { endPointBasedOnURL, forms } from "../Data/commonData.js";
-import { removeTempIds } from "../Redux/VehicleSlice/VehicleSlice.js";
+import {
+  removeTempIds,
+  updateStationWeeklyOff,
+} from "../Redux/VehicleSlice/VehicleSlice.js";
 import { tableIcons } from "../Data/Icons.jsx";
 import {
   toggleForgetPasswordModal,
   toogleKycModalActive,
 } from "../Redux/SideBarSlice/SideBarSlice.js";
+import {
+  fromWeeklyOffValue,
+  toWeeklyOffValue,
+} from "../components/DropDown/WeeklyOffSelect.jsx";
+import { postData } from "../Data/index.js";
+import { handleAsyncError } from "../utils/Helper/handleAsyncError.js";
+const WeeklyOffSelect = lazy(
+  () => import("../components/DropDown/WeeklyOffSelect.jsx"),
+);
 const ForgetPasswordModal = lazy(
   () => import("../components/Modal/ForgetPasswordModal.jsx"),
 );
@@ -26,16 +38,20 @@ const UserKycApproveModal = lazy(
 );
 
 const CreateNewAndUpdateForm = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
   const [formLoading, setFormLoading] = useState(false);
-  const { id } = useParams();
   const { token, loggedInRole } = useSelector((state) => state.user);
   const { loading, vehicleMaster, tempIds } = useSelector(
     (state) => state.vehicles,
   );
 
   const isId = Boolean(id?.trim());
+  const isStationEditPage =
+    location.pathname.includes("/station-master/") && isId;
+
   const isUsersPageWithoutId = useMemo(() => {
     return (
       ["/all-users/", "/all-managers/"].some((path) =>
@@ -58,6 +74,45 @@ const CreateNewAndUpdateForm = () => {
         : endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")],
     );
   }, [dispatch, id, token]);
+
+  // inside the component
+  const savedWeeklyOff = toWeeklyOffValue(vehicleMaster?.[0]?.stationWeeklyOff);
+  const [weeklyOffValue, setWeeklyOffValue] = useState(savedWeeklyOff);
+  const [savingOff, setSavingOff] = useState(false);
+
+  // keep the dropdown in sync when the station in redux changes
+  useEffect(() => {
+    if (!isStationEditPage) return;
+
+    setWeeklyOffValue(savedWeeklyOff);
+  }, [vehicleMaster?.[0]?._id, savedWeeklyOff]);
+
+  const saveWeeklyOff = async () => {
+    setSavingOff(true);
+    try {
+      const response = await postData(
+        "/changeStationWeeklyOff",
+        {
+          _id: vehicleMaster?.[0]?._id,
+          stationWeeklyOff: fromWeeklyOffValue(weeklyOffValue),
+        },
+        token,
+      );
+      if (response?.status === 200) {
+        dispatch(updateStationWeeklyOff(response.data.stationWeeklyOff));
+        handleAsyncError(dispatch, "Weekly off updated", "success");
+      } else {
+        handleAsyncError(
+          dispatch,
+          response?.message || "Unable to update weekly off",
+        );
+      }
+    } catch (error) {
+      handleAsyncError(dispatch, error?.message);
+    } finally {
+      setSavingOff(false);
+    }
+  };
 
   // Dynamically select the form to render based on the URL
   const getFormType = () => {
@@ -117,56 +172,79 @@ const CreateNewAndUpdateForm = () => {
                               )}`}
           </h2>
         </div>
-        {isUsersPageWithoutId && (
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              className="bg-theme/90 text-white p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md"
-              type="button"
-              onClick={() => dispatch(toogleKycModalActive())}
-              disabled={
-                (vehicleMaster &&
-                  vehicleMaster[0] &&
-                  vehicleMaster[0]?.userId?.kycApproved === "yes") ||
-                (vehicleMaster && vehicleMaster?.kycApproved === "yes")
-                  ? true
-                  : false
+        <div className="flex flex-wrap items-center gap-2">
+          {isStationEditPage && loggedInRole === "admin" && (
+            <Suspense
+              fallback={
+                <div className="w-40 h-10 bg-gray-200 rounded-md animate-pulse" />
               }
             >
-              {vehicleMaster && vehicleMaster[0] ? (
-                vehicleMaster[0]?.userId?.kycApproved === "yes" ? (
+              <WeeklyOffSelect
+                id="stationWeeklyOff"
+                label="Station weekly off"
+                value={weeklyOffValue}
+                savedValue={savedWeeklyOff}
+                onChange={setWeeklyOffValue}
+                onSave={saveWeeklyOff}
+                saving={savingOff}
+                disabled={loggedInRole !== "admin"}
+              />
+            </Suspense>
+          )}
+
+          {isUsersPageWithoutId && (
+            <>
+              <button
+                className="bg-theme/90 text-white p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md"
+                type="button"
+                onClick={() => dispatch(toogleKycModalActive())}
+                disabled={
+                  (vehicleMaster &&
+                    vehicleMaster[0] &&
+                    vehicleMaster[0]?.userId?.kycApproved === "yes") ||
+                  (vehicleMaster && vehicleMaster?.kycApproved === "yes")
+                    ? true
+                    : false
+                }
+              >
+                {vehicleMaster && vehicleMaster[0] ? (
+                  vehicleMaster[0]?.userId?.kycApproved === "yes" ? (
+                    <>{tableIcons?.verify} Verified</>
+                  ) : (
+                    <>{tableIcons?.unVerify} Not Verified</>
+                  )
+                ) : vehicleMaster && vehicleMaster?.kycApproved === "yes" ? (
                   <>{tableIcons?.verify} Verified</>
                 ) : (
                   <>{tableIcons?.unVerify} Not Verified</>
-                )
-              ) : vehicleMaster && vehicleMaster?.kycApproved === "yes" ? (
-                <>{tableIcons?.verify} Verified</>
-              ) : (
-                <>{tableIcons?.unVerify} Not Verified</>
-              )}
-            </button>
-            {location.pathname.includes("/all-managers/") &&
-              !location.pathname.includes("/add-new") && (
-                <button
-                  className="bg-theme flex items-center gap-1 text-white p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
-                  onClick={() => dispatch(toggleForgetPasswordModal())}
-                >
-                  {tableIcons?.lock}
-                  Change Password
-                </button>
-              )}
-            {location.pathname.includes("/all-managers/") &&
-              !location.pathname.includes("/add-new") &&
-              id?.trim() !== "" && (
-                <Link
-                  className="bg-theme flex items-center gap-1 text-white p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
-                  to={`/all-managers/attendance?user=${id}`}
-                >
-                  {tableIcons?.dateCalender}
-                  View Attendance
-                </Link>
-              )}
-          </div>
-        )}
+                )}
+              </button>
+
+              {location.pathname.includes("/all-managers/") &&
+                !location.pathname.includes("/add-new") && (
+                  <button
+                    className="bg-theme flex items-center gap-1 text-white p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+                    onClick={() => dispatch(toggleForgetPasswordModal())}
+                  >
+                    {tableIcons?.lock}
+                    Change Password
+                  </button>
+                )}
+
+              {location.pathname.includes("/all-managers/") &&
+                !location.pathname.includes("/add-new") &&
+                id?.trim() !== "" && (
+                  <Link
+                    className="bg-theme flex items-center gap-1 text-white p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+                    to={`/all-managers/attendance?user=${id}`}
+                  >
+                    {tableIcons?.dateCalender}
+                    View Attendance
+                  </Link>
+                )}
+            </>
+          )}
+        </div>
       </div>
       <div className="w-full max-w-full lg:w-[95%] shadow-lg rounded-xl p-3 lg:p-5 mx-auto bg-white overflow-x-hidden">
         <FormComponent

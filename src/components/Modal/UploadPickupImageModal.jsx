@@ -151,7 +151,7 @@ const UploadPickupImageModal = ({
                 <Input
                   type="number"
                   item="rideOtp"
-                  placeholder={"Enter Otp"}
+                  placeholder={"Enter OTP"}
                   require={true}
                   isLabel={false}
                   defaultValue={formValues.rideOtp}

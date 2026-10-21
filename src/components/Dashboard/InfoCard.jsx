@@ -26,13 +26,13 @@ const InfoCard = ({ item }) => {
               {camelCaseToSpaceSeparated(item?.title)}
             </p>
             {hasData ? (
-              <h2 className="lg:text-xl font-bold text-center lg:text-start">
+              <h3 className="lg:text-xl font-bold text-center lg:text-start tabular-nums">
                 <CountUp
                   end={count}
                   prefix={isRevenue ? "₹" : ""}
                   separator=","
                 />
-              </h2>
+              </h3>
             ) : (
               <p
                 className="text-sm font-medium text-gray-800 text-center lg:text-start truncate max-w-[140px]"

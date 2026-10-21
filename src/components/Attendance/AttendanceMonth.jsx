@@ -4,7 +4,7 @@ import useListParams from "../../hooks/use-list-params";
 import { getFullData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { fmtDuration, fmtTime, istDate } from "../../utils/attendance";
-import ArrowSelect from "../InputAndDropdown/ArrowSelect";
+import WeeklyOffSelect, { toWeeklyOffValue } from "../DropDown/WeeklyOffSelect";
 
 const STATUS = {
   present: {
@@ -32,17 +32,6 @@ const STATUS = {
     cls: "bg-gray-50 text-gray-400 dark:bg-slate-800 dark:text-gray-500",
   },
 };
-
-const WEEKDAYS = [
-  ["none", "No weekly off"],
-  ["0", "Sunday"],
-  ["1", "Monday"],
-  ["2", "Tuesday"],
-  ["3", "Wednesday"],
-  ["4", "Thursday"],
-  ["5", "Friday"],
-  ["6", "Saturday"],
-];
 
 const shiftMonth = (month, delta) => {
   const [y, m] = month.split("-").map(Number);
@@ -169,10 +158,7 @@ const AttendanceMonth = ({ userId, isAdmin, refreshKey = 0 }) => {
   const [weeklyOffValue, setWeeklyOffValue] = useState("none");
   const [savingOff, setSavingOff] = useState(false);
 
-  const savedWeeklyOff =
-    data?.user?.weeklyOff === null || data?.user?.weeklyOff === undefined
-      ? "none"
-      : String(data.user.weeklyOff);
+  const savedWeeklyOff = toWeeklyOffValue(data?.user?.weeklyOff);
 
   // reset the dropdown whenever a different person or fresh data loads
   useEffect(() => {
@@ -279,36 +265,13 @@ const AttendanceMonth = ({ userId, isAdmin, refreshKey = 0 }) => {
           <p className="text-base sm:text-lg font-semibold capitalize text-gray-700">
             {data.user.firstName} {data.user.lastName}
           </p>
-          <div className="flex items-center gap-2 text-sm">
-            <label
-              htmlFor="weeklyOff"
-              className="text-gray-600 dark:text-gray-300"
-            >
-              Weekly off
-            </label>
-            <ArrowSelect
-              id="weeklyOff"
-              value={weeklyOffValue}
-              onChange={(e) => setWeeklyOffValue(e.target.value)}
-              className="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-gray-100"
-            >
-              {WEEKDAYS.map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </ArrowSelect>
-            {weeklyOffValue !== savedWeeklyOff && (
-              <button
-                type="button"
-                onClick={saveWeeklyOff}
-                disabled={savingOff}
-                className="rounded-md bg-theme px-3 py-1.5 text-sm font-semibold text-white hover:bg-theme-dark disabled:bg-gray-400"
-              >
-                {savingOff ? "Saving..." : "Save"}
-              </button>
-            )}
-          </div>
+          <WeeklyOffSelect
+            value={weeklyOffValue}
+            savedValue={savedWeeklyOff}
+            onChange={setWeeklyOffValue}
+            onSave={saveWeeklyOff}
+            saving={savingOff}
+          />
         </div>
       )}
 
