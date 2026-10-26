@@ -16,8 +16,8 @@ export const tableIcons = {
   "common-edit": (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       className="stroke-white"
@@ -62,8 +62,8 @@ export const tableIcons = {
   add: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       className="stroke-gray-100"
@@ -179,7 +179,7 @@ export const tableIcons = {
   backArrow: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5"
+      className="size-6"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -188,6 +188,18 @@ export const tableIcons = {
       strokeLinejoin="round"
     >
       <path d="M19 12H6M12 5l-7 7 7 7" />
+    </svg>
+  ),
+  remove: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+      className="size-5"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
     </svg>
   ),
   downArrow: (
@@ -346,7 +358,7 @@ export const tableIcons = {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="size-5"
+      className="size-6 md:size-5"
     >
       <path
         strokeLinecap="round"
@@ -362,7 +374,7 @@ export const tableIcons = {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="size-5"
+      className="size-6 md:size-5"
     >
       <path
         strokeLinecap="round"
@@ -378,7 +390,7 @@ export const tableIcons = {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="size-4 lg:size-5"
+      className="size-6 md:size-5"
     >
       <path
         strokeLinecap="round"
@@ -465,6 +477,27 @@ export const tableIcons = {
       />
     </svg>
   ),
+  settings: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+      />
+    </svg>
+  ),
   unBlock: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -495,6 +528,36 @@ export const tableIcons = {
         strokeLinejoin="round"
         d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
       />
+    </svg>
+  ),
+  verticalMenu: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="size-5 lg:size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
+      />
+    </svg>
+  ),
+  X: (
+    <svg
+      className="w-5 h-5"
+      fill="currentColor"
+      viewBox="0 0 20 20"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fillRule="evenodd"
+        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+        clipRule="evenodd"
+      ></path>
     </svg>
   ),
 };

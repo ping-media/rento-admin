@@ -1,6 +1,6 @@
-import { lazy, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   formatPathNameToTitle,
   handlePreviousPage,
@@ -16,38 +16,49 @@ import { removeTempIds } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { tableIcons } from "../Data/Icons.jsx";
 import {
   toggleForgetPasswordModal,
-  // toogleKycModalActive,
+  toogleKycModalActive,
 } from "../Redux/SideBarSlice/SideBarSlice.js";
-const ForgetPasswordModal = lazy(() =>
-  import("../components/Modal/ForgetPasswordModal.jsx")
+const ForgetPasswordModal = lazy(
+  () => import("../components/Modal/ForgetPasswordModal.jsx"),
 );
-// const UserKycApproveModal = lazy(() =>
-//   import("../components/Modal/UserKycApproveModal.jsx")
-// );
+const UserKycApproveModal = lazy(
+  () => import("../components/Modal/UserKycApproveModal.jsx"),
+);
 
 const CreateNewAndUpdateForm = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
   const [formLoading, setFormLoading] = useState(false);
-  const { id } = useParams();
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
   const { loading, vehicleMaster, tempIds } = useSelector(
-    (state) => state.vehicles
+    (state) => state.vehicles,
   );
+
+  const isId = Boolean(id?.trim());
+
+  const isUsersPageWithoutId = useMemo(() => {
+    return (
+      ["/all-users/", "/all-managers/"].some((path) =>
+        location.pathname.includes(path),
+      ) && isId
+    );
+  }, [location.pathname, isId]);
 
   // fetch data based on id taking from url
   useEffect(() => {
-    if (id) {
-      fetchVehicleMasterById(
-        dispatch,
-        id,
-        token,
-        location?.pathname.includes("/all-users/") ||
-          location.pathname.includes("/all-managers/")
-          ? "/getDocument?userId="
-          : endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")]
-      );
-    }
+    if (!isId) return;
+
+    fetchVehicleMasterById(
+      dispatch,
+      id,
+      token,
+      location?.pathname.includes("/all-users/") ||
+        location.pathname.includes("/all-managers/")
+        ? "/getDocument?userId="
+        : endPointBasedOnURL[modifyUrl(location.pathname).replace("/", "")],
+    );
   }, [dispatch, id, token]);
 
   // Dynamically select the form to render based on the URL
@@ -58,105 +69,142 @@ const CreateNewAndUpdateForm = () => {
 
   const FormComponent = getFormType();
 
-  return !loading ? (
+  if (loading) {
+    return <PreLoader />;
+  }
+
+  return (
     <>
-      {/* {(location.pathname.includes("/all-users/") ||
-        location.pathname.includes("/all-managers/")) && (
-        <UserKycApproveModal />
-      )} */}
+      {isUsersPageWithoutId && (
+        <Suspense fallback={null}>
+          <UserKycApproveModal />
+        </Suspense>
+      )}
+
       {location.pathname.includes("/all-managers/") &&
         !location.pathname.includes("/add-new") && (
-          <ForgetPasswordModal
-            userType={"admin"}
-            contact={
-              vehicleMaster?.contact || vehicleMaster?.[0]?.userId?.contact || 0
-            }
-          />
+          <Suspense fallback={null}>
+            <ForgetPasswordModal
+              userType={"admin"}
+              contact={
+                vehicleMaster?.contact ||
+                vehicleMaster?.[0]?.userId?.contact ||
+                0
+              }
+            />
+          </Suspense>
         )}
+
       <div className="flex items-center flex-wrap justify-between gap-1 lg:gap-0 mb-5">
-        <div className="flex items-center gap-2">
-          {/* back button visiable on mobile screen  */}
-          <button
-            className="flex lg:hidden items-center gap-1 p-1 rounded-lg hover:bg-theme hover:text-gray-100"
-            type="button"
-            onClick={() => handlePreviousPage(navigate)}
-          >
-            {tableIcons?.backArrow}
-          </button>
+        <div className="flex items-center gap-2 min-w-0 max-w-full">
+          {loggedInRole !== "manager" && (
+            <button
+              className="flex items-center gap-1 p-1 rounded-lg"
+              type="button"
+              onClick={() => handlePreviousPage(navigate)}
+            >
+              {tableIcons?.backArrow}
+            </button>
+          )}
           {/* heading render dynamically based on url  */}
-          <h1 className="text-xl lg:text-2xl uppercase font-bold text-theme">
+          <h2 className="text-xl lg:text-2xl capitalize font-bold text-theme break-words min-w-0">
             {location.pathname.includes("/all-bookings/")
-              ? `${id ? "Edit" : "Add"} Booking${
+              ? `${id ? "Edit" : "Create"} Booking${
                   id ? `: #${vehicleMaster[0]?.bookingId}` : ""
                 }`
               : location.pathname.includes("/all-plans/")
-              ? `${id ? "Edit" : "Add"} Plan Master`
-              : location.pathname.includes("/all-vehicles/")
-              ? `${id ? "Edit" : "Add"} Vehicle`
-              : location.pathname.includes("/all-users/")
-              ? `${id ? "Edit" : "Add"} User`
-              : location.pathname.includes("/all-managers/")
-              ? `${id ? "Edit" : "Add"} Manager`
-              : location.pathname.includes("/all-coupons/")
-              ? `${id ? "Edit" : "Add"} Coupon`
-              : location.pathname.includes("/location-master/")
-              ? `${id ? "Edit" : "Add"} City`
-              : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
-                  location.pathname
-                )}`}
-          </h1>
+                ? `${id ? "Edit" : "Add"} Plan Master`
+                : location.pathname.includes("/all-vehicles/")
+                  ? `${id ? "Edit" : "Add"} Vehicle`
+                  : location.pathname.includes("/all-users/")
+                    ? `${id ? "Edit" : "Create"} Customer`
+                    : location.pathname.includes("/all-managers/")
+                      ? `${id ? "Edit" : "Add"} Manager`
+                      : location.pathname.includes("/all-coupons/")
+                        ? `${id ? "Edit" : "Add"} Coupon`
+                        : location.pathname.includes("/location-master/")
+                          ? `${id ? "Edit" : "Add"} City`
+                          : location.pathname.includes("/station-master/")
+                            ? `${id ? "Edit" : "Add"} Station`
+                            : `${id ? "Edit" : "Add"} ${formatPathNameToTitle(
+                                location.pathname,
+                              )}`}
+          </h2>
         </div>
-        {/* for kyc approval  */}
-        {(location.pathname.includes("/all-users/") ||
-          location.pathname.includes("/all-managers/")) && (
-          <div className="flex items-center gap-2">
-            <div className="bg-theme/90 text-gray-100 p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md">
-              {vehicleMaster && vehicleMaster[0] ? (
-                vehicleMaster[0]?.userId?.kycApproved === "yes" ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {isUsersPageWithoutId && (
+            <>
+              <button
+                className="bg-theme/90 text-white p-2 lg:px-3 lg:py-2.5 flex items-center gap-1 rounded-md"
+                type="button"
+                onClick={() => dispatch(toogleKycModalActive())}
+                disabled={
+                  (vehicleMaster &&
+                    vehicleMaster[0] &&
+                    vehicleMaster[0]?.userId?.kycApproved === "yes") ||
+                  (vehicleMaster && vehicleMaster?.kycApproved === "yes")
+                    ? true
+                    : false
+                }
+              >
+                {vehicleMaster && vehicleMaster[0] ? (
+                  vehicleMaster[0]?.userId?.kycApproved === "yes" ? (
+                    <>{tableIcons?.verify} Verified</>
+                  ) : (
+                    <>{tableIcons?.unVerify} Not Verified</>
+                  )
+                ) : vehicleMaster && vehicleMaster?.kycApproved === "yes" ? (
                   <>{tableIcons?.verify} Verified</>
                 ) : (
                   <>{tableIcons?.unVerify} Not Verified</>
-                )
-              ) : vehicleMaster && vehicleMaster?.kycApproved === "yes" ? (
-                <>{tableIcons?.verify} Verified</>
-              ) : (
-                <>{tableIcons?.unVerify} Not Verified</>
-              )}
-            </div>
-            {location.pathname.includes("/all-managers/") &&
-              !location.pathname.includes("/add-new") && (
-                <button
-                  className="bg-theme text-gray-100 p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
-                  onClick={() => dispatch(toggleForgetPasswordModal())}
-                >
-                  Change Password
-                </button>
-              )}
-          </div>
-        )}
+                )}
+              </button>
+
+              {location.pathname.includes("/all-managers/") &&
+                !location.pathname.includes("/add-new") && (
+                  <button
+                    className="bg-theme flex items-center gap-1 text-white p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+                    onClick={() => dispatch(toggleForgetPasswordModal())}
+                  >
+                    {tableIcons?.lock}
+                    Change Password
+                  </button>
+                )}
+
+              {location.pathname.includes("/all-managers/") &&
+                !location.pathname.includes("/add-new") &&
+                id?.trim() !== "" && (
+                  <Link
+                    className="bg-theme flex items-center gap-1 text-white p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+                    to={`/all-managers/attendance?user=${id}`}
+                  >
+                    {tableIcons?.dateCalender}
+                    View Attendance
+                  </Link>
+                )}
+            </>
+          )}
+        </div>
       </div>
-      <div className="w-full lg:w-[95%] shadow-lg rounded-xl p-3 lg:p-5 mx-auto bg-white">
-        <>
-          <FormComponent
-            handleFormSubmit={(event) =>
-              handleCreateAndUpdateVehicle(
-                event,
-                dispatch,
-                setFormLoading,
-                token,
-                navigate,
-                tempIds,
-                removeTempIds,
-                id
-              )
-            }
-            loading={formLoading}
-          />
-        </>
+
+      <div className="w-full max-w-full lg:w-[95%] shadow-lg rounded-xl p-3 lg:p-5 mx-auto bg-white overflow-x-hidden">
+        <FormComponent
+          handleFormSubmit={(event) =>
+            handleCreateAndUpdateVehicle(
+              event,
+              dispatch,
+              setFormLoading,
+              token,
+              navigate,
+              tempIds,
+              removeTempIds,
+              id,
+            )
+          }
+          loading={formLoading}
+        />
       </div>
     </>
-  ) : (
-    <PreLoader />
   );
 };
 
