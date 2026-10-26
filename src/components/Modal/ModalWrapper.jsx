@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 const SIZES = {
   sm: "max-w-sm",
@@ -48,7 +49,7 @@ const ModalWrapper = ({
     if (closeOnOverlay && e.target === e.currentTarget) onClose?.();
   };
 
-  return (
+  return createPortal(
     <div
       className={`fixed inset-0 ${zIndexClass} overflow-y-auto bg-gray-900 bg-opacity-60 px-4 ${overlayClassName}`}
       onMouseDown={handleOverlay}
@@ -57,7 +58,9 @@ const ModalWrapper = ({
         className={`flex min-h-full justify-center pb-6 ${
           position === "center"
             ? "items-center py-6"
-            : "items-start pt-24 sm:pt-40"
+            : position === "responsive"
+              ? "items-start pt-6 sm:items-center sm:py-6"
+              : "items-start pt-24 sm:pt-40"
         }`}
         onMouseDown={handleOverlay}
       >
@@ -104,7 +107,8 @@ const ModalWrapper = ({
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 

@@ -268,6 +268,7 @@ const fetchVehicleMasterById = debounce(
   ) => {
     try {
       dispatch(fetchVehicleStart());
+
       const mainUrl = `${endpoint}${
         location.pathname !== "/profile" && endpoint.includes("?userId")
           ? ""
@@ -358,11 +359,6 @@ const handleCreateAndUpdateVehicle = async (
     }
   }
 
-  // if (location?.pathname?.includes("/station-master/")) {
-  //   if (result?.userId && result.userId === "") {
-  //     return handleAsyncError(dispatch, "Please assign manager first!");
-  //   }
-  // }
   if (location?.pathname?.includes("/station-master/")) {
     const userIds = (result.userId || "").split(",").filter(Boolean);
 

@@ -10,7 +10,7 @@ import { postData } from "../../Data";
 
 const ManagerStationForm = () => {
   const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
-  const { token } = useSelector((state) => state.user);
+  const { token, currentUser } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
 
@@ -18,8 +18,27 @@ const ManagerStationForm = () => {
 
   const stationInfo = vehicleMaster && vehicleMaster?.[0]?.station?.[0];
 
+  const toId = (v) => String(v?._id ?? v ?? "");
+  const myId = toId(currentUser?._id);
+
+  const stationMasterIds = (
+    Array.isArray(stationInfo?.userId)
+      ? stationInfo.userId
+      : [stationInfo?.userId]
+  )
+    .filter(Boolean)
+    .map(toId);
+  const fleetIds = (stationInfo?.fleetIds ?? []).map(toId);
+
+  // fleet staff who are not also the station master can only view
+  const isViewOnly =
+    Boolean(myId) &&
+    fleetIds.includes(myId) &&
+    !stationMasterIds.includes(myId);
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+    if (isViewOnly) return;
 
     const formData = new FormData(event.target);
 
@@ -32,9 +51,9 @@ const ManagerStationForm = () => {
     try {
       const res = await postData("/manager-station", formData, token);
       if (res?.success) {
-        handleAsyncError(dispatch, response?.message, "success");
+        handleAsyncError(dispatch, res?.message, "success");
       } else {
-        handleAsyncError(dispatch, response?.message);
+        handleAsyncError(dispatch, res?.message);
       }
     } catch (error) {
       handleAsyncError(
@@ -48,61 +67,55 @@ const ManagerStationForm = () => {
 
   return (
     <form onSubmit={handleFormSubmit}>
-      <div className="flex flex-wrap gap-4">
-        <div className="w-full lg:w-[48%]">
-          <Input
-            item={"openStartTime"}
-            type="time"
-            value={formatHourToTime(stationInfo?.openStartTime || 0)}
-            require={true}
-            placeholder={"Select Station Open Time"}
-            isFull={false}
-          />
-        </div>
-        <div className="w-full lg:w-[48%]">
-          <Input
-            item={"openEndTime"}
-            type="time"
-            value={formatHourToTime(stationInfo?.openEndTime || 0)}
-            require={true}
-            placeholder={"Select Station Close Time"}
-            isFull={false}
-          />
-        </div>
-        <div className="w-full lg:w-[48%]">
-          <SelectDropDown
-            item={"isGstActive"}
-            options={["active", "inactive"]}
-            value={stationInfo?.isGstActive}
-            isSearchEnable={false}
-            require={true}
-          />
-        </div>
-        {/* <div className="w-full lg:w-[48%]">
-          <SelectDropDown
-            item={"weekendPriceIncrease"}
-            options={["active", "inactive"]}
-            value={stationInfo?.weekendPriceIncrease}
-            isSearchEnable={false}
-            require={true}
-          />
-        </div>
-        <div className="w-full lg:w-[48%]">
-          <Input
-            item={"weekendPercentage"}
-            value={stationInfo?.weekendPercentage}
-            type="number"
-            require={true}
-          />
-        </div> */}
+      {isViewOnly && (
+        <p className="mb-3 rounded-md bg-gray-100 px-3 py-2 text-sm text-gray-600">
+          View only. Only the station manager can change these details.
+        </p>
+      )}
 
-        <button
-          className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
-          type="submit"
-          disabled={formLoading}
-        >
-          {formLoading ? <Spinner message={"updating"} /> : "Update"}
-        </button>
+      <div className="flex flex-wrap gap-4">
+        <fieldset disabled={isViewOnly} className="contents">
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"openStartTime"}
+              type="time"
+              value={formatHourToTime(stationInfo?.openStartTime || 0)}
+              require={true}
+              placeholder={"Select Station Open Time"}
+              isFull={false}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <Input
+              item={"openEndTime"}
+              type="time"
+              value={formatHourToTime(stationInfo?.openEndTime || 0)}
+              require={true}
+              placeholder={"Select Station Close Time"}
+              isFull={false}
+            />
+          </div>
+          <div className="w-full lg:w-[48%]">
+            <SelectDropDown
+              item={"isGstActive"}
+              options={["active", "inactive"]}
+              value={stationInfo?.isGstActive}
+              isSearchEnable={false}
+              require={true}
+              disabled={isViewOnly}
+            />
+          </div>
+        </fieldset>
+
+        {!isViewOnly && (
+          <button
+            className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
+            type="submit"
+            disabled={formLoading}
+          >
+            {formLoading ? <Spinner message={"updating"} /> : "Update"}
+          </button>
+        )}
       </div>
     </form>
   );

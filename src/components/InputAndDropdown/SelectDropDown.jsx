@@ -17,6 +17,7 @@ const SelectDropDown = ({
   zIndex = "z-10",
   setCity,
   isLabel = true,
+  disabled = false,
 }) => {
   const [inputSelect, setInputSelect] = useState(value);
   const [openDirection, setOpenDirection] = useState("bottom");
@@ -36,6 +37,7 @@ const SelectDropDown = ({
   };
 
   const isDisabled = !options || options.length === 0;
+  const isBlocked = isDisabled || disabled;
 
   const handleChangeValue = (selectedValueId, selectedValue) => {
     setInputSelect(selectedValueId);
@@ -132,7 +134,7 @@ const SelectDropDown = ({
       : getLabel(matchedOption);
 
   const toggleDropDown = () => {
-    if (!isDisabled) {
+    if (!isBlocked) {
       if (!isOpen && dropdownRef.current) {
         const rect = dropdownRef.current.getBoundingClientRect();
         const spaceBelow = window.innerHeight - rect.bottom;
@@ -166,7 +168,7 @@ const SelectDropDown = ({
       <div className="mt-2 relative">
         <div
           className={`block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 ${
-            isDisabled
+            isBlocked
               ? "bg-gray-300 bg-opacity-30 cursor-not-allowed"
               : "bg-white cursor-pointer"
           } text-gray-800 capitalize focus:outline-none focus:ring-0`}
@@ -178,7 +180,7 @@ const SelectDropDown = ({
           </div>
         </div>
 
-        {isOpen && !isDisabled && (
+        {isOpen && !isBlocked && (
           <div
             className={`absolute ${zIndex} w-full max-h-40 overflow-y-auto bg-white shadow-lg border border-gray-300 rounded-md ${
               openDirection === "top" ? "bottom-full mb-2" : "mt-2"

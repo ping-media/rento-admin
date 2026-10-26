@@ -106,8 +106,8 @@ const StationMasterForm = ({ handleFormSubmit, loading }) => {
               name={"fleetIds"}
               token={token}
               value={id ? vehicleMaster?.[0]?.fleetIds?.map((u) => u._id) : []}
-              // isAdmin={loggedInRole === "admin" ? false : true}
-              // skipRouteFilter={true}
+              isAdmin={loggedInRole === "admin" ? false : true}
+              skipRouteFilter={true}
             />
             <p className="mt-1 text-[13px] text-gray-500">
               Only managers can be assigned as fleet. They can mark attendance

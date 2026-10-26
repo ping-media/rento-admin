@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Close } from "@mui/icons-material";
 import { getData, postData } from "../../Data";
 import { useUserSearch } from "../../hooks/use-user-search";
@@ -7,6 +7,15 @@ import UserOptionList from "./UserOptionList";
 import { useDispatch } from "react-redux";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import ConfirmActionModal from "../Modal/ConfirmActionModal";
+import PasswordField from "./PasswordField";
+import {
+  PASSWORD_RULE_TEXT,
+  generateTempPassword,
+  validatePassword,
+} from "../../utils/Helper/password";
+import CopyButton from "../Buttons/CopyButton";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const InputSearchMulti = ({
   item,
@@ -21,6 +30,17 @@ const InputSearchMulti = ({
   skipRouteFilter = false,
 }) => {
   const [convertTarget, setConvertTarget] = useState(null);
+  const [password, setPassword] = useState("");
+  const passwordError = validatePassword(password);
+  const [credentials, setCredentials] = useState(null); // { email, password } after success
+  const targetEmail = convertTarget?.email?.trim() || "";
+  const hasValidEmail = EMAIL_REGEX.test(targetEmail);
+  const modalView = credentials
+    ? "done"
+    : hasValidEmail
+      ? "confirm"
+      : "noEmail";
+  const targetName = `${convertTarget?.firstName ?? ""} | ${convertTarget?.contact ?? ""}`;
   const [converting, setConverting] = useState(false);
   const [selected, setSelected] = useState([]);
   const [userLoading, setUserLoading] = useState(false);
@@ -43,6 +63,7 @@ const InputSearchMulti = ({
   const handleSelect = (user) => {
     // customers can't be assigned directly, ask to convert them first
     if (user.userType === "customer") {
+      setPassword(generateTempPassword()); // pre-filled when the modal opens
       setConvertTarget(user);
       return;
     }
@@ -50,18 +71,29 @@ const InputSearchMulti = ({
     search(""); // clears input and closes the list
   };
 
+  const closeConvertModal = () => {
+    setConvertTarget(null);
+    setPassword("");
+    setCredentials(null);
+  };
+
   const handleConvert = async () => {
-    if (!convertTarget || converting) return;
+    if (!convertTarget || converting || passwordError) return;
     setConverting(true);
     try {
       const response = await postData(
         "/change-user-role",
-        { _id: convertTarget._id },
+        { _id: convertTarget._id, password },
         token,
       );
       if (response?.status === 200 || response?.success) {
         handleAsyncError(dispatch, "Customer changed to manager", "success");
-        setConvertTarget(null);
+        // keep the modal open and switch it to the credentials view
+        setCredentials({
+          email: response?.data?.email || targetEmail,
+          password,
+        });
+        // closeConvertModal();
         search(inputValue); // refresh the list, they now show up as a manager
       } else {
         handleAsyncError(
@@ -171,62 +203,80 @@ const InputSearchMulti = ({
 
       <ConfirmActionModal
         active={!!convertTarget}
-        title="Change Customer to Manager?"
-        message={`Do you want to change ${convertTarget?.firstName ?? ""} | ${convertTarget?.contact ?? ""} from customer to manager?`}
+        position="responsive"
+        title={
+          modalView === "done"
+            ? "Manager login ready"
+            : modalView === "noEmail"
+              ? "Email required"
+              : "Change Customer to Manager?"
+        }
+        message={
+          modalView === "done"
+            ? "Share these login details with the manager. The password can't be viewed again, so copy it before closing."
+            : modalView === "noEmail"
+              ? `${targetName} has no valid email. Managers log in with email and password, so add an email to this customer first.`
+              : `Do you want to change ${targetName} from customer to manager? Their login password is set below.`
+        }
         confirmText="Yes, change"
+        cancelText={modalView === "confirm" ? "Cancel" : "Close"}
+        showConfirm={modalView === "confirm"}
+        persistent={modalView === "done"}
         loading={converting}
+        confirmDisabled={!!passwordError}
         onConfirm={handleConvert}
-        onCancel={() => setConvertTarget(null)}
-      />
+        onCancel={closeConvertModal}
+      >
+        {modalView === "confirm" && (
+          <div className="mt-4">
+            <PasswordField
+              id="newManagerPassword"
+              label="Manager login password"
+              value={password}
+              onChange={setPassword}
+              onGenerate={() => setPassword(generateTempPassword())}
+              onEnter={handleConvert}
+              error={passwordError}
+              hint={PASSWORD_RULE_TEXT}
+              defaultVisible
+            />
+          </div>
+        )}
+
+        {modalView === "noEmail" && (
+          <Link
+            to={`/all-users/${convertTarget?._id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-block text-sm font-semibold text-theme underline underline-offset-2"
+          >
+            Open customer profile
+          </Link>
+        )}
+
+        {modalView === "done" && (
+          <div className="mt-4 rounded-md border border-theme/40 bg-theme/10 p-4">
+            <p className="text-xs uppercase text-gray-500">Email</p>
+            <p className="break-all text-sm font-semibold text-gray-800">
+              {credentials.email}
+            </p>
+            <p className="mt-3 text-xs uppercase text-gray-500">Password</p>
+            <p className="select-all break-all font-mono text-sm font-semibold text-gray-800">
+              {credentials.password}
+            </p>
+            <CopyButton
+              textToCopy={`Email: ${credentials.email}\nPassword: ${credentials.password}`}
+              label="Copy email & password"
+              className="mt-4 w-full rounded-lg bg-theme px-4 py-3 text-sm font-semibold text-white hover:bg-theme-dark"
+            />
+          </div>
+        )}
+      </ConfirmActionModal>
     </div>
   );
 };
 
 export default InputSearchMulti;
-
-// const ConfirmActionModal = ({
-//   active,
-//   title,
-//   message,
-//   confirmText = "Confirm",
-//   cancelText = "Cancel",
-//   loading = false,
-//   onConfirm,
-//   onCancel,
-// }) => (
-//   <ModalWrapper
-//     active={active}
-//     onClose={() => !loading && onCancel()}
-//     size="sm"
-//     position="center"
-//     showClose={false}
-//     zIndexClass="z-50"
-//   >
-//     <div className="p-6">
-//       <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-//       <p className="mt-2 text-sm text-gray-600">{message}</p>
-
-//       <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-//         <button
-//           type="button"
-//           onClick={() => !loading && onCancel()}
-//           disabled={loading}
-//           className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-100 disabled:opacity-60 sm:w-auto sm:py-2.5"
-//         >
-//           {cancelText}
-//         </button>
-//         <button
-//           type="button"
-//           onClick={onConfirm}
-//           disabled={loading}
-//           className="w-full rounded-lg bg-theme px-4 py-3 text-sm font-semibold text-white hover:bg-theme-dark disabled:bg-gray-400 sm:w-auto sm:py-2.5"
-//         >
-//           {loading ? <Spinner /> : confirmText}
-//         </button>
-//       </div>
-//     </div>
-//   </ModalWrapper>
-// );
 
 const InputSearchSkeleton = () => (
   <div className="w-full animate-pulse" aria-busy="true">

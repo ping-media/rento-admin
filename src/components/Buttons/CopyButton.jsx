@@ -1,7 +1,12 @@
 import { tableIcons } from "../../Data/Icons";
 import React, { useState } from "react";
 
-const CopyButton = ({ textToCopy, onCopy }) => {
+const CopyButton = ({
+  textToCopy,
+  onCopy,
+  label,
+  className = "mx-1 text-sm text-gray-400 lowercase focus:outline-none",
+}) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async (e) => {
@@ -35,12 +40,13 @@ const CopyButton = ({ textToCopy, onCopy }) => {
 
   return (
     <button
-      className="mx-1 text-sm text-gray-400 lowercase focus:outline-none"
+      className={className}
       onClick={(e) => handleCopy(e)}
       style={{ cursor: "pointer" }}
       aria-label="Copy to clipboard"
+      type="button"
     >
-      {copied ? "Copied!" : tableIcons.copy}
+      {copied ? "Copied!" : (label ?? tableIcons.copy)}
     </button>
   );
 };
