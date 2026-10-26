@@ -12,24 +12,12 @@ import {
 } from "../Data/Function.js";
 import PreLoader from "../components/Skeleton/PreLoader.jsx";
 import { endPointBasedOnURL, forms } from "../Data/commonData.js";
-import {
-  removeTempIds,
-  updateStationWeeklyOff,
-} from "../Redux/VehicleSlice/VehicleSlice.js";
+import { removeTempIds } from "../Redux/VehicleSlice/VehicleSlice.js";
 import { tableIcons } from "../Data/Icons.jsx";
 import {
   toggleForgetPasswordModal,
   toogleKycModalActive,
 } from "../Redux/SideBarSlice/SideBarSlice.js";
-import {
-  fromWeeklyOffValue,
-  toWeeklyOffValue,
-} from "../components/DropDown/WeeklyOffSelect.jsx";
-import { postData } from "../Data/index.js";
-import { handleAsyncError } from "../utils/Helper/handleAsyncError.js";
-const WeeklyOffSelect = lazy(
-  () => import("../components/DropDown/WeeklyOffSelect.jsx"),
-);
 const ForgetPasswordModal = lazy(
   () => import("../components/Modal/ForgetPasswordModal.jsx"),
 );
@@ -49,8 +37,6 @@ const CreateNewAndUpdateForm = () => {
   );
 
   const isId = Boolean(id?.trim());
-  const isStationEditPage =
-    location.pathname.includes("/station-master/") && isId;
 
   const isUsersPageWithoutId = useMemo(() => {
     return (
@@ -75,45 +61,6 @@ const CreateNewAndUpdateForm = () => {
     );
   }, [dispatch, id, token]);
 
-  // inside the component
-  const savedWeeklyOff = toWeeklyOffValue(vehicleMaster?.[0]?.stationWeeklyOff);
-  const [weeklyOffValue, setWeeklyOffValue] = useState(savedWeeklyOff);
-  const [savingOff, setSavingOff] = useState(false);
-
-  // keep the dropdown in sync when the station in redux changes
-  useEffect(() => {
-    if (!isStationEditPage) return;
-
-    setWeeklyOffValue(savedWeeklyOff);
-  }, [vehicleMaster?.[0]?._id, savedWeeklyOff]);
-
-  const saveWeeklyOff = async () => {
-    setSavingOff(true);
-    try {
-      const response = await postData(
-        "/changeStationWeeklyOff",
-        {
-          _id: vehicleMaster?.[0]?._id,
-          stationWeeklyOff: fromWeeklyOffValue(weeklyOffValue),
-        },
-        token,
-      );
-      if (response?.status === 200) {
-        dispatch(updateStationWeeklyOff(response.data.stationWeeklyOff));
-        handleAsyncError(dispatch, "Weekly off updated", "success");
-      } else {
-        handleAsyncError(
-          dispatch,
-          response?.message || "Unable to update weekly off",
-        );
-      }
-    } catch (error) {
-      handleAsyncError(dispatch, error?.message);
-    } finally {
-      setSavingOff(false);
-    }
-  };
-
   // Dynamically select the form to render based on the URL
   const getFormType = () => {
     const formType = location.pathname.split("/")[1];
@@ -122,18 +69,30 @@ const CreateNewAndUpdateForm = () => {
 
   const FormComponent = getFormType();
 
-  return !loading ? (
+  if (loading) {
+    return <PreLoader />;
+  }
+
+  return (
     <>
-      {isUsersPageWithoutId && <UserKycApproveModal />}
+      {isUsersPageWithoutId && (
+        <Suspense fallback={null}>
+          <UserKycApproveModal />
+        </Suspense>
+      )}
 
       {location.pathname.includes("/all-managers/") &&
         !location.pathname.includes("/add-new") && (
-          <ForgetPasswordModal
-            userType={"admin"}
-            contact={
-              vehicleMaster?.contact || vehicleMaster?.[0]?.userId?.contact || 0
-            }
-          />
+          <Suspense fallback={null}>
+            <ForgetPasswordModal
+              userType={"admin"}
+              contact={
+                vehicleMaster?.contact ||
+                vehicleMaster?.[0]?.userId?.contact ||
+                0
+              }
+            />
+          </Suspense>
         )}
 
       <div className="flex items-center flex-wrap justify-between gap-1 lg:gap-0 mb-5">
@@ -173,25 +132,6 @@ const CreateNewAndUpdateForm = () => {
           </h2>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {isStationEditPage && loggedInRole === "admin" && (
-            <Suspense
-              fallback={
-                <div className="w-40 h-10 bg-gray-200 rounded-md animate-pulse" />
-              }
-            >
-              <WeeklyOffSelect
-                id="stationWeeklyOff"
-                label="Station weekly off"
-                value={weeklyOffValue}
-                savedValue={savedWeeklyOff}
-                onChange={setWeeklyOffValue}
-                onSave={saveWeeklyOff}
-                saving={savingOff}
-                disabled={loggedInRole !== "admin"}
-              />
-            </Suspense>
-          )}
-
           {isUsersPageWithoutId && (
             <>
               <button
@@ -246,6 +186,7 @@ const CreateNewAndUpdateForm = () => {
           )}
         </div>
       </div>
+
       <div className="w-full max-w-full lg:w-[95%] shadow-lg rounded-xl p-3 lg:p-5 mx-auto bg-white overflow-x-hidden">
         <FormComponent
           handleFormSubmit={(event) =>
@@ -264,8 +205,6 @@ const CreateNewAndUpdateForm = () => {
         />
       </div>
     </>
-  ) : (
-    <PreLoader />
   );
 };
 

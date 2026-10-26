@@ -27,6 +27,9 @@ export default {
       },
     },
   },
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   plugins: [
     function ({ addVariant }) {
       addVariant("autofill", "&:-webkit-autofill"); // Add autofill variant for webkit browsers

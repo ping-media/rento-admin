@@ -97,7 +97,11 @@ export default InputSwitch;
 
 export const Switch = ({ checked, onChange, disabled = false }) => {
   return (
-    <label className="relative inline-flex items-center cursor-pointer">
+    <label
+      className={`relative inline-flex items-center ${
+        disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+      }`}
+    >
       <input
         type="checkbox"
         className="sr-only peer"

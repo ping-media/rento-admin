@@ -120,8 +120,6 @@ const UserKycApproveModal = () => {
   }, [userDocuments]);
 
   const hasDocuments = Array.isArray(userDocument) && userDocument?.length > 0;
-  // const hasDocuments =
-  //   Array.isArray(userDocument) && userDocument[0]?.files?.length > 0;
 
   return (
     <div
@@ -167,10 +165,6 @@ const UserKycApproveModal = () => {
             className="flex items-center flex-wrap gap-2 border-b mb-3"
             id="kyc-gallery"
           >
-            {/* {!userDocumentLoading ? (
-              (userDocument && userDocument[0]?.files?.length > 0) ||
-              (userDocument && userDocument?.files) ? (
-                userDocument[0]?.files?.map((item) => { */}
             {!userDocumentLoading ? (
               hasDocuments ? (
                 userDocument?.map((item) => {

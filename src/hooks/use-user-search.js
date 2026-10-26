@@ -7,7 +7,11 @@ import {
   removeTempVehicleData,
 } from "../Redux/VehicleSlice/VehicleSlice";
 
-export const useUserSearch = ({ token, isManagerSearch = false }) => {
+export const useUserSearch = ({
+  token,
+  isManagerSearch = false,
+  skipRouteFilter = false,
+}) => {
   const [inputValue, setInputValue] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const timeoutRef = useRef(null);
@@ -19,12 +23,14 @@ export const useUserSearch = ({ token, isManagerSearch = false }) => {
 
   const filteredUsers = useMemo(() => {
     if (!Array.isArray(tempVehicleData)) return [];
+    if (skipRouteFilter)
+      return tempVehicleData.filter((u) => u.userType !== "admin");
     return tempVehicleData.filter((u) =>
       isStationRoute
         ? u.userType !== "customer"
         : u.userType !== "admin" && u.userType !== "manager",
     );
-  }, [tempVehicleData, isStationRoute]);
+  }, [tempVehicleData, isStationRoute, skipRouteFilter]);
 
   useEffect(() => () => clearTimeout(timeoutRef.current), []);
 

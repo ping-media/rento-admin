@@ -6,7 +6,6 @@ import {
   removeTempVehicleData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { getData } from "../../Data";
-import PreLoader from "../Skeleton/PreLoader";
 import { useNavigate } from "react-router-dom";
 import { Add } from "@mui/icons-material";
 
@@ -102,7 +101,9 @@ const InputSearch = ({
     );
   }, [tempVehicleData, isStationRoute]);
 
-  return userLoading == false ? (
+  if (userLoading) return <InputSearchSkeleton />;
+
+  return (
     <div className="w-full relative">
       <label
         htmlFor={name}
@@ -167,9 +168,14 @@ const InputSearch = ({
         </div>
       )}
     </div>
-  ) : (
-    <PreLoader />
   );
 };
 
 export default InputSearch;
+
+const InputSearchSkeleton = () => (
+  <div className="w-full animate-pulse" aria-busy="true">
+    <div className="h-4 w-40 rounded bg-gray-200" />
+    <div className="mt-2 h-12 w-full rounded-md bg-gray-200" />
+  </div>
+);

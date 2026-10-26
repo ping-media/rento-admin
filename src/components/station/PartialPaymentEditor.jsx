@@ -66,6 +66,19 @@ const PartialPaymentEditor = ({
       setLoading(false);
     }
   };
+
+  const savedPercentage = paymentModes?.partiallyPayPercentage;
+
+  const isEmpty =
+    partiallyPayPercentage === "" ||
+    partiallyPayPercentage === null ||
+    partiallyPayPercentage === undefined;
+
+  const isUnchanged =
+    Number(partiallyPayPercentage) === Number(savedPercentage);
+
+  const isSaveDisabled = loading || isEmpty || isUnchanged;
+
   return (
     <div className="flex items-center gap-1.5">
       <Input
@@ -80,7 +93,7 @@ const PartialPaymentEditor = ({
       <button
         className="bg-theme hover:bg-theme-dark text-white font-bold px-4 py-3 mt-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
         onClick={updatePartiallyPayPercentage}
-        disabled={loading}
+        disabled={isSaveDisabled}
       >
         {loading ? <Spinner /> : "Save"}
       </button>

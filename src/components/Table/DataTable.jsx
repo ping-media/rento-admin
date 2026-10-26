@@ -119,21 +119,14 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                       {newUpdatedData?.length > 0 ? (
                         newUpdatedData.map((item, index) => (
                           <tr
-                            className={`bg-white p-3.5 md:p-0 transition-all duration-500 hover:bg-gray-50 h-14 sm:h-12 ${location.pathname === "/payments" ? "" : "cursor-pointer"}`}
+                            className={`bg-white p-3.5 md:p-0 transition-all duration-500 hover:bg-gray-50 [&>td]:!h-[70px] sm:[&>td]:!h-[58px] [&>td]:overflow-hidden ${
+                              location.pathname === "/payments"
+                                ? ""
+                                : "cursor-pointer"
+                            }`}
                             key={`row-${item._id}-${index}`}
                             onClick={() => handleViewData(item)}
                           >
-                            {/* Checkbox — vehicles page only */}
-                            {/* {location.pathname === "/all-vehicles" && (
-                              <td
-                                className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
-                                key={`checkbox-${item._id}-${index}`}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <CheckBoxInput isId={item?._id} />
-                              </td>
-                            )} */}
-
                             {/* Serial number */}
                             <td
                               className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"

@@ -125,7 +125,8 @@ const BookingTimeLine = () => {
         />
       </Suspense>
 
-      <div className="container mx-auto py-4">
+      {/* <div className="container mx-auto py-4"> */}
+      <div className="container ml-0 mr-auto py-4">
         <div className="relative wrap overflow-hidden">
           {!loading &&
             timeLineData != null &&
@@ -142,12 +143,10 @@ const BookingTimeLine = () => {
                 >
                   {(index !== timeLineData.timeLine.length - 1 ||
                     !isTimelineClosed) && (
-                    // left-[29.3%] md:left-[37.5%]
-                    <div className="absolute top-4 bottom-0 left-[29.3%] w-px bg-gray-700/55" />
+                    <div className="absolute top-4 bottom-0 left-[29.3%] sm:left-[26%] w-px bg-gray-700/55" />
                   )}
 
-                  {/* <div className="order-1 w-3/12 md:w-4/12 text-right"> */}
-                  <div className="order-1 w-3/12 text-right">
+                  <div className="order-1 w-3/12 sm:w-[22%] text-right">
                     <p className="text-gray-700 text-sm leading-tight whitespace-pre-line">
                       {typeof item?.date === "number"
                         ? millisecToReadableFormat(item?.date)
@@ -161,8 +160,7 @@ const BookingTimeLine = () => {
                   </div>
 
                   <div className="z-10 flex items-center order-1 bg-theme shadow-xl w-4 h-4 rounded-full relative shrink-0" />
-                  {/* <div className="order-1 w-8/12 md:w-7/12 text-left"> */}
-                  <div className="order-1 w-8/12 text-left">
+                  <div className="order-1 w-8/12 sm:w-[70%] text-left">
                     {!(
                       item?.title?.includes("Link") ||
                       item?.title?.includes("Extended") ||

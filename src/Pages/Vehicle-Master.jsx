@@ -53,7 +53,6 @@ const VehicleMaster = () => {
 
   // Memoize vehicle data and pagination separately
   const vehicleData = useMemo(() => {
-    // if (!vehicleMaster?.data?.length) return undefined;
     const data = vehicleMaster?.data ?? [];
 
     if (location.pathname === "/all-vehicles") {
@@ -64,6 +63,15 @@ const VehicleMaster = () => {
         currentBooking: item.currentBooking,
         maintenance: item.maintenance,
         vehicleStatus: item.vehicleStatus,
+        ...item,
+      }));
+    }
+
+    if (location.pathname === "/station-master") {
+      return data.map((item) => ({
+        stationName: item.stationName,
+        city: item.city,
+        userId: item.userId,
         ...item,
       }));
     }

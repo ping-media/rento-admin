@@ -5,20 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { patchMasterUser } from "../../../Redux/VehicleSlice/VehicleSlice";
 import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
+import { tableIcons } from "../../../Data/Icons";
 
 const SWITCHES = [
-  //   {
-  //     field: "isContactVerified",
-  //     title: "Contact Verified",
-  //     on: "Mobile number confirmed",
-  //     off: "Mobile not confirmed",
-  //   },
-  //   {
-  //     field: "isEmailVerified",
-  //     title: "Email Verified",
-  //     on: "Email address confirmed",
-  //     off: "Email not confirmed",
-  //   },
   {
     field: "status",
     title: "Account Status",
@@ -35,7 +24,11 @@ const toApiValue = (field, checked) => {
 const isOn = (field, value) =>
   field === "status" ? value === "active" : value === "yes";
 
-const UserStatusSwitches = ({ isAdmin = false }) => {
+const UserStatusSwitches = ({
+  isAdmin = false,
+  isDeleted = false,
+  onUnverify,
+}) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const { vehicleMaster } = useSelector((state) => state.vehicles);
@@ -49,6 +42,7 @@ const UserStatusSwitches = ({ isAdmin = false }) => {
     vehicleMaster;
 
   const handleToggle = async (field, checked) => {
+    if (isDeleted) return;
     const previousValue = userData?.[field];
     const newValue = toApiValue(field, checked);
 
@@ -87,12 +81,18 @@ const UserStatusSwitches = ({ isAdmin = false }) => {
           >
             <div>
               <p className="font-semibold text-base leading-tight">{title}</p>
-              <p className="text-xs text-gray-500">{checked ? on : off}</p>
+              <p className="text-xs text-gray-500">
+                {isDeleted
+                  ? "Deleted user, can't be changed"
+                  : checked
+                    ? on
+                    : off}
+              </p>
             </div>
             {isAdmin ? (
               <Switch
                 checked={checked}
-                disabled={loadingField === field}
+                disabled={loadingField === field || isDeleted}
                 onChange={(e) => handleToggle(field, e.target.checked)}
               />
             ) : (
@@ -121,6 +121,27 @@ const UserStatusSwitches = ({ isAdmin = false }) => {
           </div>
         );
       })}
+
+      {onUnverify && (
+        <div className="flex items-center justify-between gap-3 border rounded-md px-3 py-2 bg-theme/25">
+          <div>
+            <div className="flex items-center gap-1.5 text-theme">
+              {tableIcons?.verify}
+              <p className="font-bold text-base text-theme">KYC Verified</p>
+            </div>
+            <p className="text-xs text-gray-800">
+              Aadhaar and license approved
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onUnverify}
+            className="shrink-0 rounded-md border border-red-300 bg-white px-3 py-1.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
+          >
+            Un-verify
+          </button>
+        </div>
+      )}
     </div>
   );
 };

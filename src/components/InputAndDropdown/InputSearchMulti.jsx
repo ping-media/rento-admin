@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Close } from "@mui/icons-material";
-import { getData } from "../../Data";
-import PreLoader from "../Skeleton/PreLoader";
+import { getData, postData } from "../../Data";
 import { useUserSearch } from "../../hooks/use-user-search";
 import UserOptionList from "./UserOptionList";
+import { useDispatch } from "react-redux";
+import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import ConfirmActionModal from "../Modal/ConfirmActionModal";
 
 const InputSearchMulti = ({
   item,
@@ -15,12 +17,18 @@ const InputSearchMulti = ({
   name,
   token,
   setValueChanger, // receives an array of ids
+  isAdmin = true,
+  skipRouteFilter = false,
 }) => {
+  const [convertTarget, setConvertTarget] = useState(null);
+  const [converting, setConverting] = useState(false);
   const [selected, setSelected] = useState([]);
   const [userLoading, setUserLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const { inputValue, isSearching, tempVehicleData, filteredUsers, search } =
-    useUserSearch({ token, isManagerSearch: true });
+    useUserSearch({ token, isManagerSearch: isAdmin, skipRouteFilter });
 
   const selectedIds = selected.map((u) => u._id);
   const availableUsers = filteredUsers.filter(
@@ -33,8 +41,39 @@ const InputSearchMulti = ({
   };
 
   const handleSelect = (user) => {
+    // customers can't be assigned directly, ask to convert them first
+    if (user.userType === "customer") {
+      setConvertTarget(user);
+      return;
+    }
     updateSelected([...selected, user]);
     search(""); // clears input and closes the list
+  };
+
+  const handleConvert = async () => {
+    if (!convertTarget || converting) return;
+    setConverting(true);
+    try {
+      const response = await postData(
+        "/change-user-role",
+        { _id: convertTarget._id },
+        token,
+      );
+      if (response?.status === 200 || response?.success) {
+        handleAsyncError(dispatch, "Customer changed to manager", "success");
+        setConvertTarget(null);
+        search(inputValue); // refresh the list, they now show up as a manager
+      } else {
+        handleAsyncError(
+          dispatch,
+          response?.message || "Unable to change customer to manager",
+        );
+      }
+    } catch (error) {
+      handleAsyncError(dispatch, error?.message);
+    } finally {
+      setConverting(false);
+    }
   };
 
   const handleRemove = (id) => {
@@ -68,7 +107,7 @@ const InputSearchMulti = ({
     })();
   }, [valueKey]);
 
-  if (userLoading) return <PreLoader />;
+  if (userLoading) return <InputSearchSkeleton />;
 
   return (
     <div className="w-full">
@@ -87,9 +126,11 @@ const InputSearchMulti = ({
           {selected.map((u) => (
             <span
               key={u._id}
-              className="flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+              className="flex max-w-full items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
             >
-              {u.firstName} | {u.contact}
+              <span className="truncate">
+                {u.firstName} | {u.contact}
+              </span>
               {!disabled && (
                 <button
                   type="button"
@@ -127,8 +168,69 @@ const InputSearchMulti = ({
           />
         )}
       </div>
+
+      <ConfirmActionModal
+        active={!!convertTarget}
+        title="Change Customer to Manager?"
+        message={`Do you want to change ${convertTarget?.firstName ?? ""} | ${convertTarget?.contact ?? ""} from customer to manager?`}
+        confirmText="Yes, change"
+        loading={converting}
+        onConfirm={handleConvert}
+        onCancel={() => setConvertTarget(null)}
+      />
     </div>
   );
 };
 
 export default InputSearchMulti;
+
+// const ConfirmActionModal = ({
+//   active,
+//   title,
+//   message,
+//   confirmText = "Confirm",
+//   cancelText = "Cancel",
+//   loading = false,
+//   onConfirm,
+//   onCancel,
+// }) => (
+//   <ModalWrapper
+//     active={active}
+//     onClose={() => !loading && onCancel()}
+//     size="sm"
+//     position="center"
+//     showClose={false}
+//     zIndexClass="z-50"
+//   >
+//     <div className="p-6">
+//       <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+//       <p className="mt-2 text-sm text-gray-600">{message}</p>
+
+//       <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+//         <button
+//           type="button"
+//           onClick={() => !loading && onCancel()}
+//           disabled={loading}
+//           className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-100 disabled:opacity-60 sm:w-auto sm:py-2.5"
+//         >
+//           {cancelText}
+//         </button>
+//         <button
+//           type="button"
+//           onClick={onConfirm}
+//           disabled={loading}
+//           className="w-full rounded-lg bg-theme px-4 py-3 text-sm font-semibold text-white hover:bg-theme-dark disabled:bg-gray-400 sm:w-auto sm:py-2.5"
+//         >
+//           {loading ? <Spinner /> : confirmText}
+//         </button>
+//       </div>
+//     </div>
+//   </ModalWrapper>
+// );
+
+const InputSearchSkeleton = () => (
+  <div className="w-full animate-pulse" aria-busy="true">
+    <div className="h-4 w-40 rounded bg-gray-200" />
+    <div className="mt-2 h-12 w-full rounded-md bg-gray-200" />
+  </div>
+);

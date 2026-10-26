@@ -8,6 +8,7 @@ const ArrowSelect = ({
   onChange,
   onBlur,
   onClick,
+  onMouseDown,
   onKeyDown,
   ...props
 }) => {
@@ -18,11 +19,15 @@ const ArrowSelect = ({
       <select
         {...props}
         className={`appearance-none pr-8 ${className}`}
-        onClick={(e) => {
+        onMouseDown={(e) => {
+          const el = e.currentTarget;
+          if (open) setTimeout(() => el.blur(), 0);
           setOpen((o) => !o);
-          onClick?.(e);
+          onMouseDown?.(e);
         }}
+        onClick={onClick}
         onChange={(e) => {
+          if (open) e.currentTarget.blur();
           setOpen(false);
           onChange?.(e);
         }}

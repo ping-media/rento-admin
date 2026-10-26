@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useMemo, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import Input from "../../InputAndDropdown/Input";
 import Spinner from "../../Spinner/Spinner";
 import UserRideTimeLine from "../../Booking/UserRideTimeLine";
@@ -8,6 +8,10 @@ import { format, parseISO } from "date-fns";
 import KycData from "./KycData";
 import { Star, StarHalf, StarBorder } from "@mui/icons-material";
 import UserStatusSwitches from "./UserStatusSwitches";
+import { postData } from "../../../Data";
+import { handleAsyncError } from "../../../utils/Helper/handleAsyncError";
+import ConfirmActionModal from "../../Modal/ConfirmActionModal";
+import { patchMasterUser } from "../../../Redux/VehicleSlice/VehicleSlice";
 const UserReviewModal = lazy(() => import("../../Modal/UserReviewModal"));
 
 const formatDateTime = (isoString) => {
@@ -18,17 +22,36 @@ const formatDateTime = (isoString) => {
   return format(date, "dd MMM yyyy, hh:mm a");
 };
 
+const ACTION_CONFIG = {
+  manager: {
+    title: "Change customer to manager?",
+    message:
+      "This customer will be moved to the managers list and will no longer appear under customers.",
+    confirmText: "Yes, change",
+  },
+  unverify: {
+    title: "Mark user as un-verified?",
+    message:
+      "The saved Aadhaar and license approval will be removed, and the KYC details will have to be entered again to verify this user.",
+    confirmText: "Yes, mark un-verified",
+  },
+};
+
 const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
   const { vehicleMaster } = useSelector((state) => state.vehicles);
-  const { loggedInRole } = useSelector((state) => state.user);
+  const { loggedInRole, token } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [action, setAction] = useState(null); // null | "manager" | "unverify"
+  const [actionLoading, setActionLoading] = useState(false);
+  const [kycKey, setKycKey] = useState(0);
   const [review, setReview] = useState(false);
   const { id } = useParams();
   const location = useLocation();
 
-  // const isProfile = location.pathname === "/profile";
   const isAdmin = loggedInRole === "admin";
   const isManager = location.pathname.includes("/all-managers/");
-  // const USER_ROLE = isAdmin ? userType : userTypeWithoutAdmin;
 
   const userCreatedAt =
     vehicleMaster?.[0]?.userId?.createdAt ||
@@ -61,6 +84,68 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
     return location.pathname.includes("/all-users/") && sanitizeId;
   }, [id, location.pathname]);
 
+  const canMakeManager = isAdmin && !!isAllCustomerEditable;
+  const showCreatedAt =
+    userCreatedAt && userCreatedAt?.trim() !== "" && !isProfile;
+
+  const kycApproved =
+    vehicleMaster?.[0]?.userId?.kycApproved ??
+    vehicleMaster?.userId?.kycApproved ??
+    vehicleMaster?.[0]?.kycApproved ??
+    vehicleMaster?.kycApproved;
+
+  const isDocumentVerified =
+    vehicleMaster?.[0]?.userId?.isDocumentVerified ??
+    vehicleMaster?.userId?.isDocumentVerified ??
+    vehicleMaster?.[0]?.isDocumentVerified ??
+    vehicleMaster?.isDocumentVerified;
+
+  const isDeleted = Boolean(
+    vehicleMaster?.[0]?.userId?.isDeleted ??
+    vehicleMaster?.userId?.isDeleted ??
+    vehicleMaster?.[0]?.isDeleted ??
+    vehicleMaster?.isDeleted,
+  );
+
+  const isVerified = kycApproved === "yes" || isDocumentVerified === "yes";
+
+  const runAction = async () => {
+    if (!action || actionLoading) return;
+    setActionLoading(true);
+    try {
+      const toManager = action === "manager";
+      const response = toManager
+        ? await postData("/change-user-role", { _id: id }, token)
+        : await postData("/kyc-unverify", { userId: id }, token);
+
+      if (response?.status === 200 || response?.success) {
+        handleAsyncError(
+          dispatch,
+          response?.message ||
+            (toManager
+              ? "Customer changed to manager"
+              : "User marked un-verified"),
+          "success",
+        );
+        setAction(null);
+        if (toManager) {
+          navigate(`/all-managers/${id}`); // no longer a customer
+        } else {
+          dispatch(
+            patchMasterUser({ kycApproved: "no", isDocumentVerified: "no" }),
+          );
+          setKycKey((k) => k + 1); // remounts KycData so it refetches
+        }
+      } else {
+        handleAsyncError(dispatch, response?.message || "Something went wrong");
+      }
+    } catch (error) {
+      handleAsyncError(dispatch, error?.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   return (
     <>
       <Suspense fallback={null}>
@@ -70,6 +155,16 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
           userId={id}
         />
       </Suspense>
+
+      <ConfirmActionModal
+        active={!!action}
+        title={ACTION_CONFIG[action]?.title}
+        message={ACTION_CONFIG[action]?.message}
+        confirmText={ACTION_CONFIG[action]?.confirmText}
+        loading={actionLoading}
+        onConfirm={runAction}
+        onCancel={() => setAction(null)}
+      />
 
       <div
         className={`${
@@ -90,14 +185,31 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
         <div className="w-full lg:flex-1 order-1">
           <form
             className="mb-5 w-full"
-            onSubmit={isAdmin ? handleFormSubmit : () => {}}
+            onSubmit={
+              isAdmin && !isDeleted
+                ? handleFormSubmit
+                : (e) => e.preventDefault()
+            }
           >
-            {userCreatedAt && userCreatedAt?.trim() !== "" && !isProfile && (
-              <div className="mb-3">
-                <p className="text-base">
-                  <span className="font-semibold">Created at:</span>{" "}
-                  {formatDateTime(userCreatedAt)}
-                </p>
+            {(showCreatedAt || canMakeManager) && (
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                {showCreatedAt ? (
+                  <p className="text-base">
+                    <span className="font-semibold">Created at:</span>{" "}
+                    {formatDateTime(userCreatedAt)}
+                  </p>
+                ) : (
+                  <span />
+                )}
+                {/* {canMakeManager && (
+                  <button
+                    type="button"
+                    onClick={() => setAction("manager")}
+                    className="rounded-md border border-theme px-3 py-1.5 text-sm font-semibold text-theme transition-colors hover:bg-theme hover:text-white"
+                  >
+                    Make Manager
+                  </button>
+                )} */}
               </div>
             )}
 
@@ -122,12 +234,12 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
 
             {!isProfile &&
               !location.pathname.includes("/add-new") &&
-              !isManager && <KycData userId={userId} />}
+              !isManager && <KycData key={kycKey} userId={userId} />}
 
             <div
               className={`flex flex-wrap gap-4 pt-3 ${!isProfile && !location.pathname.includes("/add-new") ? "border-t" : ""}`}
             >
-              <>
+              <fieldset disabled={isDeleted} className="contents">
                 <div className="w-full lg:w-[48%]">
                   <Input
                     item={"firstName"}
@@ -141,6 +253,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                     require={true}
                   />
                 </div>
+
                 <div className="w-full lg:w-[48%]">
                   <Input
                     item={"lastName"}
@@ -154,6 +267,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                     require={true}
                   />
                 </div>
+
                 <div className="w-full lg:w-[48%]">
                   <Input
                     item={"contact"}
@@ -169,6 +283,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                     disabled={location?.pathname == "/profile" ? true : false}
                   />
                 </div>
+
                 {!isAddCustomer && (
                   <div className="w-full lg:w-[48%]">
                     <Input
@@ -209,7 +324,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                     require={true}
                   />
                 </div>
-                {/* {location.pathname !== "/profile" && !isAddCustomer && ( */}
+
                 {!isProfile && !isAddCustomer && (
                   <div className="w-full lg:w-[48%]">
                     <Input
@@ -256,7 +371,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                     />
                   </div>
                 )}
-              </>
+              </fieldset>
 
               {!isProfile && location.pathname.includes("/add-new") && (
                 <>
@@ -272,7 +387,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
               )}
             </div>
 
-            {(isProfile || isAdmin) && (
+            {(isProfile || isAdmin) && !isDeleted && (
               <button
                 className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
                 type="submit"
@@ -295,7 +410,17 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
             )}
           </form>
 
-          {showStatusSwitches && <UserStatusSwitches isAdmin={isAdmin} />}
+          {showStatusSwitches && (
+            <UserStatusSwitches
+              isAdmin={isAdmin}
+              isDeleted={isDeleted}
+              onUnverify={
+                isAdmin && isAllCustomerEditable && isVerified
+                  ? () => setAction("unverify")
+                  : undefined
+              }
+            />
+          )}
         </div>
       </div>
     </>

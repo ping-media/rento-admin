@@ -45,7 +45,8 @@ const PaymentToggler = () => {
         </h2>
       </div>
 
-      <div className="mt-5 flex flex-col gap-3 w-full md:w-1/4 lg:w-1/3 mb-3">
+      {/* <div className="mt-5 flex flex-col gap-3 w-full md:w-1/4 lg:w-1/3 mb-3"> */}
+      <div className="mt-5 flex flex-col gap-3 w-full mb-3">
         {sortedPayments.map(([key, value]) => (
           <React.Fragment key={PAYMENT_LABELS[key]}>
             <div className="flex items-center justify-between">
