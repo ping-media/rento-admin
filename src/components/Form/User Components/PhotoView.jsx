@@ -4,6 +4,24 @@ import "photoswipe/style.css";
 import { tableIcons } from "../../../Data/Icons";
 import Spinner from "../../Spinner/Spinner";
 
+const ReplaceIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="23 4 23 10 17 10" />
+    <polyline points="1 20 1 14 7 14" />
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+  </svg>
+);
+
 const PhotoView = ({
   item,
   className = "w-full",
@@ -15,6 +33,7 @@ const PhotoView = ({
   variant = "full",
   dataId,
   showName = false,
+  onReplaceClick,
 }) => {
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
@@ -59,7 +78,7 @@ const PhotoView = ({
             </div>
           )}
           <div
-            className={`relative ${className} border border-gray-400 rounded-md px-1 py-1 sm:py-0`}
+            className={`relative ${className} border border-gray-400 rounded-md p-1 sm:py-0`}
             key={item?._id}
           >
             {variant === "full" ? (
@@ -101,6 +120,17 @@ const PhotoView = ({
                 {tableIcons?.image}
                 {item?.fileName?.split("_")[3]}
               </a>
+            )}
+
+            {onReplaceClick && variant === "full" && (
+              <button
+                type="button"
+                aria-label="Replace image"
+                onClick={() => onReplaceClick(item)}
+                className="absolute bottom-0.5 right-0.5 z-10 p-1.5 rounded-full bg-white border border-gray-400 shadow text-gray-700 hover:bg-theme hover:text-white hover:border-theme transition active:scale-95"
+              >
+                <ReplaceIcon />
+              </button>
             )}
           </div>
           {showName && (

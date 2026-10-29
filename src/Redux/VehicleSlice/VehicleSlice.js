@@ -51,6 +51,18 @@ const vehicleSlice = createSlice({
         Object.assign(target, action.payload);
       }
     },
+    patchPickupImageFile: (state, action) => {
+      const { bookingId, key, file } = action.payload;
+      const m = state.vehicleMaster;
+      const list = Array.isArray(m) ? m : m ? [m] : [];
+
+      // match by bookingId, fall back to the first entry (your screenshot shows vehicleMaster[0])
+      const target = list.find((b) => b?.bookingId === bookingId) || list[0];
+
+      if (target?.pickupImage?.files) {
+        target.pickupImage.files[key] = file;
+      }
+    },
     addTimeLineData: (state, action) => {
       state.timeLineData = action.payload;
     },
@@ -524,5 +536,6 @@ export const {
   updateIsRated,
   patchMasterUser,
   updateStationWeeklyOff,
+  patchPickupImageFile,
 } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

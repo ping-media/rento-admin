@@ -157,7 +157,6 @@ const Layout = () => {
           }`}
         >
           <div className="flex flex-1 h-svh overflow-hidden">
-            {/* <aside className="hidden lg:block w-[210px] h-full overflow-y-auto bg-white dark:bg-slate-900 border-r"> */}
             <aside className="hidden lg:flex lg:flex-col w-[210px] h-full min-h-0 bg-white dark:bg-slate-900 border-r">
               <SideBar />
             </aside>

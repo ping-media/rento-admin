@@ -6,6 +6,7 @@ import PrivateRouteBasedOnUser from "./components/layout/PrivateRouteBasedOnUser
 import { useSelector } from "react-redux";
 import ErrorBoundaryWrapper from "./components/Error/ErrorBoundaryWrapper";
 import { Dashboard } from "./Pages/index";
+import Layout from "./components/layout/Layout";
 
 const NotFound = lazy(() =>
   import("./Pages/index").then((module) => ({ default: module.NotFound })),
@@ -67,7 +68,7 @@ const AddonManager = lazy(() =>
   })),
 );
 // for default exports
-const Layout = lazy(() => import("./components/layout/Layout"));
+// const Layout = lazy(() => import("./components/layout/Layout"));
 const Login = lazy(() => import("./components/Auth/Login"));
 
 const App = () => {
