@@ -5,8 +5,11 @@ import {
   formatPrice,
   formatTimeStampToDateNew,
 } from "../../utils/index";
+import { useLocation } from "react-router-dom";
 
-const RenderCellContent = (column, value, item, location) => {
+const RenderCellContent = (column, value, item) => {
+  const location = useLocation();
+
   if (!value && value !== 0) return "";
 
   if (
@@ -43,38 +46,13 @@ const RenderCellContent = (column, value, item, location) => {
     if (column === "BookingEndDateAndTime") {
       const bookingPrice = item.bookingPrice ?? null;
       const preCloseData = item?.extendBooking ?? null;
-      const bookingStatus = item?.bookingStatus;
-
-      const isExtended = bookingStatus === "extended";
-
       if (bookingPrice === null) return "--";
 
-      const extension =
-        bookingPrice?.extendAmount?.length > 0
-          ? bookingPrice?.extendAmount
-          : null;
-
-      const isLastExtensionPaid = extension
-        ? extension[extension.length - 1]?.status === "paid"
-        : false;
-
-      const extendBookingDate = isLastExtensionPaid
-        ? extension[extension?.length - 1]?.bookingEndDateAndTime
-        : null;
-      // extension !== null
-      //   ? extension[extension?.length - 1]?.bookingEndDateAndTime
-      //   : null;
-
-      if (
-        isExtended &&
-        extendBookingDate !== null &&
-        extendBookingDate !== undefined
-      ) {
-        newValue = extendBookingDate;
-      } else if (preCloseData !== null && preCloseData?.originalEndDate) {
+      if (preCloseData !== null && preCloseData?.originalEndDate) {
         newValue = preCloseData.originalEndDate;
       }
     }
+
     const full = formatFullDateAndTime(newValue);
     const parts = full.split(",");
     const date = `${parts[0]},${parts[1]}`.trim();

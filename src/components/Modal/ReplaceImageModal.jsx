@@ -10,14 +10,16 @@ const ReplaceImageModal = ({ item, onClose, onConfirm }) => {
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
-  const [showOptions, setShowOptions] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  const isTouchDevice =
+    typeof window !== "undefined" &&
+    window.matchMedia("(pointer: coarse)").matches;
 
   // reset whenever a different image is opened or the modal closes
   useEffect(() => {
     setSelectedFile(null);
-    setShowOptions(false);
     setPreviewUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return "";
@@ -32,13 +34,9 @@ const ReplaceImageModal = ({ item, onClose, onConfirm }) => {
 
   const handleImageClick = () => {
     const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
-    if (isTouchDevice) {
-      // phone/tablet: let the user choose camera or gallery
-      setShowOptions((v) => !v);
-    } else {
-      // desktop: straight to the file picker
-      openFileChooser("gallery");
-    }
+    if (isTouchDevice) return; // phones use the Camera/Gallery buttons below
+    // desktop: straight to the file picker
+    openFileChooser("gallery");
   };
 
   const openFileChooser = (type) => {
@@ -65,7 +63,6 @@ const ReplaceImageModal = ({ item, onClose, onConfirm }) => {
       });
       setSelectedFile(finalFile);
       setPreviewUrl(URL.createObjectURL(finalFile));
-      setShowOptions(false);
     } catch (error) {
       console.error("Image compression failed:", error);
       handleAsyncError(dispatch, "Image selection failed.");
@@ -108,8 +105,7 @@ const ReplaceImageModal = ({ item, onClose, onConfirm }) => {
         {/* tap the image to pick a new one */}
         <button
           type="button"
-          disabled={busy}
-          //   onClick={() => setShowOptions((v) => !v)}
+          disabled={busy || isTouchDevice}
           onClick={handleImageClick}
           className="relative block w-full h-64 rounded-md border-2 border-dashed border-gray-300 overflow-hidden"
         >
@@ -124,9 +120,9 @@ const ReplaceImageModal = ({ item, onClose, onConfirm }) => {
                 alt={item?.fileName || "Image"}
                 className="w-full h-full object-contain"
               />
-              {!previewUrl && (
+              {!previewUrl && !isTouchDevice && (
                 <span className="absolute bottom-1 left-1/2 -translate-x-1/2 rounded bg-black/60 px-2 py-0.5 text-xs text-white">
-                  Click or tap image to change
+                  Click image to change
                 </span>
               )}
             </>
@@ -140,7 +136,7 @@ const ReplaceImageModal = ({ item, onClose, onConfirm }) => {
         )}
 
         {/* camera or gallery choice, same as the upload component */}
-        {showOptions && !busy && (
+        {isTouchDevice && !busy && (
           <div className="mt-3 grid grid-cols-2 gap-2">
             <button
               type="button"

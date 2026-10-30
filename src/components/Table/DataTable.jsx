@@ -282,7 +282,6 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                       column,
                                       item[column],
                                       item,
-                                      location,
                                     )}
                                   </td>
                                 );
