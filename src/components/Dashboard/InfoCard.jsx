@@ -31,6 +31,7 @@ const InfoCard = ({ item }) => {
                   end={count}
                   prefix={isRevenue ? "₹" : ""}
                   separator=","
+                  useIndianSeparators
                 />
               </h3>
             ) : (

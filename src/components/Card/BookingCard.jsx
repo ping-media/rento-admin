@@ -53,12 +53,12 @@ const BookingCard = ({ item }) => {
 
   // booking end date (reuse extendAmount)
   let BookingEndDateAndTime = item?.BookingEndDateAndTime;
-  if (extendAmount.length > 0) {
-    const lastExtend = extendAmount[extendAmount.length - 1];
-    if (lastExtend?.bookingEndDateAndTime && lastExtend?.status !== "unpaid") {
-      BookingEndDateAndTime = lastExtend.bookingEndDateAndTime;
-    }
-  }
+  // if (extendAmount.length > 0) {
+  //   const lastExtend = extendAmount[extendAmount.length - 1];
+  //   if (lastExtend?.bookingEndDateAndTime && lastExtend?.status !== "unpaid") {
+  //     BookingEndDateAndTime = lastExtend.bookingEndDateAndTime;
+  //   }
+  // }
 
   if (item?.extendBooking?.originalEndDate?.trim()) {
     BookingEndDateAndTime = item?.extendBooking?.originalEndDate;
