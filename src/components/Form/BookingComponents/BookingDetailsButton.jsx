@@ -8,6 +8,7 @@ import {
   togglePickupImageModal,
   toggleRescheduleModal,
   toggleRideEndModal,
+  toogleKycModalActive,
 } from "../../../Redux/SideBarSlice/SideBarSlice";
 import GenerateInvoiceButton from "../../Table/GenerateInvoiceButton";
 import { getData } from "../../../Data/index";
@@ -34,6 +35,7 @@ const BookingDetailsButton = ({
   );
   const isChange = useMemo(() => diffData?.rideStatus === false, [diffData]);
   const isBookingCanceled = booking?.bookingStatus === "canceled";
+  const customer = booking?.userId;
 
   const isOnlinePaymentMode = booking?.paymentMethod === "online";
   const ispartiallyPayMode = booking?.paymentMethod === "partiallyPay";
@@ -56,6 +58,12 @@ const BookingDetailsButton = ({
   const handleStartRideAndAddImages = () => {
     dispatch(addTempVehicleData(booking));
     dispatch(togglePickupImageModal());
+  };
+
+  // show customer not verified message and open kyc modal instead of ride start modal
+  const openKycModal = () => {
+    handleAsyncError(dispatch, "Customer verification pending!");
+    dispatch(toogleKycModalActive());
   };
 
   // this will triggr the start ride modal after vehicle change
@@ -104,29 +112,6 @@ const BookingDetailsButton = ({
     }
   };
 
-  // const handleSendRemainder = async () => {
-  //   try {
-  //     setReminderLoading(true);
-  //     const data = {
-  //       ...booking,
-  //       contact: booking?.userId?.contact,
-  //       firstName: booking?.userId?.firstName,
-  //       managerContact: booking?.stationMasterUserId?.contact,
-  //       userEmail: booking?.userId?.email,
-  //     };
-  //     const response = await postData("/sendReminder", data, token);
-  //     if (response?.status === 200) {
-  //       return handleAsyncError(dispatch, response?.message, "success");
-  //     } else {
-  //       return handleAsyncError(dispatch, response?.message);
-  //     }
-  //   } catch (error) {
-  //     handleAsyncError(dispatch, error?.message);
-  //   } finally {
-  //     setReminderLoading(false);
-  //   }
-  // };
-
   return (
     <div className="overflow-hidden pb-0">
       <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide bg-white -mb-4 pb-4">
@@ -138,7 +123,11 @@ const BookingDetailsButton = ({
                 ? "Ride Finished"
                 : "Start Ride"
             }
-            fn={handleStartRideAndAddImages}
+            fn={
+              customer?.kycApproved === "yes"
+                ? handleStartRideAndAddImages
+                : openKycModal
+            }
             disable={
               isFullPaymentPending ||
               booking?.bookingStatus === "canceled" ||
