@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import { exportToExcel } from "../../utils/ExportFile";
 import { tableIcons } from "../../Data/Icons";
 import { getFullData } from "../../Data/index";
@@ -9,12 +9,15 @@ import { useLocation } from "react-router-dom";
 import { transformUsers } from "./data/user";
 import { transformBookings } from "./data/booking";
 import { transformVehicles } from "./data/vehicle";
+const BookingExportModal = lazy(() => import("./BookingExportModal"));
 
 const EXPORT_CONFIG = {
   "/all-users": {
-    endpoint: "/admin/getAllUsers?userType=customer&page=1&limit=1000",
+    // endpoint: "/admin/getAllUsers?userType=customer&page=1&limit=1000",
+    endpoint: "/admin/getAllUsers/report",
     reportName: "Customers",
     transform: transformUsers,
+    cursor: true,
   },
   "/all-bookings": {
     endpoint: "/getBooking?page=1&limit=1000",
@@ -22,9 +25,11 @@ const EXPORT_CONFIG = {
     transform: transformBookings,
   },
   "/all-vehicles": {
-    endpoint: "/getAllVehiclesData?page=1&limit=1000",
+    // endpoint: "/getAllVehiclesData?page=1&limit=1000",
+    endpoint: "/getAllVehiclesData/report",
     reportName: "Vehicles",
     transform: transformVehicles,
+    cursor: true,
   },
 };
 
@@ -32,16 +37,53 @@ const ExportButton = () => {
   const { pathname } = useLocation();
   const { token } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [modalOpen, setModalOpen] = useState(false);
+  // const [progress, setProgress] = useState({ current: 0, total: 0 });
   const dispatch = useDispatch();
 
   const config = EXPORT_CONFIG[pathname];
+  const isBookingPage = pathname === "/all-bookings";
 
   if (!config) return null;
 
   const handleExport = async () => {
     try {
       setLoading(true);
+
+      if (config.cursor) {
+        const rows = [];
+        let cursor = null;
+
+        do {
+          const url = cursor
+            ? `${config.endpoint}?cursor=${cursor}`
+            : config.endpoint;
+          const res = await getFullData(url, token);
+
+          if (res?.status !== 200) {
+            handleAsyncError(dispatch, "Unable to get data! try again");
+            return;
+          }
+
+          rows.push(...(res?.data?.data || []));
+          cursor = res?.data?.pagination?.hasMore
+            ? res.data.pagination.nextCursor
+            : null;
+        } while (cursor);
+
+        if (!rows.length) return;
+
+        const stamp = new Date()
+          .toISOString()
+          .replace(/T/, "_")
+          .replace(/\..+/, "");
+
+        exportToExcel(
+          config.transform(rows),
+          `RentoBikes_${config.reportName}_Report_${stamp}`,
+        );
+        return;
+      }
 
       const baseUrl = config.endpoint.split("?")[0];
       const existingParams = new URLSearchParams(
@@ -66,7 +108,7 @@ const ExportButton = () => {
 
       const totalPages = firstRes?.data?.pagination?.totalPages || 1;
       allData = [...(firstRes?.data?.data || [])];
-      setProgress({ current: 0, total: totalPages * limit });
+      // setProgress({ current: 0, total: totalPages * limit });
 
       // Prepare remaining pages
       const remainingPages = Array.from(
@@ -98,20 +140,12 @@ const ExportButton = () => {
           }
         });
 
-        setProgress((prev) => ({
-          ...prev,
-          current: prev.current + tempCount,
-        }));
+        // setProgress((prev) => ({
+        //   ...prev,
+        //   current: prev.current + tempCount,
+        // }));
       }
 
-      // const response = await getFullData(config.endpoint, token);
-
-      // if (response?.status !== 200) {
-      //   handleAsyncError(dispatch, "Unable to get data! try again");
-      //   return;
-      // }
-
-      // const rawData = response?.data?.data || [];
       const rawData = allData;
       const exportData = config.transform(rawData);
 
@@ -135,55 +169,23 @@ const ExportButton = () => {
     }
   };
 
-  // const percent = progress.total
-  //   ? Math.floor((progress.current / progress.total) * 100)
-  //   : 0;
-
   return (
-    <button
-      onClick={handleExport}
-      className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 flex items-center transition-all duration-200 ease-in disabled:bg-gray-200"
-      disabled={loading}
-    >
-      {!loading ? <>{tableIcons?.download} CSV</> : <Spinner />}
-      {/* {!loading ? (
-        <>{tableIcons?.download} CSV</>
-      ) : (
-        <CircularProgress progress={percent} />
-      )} */}
-    </button>
+    <>
+      <button
+        onClick={isBookingPage ? () => setModalOpen(true) : handleExport}
+        className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 flex items-center transition-all duration-200 ease-in disabled:bg-gray-200"
+        disabled={loading}
+      >
+        {!loading ? <>{tableIcons?.download} CSV</> : <Spinner />}
+      </button>
+
+      {modalOpen && (
+        <Suspense fallback={null}>
+          <BookingExportModal onClose={() => setModalOpen(false)} />
+        </Suspense>
+      )}
+    </>
   );
 };
 
 export default ExportButton;
-
-// const CircularProgress = ({ progress = 0, size = 18, stroke = 2 }) => {
-//   const radius = (size - stroke) / 2;
-//   const circumference = 2 * Math.PI * radius;
-//   const offset = circumference - (progress / 100) * circumference;
-
-//   return (
-//     <svg width={size} height={size}>
-//       <circle
-//         cx={size / 2}
-//         cy={size / 2}
-//         r={radius}
-//         stroke="#e5e7eb"
-//         strokeWidth={stroke}
-//         fill="none"
-//       />
-//       <circle
-//         cx={size / 2}
-//         cy={size / 2}
-//         r={radius}
-//         stroke="#DE2A1B"
-//         strokeWidth={stroke}
-//         fill="none"
-//         strokeDasharray={circumference}
-//         strokeDashoffset={offset}
-//         strokeLinecap="round"
-//         style={{ transition: "stroke-dashoffset 0.3s ease" }}
-//       />
-//     </svg>
-//   );
-// };

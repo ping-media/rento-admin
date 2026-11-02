@@ -44,7 +44,7 @@ const RateUserModal = ({ isActive, setIsActive, userId, bookingId }) => {
       setIsActive(false);
       //updating the redux state
       dispatch(updateIsRated());
-      handleAsyncError(dispatch, "Customer rate successfully.", "success");
+      handleAsyncError(dispatch, `Customer rated ${stars} star.`, "success");
     } catch (err) {
       setError(
         err?.response?.message || err.message || "Failed to submit rating",

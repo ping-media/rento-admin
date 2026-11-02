@@ -216,7 +216,9 @@ const BookingStepOne = ({
         className="lg:w-[48%]"
       />
 
-      <BookingPlan {...{ duration, setDuration }} />
+      <BookingPlan
+        {...{ duration, setDuration, startDate: bookingStartDate }}
+      />
 
       <div className="w-full lg:w-[48%]">
         <InputSearch

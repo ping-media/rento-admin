@@ -48,6 +48,15 @@ const DailyTransactionsCard = ({
     ? today
     : `${year}-${pad(monthIdx + 1)}-${pad(lastDay)}`;
 
+  // week runs Monday to today; clamped so it never goes before the selected month starts
+  const daysSinceMonday = (now.getDay() + 6) % 7;
+  const weekStartRaw = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() - daysSinceMonday,
+  ).toLocaleDateString("en-CA");
+  const weekStart = weekStartRaw < monthStart ? monthStart : weekStartRaw;
+
   // view / date / filter reset by themselves whenever the month changes
   const initialUi = {
     month: selectedMonth,
@@ -65,9 +74,11 @@ const DailyTransactionsCard = ({
   const dateParams =
     view === "today"
       ? `date=${today}`
-      : view === "date" && date
-        ? `date=${date}`
-        : `startDate=${monthStart}&endDate=${monthEnd}`;
+      : view === "week"
+        ? `startDate=${weekStart}&endDate=${today}`
+        : view === "date" && date
+          ? `date=${date}`
+          : `startDate=${monthStart}&endDate=${monthEnd}`;
   const baseQuery = `${dateParams}&type=${filter}${stationParam}`;
 
   // page resets to 1 automatically whenever the query changes
@@ -78,7 +89,7 @@ const DailyTransactionsCard = ({
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
@@ -125,9 +136,11 @@ const DailyTransactionsCard = ({
   const viewLabel =
     view === "today"
       ? formatLong(today)
-      : view === "date"
-        ? formatLong(date)
-        : `${monthName} ${year}${isCurrentMonth ? " (till date)" : ""}`;
+      : view === "week"
+        ? `${formatLong(weekStart)} - ${formatLong(today)}`
+        : view === "date"
+          ? formatLong(date)
+          : `${monthName} ${year}${isCurrentMonth ? " (till date)" : ""}`;
 
   return (
     <div className="flex flex-col h-[420px] lg:h-0 lg:min-h-full overflow-hidden rounded-2xl bg-white shadow-lg">
@@ -191,6 +204,19 @@ const DailyTransactionsCard = ({
               }`}
             >
               Today
+            </button>
+          )}
+          {isCurrentMonth && (
+            <button
+              type="button"
+              onClick={() => updateUi({ view: "week", date: "" })}
+              className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs transition-all duration-150 ${
+                view === "week"
+                  ? "border-theme bg-theme text-white"
+                  : "border-theme/40 text-theme hover:border-theme"
+              }`}
+            >
+              This week
             </button>
           )}
           <button
