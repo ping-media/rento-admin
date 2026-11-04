@@ -1,6 +1,6 @@
 import { tableIcons } from "../../Data/Icons";
 
-const UserStatusCell = ({ item, index }) => {
+const UserStatusCell = ({ item }) => {
   const isVerify =
     item?.isEmailVerified === "yes" &&
     item?.isContactVerified === "yes" &&

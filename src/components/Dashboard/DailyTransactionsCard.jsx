@@ -13,6 +13,11 @@ const formatLong = (d) =>
     month: "long",
     year: "numeric",
   });
+const formatShort = (d) =>
+  new Date(`${d}T00:00:00`).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+  });
 
 const TYPE_LABEL = {
   booking: "Main Booking",
@@ -230,26 +235,38 @@ const DailyTransactionsCard = ({
           >
             {isCurrentMonth ? "This month" : "Full month"}
           </button>
-          <input
-            type="date"
-            min={monthStart}
-            max={monthEnd}
-            value={view === "date" ? date : ""}
-            onClick={(e) => e.currentTarget.showPicker?.()}
-            onChange={(e) =>
-              e.target.value
-                ? updateUi({ view: "date", date: e.target.value })
-                : updateUi({
-                    view: isCurrentMonth ? "today" : "month",
-                    date: "",
-                  })
-            }
-            className={`cursor-pointer rounded-full border px-3 py-1.5 text-xs outline-none ${
+          <label
+            className={`relative cursor-pointer whitespace-nowrap rounded-full border px-3 py-1.5 text-xs transition-all duration-150 ${
               view === "date"
-                ? "border-theme bg-theme/10 text-theme"
-                : "border-theme/40 text-gray-600"
+                ? "border-theme bg-theme text-white"
+                : "border-theme/40 text-theme hover:border-theme"
             }`}
-          />
+          >
+            {view === "date" && date ? formatShort(date) : "Pick a date"}
+            <input
+              type="date"
+              aria-label="Pick a date"
+              min={monthStart}
+              max={monthEnd}
+              value={view === "date" ? date : ""}
+              onClick={(e) => {
+                try {
+                  e.currentTarget.showPicker?.();
+                } catch (err) {
+                  // some browsers block showPicker, the native tap still opens the picker
+                }
+              }}
+              onChange={(e) =>
+                e.target.value
+                  ? updateUi({ view: "date", date: e.target.value })
+                  : updateUi({
+                      view: isCurrentMonth ? "today" : "month",
+                      date: "",
+                    })
+              }
+              className="absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0"
+            />
+          </label>
         </div>
       )}
 

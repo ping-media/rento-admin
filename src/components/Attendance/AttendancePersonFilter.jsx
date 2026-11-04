@@ -48,7 +48,9 @@ const AttendancePersonFilter = ({ onNavigate, variant = "default" }) => {
           onChange={handleChange}
           className="block w-full rounded-md border border-gray-300 px-5 py-3 text-sm capitalize"
         >
-          <option value="">Select manager / fleet staff</option>
+          <option value="" disabled hidden>
+            Select manager / fleet staff
+          </option>
           {options}
         </ArrowSelect>
         {attendanceUser && (
@@ -74,7 +76,9 @@ const AttendancePersonFilter = ({ onNavigate, variant = "default" }) => {
           onChange={handleChange}
           className="block w-full rounded-md border border-gray-300 px-5 py-3 text-sm capitalize"
         >
-          <option value="">Select a person</option>
+          <option value="" disabled hidden>
+            Select a person
+          </option>
           {options}
         </ArrowSelect>
       </label>

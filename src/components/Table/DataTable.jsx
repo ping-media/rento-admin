@@ -147,10 +147,18 @@ const CustomTable = ({ Data, pagination, searchTermQuery, dataLoading }) => {
                                 className="px-2 py-1 whitespace-nowrap text-md lg:text-sm font-medium text-gray-900"
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                <InputSwitch
-                                  value={item["vehicleStatus"]}
-                                  id={item?._id}
-                                />
+                                {loggedInRole === "admin" ? (
+                                  <InputSwitch
+                                    value={item["vehicleStatus"]}
+                                    id={item?._id}
+                                  />
+                                ) : (
+                                  <StatusChange
+                                    item={item}
+                                    column={"vehicleStatus"}
+                                    width="w-auto sm:w-12"
+                                  />
+                                )}
                               </td>
                             )}
 
