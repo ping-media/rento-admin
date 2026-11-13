@@ -23,6 +23,9 @@ const KEYS = {
   dateTo: "to", // attendance report end date
   attendanceUser: "user", // person shown on the attendance page (admin)
   month: "month", // attendance month, "YYYY-MM"
+  repairStatus: "rStatus", // maintenance requests page
+  repairType: "rType", // maintenance requests page
+  reportTab: "rTab", // maintenance reports page
 };
 
 const toPositiveInt = (value, fallback) => {
@@ -38,7 +41,7 @@ const isDefaultValue = (key, value) =>
 const useListParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // ---------- READ ----------
+  // READ
   const page = toPositiveInt(searchParams.get(KEYS.page), DEFAULT_PAGE);
   const limit = toPositiveInt(searchParams.get(KEYS.limit), DEFAULT_LIMIT);
   const searchTerm = searchParams.get(KEYS.searchTerm) ?? "";
@@ -57,6 +60,9 @@ const useListParams = () => {
 
   const attendanceUser = searchParams.get(KEYS.attendanceUser) ?? "";
   const month = searchParams.get(KEYS.month) ?? "";
+  const repairStatus = searchParams.get(KEYS.repairStatus) ?? "";
+  const repairType = searchParams.get(KEYS.repairType) ?? "";
+  const reportTab = searchParams.get(KEYS.reportTab) ?? "";
 
   // same shape as your old redux `vehiclesFilter`, memoized so it stays
   // stable for useCallback/useEffect dependencies
@@ -70,7 +76,7 @@ const useListParams = () => {
     [vehicleName, vehicleSearch, vehicleStationId, maintenanceType],
   );
 
-  // ---------- WRITE ----------
+  // WRITE
   // updates: { searchTerm: "abc", stationId: "12" } (use the state names above)
   // Any change except `page` resets page to 1 automatically.
   const updateParams = useCallback(
@@ -105,7 +111,7 @@ const useListParams = () => {
     [setSearchParams],
   );
 
-  // ---------- SHORTCUTS ----------
+  // SHORTCUTS
   const setPage = useCallback(
     (value) => updateParams({ page: value }),
     [updateParams],
@@ -172,6 +178,9 @@ const useListParams = () => {
     dateTo,
     attendanceUser,
     month,
+    repairStatus,
+    repairType,
+    reportTab,
     // writers
     updateParams,
     setPage,

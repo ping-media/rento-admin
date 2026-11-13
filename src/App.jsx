@@ -67,8 +67,17 @@ const AddonManager = lazy(() =>
     default: module.AddonManager,
   })),
 );
+const MaintenanceRequests = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.MaintenanceRequests,
+  })),
+);
+const MaintenanceReports = lazy(() =>
+  import("./Pages/index").then((module) => ({
+    default: module.MaintenanceReports,
+  })),
+);
 // for default exports
-// const Layout = lazy(() => import("./components/layout/Layout"));
 const Login = lazy(() => import("./components/Auth/Login"));
 
 const App = () => {
@@ -107,6 +116,32 @@ const App = () => {
                     isLoading={verifyLoading}
                   >
                     <General />
+                  </PrivateRouteBasedOnUser>
+                }
+              />
+              <Route
+                path="maintenance-requests"
+                exact
+                element={
+                  <PrivateRouteBasedOnUser
+                    allowedRoles={["admin", "manager"]}
+                    userRole={loggedInRole}
+                    isLoading={verifyLoading}
+                  >
+                    <MaintenanceRequests />
+                  </PrivateRouteBasedOnUser>
+                }
+              />
+              <Route
+                path="/maintenance-reports"
+                exact
+                element={
+                  <PrivateRouteBasedOnUser
+                    allowedRoles={["admin"]}
+                    userRole={loggedInRole}
+                    isLoading={verifyLoading}
+                  >
+                    <MaintenanceReports />
                   </PrivateRouteBasedOnUser>
                 }
               />

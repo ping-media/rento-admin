@@ -1,4 +1,3 @@
-import { useSelector } from "react-redux";
 import BulkActionButtons from "../../components/Table/BulkActionButtons";
 import { tableIcons } from "../../Data/Icons";
 import React from "react";
@@ -17,6 +16,8 @@ const ROUTE_TITLES = {
   "/location-master": "Cities",
   "/all-invoices": "Invoices",
   "/all-managers/attendance": "Manager's Attendance",
+  "/maintenance-requests": "Repairs",
+  "/maintenance-reports": "Expense Reports",
 };
 
 export function getPageTitle(pathname, activeFilterName) {
@@ -39,11 +40,13 @@ const NO_ADD_BUTTON_ROUTES = [
   "/all-invoices",
   "/users-documents",
   "/all-managers/attendance",
+  "/maintenance-requests",
+  "/maintenance-reports",
   "/attendance",
   "/logs",
 ];
 
-const TitleAndButton = ({ className = "flex" }) => {
+const TitleAndButton = ({ className = "flex", addHandler = null }) => {
   const { filterName } = useListParams();
   const activeFilterName = filterName || null; // keeps the old null-when-empty behavior
   const location = useLocation();
@@ -57,6 +60,17 @@ const TitleAndButton = ({ className = "flex" }) => {
       <h1 className="text-xl xl:text-2xl capitalize font-bold text-theme">
         {pageTitle}
       </h1>
+
+      {addHandler && location.pathname === "/maintenance-requests" && (
+        <button
+          type="button"
+          className="bg-theme font-semibold text-gray-100 p-2.5 lg:px-2.5 lg:py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1"
+          onClick={addHandler}
+        >
+          {tableIcons.add}
+          Add
+        </button>
+      )}
 
       {showAddButton && (
         <Link

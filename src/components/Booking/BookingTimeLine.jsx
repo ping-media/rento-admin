@@ -169,7 +169,10 @@ const BookingTimeLine = () => {
                       <>
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold capitalize text-gray-800 text-sm">
-                            {item?.title}
+                            <TitleWithPerformer
+                              title={item?.title}
+                              createdBy={item?.createdBy}
+                            />
                           </h3>
                         </div>
 
@@ -280,7 +283,7 @@ const BookingTimeLine = () => {
                           </div>
                         )}
 
-                        <CreatedByTag createdBy={item?.createdBy} />
+                        <ServiceDetails item={item} />
                       </>
                     ) : (
                       <div>
@@ -288,13 +291,22 @@ const BookingTimeLine = () => {
                           <h3
                             className={`font-bold text-gray-800 text-sm flex justify-start`}
                           >
-                            {item?.title === "Booking Extended by User"
-                              ? "Extension by User"
-                              : item?.title === "Booking Extended by Admin"
-                                ? "Extension by Admin"
-                                : item?.title === "Booking Extended by Manager"
-                                  ? "Extension by Manager"
-                                  : item?.title}
+                            <span>
+                              <TitleWithPerformer
+                                title={
+                                  item?.title === "Booking Extended by User"
+                                    ? "Extension by User"
+                                    : item?.title ===
+                                        "Booking Extended by Admin"
+                                      ? "Extension by Admin"
+                                      : item?.title ===
+                                          "Booking Extended by Manager"
+                                        ? "Extension by Manager"
+                                        : item?.title
+                                }
+                                createdBy={item?.createdBy}
+                              />
+                            </span>
                             {item?.extended !== true &&
                               item?.PaymentLink &&
                               item?.PaymentLink !== "" && (
@@ -385,7 +397,6 @@ const BookingTimeLine = () => {
                             TxID: {item.paymentId}
                           </p>
                         )}
-                        <CreatedByTag createdBy={item?.createdBy} />
                       </div>
                     )}
                   </div>
@@ -411,19 +422,74 @@ const AddNoteBtn = ({ onClick }) => (
   </button>
 );
 
-const CreatedByTag = ({ createdBy }) => {
+const ROLE_SUFFIX = /\s+by\s+(admin|manager)\s*$/i;
+const USER_SUFFIX = /\s+by\s+user\s*$/i;
+
+const NameBadge = ({ name }) => (
+  <span
+    title={`Performed by ${name}`}
+    className="inline-flex px-2 py-0.5 text-xs leading-tight font-normal rounded bg-yellow-100 text-yellow-800 border border-yellow-300 shadow-sm capitalize items-center align-middle"
+  >
+    {name}
+  </span>
+);
+
+const TitleWithPerformer = ({ title, createdBy }) => {
+  if (!title) return null;
+
   const name =
     typeof createdBy?.firstName === "string" ? createdBy.firstName.trim() : "";
 
-  if (!name) return null;
+  // no name, or a customer action ("by User"): show the title as it is
+  if (!name || USER_SUFFIX.test(title)) return <>{title}</>;
+
+  const base = title.replace(ROLE_SUFFIX, "");
 
   return (
-    <span
-      title={`Performed by ${name}`}
-      className="inline-flex mt-1 px-2 py-0.5 text-xs leading-tight rounded bg-yellow-100 text-yellow-800 border border-yellow-300 shadow-sm capitalize items-center gap-1"
-    >
-      Performed By {name}
-    </span>
+    <>
+      {base} <span className="font-normal">by</span> <NameBadge name={name} />
+    </>
+  );
+};
+
+const ServiceDetails = ({ item }) => {
+  if (!item?.serviceType) return null;
+  const hasNumber = (v) => v !== undefined && v !== null && v !== "";
+
+  return (
+    <div className="mt-1 text-xs text-gray-700 leading-relaxed">
+      {/* <p className="capitalize">
+        Type:{" "}
+        <span className="font-semibold">
+          {item.serviceType.replace("_", " ")}
+        </span>
+      </p> */}
+      {/* {item.reason && <p className="break-words">Reason: {item.reason}</p>} */}
+      {hasNumber(item.meterReadingBeforeService) && (
+        <p>
+          Meter before service:{" "}
+          <span className="font-semibold">
+            {item.meterReadingBeforeService} km
+          </span>
+        </p>
+      )}
+      {hasNumber(item.meterReadingAfterService) && (
+        <p>
+          Meter after service:{" "}
+          <span className="font-semibold">
+            {item.meterReadingAfterService} km
+          </span>
+        </p>
+      )}
+      {Number(item.serviceCost) > 0 && (
+        <p>
+          Service cost:{" "}
+          <span className="font-semibold text-theme">
+            ₹{formatPrice(item.serviceCost)}
+          </span>
+        </p>
+      )}
+    </div>
   );
 };
 

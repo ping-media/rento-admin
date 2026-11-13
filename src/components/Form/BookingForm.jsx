@@ -12,6 +12,7 @@ import BookingStepTwo from "./BookingComponents/BookingStepTwo";
 import { postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
 import { addNewAddOnData } from "../../Redux/GeneralSlice/GeneralSlice";
+import { bookingDetailsPath } from "../../utils/maintenance";
 
 const BookingForm = ({ handleFormSubmit, loading }) => {
   const { token } = useSelector((state) => state.user);
@@ -297,7 +298,9 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
         if (bookingResponse?.status === 200) {
           handleAsyncError(dispatch, "Ride booked successfully", "success");
           navigate(
-            `/all-bookings/details/${bookingResponse?.data?._id}_${bookingResponse?.data?.bookingId}`,
+            bookingDetailsPath(
+              `${bookingResponse?.data?._id}_${bookingResponse?.data?.bookingId}`,
+            ),
           );
           return;
         } else {
@@ -320,7 +323,9 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
           if (paymentLinkResponse?.linkCreated === true) {
             handleAsyncError(dispatch, "Ride booked successfully", "success");
             navigate(
-              `/all-bookings/details/${bookingResponse?.data?.booking_id}_${bookingResponse?.data?.bookingId}`,
+              bookingDetailsPath(
+                `${bookingResponse?.data?.booking_id}_${bookingResponse?.data?.bookingId}`,
+              ),
             );
             return;
           } else {

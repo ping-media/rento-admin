@@ -33,6 +33,9 @@ const STATUS = {
   },
 };
 
+const ACTIVE = "bg-white text-theme shadow dark:bg-slate-600";
+const INACTIVE = "text-gray-500 dark:text-gray-300";
+
 const shiftMonth = (month, delta) => {
   const [y, m] = month.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1 + delta, 1)).toISOString().slice(0, 7);
@@ -68,82 +71,12 @@ const outDot = (d) =>
       ? "bg-amber-400"
       : "bg-green-500";
 
-const TimeLine = ({ dot, value }) => (
-  <div className="flex items-center gap-2">
-    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${dot}`} />
-    <span className="tabular-nums text-gray-800 dark:text-gray-100">
-      {value}
-    </span>
-  </div>
-);
-
-const Chevron = ({ dir }) => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <polyline points={dir === "left" ? "15 18 9 12 15 6" : "9 18 15 12 9 6"} />
-  </svg>
-);
-
-const DayRow = ({ day }) => {
-  const { num, weekday } = dayParts(day.date);
-  const st = STATUS[day.status] || STATUS.none;
-  const showTimes = [
-    "present",
-    "half_day",
-    "absent",
-    "weekly_off",
-    "pending",
-    "none",
-  ].includes(day.status);
-  return (
-    <li className="flex items-center gap-3 px-4 py-3">
-      <div className="w-12 shrink-0 text-center">
-        <div className="text-lg font-semibold leading-tight text-gray-800 dark:text-gray-100">
-          {num}
-        </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400">
-          {weekday}
-        </div>
-      </div>
-
-      {/* <div className="min-w-0 flex-1 space-y-1 text-sm"> */}
-      <div className="min-w-0 flex-1 space-y-1 text-sm sm:flex sm:items-center sm:gap-10 sm:space-y-0">
-        {showTimes && (
-          <>
-            <TimeLine dot={inDot(day)} value={fmtTime(day.checkIn)} />
-            <TimeLine dot={outDot(day)} value={fmtTime(day.checkOut)} />
-          </>
-        )}
-      </div>
-
-      <div className="shrink-0 text-right">
-        <span
-          className={`inline-block min-w-[92px] rounded-lg px-3 py-1.5 text-center text-sm font-semibold ${st.cls}`}
-        >
-          {st.label}
-        </span>
-        {day.workedMinutes != null ? (
-          <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {fmtDuration(day.workedMinutes)}
-          </div>
-        ) : day.flags?.missingCheckOut ? (
-          <div className="mt-1 text-xs text-red-500">No check-out</div>
-        ) : null}
-      </div>
-    </li>
-  );
-};
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const CAL_BADGE = { absent: "A", weekly_off: "W", half_day: "H" };
 
 const AttendanceMonth = ({ userId, isAdmin, refreshKey = 0 }) => {
+  const [view, setView] = useState(null);
+
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.user);
   const { month: monthParam, updateParams } = useListParams();
@@ -236,28 +169,31 @@ const AttendanceMonth = ({ userId, isAdmin, refreshKey = 0 }) => {
 
   return (
     <div className="w-full">
-      {/* month switcher */}
-      <div className="mb-3 flex items-center justify-between rounded-xl bg-gray-100 px-2 py-2 dark:bg-slate-700">
-        <button
-          type="button"
-          aria-label="Previous month"
-          className="rounded-lg p-2 text-gray-700 hover:bg-white/70 dark:text-gray-100 dark:hover:bg-slate-600"
-          onClick={() => goTo(shiftMonth(month, -1))}
-        >
-          <Chevron dir="left" />
-        </button>
-        <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
-          {monthLabel(month)}
-        </span>
-        <button
-          type="button"
-          aria-label="Next month"
-          className="rounded-lg p-2 text-gray-700 hover:bg-white/70 disabled:opacity-30 dark:text-gray-100 dark:hover:bg-slate-600"
-          disabled={month >= currentMonth}
-          onClick={() => goTo(shiftMonth(month, 1))}
-        >
-          <Chevron dir="right" />
-        </button>
+      {/* month switcher + view toggle */}
+      <div className="mb-3 flex items-center gap-2">
+        <div className="flex flex-1 items-center justify-between rounded-xl bg-gray-100 px-2 py-2">
+          <button
+            type="button"
+            aria-label="Previous month"
+            className="rounded-lg p-2 text-gray-700 hover:bg-white/70 dark:text-gray-100 dark:hover:bg-slate-600"
+            onClick={() => goTo(shiftMonth(month, -1))}
+          >
+            <Chevron dir="left" />
+          </button>
+          <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+            {monthLabel(month)}
+          </span>
+          <button
+            type="button"
+            aria-label="Next month"
+            className="rounded-lg p-2 text-gray-700 hover:bg-white/70 disabled:opacity-30 dark:text-gray-100 dark:hover:bg-slate-600"
+            disabled={month >= currentMonth}
+            onClick={() => goTo(shiftMonth(month, 1))}
+          >
+            <Chevron dir="right" />
+          </button>
+        </div>
+        <ViewToggle view={view} onChange={setView} />
       </div>
 
       {isAdmin && data?.user && (
@@ -295,15 +231,28 @@ const AttendanceMonth = ({ userId, isAdmin, refreshKey = 0 }) => {
             {message || "No days to show for this month"}
           </p>
         ) : (
-          <ul
-            className={`divide-y divide-gray-100 dark:divide-slate-700 ${
-              loading ? "opacity-60" : ""
-            }`}
-          >
-            {data.days.map((day) => (
-              <DayRow key={day.date} day={day} />
-            ))}
-          </ul>
+          <>
+            <div
+              className={
+                view === "calendar"
+                  ? ""
+                  : view === "list"
+                    ? "hidden"
+                    : "hidden sm:block"
+              }
+            >
+              <CalendarView month={month} days={data.days} loading={loading} />
+            </div>
+            <ul
+              className={`divide-y divide-gray-100 dark:divide-slate-700 ${
+                loading ? "opacity-60" : ""
+              } ${view === "list" ? "" : view === "calendar" ? "hidden" : "sm:hidden"}`}
+            >
+              {data.days.map((day) => (
+                <DayRow key={day.date} day={day} />
+              ))}
+            </ul>
+          </>
         )}
       </div>
     </div>
@@ -311,3 +260,205 @@ const AttendanceMonth = ({ userId, isAdmin, refreshKey = 0 }) => {
 };
 
 export default AttendanceMonth;
+
+const TimeLine = ({ dot, value }) => (
+  <div className="flex items-center gap-2">
+    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${dot}`} />
+    <span className="tabular-nums text-gray-800 dark:text-gray-100">
+      {value}
+    </span>
+  </div>
+);
+
+const Chevron = ({ dir }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <polyline points={dir === "left" ? "15 18 9 12 15 6" : "9 18 15 12 9 6"} />
+  </svg>
+);
+
+const DayRow = ({ day }) => {
+  const { num, weekday } = dayParts(day.date);
+  const st = STATUS[day.status] || STATUS.none;
+  const showTimes = [
+    "present",
+    "half_day",
+    "absent",
+    "weekly_off",
+    "pending",
+    "none",
+  ].includes(day.status);
+  return (
+    <li className="flex items-center gap-3 px-4 py-3">
+      <div className="w-12 shrink-0 text-center">
+        <div className="text-lg font-semibold leading-tight text-gray-800 dark:text-gray-100">
+          {num}
+        </div>
+        <div className="text-xs text-gray-500 dark:text-gray-400">
+          {weekday}
+        </div>
+      </div>
+
+      {/* <div className="min-w-0 flex-1 space-y-1 text-sm"> */}
+      <div className="min-w-0 flex-1 space-y-1 text-sm sm:flex sm:items-center sm:gap-10 sm:space-y-0">
+        {showTimes && (
+          <>
+            <TimeLine dot={inDot(day)} value={fmtTime(day.checkIn)} />
+            <TimeLine dot={outDot(day)} value={fmtTime(day.checkOut)} />
+          </>
+        )}
+      </div>
+
+      <div className="shrink-0 text-right">
+        <span
+          className={`inline-block min-w-[92px] rounded-lg px-3 py-1.5 text-center text-sm font-semibold ${st.cls}`}
+        >
+          {st.label}
+        </span>
+        {day.workedMinutes != null ? (
+          <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {fmtDuration(day.workedMinutes)}
+          </div>
+        ) : day.flags?.missingCheckOut ? (
+          <div className="mt-1 text-xs text-red-500">No check-out</div>
+        ) : null}
+      </div>
+    </li>
+  );
+};
+
+const defaultCls = (value) =>
+  value === "list"
+    ? "bg-white text-theme shadow dark:bg-slate-600 sm:bg-transparent sm:text-gray-500 sm:shadow-none"
+    : "text-gray-500 dark:text-gray-300 sm:bg-white sm:text-theme sm:shadow dark:sm:bg-slate-600";
+
+const ViewToggle = ({ view, onChange }) => (
+  <div className="flex shrink-0 rounded-lg bg-gray-100 p-1 dark:bg-slate-700">
+    {[
+      ["calendar", "Calendar"],
+      ["list", "List"],
+    ].map(([value, label]) => (
+      <button
+        key={value}
+        type="button"
+        onClick={() => onChange(value)}
+        className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+          view === null ? defaultCls(value) : view === value ? ACTIVE : INACTIVE
+        }`}
+      >
+        {label}
+      </button>
+    ))}
+  </div>
+);
+
+const CalendarCell = ({ date, day }) => {
+  const st = day ? STATUS[day.status] || STATUS.none : null;
+  const badge = day ? CAL_BADGE[day.status] : null;
+  const hasTimes =
+    day &&
+    ["present", "half_day", "pending"].includes(day.status) &&
+    (day.checkIn || day.checkOut);
+
+  return (
+    <div
+      className="min-h-[56px] bg-white p-1 sm:min-h-[84px] sm:p-2 dark:bg-slate-800"
+      title={
+        day
+          ? `${st.label}${day.workedMinutes != null ? ` · ${fmtDuration(day.workedMinutes)}` : ""}`
+          : undefined
+      }
+    >
+      <div className="flex items-start justify-between gap-1">
+        <span className="text-xs font-semibold text-gray-800 sm:text-sm dark:text-gray-100">
+          {Number(date.slice(8))}
+        </span>
+        {badge && (
+          <span
+            className={`rounded px-1.5 py-0.5 text-[10px] font-bold sm:text-xs ${st.cls}`}
+          >
+            {badge}
+          </span>
+        )}
+      </div>
+
+      {hasTimes && (
+        <>
+          {/* desktop: both times */}
+          <div className="mt-1 hidden space-y-0.5 text-xs sm:block">
+            <TimeLine dot={inDot(day)} value={fmtTime(day.checkIn)} />
+            <TimeLine dot={outDot(day)} value={fmtTime(day.checkOut)} />
+          </div>
+          {/* small screens: only the two dots, the cells are too narrow for times */}
+          <div className="mt-1 flex gap-1 sm:hidden">
+            <span className={`h-2 w-2 rounded-full ${inDot(day)}`} />
+            <span className={`h-2 w-2 rounded-full ${outDot(day)}`} />
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+const CalendarView = ({ month, days, loading }) => {
+  const [y, m] = month.split("-").map(Number);
+  const firstWeekday = new Date(Date.UTC(y, m - 1, 1)).getUTCDay(); // 0 = Sunday
+  const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const byDate = new Map(days.map((d) => [d.date, d]));
+
+  const dates = Array.from(
+    { length: daysInMonth },
+    (_, i) => `${month}-${String(i + 1).padStart(2, "0")}`,
+  );
+
+  return (
+    <div className={loading ? "opacity-60" : ""}>
+      <div className="grid grid-cols-7 bg-gray-100 text-center text-xs font-semibold text-gray-600 sm:text-xs dark:bg-slate-700 dark:text-gray-300">
+        {WEEKDAYS.map((d) => (
+          <div key={d} className="py-2">
+            {d}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-slate-700">
+        {Array.from({ length: firstWeekday }).map((_, i) => (
+          <div key={`blank-${i}`} className="bg-white dark:bg-slate-800" />
+        ))}
+        {dates.map((date) => (
+          <CalendarCell key={date} date={date} day={byDate.get(date)} />
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-t px-3 py-2 text-xs text-gray-600 dark:border-slate-700 dark:text-gray-300">
+        <span>
+          <b>A</b> Absent
+        </span>
+        <span>
+          <b>W</b> Weekly off
+        </span>
+        <span>
+          <b>H</b> Half day
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-green-500" /> On time
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-red-500" /> Late in
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-amber-400" /> Left early
+        </span>
+      </div>
+    </div>
+  );
+};

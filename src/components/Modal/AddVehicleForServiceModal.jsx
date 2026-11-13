@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleVehicleServiceModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Spinner from "../../components/Spinner/Spinner";
 import useVehicleServiceForm from "../../hooks/use-vehicle-service-form";
+import { useMemo, useState } from "react";
+import RepairOptionFields from "./_components/RepairOptionFields";
 
 const AddVehicleForServiceModal = ({
   loading,
@@ -14,11 +16,13 @@ const AddVehicleForServiceModal = ({
   stationId,
 }) => {
   const dispatch = useDispatch();
+  const [vehicleSearch, setVehicleSearch] = useState("");
   const { isVehicleForServiceActive } = useSelector((state) => state.sideBar);
 
   const {
     formRef,
     availableVehicles,
+    hasChecked,
     selectedVehicleIds,
     isFetchingAvailable,
     actualFreeCount,
@@ -28,6 +32,15 @@ const AddVehicleForServiceModal = ({
     toggleVehicleSelection,
     toggleSelectAll,
     handleSendVehicleToService,
+    isAdmin,
+    isRepair,
+    setIsRepair,
+    repairType,
+    setRepairType,
+    odometer,
+    setOdometer,
+    mechanicId,
+    setMechanicId,
   } = useVehicleServiceForm({
     vehicleName,
     stationId,
@@ -36,17 +49,25 @@ const AddVehicleForServiceModal = ({
     setIsMaintenanceAdd,
   });
 
+  const filteredVehicles = useMemo(() => {
+    return (availableVehicles ?? []).filter((vehicle) =>
+      `${vehicle.vehicleNumber} ${vehicle.stationName || ""}`
+        .toLowerCase()
+        .includes(vehicleSearch.toLowerCase().trim()),
+    );
+  }, [availableVehicles, vehicleSearch]);
+
   return (
     <div
       className={`fixed ${
         !isVehicleForServiceActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-12 sm:top-5 mx-auto shadow-xl rounded-md bg-white max-w-xl">
+      <div className="relative top-5 mx-auto shadow-xl rounded-md bg-white max-w-xl">
         <div className="flex justify-between border-b p-2">
           <div className="flex items-center gap-2">
             <h2 className="text-theme font-semibold text-lg capitalize">
-              Shedule Maintenance
+              Shedule Block & Repair
             </h2>
             {selectedVehicleIds.length > 0 && (
               <span className="text-md text-left font-normal text-theme border px-2 py-0.5 rounded-full border-theme bg-theme/10">
@@ -75,10 +96,14 @@ const AddVehicleForServiceModal = ({
           </button>
         </div>
 
-        <div className="p-6 pt-2 text-center">
-          <form ref={formRef} onSubmit={handleSendVehicleToService}>
+        <div className="p-4 sm:p-6 pt-2 text-center">
+          <form
+            ref={formRef}
+            onSubmit={handleSendVehicleToService}
+            className="lg:max-h-[32rem] 2xl:max-h-[36rem] overflow-y-scroll"
+          >
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-1/2">
+              <div className="w-[48.5%] sm:w-1/2">
                 <Input
                   item={"startDate"}
                   type="datetime-local"
@@ -87,7 +112,7 @@ const AddVehicleForServiceModal = ({
                 />
               </div>
 
-              <div className="w-1/2">
+              <div className="w-[48.5%] sm:w-1/2">
                 <Input
                   item={"endDate"}
                   type="datetime-local"
@@ -120,7 +145,7 @@ const AddVehicleForServiceModal = ({
 
             {availableVehicles.length > 0 && (
               <div className="mb-2 text-left border rounded-md">
-                <div className="flex items-center justify-between px-2 py-1.5 border-b bg-gray-50">
+                <div className="flex items-center justify-between px-2 py-1.5 border-b bg-gray-50 group">
                   <label className="flex items-center gap-2 text-sm font-medium">
                     <input
                       type="checkbox"
@@ -128,6 +153,7 @@ const AddVehicleForServiceModal = ({
                         selectedVehicleIds.length === availableVehicles.length
                       }
                       onChange={toggleSelectAll}
+                      className="accent-theme group-hover:cursor-pointer"
                     />
                     Select All ({availableVehicles.length})
                   </label>
@@ -135,26 +161,57 @@ const AddVehicleForServiceModal = ({
                     {selectedVehicleIds.length} selected
                   </span>
                 </div>
+                <div className="p-2 border-b">
+                  <input
+                    type="text"
+                    placeholder="Search by vehicle number or station..."
+                    value={vehicleSearch}
+                    onChange={(e) => setVehicleSearch(e.target.value)}
+                    className="w-full px-3 py-2.5 text-sm border rounded-md outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
                 <div className="max-h-48 overflow-y-auto">
-                  {availableVehicles.map((vehicle) => (
+                  {filteredVehicles.map((vehicle) => (
                     <label
                       key={vehicle._id}
-                      className="flex items-center gap-2 px-2 py-1.5 text-sm border-b last:border-b-0 cursor-pointer hover:bg-gray-50 uppercase"
+                      className="flex items-center gap-2 px-2 py-1.5 text-sm border-b last:border-b-0 cursor-pointer hover:bg-gray-50 uppercase group"
                     >
                       <input
                         type="checkbox"
                         checked={selectedVehicleIds.includes(vehicle._id)}
                         onChange={() => toggleVehicleSelection(vehicle._id)}
+                        className="accent-theme group-hover:cursor-pointer"
                       />
                       {vehicle.vehicleNumber}
                       {vehicle.stationName ? ` — ${vehicle.stationName}` : ""}
                     </label>
                   ))}
+
+                  {filteredVehicles.length === 0 && (
+                    <p className="px-2 py-3 text-sm text-center text-gray-500">
+                      No vehicles found.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
 
-            <div className="mb-2">
+            {hasChecked &&
+              !isFetchingAvailable &&
+              availableVehicles.length === 0 && (
+                <div className="mb-2 text-sm bg-gray-50 border border-dashed border-gray-300 text-gray-600 rounded-md px-3 py-4">
+                  <p className="font-medium text-gray-700">
+                    No vehicles available for this date & time
+                  </p>
+                  <p className="mt-1 text-xs">
+                    Every matching vehicle is either under maintenance or
+                    assigned to a booking in this period. Try a different time
+                    range.
+                  </p>
+                </div>
+              )}
+
+            <div className="mb-3">
               <Input
                 item={"reason"}
                 require={true}
@@ -162,6 +219,18 @@ const AddVehicleForServiceModal = ({
                 isCapital={false}
               />
             </div>
+            <RepairOptionFields
+              isRepair={isRepair}
+              setIsRepair={setIsRepair}
+              repairType={repairType}
+              setRepairType={setRepairType}
+              odometer={odometer}
+              setOdometer={setOdometer}
+              mechanicId={mechanicId}
+              setMechanicId={setMechanicId}
+              isAdmin={isAdmin}
+              showOdometer={selectedVehicleIds.length === 1}
+            />
             <button
               type="submit"
               className="bg-theme px-4 py-2 text-gray-100 gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full flex items-center justify-center"

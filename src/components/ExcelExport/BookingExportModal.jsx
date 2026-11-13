@@ -56,7 +56,15 @@ const getPresetRange = (key) => {
   };
 };
 
-const BookingExportModal = ({ onClose }) => {
+const BookingExportModal = ({
+  onClose,
+  title = "Export Bookings",
+  description = "Bookings that overlap the selected dates will be exported.",
+  endpoint = "/getBooking/report",
+  transform = transformBookings,
+  reportName = "Booking",
+  extraParams = {}, // for example { stationId }
+}) => {
   const { token } = useSelector((state) => state.user);
   const [preset, setPreset] = useState("today");
   const [range, setRange] = useState(undefined);
@@ -89,6 +97,7 @@ const BookingExportModal = ({ onClose }) => {
       const params = new URLSearchParams({
         startDate: dates.start,
         endDate: dates.end,
+        ...Object.fromEntries(Object.entries(extraParams).filter(([, v]) => v)),
       });
       const allData = [];
       let cursor = null;
@@ -97,7 +106,7 @@ const BookingExportModal = ({ onClose }) => {
       do {
         if (cursor) params.set("cursor", cursor);
 
-        const res = await getFullData(`/getBooking/report?${params}`, token);
+        const res = await getFullData(`${endpoint}?${params}`, token);
 
         if (res?.status !== 200) {
           setError(res?.data?.message || "Unable to get data! try again");
@@ -110,7 +119,7 @@ const BookingExportModal = ({ onClose }) => {
         if (!cursor) {
           total = body?.total ?? 0;
           if (total === 0) {
-            setError("No bookings found in this date range");
+            setError("No records found in this date range");
             return;
           }
         }
@@ -121,9 +130,13 @@ const BookingExportModal = ({ onClose }) => {
         cursor = body?.pagination?.hasMore ? body.pagination.nextCursor : null;
       } while (cursor);
 
+      // exportToExcel(
+      //   transformBookings(allData),
+      //   `RentoBikes_Booking_Report_${dates.start}_to_${dates.end}`,
+      // );
       exportToExcel(
-        transformBookings(allData),
-        `RentoBikes_Booking_Report_${dates.start}_to_${dates.end}`,
+        transform(allData),
+        `RentoBikes_${reportName}_Report_${dates.start}_to_${dates.end}`,
       );
       onClose();
     } catch (err) {
@@ -141,7 +154,8 @@ const BookingExportModal = ({ onClose }) => {
     <ModalWrapper
       active
       onClose={onClose}
-      title="Export Bookings"
+      // title="Export Bookings"
+      title={title}
       size="md"
       position="responsive"
       closeOnOverlay={!loading}
@@ -150,7 +164,8 @@ const BookingExportModal = ({ onClose }) => {
     >
       <div className="p-4 pt-1">
         <p className="mb-3 text-sm text-gray-500">
-          Bookings that overlap the selected dates will be exported.
+          {description}
+          {/* Bookings that overlap the selected dates will be exported. */}
         </p>
 
         <div className="mb-3 flex flex-wrap gap-2">

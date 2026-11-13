@@ -21,6 +21,7 @@ const TablePageHeader = ({
   inputSearchQuery,
   setInputSearchQuery,
   bookingData,
+  addHandler = null,
 }) => {
   const {
     vehiclesFilter,
@@ -44,7 +45,12 @@ const TablePageHeader = ({
 
   const showExport =
     loggedInRole === "admin" &&
-    ["/all-bookings", "/all-users", "/all-vehicles"].includes(pathname);
+    [
+      "/all-bookings",
+      "/all-users",
+      "/all-vehicles",
+      "/maintenance-reports",
+    ].includes(pathname);
 
   const filterCount = useMemo(() => {
     let count = 0;
@@ -78,7 +84,7 @@ const TablePageHeader = ({
   return (
     <div className="flex items-center flex-wrap justify-between gap-2 w-full">
       {/* title and add button for all pages  */}
-      <TitleAndButton className="hidden md:flex" />
+      <TitleAndButton className="hidden md:flex" addHandler={addHandler} />
 
       {!(location.pathname == "/users-documents") && (
         <div className="flex items-center flex-wrap lg:flex-nowrap gap-2">

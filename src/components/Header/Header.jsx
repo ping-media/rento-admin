@@ -1,6 +1,9 @@
 import { memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleSideBar } from "../../Redux/SideBarSlice/SideBarSlice";
+import {
+  toggleAddRepair,
+  toggleSideBar,
+} from "../../Redux/SideBarSlice/SideBarSlice";
 import { tableIcons } from "../../Data/Icons";
 import { Link, useLocation, useParams } from "react-router-dom";
 import BackButton from "../../components/Buttons/BackButton";
@@ -61,7 +64,12 @@ const Header = () => {
             </svg>
           </button>
 
-          {!isIDBasedPage && <TitleAndButton className="flex md:hidden" />}
+          {!isIDBasedPage && (
+            <TitleAndButton
+              className="flex md:hidden"
+              addHandler={() => dispatch(toggleAddRepair())}
+            />
+          )}
 
           {/* for showing booking id in sidebar  */}
           {location.pathname.includes("/all-bookings/details/") && (

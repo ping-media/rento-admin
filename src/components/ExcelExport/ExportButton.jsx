@@ -9,11 +9,12 @@ import { useLocation } from "react-router-dom";
 import { transformUsers } from "./data/user";
 import { transformBookings } from "./data/booking";
 import { transformVehicles } from "./data/vehicle";
+import useListParams from "../../hooks/use-list-params";
+import { transformMaintenanceExpenses } from "./data/maintenanceExpense";
 const BookingExportModal = lazy(() => import("./BookingExportModal"));
 
 const EXPORT_CONFIG = {
   "/all-users": {
-    // endpoint: "/admin/getAllUsers?userType=customer&page=1&limit=1000",
     endpoint: "/admin/getAllUsers/report",
     reportName: "Customers",
     transform: transformUsers,
@@ -24,8 +25,19 @@ const EXPORT_CONFIG = {
     reportName: "Booking",
     transform: transformBookings,
   },
+  "/maintenance-reports": {
+    reportName: "Maintenance_Expense",
+    transform: transformMaintenanceExpenses,
+    // opens the date range modal instead of exporting directly
+    modal: {
+      title: "Export Maintenance Expenses",
+      description:
+        "Expense lines approved in the selected dates will be exported.",
+      endpoint: "/maintenance-report/export",
+      reportName: "Maintenance_Expense",
+    },
+  },
   "/all-vehicles": {
-    // endpoint: "/getAllVehiclesData?page=1&limit=1000",
     endpoint: "/getAllVehiclesData/report",
     reportName: "Vehicles",
     transform: transformVehicles,
@@ -38,11 +50,12 @@ const ExportButton = () => {
   const { token } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  // const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const { stationId } = useListParams();
   const dispatch = useDispatch();
 
   const config = EXPORT_CONFIG[pathname];
-  const isBookingPage = pathname === "/all-bookings";
+  // const isBookingPage = pathname === "/all-bookings";
+  const usesModal = pathname === "/all-bookings" || !!config?.modal;
 
   if (!config) return null;
 
@@ -172,7 +185,7 @@ const ExportButton = () => {
   return (
     <>
       <button
-        onClick={isBookingPage ? () => setModalOpen(true) : handleExport}
+        onClick={usesModal ? () => setModalOpen(true) : handleExport}
         className="border hover:border-theme hover:text-theme bg-white rounded-md shadow-md p-2 lg:p-2.5 flex items-center transition-all duration-200 ease-in disabled:bg-gray-200"
         disabled={loading}
       >
@@ -181,7 +194,14 @@ const ExportButton = () => {
 
       {modalOpen && (
         <Suspense fallback={null}>
-          <BookingExportModal onClose={() => setModalOpen(false)} />
+          <BookingExportModal
+            onClose={() => setModalOpen(false)}
+            {...(config.modal || {})}
+            {...(config.modal && {
+              transform: config.transform,
+              extraParams: { stationId },
+            })}
+          />
         </Suspense>
       )}
     </>

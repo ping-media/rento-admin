@@ -13,6 +13,8 @@ import AddDocuments from "./AddDocuments";
 import AddonManager from "./AddonManager";
 import Notification from "./Notification";
 import Attendance from "./Attendance";
+import MaintenanceRequests from "./MaintenanceRequests";
+import MaintenanceReports from "./MaintenanceReports";
 
 export {
   Profile,
@@ -30,4 +32,6 @@ export {
   AddonManager,
   Notification,
   Attendance,
+  MaintenanceRequests,
+  MaintenanceReports,
 };

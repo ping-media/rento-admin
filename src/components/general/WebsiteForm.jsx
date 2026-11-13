@@ -10,6 +10,7 @@ import Spinner from "../Spinner/Spinner";
 import SocialMedia from "./SocialMedia.jsx";
 import GeneralForm from "./GeneralForm";
 import VehicleSettings from "./VehicleSettings";
+import AppVersionSettings from "./AppVersionSettings";
 
 const Button = ({ label = "update", disabled = false }) => (
   <button
@@ -96,6 +97,16 @@ const WebsiteForm = () => {
         <div className="flex items-center mb-3">
           <VehicleSettings showVehicleCount={general?.showVehicleCount} />
         </div>
+      </div>
+
+      <div className="mb-2.5">
+        <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
+          App Version
+        </h2>
+        <AppVersionSettings
+          android={general?.appInfo?.android}
+          ios={general?.appInfo?.ios}
+        />
       </div>
 
       <GeneralForm />

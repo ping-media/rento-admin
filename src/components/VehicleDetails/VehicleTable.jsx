@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import CheckBox from "../../components/InputAndDropdown/CheckBox";
 import React from "react";
+import { bookingDetailsPath } from "../../utils/maintenance";
 
 const VehicleTable = ({
   allVehicles,
@@ -75,7 +76,9 @@ const VehicleTable = ({
                     <Link
                       to={
                         vehicle.currentBooking?._id
-                          ? `/all-bookings/details/${vehicle.currentBooking?._id}_${vehicle.currentBooking?.bookingId}`
+                          ? bookingDetailsPath(
+                              `${vehicle.currentBooking?._id}_${vehicle.currentBooking?.bookingId}`,
+                            )
                           : "#"
                       }
                       className="w-full"

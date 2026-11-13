@@ -1,4 +1,4 @@
-import Spinner from "../../components/Spinner/Spinner";
+import Spinner from "../Spinner/Spinner";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { tableIcons } from "../../Data/Icons";
@@ -14,8 +14,10 @@ import {
   resetMaintenanceData,
   startMaintenanceLoading,
 } from "../../Redux/VehicleSlice/VehicleSlice";
-import DropDownComponent from "../../components/DropDown/DropDownComponent";
-import Pagination from "../../components/Pagination/Pagination";
+import RepairRequestModal from "../Modal/RepairRequestModal";
+import useStationScope from "../../hooks/use-station-scope";
+import SimpleTable from "./SimpleTable";
+import ModalWrapper from "../Modal/ModalWrapper";
 
 const formatDateTimeIN = (timestring) => {
   if (!timestring) return { date: "NA", time: "NA" };
@@ -31,6 +33,7 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
   const { vehicleMaster, loading, maintenanceData } = useSelector(
     (state) => state.vehicles,
   );
+  const { withStation } = useStationScope();
   const [isActive, setIsActive] = useState(false);
   const [viewData, setViewData] = useState(null);
   const { token } = useSelector((state) => state.user);
@@ -40,6 +43,31 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(25);
   const dispatch = useDispatch();
+
+  const [requestsByBlock, setRequestsByBlock] = useState({});
+  const [repairModal, setRepairModal] = useState({ open: false, block: null });
+  const OPEN_REPAIR = ["pending", "in_progress", "completed"];
+
+  const fetchRepairRequests = async () => {
+    try {
+      const res = await getData(
+        withStation(
+          `/maintenance-request/list?vehicleTableId=${vehicleMaster[0]?._id}&limit=100`,
+        ),
+        token,
+      );
+      const map = {};
+      if (res?.status === 200) {
+        // list is newest first, so keep the newest request per block
+        res.data.forEach((r) => {
+          if (!map[r.maintenanceVehicleId]) map[r.maintenanceVehicleId] = r;
+        });
+      }
+      setRequestsByBlock(map);
+    } catch (e) {
+      setRequestsByBlock({});
+    }
+  };
 
   const fetchMaintenanceData = async () => {
     dispatch(startMaintenanceLoading());
@@ -52,6 +80,7 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
     } else {
       dispatch(resetMaintenanceData());
     }
+    await fetchRepairRequests();
   };
 
   // maintenanceData
@@ -65,12 +94,130 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
     return () => dispatch(resetMaintenanceData());
   }, [loading, vehicleMaster, limit, currentPage, isMaintenanceAdd]);
 
-  // table header
-  const maintenanceHeader = [
-    "Starting Date",
-    "Ending Date",
-    "Reason",
-    "Action",
+  const maintenanceColumns = [
+    {
+      key: "startDate",
+      label: "Starting Date",
+      render: (item) => {
+        const { date, time } = formatDateTimeIN(item?.startDate);
+        return (
+          <>
+            {date}
+            <br />
+            {time}
+          </>
+        );
+      },
+    },
+    {
+      key: "endDate",
+      label: "Ending Date",
+      render: (item) => {
+        const endDate = item?.actualEndDate || item?.endDate;
+        const { date, time } = formatDateTimeIN(endDate);
+
+        return (
+          <>
+            {date}
+            <br />
+            {time}
+          </>
+        );
+      },
+    },
+    {
+      key: "reason",
+      label: "Reason",
+      tdClassName: "max-w-24 truncate capitalize",
+    },
+    {
+      key: "action",
+      label: "Action",
+      tdClassName: "whitespace-nowrap",
+      render: (item) => {
+        const repairReq = requestsByBlock[item?._id];
+        const hasOpenRepair =
+          !!repairReq && OPEN_REPAIR.includes(repairReq.status);
+
+        return (
+          <div className="flex items-center gap-1">
+            {/* View button */}
+            <button
+              type="button"
+              className="p-1 rounded-full bg-white hover:text-white hover:bg-theme transition-all duration-500 flex items-center"
+              onClick={() => handleView(item?._id)}
+              title="View details"
+            >
+              {tableIcons?.eyeOpen}
+            </button>
+
+            {/* Repair button */}
+            {repairReq && (
+              <button
+                type="button"
+                className="p-1 rounded-full bg-white hover:text-white hover:bg-theme transition-all duration-500 flex items-center"
+                onClick={() =>
+                  setRepairModal({
+                    open: true,
+                    block: item,
+                  })
+                }
+                title="Repair / service details"
+              >
+                {tableIcons?.settings}
+              </button>
+            )}
+
+            {/* Lock / Unlock button */}
+            <button
+              type="button"
+              className={`p-1 rounded-full bg-white group transition-all duration-500 flex items-center ${
+                !item?.isActive ||
+                modifyingVehicleId === item?._id ||
+                hasOpenRepair
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:text-white hover:bg-theme"
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+
+                if (
+                  !item?.isActive ||
+                  modifyingVehicleId === item?._id ||
+                  hasOpenRepair
+                )
+                  return;
+
+                setConfirmModal({
+                  open: true,
+                  id: item?._id,
+                });
+              }}
+              disabled={
+                !item?.isActive ||
+                modifyingVehicleId === item?._id ||
+                hasOpenRepair
+              }
+              title={
+                hasOpenRepair
+                  ? "Complete and approve (or cancel) the repair request first"
+                  : item?.isActive
+                    ? "Vehicle currently under maintenance"
+                    : "Unblock vehicle"
+              }
+            >
+              {modifyingVehicleId === item?._id ? (
+                <Spinner />
+              ) : item?.isActive ? (
+                tableIcons?.lock
+              ) : (
+                tableIcons?.unBlock
+              )}
+            </button>
+          </div>
+        );
+      },
+    },
   ];
 
   // unblock maintenance
@@ -121,13 +268,22 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
 
   return (
     <>
-      <ConfirmModal
-        isOpen={isActive && viewData !== null}
+      {repairModal.open && (
+        <RepairRequestModal
+          requestId={requestsByBlock[repairModal.block?._id]?._id}
+          onClose={() => setRepairModal({ open: false, block: null })}
+          onChanged={fetchMaintenanceData}
+        />
+      )}
+
+      <ModalWrapper
+        active={isActive && viewData !== null}
         onClose={() => setIsActive(false)}
         title="Maintenance Details"
-        className="p-4 sm:max-w-xl w-full"
+        size="xl"
+        position="responsive"
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 p-4">
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
               <tbody className="divide-y">
@@ -208,13 +364,15 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
             </div>
           </div>
         </div>
-      </ConfirmModal>
+      </ModalWrapper>
 
       {/* Confirm Unblock Modal */}
-      <ConfirmModal
-        isOpen={confirmModal.open}
+      <ModalWrapper
+        active={confirmModal.open}
         onClose={() => setConfirmModal({ open: false, id: null })}
         title="Unblock Vehicle"
+        size="sm"
+        position="center"
       >
         <p className="text-sm text-gray-500">
           Are you sure you want to unblock this vehicle from maintenance?
@@ -236,204 +394,30 @@ const MaintenanceTable = ({ isMaintenanceAdd }) => {
             Confirm
           </button>
         </div>
-      </ConfirmModal>
+      </ModalWrapper>
 
-      <div className="flex flex-col">
-        <div className=" overflow-x-auto">
-          <div className="min-w-full inline-block align-middle">
-            <div className="overflow-hidden">
-              {loading || maintenanceData?.loading ? (
-                <div className="min-w-full rounded-xl">
-                  <Spinner message={"loading"} textColor="text-black" />
-                </div>
-              ) : (
-                <table className="min-w-full shadow-md">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      {maintenanceHeader?.map((item, index) => (
-                        <th
-                          scope="col"
-                          className={`p-2.5 text-left text-sm leading-6 font-semibold text-gray-900 rounded-t-xl`}
-                          key={index}
-                        >
-                          {item}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-300 ">
-                    {maintenanceData?.data?.length > 0 ? (
-                      maintenanceData?.data?.map((item, index) => {
-                        const { date: StartDate, time: StartTime } =
-                          (item?.startDate &&
-                            formatDateTimeIN(item?.startDate)) ||
-                          {};
-                        const endDateToDisplay =
-                          item?.actualEndDate || item?.endDate;
-
-                        const { date: EndDate, time: EndTime } =
-                          (endDateToDisplay &&
-                            formatDateTimeIN(endDateToDisplay)) ||
-                          {};
-                        return (
-                          <tr
-                            // className="bg-white transition-all duration-500 hover:bg-gray-50"
-                            className={`bg-white transition-all duration-500 hover:bg-gray-50 ${
-                              item?.isActive
-                                ? "[&_td]:!font-bold [&_td]:!text-theme"
-                                : ""
-                            }`}
-                            key={index}
-                          >
-                            <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ">
-                              {StartDate ?? "NA"},
-                              <br />
-                              {StartTime ?? "NA"}
-                            </td>
-                            <td className="p-2.5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
-                              {EndDate ?? "NA"},
-                              <br />
-                              {EndTime ?? "NA"}
-                            </td>
-                            <td className="p-2.5 max-w-24 truncate text-sm leading-6 font-medium text-gray-900 capitalize">
-                              {item?.reason}
-                            </td>
-                            <td className="p-2.5 whitespace-nowrap text-sm items-center">
-                              <div className="flex items-center gap-1">
-                                {/* View button */}
-                                <button
-                                  type="button"
-                                  className="p-1 rounded-full bg-white hover:text-white hover:bg-theme transition-all duration-500 flex items-center"
-                                  onClick={() => handleView(item?._id)}
-                                  title="View details"
-                                >
-                                  {tableIcons?.eyeOpen}
-                                </button>
-
-                                {/* Lock/Unlock button */}
-                                <button
-                                  type="button"
-                                  className={`p-1 rounded-full bg-white group transition-all duration-500 flex items-center ${
-                                    !item?.isActive ||
-                                    modifyingVehicleId === item?._id
-                                      ? "opacity-50 cursor-not-allowed"
-                                      : "hover:text-white hover:bg-theme"
-                                  }`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (
-                                      !item?.isActive ||
-                                      modifyingVehicleId === item?._id
-                                    )
-                                      return;
-                                    setConfirmModal({
-                                      open: true,
-                                      id: item?._id,
-                                    });
-                                  }}
-                                  disabled={
-                                    !item?.isActive ||
-                                    modifyingVehicleId === item?._id
-                                  }
-                                  title={
-                                    item?.isActive
-                                      ? "Vehicle currently under maintenance"
-                                      : "Unblock vehicle"
-                                  }
-                                >
-                                  {modifyingVehicleId === item?._id ? (
-                                    <Spinner />
-                                  ) : item?.isActive ? (
-                                    tableIcons?.lock
-                                  ) : (
-                                    tableIcons?.unBlock
-                                  )}
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr className="bg-white transition-all duration-500 hover:bg-gray-50">
-                        <td
-                          colSpan={maintenanceHeader?.length || 4}
-                          className="col-span-full leading-6 text-sm text-gray-400 p-5 text-center italic"
-                        >
-                          No Data found.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              )}
-
-              {maintenanceData?.pagination?.limit >= 10 &&
-                maintenanceData?.data?.length > 0 && (
-                  <div className="flex flex-wrap items-center justify-start lg:justify-between gap-4 lg:gap-2 mt-5">
-                    <div className="flex items-center gap-2">
-                      <h2 className="capitalize">Rows per Page</h2>
-                      <DropDownComponent
-                        options={showRecordsOptions}
-                        customLimit={limit}
-                        setLimitChanger={setLimit}
-                      />
-                    </div>
-                    <span className="hidden lg:mx-1">|</span>
-                    <Pagination
-                      totalNumberOfPages={
-                        maintenanceData?.pagination?.totalPages
-                      }
-                      currentPage={currentPage}
-                      setPageChanger={setCurrentPage}
-                      syncUrl={false}
-                    />
-                  </div>
-                )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <SimpleTable
+        columns={maintenanceColumns}
+        rows={maintenanceData?.data || []}
+        loading={loading || maintenanceData?.loading}
+        rowKey={(item) => item._id}
+        showSerial={false}
+        pagination={
+          maintenanceData?.pagination?.limit >= 10 &&
+          maintenanceData?.data?.length > 0
+            ? {
+                page: currentPage,
+                limit,
+                totalPages: maintenanceData?.pagination?.totalPages,
+                setPage: setCurrentPage,
+                setLimit,
+                options: showRecordsOptions,
+              }
+            : null
+        }
+      />
     </>
   );
 };
 
 export default MaintenanceTable;
-
-const ConfirmModal = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-  className = "p-6 max-w-sm",
-}) => {
-  if (!isOpen) return null;
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      onClick={onClose}
-    >
-      <div
-        className={`bg-white rounded-md shadow-xl overflow-hidden ${className} flex flex-col gap-4`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-800">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:bg-gray-100 hover:text-gray-900 rounded-lg p-1"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-};

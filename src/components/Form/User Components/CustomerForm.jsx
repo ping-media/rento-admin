@@ -185,11 +185,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
         <div className="w-full lg:flex-1 order-1">
           <form
             className="mb-5 w-full"
-            onSubmit={
-              isAdmin && !isDeleted
-                ? handleFormSubmit
-                : (e) => e.preventDefault()
-            }
+            onSubmit={!isDeleted ? handleFormSubmit : (e) => e.preventDefault()}
           >
             {(showCreatedAt || canMakeManager) && (
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -387,7 +383,8 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
               )}
             </div>
 
-            {(isProfile || isAdmin) && !isDeleted && (
+            {/* {(isProfile || isAdmin) && !isDeleted && ( */}
+            {!isDeleted && (
               <button
                 className="bg-theme hover:bg-theme-dark text-white font-bold px-5 py-3 rounded-md w-full mt-3 focus:outline-none focus:ring-2 focus:ring-theme focus:ring-opacity-50 disabled:bg-gray-400"
                 type="submit"

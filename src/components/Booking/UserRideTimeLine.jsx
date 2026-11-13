@@ -7,6 +7,7 @@ import {
   resetUserRideInfo,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { getData } from "../../Data";
+import { bookingDetailsPath } from "../../utils/maintenance";
 
 const UserRideTimeLine = () => {
   const { id: userId } = useParams();
@@ -76,7 +77,7 @@ const UserRideTimeLine = () => {
               >
                 <>
                   <Link
-                    to={`/all-bookings/details/${item?._id}_${item?.bookingId}`}
+                    to={bookingDetailsPath(`${item?._id}_${item?.bookingId}`)}
                     className="mb-1 font-bold text-gray-800 text-sm capitalize hover:text-theme hover:underline"
                   >
                     {`${item?.vehicleBrand} ${item?.vehicleName}`} (#

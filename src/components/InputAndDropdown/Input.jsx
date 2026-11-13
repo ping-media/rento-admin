@@ -110,9 +110,6 @@ const Input = ({
       setInputValue(defaultValue);
     }
   }, [value, defaultValue]);
-  // useEffect(() => {
-  //   setInputValue(value);
-  // }, [value]);
 
   // Prevent increment and decrement via arrow keys
   const handleKeyDown = (e) => {

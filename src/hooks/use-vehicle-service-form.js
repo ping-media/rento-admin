@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { formatLocalTimeIntoISO } from "../utils/index";
 import { getData, postData } from "../Data/index";
@@ -19,7 +19,9 @@ const useVehicleServiceForm = ({
 }) => {
   const dispatch = useDispatch();
   const { maintenanceLoading } = useSelector((state) => state.vehicles);
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
+  const { isVehicleForServiceActive } = useSelector((state) => state.sideBar);
+  const isAdmin = loggedInRole === "admin";
 
   const formRef = useRef(null);
   const [availableVehicles, setAvailableVehicles] = useState([]);
@@ -27,6 +29,34 @@ const useVehicleServiceForm = ({
   const [isFetchingAvailable, setIsFetchingAvailable] = useState(false);
   const [actualFreeCount, setActualFreeCount] = useState(null);
   const [reservedByPendingBookings, setReservedByPendingBookings] = useState(0);
+
+  const [isRepair, setIsRepair] = useState(false);
+  const [repairType, setRepairType] = useState("repair");
+  const [odometer, setOdometer] = useState("");
+  const [mechanicId, setMechanicId] = useState("");
+  const [hasChecked, setHasChecked] = useState(false);
+
+  const resetRepairFields = () => {
+    setIsRepair(false);
+    setRepairType("repair");
+    setOdometer("");
+    setMechanicId("");
+  };
+
+  const resetAvailability = () => {
+    setAvailableVehicles([]);
+    setSelectedVehicleIds([]);
+    setActualFreeCount(null);
+    setReservedByPendingBookings(0);
+    setHasChecked(false);
+  };
+
+  useEffect(() => {
+    if (!isVehicleForServiceActive) {
+      resetRepairFields();
+      resetAvailability();
+    }
+  }, [isVehicleForServiceActive]);
 
   const handleCheckAvailability = async () => {
     const formData = new FormData(formRef.current);
@@ -50,13 +80,19 @@ const useVehicleServiceForm = ({
     const blockStartDate = rawStartDate.slice(0, 10);
     const blockEndDate = rawEndDate.slice(0, 10);
 
+    const blockStartDateTime = rawStartDate.slice(0, 16);
+    const blockEndDateTime = rawEndDate.slice(0, 16);
+
     try {
+      setHasChecked(false);
       setIsFetchingAvailable(true);
       const query = new URLSearchParams({
         ...(vehicleName ? { vehicleName } : {}),
         ...(stationId ? { stationId } : {}),
         blockStartDate,
         blockEndDate,
+        blockStartDateTime,
+        blockEndDateTime,
       });
       const response = await getData(`/vehicles/available?${query}`, token);
       if (response?.status === 200) {
@@ -64,6 +100,7 @@ const useVehicleServiceForm = ({
         setSelectedVehicleIds([]);
         setActualFreeCount(response?.actualFreeCount ?? null);
         setReservedByPendingBookings(response?.reservedByPendingBookings ?? 0);
+        setHasChecked(true);
       } else {
         return handleAsyncError(dispatch, response?.message);
       }
@@ -123,6 +160,18 @@ const useVehicleServiceForm = ({
       ...(selectedVehicleIds.length > 1
         ? { vehicleTableIds: selectedVehicleIds }
         : { vehicleTableId: selectedVehicleIds[0] }),
+      ...(isRepair
+        ? {
+            repair: {
+              type: repairType,
+              mechanicId: isAdmin && mechanicId ? mechanicId : undefined,
+              odometerReading:
+                selectedVehicleIds.length === 1 && odometer !== ""
+                  ? Number(odometer)
+                  : undefined,
+            },
+          }
+        : {}),
     };
 
     try {
@@ -132,6 +181,7 @@ const useVehicleServiceForm = ({
         setMaintenanceVehicleId && setMaintenanceVehicleId([]);
         dispatch(toggleVehicleServiceModal());
         dispatch(removeBlockVehicleId());
+        resetRepairFields();
         if (location.pathname.includes("/all-vehicles/details/")) {
           setIsMaintenanceAdd(!isMaintenanceAdd);
         } else {
@@ -151,6 +201,7 @@ const useVehicleServiceForm = ({
   return {
     formRef,
     availableVehicles,
+    hasChecked,
     selectedVehicleIds,
     isFetchingAvailable,
     actualFreeCount,
@@ -160,6 +211,15 @@ const useVehicleServiceForm = ({
     toggleVehicleSelection,
     toggleSelectAll,
     handleSendVehicleToService,
+    isAdmin,
+    isRepair,
+    setIsRepair,
+    repairType,
+    setRepairType,
+    odometer,
+    setOdometer,
+    mechanicId,
+    setMechanicId,
   };
 };
 

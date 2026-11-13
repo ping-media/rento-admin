@@ -25,6 +25,7 @@ const initialState = {
   isRescheduleModalActive: false,
   isAddonModalActive: false,
   isStationAndVehicleModalActive: false,
+  isAddRepairActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -123,6 +124,10 @@ const SideBarSlice = createSlice({
       state.isAddonModalActive =
         state.isAddonModalActive === false ? true : false;
     },
+    toggleAddRepair: (state) => {
+      state.isAddRepairActive =
+        state.isAddRepairActive === false ? true : false;
+    },
     toggleClearModals: () => initialState,
   },
 });
@@ -153,6 +158,7 @@ export const {
   toggleRescheduleModal,
   toggleStationAndVehicleModal,
   toggleAddonModal,
+  toggleAddRepair,
 } = SideBarSlice.actions;
 
 export default SideBarSlice.reducer;

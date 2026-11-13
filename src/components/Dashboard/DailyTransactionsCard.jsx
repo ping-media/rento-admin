@@ -4,6 +4,7 @@ import { getData } from "../../Data";
 import { TransactionRowsLoader } from "../Skeleton/dashboard/TransactionListSkeleton";
 import { formatPrice } from "../../utils";
 import { monthNames } from "../../Data/commonData";
+import { bookingDetailsPath } from "../../utils/maintenance";
 
 const PAGE_SIZE = 20;
 const pad = (n) => String(n).padStart(2, "0");
@@ -322,7 +323,7 @@ const DailyTransactionsCard = ({
                 key={i}
                 to={
                   item.booking_id
-                    ? `/all-bookings/details/${item.booking_id}_${shortId}`
+                    ? bookingDetailsPath(`${item.booking_id}_${shortId}`)
                     : "#"
                 }
                 className="block"

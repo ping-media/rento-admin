@@ -5,11 +5,8 @@ import {
   formatPrice,
   formatTimeStampToDateNew,
 } from "../../utils/index";
-import { useLocation } from "react-router-dom";
 
-const RenderCellContent = (column, value, item) => {
-  const location = useLocation();
-
+const RenderCellContent = (column, value, item, location) => {
   if (!value && value !== 0) return "";
 
   if (

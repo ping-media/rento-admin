@@ -7,20 +7,19 @@ import PreLoader from "../Skeleton/PreLoader";
 import { NotFound } from "../../Pages";
 import { getData } from "../../Data";
 import { endPointBasedOnKey } from "../../Data/commonData";
-const MaintenanceTable = lazy(
-  () => import("../../components/Table/MaintenanceTable"),
-);
 import VehicleDetailList from "./VehicleDetailList";
-import MaintenanceTableSkeleton from "../../components/Skeleton/MaintenanceTableSkeleton";
+import MaintenanceTableSkeleton from "../Skeleton/MaintenanceTableSkeleton";
 import VehicleDetailHeader from "./VehicleDetailHeader";
 import VehicleBookingList from "./vehicleBookingList";
+import CopyButton from "../Buttons/CopyButton";
+const VehicleMaintenanceSection = lazy(
+  () => import("../Maintenance/VehicleMaintenanceSection"),
+);
 const VehicleGroupUpdate = lazy(() => import("./VehicleGroupUpdate"));
 const AddVehicleForServiceModal = lazy(
-  () => import("../../components/Modal/AddVehicleForServiceModal"),
+  () => import("../Modal/AddVehicleForServiceModal"),
 );
-const VehiclePlanModal = lazy(
-  () => import("../../components/Modal/VehiclePlanModal"),
-);
+const VehiclePlanModal = lazy(() => import("../Modal/VehiclePlanModal"));
 
 const VehicleDetail = () => {
   const { vehicleMaster, loading, tempLoading } = useSelector(
@@ -172,7 +171,7 @@ const VehicleDetail = () => {
             </div>
 
             <Suspense fallback={<MaintenanceTableSkeleton />}>
-              <MaintenanceTable isMaintenanceAdd={isMaintenanceAdd} />
+              <VehicleMaintenanceSection isMaintenanceAdd={isMaintenanceAdd} />
             </Suspense>
           </div>
           <div className="w-full lg:flex-1 px-6 py-4 bg-white shadow-md rounded-lg">
@@ -227,15 +226,6 @@ const VehicleNameHeader = ({ collectedData, vehicle, className = "" }) => {
         <h2 className="font-semibold uppercase">Vehicle Number</h2>
         <p className="font-bold text-lg">{vehicle.vehicleNumber}</p>
       </div>
-      {/* <div>
-                <h2 className="font-semibold uppercase">Rental Price</h2>
-                <p className="font-bold text-lg">
-                  ₹
-                  {formatPrice(Number(vehicleMaster[0]?.perDayCost)) ||
-                    formatPrice(0)}
-                  /DAY
-                </p>
-              </div> */}
     </div>
   );
 };

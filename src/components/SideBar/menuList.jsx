@@ -8,6 +8,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import {
   AccountCircleOutlined,
   AccountTreeOutlined,
+  BuildOutlined,
   EventAvailableOutlined,
   EventNoteOutlined,
   TwoWheelerOutlined,
@@ -26,12 +27,6 @@ const menuList = [
     menuLink: "/all-bookings",
     roles: ["admin", "manager"],
   },
-  // {
-  //   menuImg: <TwoWheelerOutlined />,
-  //   menuTitle: "Vehicles",
-  //   menuLink: "/all-vehicles",
-  //   roles: ["admin", "manager"],
-  // },
   {
     menuImg: <TwoWheelerOutlined />,
     menuTitle: "Vehicles",
@@ -50,17 +45,27 @@ const menuList = [
     ],
   },
   {
+    menuImg: <BuildOutlined />,
+    menuTitle: "Maintenance",
+    children: [
+      {
+        menuTitle: "Repairs",
+        menuLink: "/maintenance-requests",
+        roles: ["admin", "manager"],
+      },
+      {
+        menuTitle: "Expense Reports",
+        menuLink: "/maintenance-reports",
+        roles: ["admin"],
+      },
+    ],
+  },
+  {
     menuImg: <AccountTreeOutlined />,
     menuTitle: "Extra Addon",
     menuLink: "/extra-addon",
     roles: ["manager"],
   },
-  // {
-  //   menuImg: <PersonOutlinedIcon />,
-  //   menuTitle: "Customers",
-  //   menuLink: "/all-users",
-  //   roles: ["admin"],
-  // },
   {
     menuImg: <PersonOutlinedIcon />,
     menuTitle: "Users",
@@ -83,12 +88,6 @@ const menuList = [
       { menuTitle: "Cities", menuLink: "/location-master", roles: ["admin"] },
     ],
   },
-  // {
-  //   menuImg: <EmojiTransportationOutlinedIcon />,
-  //   menuTitle: "Stations",
-  //   menuLink: "/station-master",
-  //   roles: ["admin"],
-  // },
   {
     menuImg: <ReceiptOutlinedIcon />,
     menuTitle: "Invoices",
@@ -101,30 +100,6 @@ const menuList = [
     menuLink: "/all-coupons",
     roles: ["admin"],
   },
-  // {
-  //   menuImg: <PeopleOutlineOutlined />,
-  //   menuTitle: "Managers",
-  //   menuLink: "/all-managers",
-  //   roles: ["admin"],
-  // },
-  // {
-  //   menuImg: <LocationOnOutlinedIcon />,
-  //   menuTitle: "Cities",
-  //   menuLink: "/location-master",
-  //   roles: ["admin"],
-  // },
-  // {
-  //   menuImg: <TwoWheelerOutlined />,
-  //   menuTitle: "Vehicle Master",
-  //   menuLink: "/vehicle-master",
-  //   roles: ["admin"],
-  // },
-  // {
-  //   menuImg: <InventoryOutlined />,
-  //   menuTitle: "Plan Master",
-  //   menuLink: "/all-plans",
-  //   roles: ["admin"],
-  // },
   {
     menuImg: <EventNoteOutlined />,
     menuTitle: "Attendance",

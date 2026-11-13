@@ -63,6 +63,9 @@ const GeneralSlice = createSlice({
         },
       };
     },
+    updateAppInfo: (state, action) => {
+      state.general.appInfo = action.payload || state.general.appInfo;
+    },
     addGeneralSlides: (state, action) => {
       state.general.slides = action.payload;
     },
@@ -103,6 +106,7 @@ export const {
   addGeneral,
   addNewAddOnData,
   updateGeneralInfo,
+  updateAppInfo,
   updateGeneralTestimonial,
   removeGeneralTestimonial,
   addGeneralSlides,

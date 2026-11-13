@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { bookingDetailsPath } from "../../utils/maintenance";
 
 const formatDateTime = () => {
   const now = new Date();
@@ -94,7 +95,9 @@ const MaintenanceStatusBadge = ({
         <Link
           to={
             currentBooking !== null
-              ? `/all-bookings/details/${currentBooking?._id}_${currentBooking?.bookingId}`
+              ? bookingDetailsPath(
+                  `${currentBooking?._id}_${currentBooking?.bookingId}`,
+                )
               : "#"
           }
         >

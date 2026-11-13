@@ -95,7 +95,6 @@ const PhotoView = ({
                       : "auto",
                 }}
               >
-                {/* ${deleteFn ? "max-h-40" : "max-h-20"} */}
                 <img
                   src={item.imageUrl || item.link}
                   alt={item.fileName || alt}

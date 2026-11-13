@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import useTransactionReport from "../../hooks/use-transaction-report";
 import Spinner from "../../components/Spinner/Spinner";
 import { tableIcons } from "../../Data/Icons";
+import { bookingDetailsPath } from "../../utils/maintenance";
 
 const BookingBreakdownModal = ({ dayDetail, setDayDetail }) => {
   const { downloadReport, loading: reportLoading } = useTransactionReport();
@@ -162,7 +163,7 @@ const BookingBreakdownModal = ({ dayDetail, setDayDetail }) => {
                   key={i}
                   to={
                     item.booking_id
-                      ? `/all-bookings/details/${item.booking_id}_${bookingId}`
+                      ? bookingDetailsPath(`${item.booking_id}_${bookingId}`)
                       : "#"
                   }
                   className="w-full"

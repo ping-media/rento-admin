@@ -23,6 +23,7 @@ const ImageUploadAndPreview = ({
   isLabel = true,
   userId,
   onUploadingChange,
+  uploadUrl = "/upload-pickup-image",
 }) => {
   const fileInputRef = useRef(null);
   const dispatch = useDispatch();
@@ -52,8 +53,9 @@ const ImageUploadAndPreview = ({
         formData.append("image", finalFile);
         formData.append("userId", userId);
 
+        // "/upload-pickup-image",
         const responseImage = await postMultipleData(
-          "/upload-pickup-image",
+          uploadUrl,
           formData,
           token,
         );

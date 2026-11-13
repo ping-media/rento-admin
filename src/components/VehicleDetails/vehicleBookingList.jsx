@@ -1,6 +1,7 @@
 import React from "react";
 import { formatFullDateAndTime } from "../../utils";
 import { Link } from "react-router-dom";
+import { bookingDetailsPath } from "../../utils/maintenance";
 
 const VehicleBookingList = ({ currentBooking }) => {
   if (currentBooking === null) return null;
@@ -38,7 +39,9 @@ const VehicleBookingList = ({ currentBooking }) => {
             {data.isLink ? (
               <Link
                 className="text-gray-500 font-semibold sm:hover:underline hover:no-underline underline-offset-4 capitalize"
-                to={`/all-bookings/details/${currentBooking?._id}_${currentBooking?.bookingId}`}
+                to={bookingDetailsPath(
+                  `${currentBooking?._id}_${currentBooking?.bookingId}`,
+                )}
               >
                 {data.value}
               </Link>
