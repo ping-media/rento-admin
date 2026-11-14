@@ -187,7 +187,8 @@ const CreateNewAndUpdateForm = () => {
         </div>
       </div>
 
-      <div className="w-full max-w-full lg:w-[95%] shadow-lg rounded-xl p-3 lg:p-5 mx-auto bg-white overflow-x-hidden">
+      {/* overflow-x-hidden */}
+      <div className="w-full max-w-full lg:w-[95%] shadow-lg rounded-xl p-3 lg:p-5 mx-auto bg-white [overflow-x:clip]">
         <FormComponent
           handleFormSubmit={(event) =>
             handleCreateAndUpdateVehicle(

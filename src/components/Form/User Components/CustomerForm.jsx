@@ -267,6 +267,7 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                 <div className="w-full lg:w-[48%]">
                   <Input
                     item={"contact"}
+                    placeholder="Phone Number"
                     type="number"
                     value={
                       id || location.pathname == "/profile"
@@ -400,6 +401,8 @@ const CustomerForm = ({ handleFormSubmit, loading, isProfile = false }) => {
                   "Update"
                 ) : location.pathname === "/profile" ? (
                   "Update"
+                ) : location.pathname === "/all-users/add-new" ? (
+                  "Create Customer"
                 ) : (
                   "Add New"
                 )}

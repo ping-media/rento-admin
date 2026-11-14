@@ -19,6 +19,9 @@ const InputSearch = ({
   name,
   token,
   setValueChanger,
+  onAddCustomer,
+  selectedUser, // optional: a user object to fill in from outside
+  showUserType = true,
 }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [userId, setUserId] = useState(value);
@@ -62,7 +65,11 @@ const InputSearch = ({
   const handleSelectUserById = (item) => {
     setUserId(item?._id);
     setValueChanger && setValueChanger(item?._id);
-    setInputValue(`${item?.firstName} | ${item?.contact} | ${item?.userType}`);
+    setInputValue(
+      showUserType
+        ? `${item?.firstName} | ${item?.contact} | ${item?.userType}`
+        : `${item?.firstName} | ${item?.contact}`,
+    );
     setIsSearching(false);
     dispatch(removeTempVehicleData());
   };
@@ -79,13 +86,20 @@ const InputSearch = ({
         if (response.status == 200) {
           const data = response?.data;
           setInputValue(
-            `${data[0]?.firstName} | ${data[0]?.contact} | ${data[0]?.userType}`,
+            showUserType
+              ? `${data[0]?.firstName} | ${data[0]?.contact} | ${data[0]?.userType}`
+              : `${data[0]?.firstName} | ${data[0]?.contact}`,
           );
         }
         setUserLoading(false);
       })();
     }
   }, [value]);
+
+  // fill the input when a user is created elsewhere (for example in a modal)
+  useEffect(() => {
+    if (selectedUser?._id) handleSelectUserById(selectedUser);
+  }, [selectedUser?._id]);
 
   const isStationRoute =
     location.pathname === "/station-master/add-new" ||
@@ -136,34 +150,40 @@ const InputSearch = ({
       </div>
 
       {isSearching && inputValue?.length > 0 && (
-        <div className="absolute top-20 w-full rounded-md px-3 py-2 bg-white border-2 z-30">
-          <ul>
+        <div className="absolute top-20 w-full rounded-md bg-white border-2 z-30 max-h-60 sm:max-h-40 overflow-y-auto">
+          <ul className="px-3 pt-2">
             {!tempVehicleData && (
               <li className="my-2 italic text-gray-400">loading...</li>
-            )}
-
-            {tempVehicleData && filteredUsers.length === 0 && (
-              // <li className="my-2 italic text-gray-400">no user found.</li>
-              <li
-                tabIndex="0"
-                role="button"
-                className="my-1.5 italic text-gray-400 cursor-pointer"
-                onClick={() => navigate("/all-users/add-new")}
-              >
-                <Add className="size-5" /> Add Customer
-              </li>
             )}
 
             {filteredUsers.map((item) => (
               <li
                 key={item._id}
-                className="my-2 cursor-pointer text-gray-500 w-full"
+                className="h-8 sm:h-10 flex items-center cursor-pointer text-gray-500 hover:bg-gray-100 w-full px-1"
                 onClick={() => handleSelectUserById(item)}
               >
-                {item.firstName} {item.lastName} | {item.contact} |{" "}
-                {item.userType}
+                <span className="capitalize mr-1">
+                  {item.firstName} {item.lastName}
+                </span>
+                | {item.contact}
+                {showUserType && <> | {item.userType}</>}
               </li>
             ))}
+
+            {tempVehicleData && (
+              <li
+                tabIndex="0"
+                role="button"
+                className="sticky bottom-0 bg-white mt-1 py-2 border-t border-gray-200 italic text-gray-500 cursor-pointer hover:text-theme"
+                onClick={() =>
+                  onAddCustomer
+                    ? onAddCustomer()
+                    : navigate("/all-users/add-new")
+                }
+              >
+                <Add className="size-5" /> Add Customer
+              </li>
+            )}
           </ul>
         </div>
       )}

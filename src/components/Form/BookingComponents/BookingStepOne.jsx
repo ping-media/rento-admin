@@ -11,6 +11,8 @@ import { fetchStationBasedOnLocation } from "../../../Data/Function";
 import { isDuration24Hours } from "../../../utils/index";
 import { DateRange } from "../../../components/DateTimePicker/DateRange";
 import { BookingPlan } from "./BookingPlan";
+import ModalWrapper from "../../Modal/ModalWrapper";
+import CreateCustomerForm from "../User Components/CreateCustomerForm";
 
 const BookingStepOne = ({
   data,
@@ -43,9 +45,17 @@ const BookingStepOne = ({
   const [stationData, setStationData] = useState(null);
   const [error, setError] = useState("");
 
+  const [addUserOpen, setAddUserOpen] = useState(false);
+  const [newUser, setNewUser] = useState(null);
+
   const { loggedInRole, userStation } = useSelector((state) => state.user);
   const { vehiclesFilter } = useSelector((state) => state.pagination);
   const dispatch = useDispatch();
+
+  const handleUserCreated = (user) => {
+    setNewUser(user); // InputSearch fills itself from this
+    setAddUserOpen(false);
+  };
 
   // Update parent formData whenever any value changes
   useEffect(() => {
@@ -173,6 +183,10 @@ const BookingStepOne = ({
     }
   }, []);
 
+  // admin must pick a city and station first, otherwise there are no vehicles to load
+  const isVehicleSelectDisabled =
+    loggedInRole === "admin" && (!isLocationSelected || !stationId);
+
   return (
     <>
       {loading && <PreLoader />}
@@ -227,6 +241,9 @@ const BookingStepOne = ({
           token={token}
           require={true}
           setValueChanger={setUserId}
+          onAddCustomer={() => setAddUserOpen(true)}
+          selectedUser={newUser}
+          showUserType={false}
         />
       </div>
       <div className="w-full lg:w-[48%]">
@@ -237,8 +254,19 @@ const BookingStepOne = ({
           setValueChanger={setVehicleId}
           setSelectedChanger={setSlectedVehicle}
           require={true}
+          disabled={isVehicleSelectDisabled}
         />
       </div>
+
+      <ModalWrapper
+        active={addUserOpen}
+        onClose={() => setAddUserOpen(false)}
+        title="Create Customer"
+        size="xl"
+        position="responsive"
+      >
+        <CreateCustomerForm handleUserCreated={handleUserCreated} />
+      </ModalWrapper>
     </>
   );
 };

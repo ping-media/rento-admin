@@ -145,6 +145,8 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   // for creating new booking
   const handleFormSubmitForNew = async (event) => {
     event.preventDefault();
+    event.stopPropagation();
+
     const response = new FormData(event.target);
     let result = Object.fromEntries(response.entries());
     if (!formData && !result)
@@ -343,31 +345,29 @@ const BookingForm = ({ handleFormSubmit, loading }) => {
   return (
     <form onSubmit={handleFormSubmitForNew}>
       <div className="flex flex-wrap gap-4">
-        <>
-          <BookingStepOne
-            data={formData?.stepOneData}
-            token={token}
-            onNext={handleNext}
-            setFormData={setFormData}
-          />
+        <BookingStepOne
+          data={formData?.stepOneData}
+          token={token}
+          onNext={handleNext}
+          setFormData={setFormData}
+        />
 
-          {formData.bookingStartDate &&
-            formData.bookingEndDate &&
-            formData.selectedVehicle && (
-              <BookingStepTwo
-                data={formData}
-                priceCalculate={changePriceAccordingtoData}
-                gst={GST}
-                setCoupon={setCoupon}
-                coupon={coupon}
-                setFormData={setFormData}
-                plan={planData}
-                setPlan={setPlanData}
-                stepTwoData={stepTwoData}
-                setStepTwoData={setStepTwoData}
-              />
-            )}
-        </>
+        {formData.bookingStartDate &&
+          formData.bookingEndDate &&
+          formData.selectedVehicle && (
+            <BookingStepTwo
+              data={formData}
+              priceCalculate={changePriceAccordingtoData}
+              gst={GST}
+              setCoupon={setCoupon}
+              coupon={coupon}
+              setFormData={setFormData}
+              plan={planData}
+              setPlan={setPlanData}
+              stepTwoData={stepTwoData}
+              setStepTwoData={setStepTwoData}
+            />
+          )}
       </div>
 
       <button

@@ -166,7 +166,7 @@ const SelectDropDownVehicle = ({
           required={require}
         />
         <button
-          className="text-left block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize bg-white cursor-pointer disabled:bg-gray-300/30"
+          className="text-left block w-full rounded-md px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none capitalize bg-white cursor-pointer disabled:bg-gray-300/30 disabled:cursor-not-allowed"
           type="button"
           onClick={handleToggleDropdown}
           disabled={disabled}
