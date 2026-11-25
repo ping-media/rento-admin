@@ -190,7 +190,19 @@ const BookingStepOne = ({
   return (
     <>
       {loading && <PreLoader />}
-      {/* continue  */}
+
+      <div className="w-full lg:w-[48%]">
+        <InputSearch
+          item={"User"}
+          name={"userId"}
+          token={token}
+          require={true}
+          setValueChanger={setUserId}
+          onAddCustomer={() => setAddUserOpen(true)}
+          selectedUser={newUser}
+          showUserType={false}
+        />
+      </div>
       {loggedInRole === "admin" && (
         <>
           <div className="w-full lg:w-[48%]">
@@ -217,6 +229,18 @@ const BookingStepOne = ({
         </>
       )}
 
+      <div className="w-full lg:w-[48%]">
+        <SelectDropDownVehicle
+          item={"Vehicle"}
+          name={"vehicleTableId"}
+          options={suggestedData}
+          setValueChanger={setVehicleId}
+          setSelectedChanger={setSlectedVehicle}
+          require={true}
+          disabled={isVehicleSelectDisabled}
+        />
+      </div>
+
       <DateRange
         {...{
           error,
@@ -233,30 +257,6 @@ const BookingStepOne = ({
       <BookingPlan
         {...{ duration, setDuration, startDate: bookingStartDate }}
       />
-
-      <div className="w-full lg:w-[48%]">
-        <InputSearch
-          item={"User"}
-          name={"userId"}
-          token={token}
-          require={true}
-          setValueChanger={setUserId}
-          onAddCustomer={() => setAddUserOpen(true)}
-          selectedUser={newUser}
-          showUserType={false}
-        />
-      </div>
-      <div className="w-full lg:w-[48%]">
-        <SelectDropDownVehicle
-          item={"Vehicle"}
-          name={"vehicleTableId"}
-          options={suggestedData}
-          setValueChanger={setVehicleId}
-          setSelectedChanger={setSlectedVehicle}
-          require={true}
-          disabled={isVehicleSelectDisabled}
-        />
-      </div>
 
       <ModalWrapper
         active={addUserOpen}

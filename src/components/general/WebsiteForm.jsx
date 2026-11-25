@@ -11,6 +11,7 @@ import SocialMedia from "./SocialMedia.jsx";
 import GeneralForm from "./GeneralForm";
 import VehicleSettings from "./VehicleSettings";
 import AppVersionSettings from "./AppVersionSettings";
+import VehicleDocumentSettings from "..//VehicleDetails/VehicleDocuments/VehicleDocumentSettings";
 
 const Button = ({ label = "update", disabled = false }) => (
   <button
@@ -94,13 +95,16 @@ const WebsiteForm = () => {
           Vehicle Settings
         </h2>
 
-        <div className="flex items-center mb-3">
+        <div className="flex items-center mb-2.5">
           <VehicleSettings showVehicleCount={general?.showVehicleCount} />
+        </div>
+        <div className="flex items-center mb-3">
+          <VehicleDocumentSettings />
         </div>
       </div>
 
       <div className="mb-2.5">
-        <h2 className="text-md lg:text-lg font-semibold mb-3 border-b uppercase">
+        <h2 className="text-md lg:text-lg font-semibold mb-3 uppercase">
           App Version
         </h2>
         <AppVersionSettings

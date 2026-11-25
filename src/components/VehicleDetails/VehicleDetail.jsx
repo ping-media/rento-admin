@@ -11,7 +11,6 @@ import VehicleDetailList from "./VehicleDetailList";
 import MaintenanceTableSkeleton from "../Skeleton/MaintenanceTableSkeleton";
 import VehicleDetailHeader from "./VehicleDetailHeader";
 import VehicleBookingList from "./vehicleBookingList";
-import CopyButton from "../Buttons/CopyButton";
 const VehicleMaintenanceSection = lazy(
   () => import("../Maintenance/VehicleMaintenanceSection"),
 );
@@ -20,6 +19,9 @@ const AddVehicleForServiceModal = lazy(
   () => import("../Modal/AddVehicleForServiceModal"),
 );
 const VehiclePlanModal = lazy(() => import("../Modal/VehiclePlanModal"));
+const VehicleDocumentsModal = lazy(
+  () => import("../Modal/VehicleDocumentsModal"),
+);
 
 const VehicleDetail = () => {
   const { vehicleMaster, loading, tempLoading } = useSelector(
@@ -28,12 +30,13 @@ const VehicleDetail = () => {
   );
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole } = useSelector((state) => state.user);
   const [collectedData, setCollectedData] = useState(null);
   // for adding maintenance records in bulk
   const [maintenanceVehicleId, setMaintenanceVehicleId] = useState([]);
   const [isMaintenanceAdd, setIsMaintenanceAdd] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [docsVehicleId, setDocsVehicleId] = useState("");
 
   const fetchCollectedData = async (stationUrl, vehicleMaster) => {
     const vehicleResponse = await getData(vehicleMaster, token);
@@ -116,6 +119,12 @@ const VehicleDetail = () => {
   return (
     <>
       <Suspense fallback={<PreLoader />}>
+        <VehicleDocumentsModal
+          active={!!docsVehicleId}
+          vehicleTableId={docsVehicleId}
+          onClose={() => setDocsVehicleId("")}
+        />
+
         <AddVehicleForServiceModal
           vehiclesId={maintenanceVehicleId}
           setMaintenanceVehicleId={setMaintenanceVehicleId}
@@ -138,7 +147,10 @@ const VehicleDetail = () => {
         />
       </Suspense>
 
-      <VehicleDetailHeader {...{ isPlanModalOpen, setIsPlanModalOpen }} />
+      <VehicleDetailHeader
+        {...{ isPlanModalOpen, setIsPlanModalOpen }}
+        onDocClick={() => setDocsVehicleId(vehicle?._id ?? "")}
+      />
 
       <div className="mt-5">
         <div className="flex gap-4 flex-wrap">

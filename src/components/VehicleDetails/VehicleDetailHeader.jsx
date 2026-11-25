@@ -5,10 +5,9 @@ import {
   toggleVehicleServiceModal,
   toggleVehicleUpdateModal,
 } from "../../Redux/SideBarSlice/SideBarSlice";
-// import { tableIcons } from "../../Data/Icons";
 import { Link, useParams } from "react-router-dom";
 
-const VehicleDetailHeader = ({ setIsPlanModalOpen }) => {
+const VehicleDetailHeader = ({ setIsPlanModalOpen, onDocClick }) => {
   const { id } = useParams();
   const { loggedInRole } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -30,8 +29,15 @@ const VehicleDetailHeader = ({ setIsPlanModalOpen }) => {
           }}
           onClick={() => dispatch(toggleVehicleUpdateModal())}
         >
-          {/* {tableIcons["common-edit"]} */}
           Bulk Update
+        </button>
+
+        <button
+          type="button"
+          className="bg-theme p-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
+          onClick={onDocClick}
+        >
+          Documents
         </button>
 
         <button
@@ -50,7 +56,6 @@ const VehicleDetailHeader = ({ setIsPlanModalOpen }) => {
           }}
           onClick={() => dispatch(toggleVehicleServiceModal())}
         >
-          {/* {tableIcons["add"]} */}
           Add Block
         </button>
 
@@ -59,7 +64,6 @@ const VehicleDetailHeader = ({ setIsPlanModalOpen }) => {
             className="bg-theme p-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none"
             to={`/all-vehicles/${id}`}
           >
-            {/* {tableIcons["common-edit"]} */}
             <span>Edit</span>
           </Link>
         )}

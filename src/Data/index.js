@@ -244,18 +244,38 @@ const postMultipleData = async (url, data, token) => {
 
     return response?.data;
   } catch (error) {
-    return `Error :${error?.message}`;
+    return error?.response?.data || `Error :${error?.message}`;
   }
 };
 
-const deleteData = async (url) => {
+const patchData = async (url, data, token) => {
   try {
-    const response = await axios.delete(
+    const headers = token
+      ? { Authorization: `Bearer ${token}`, token: `${token}` }
+      : {};
+    const response = await axios.patch(
       `${import.meta.env.VITE_BASED_URL}${url}`,
+      data,
+      { headers },
     );
     return response?.data;
   } catch (error) {
-    return `Error :${error?.message}`;
+    return error?.response?.data || { success: false, message: error?.message };
+  }
+};
+
+const deleteData = async (url, token) => {
+  try {
+    const headers = token
+      ? { Authorization: `Bearer ${token}`, token: `${token}` }
+      : {};
+    const response = await axios.delete(
+      `${import.meta.env.VITE_BASED_URL}${url}`,
+      { headers },
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || `Error :${error?.message}`;
   }
 };
 
@@ -350,4 +370,5 @@ export {
   deleteDataById,
   createOrderId,
   handleSendOtp,
+  patchData,
 };

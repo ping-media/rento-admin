@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
       exclude: ["redux-persist"],
     },
     server: {
+      // host: true,
       port: 5174,
       proxy: {
         "/api": {

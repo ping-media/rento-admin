@@ -35,6 +35,7 @@ const Input = ({
   isFull = true,
   btnDisable,
   afterOnChange,
+  labelClassName = "text-sm",
   ...rest
 }) => {
   const [inputValue, setInputValue] = useState(value || defaultValue || "");
@@ -148,7 +149,7 @@ const Input = ({
       {isLabel && (
         <label
           htmlFor={item}
-          className="block text-gray-800 font-semibold text-sm capitalize text-left"
+          className={`block text-gray-800 font-semibold ${labelClassName} capitalize text-left`}
         >
           {!isFull
             ? placeholder
