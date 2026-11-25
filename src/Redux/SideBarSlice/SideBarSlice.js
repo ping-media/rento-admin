@@ -20,6 +20,12 @@ const initialState = {
   isIdentityModalActive: false,
   isSelfieModalActive: false,
   isLicenseModalActive: false,
+  isTestimonialModalActive: false,
+  isSlidesModalActive: false,
+  isRescheduleModalActive: false,
+  isAddonModalActive: false,
+  isStationAndVehicleModalActive: false,
+  isAddRepairActive: false,
 };
 
 const SideBarSlice = createSlice({
@@ -31,6 +37,18 @@ const SideBarSlice = createSlice({
     },
     toggleFilterSideBar: (state) => {
       state.isFilterOpen = state.isFilterOpen === true ? false : true;
+    },
+    toggleTestimonialModal: (state) => {
+      state.isTestimonialModalActive =
+        state.isTestimonialModalActive === true ? false : true;
+    },
+    toggleStationAndVehicleModal: (state) => {
+      state.isStationAndVehicleModalActive =
+        state.isStationAndVehicleModalActive === true ? false : true;
+    },
+    toggleSlidesModal: (state) => {
+      state.isSlidesModalActive =
+        state.isSlidesModalActive === true ? false : true;
     },
     toggleModal: (state) => {
       state.isModelActive = state.isModelActive === false ? true : false;
@@ -98,6 +116,18 @@ const SideBarSlice = createSlice({
       state.isLicenseModalActive =
         state.isLicenseModalActive === false ? true : false;
     },
+    toggleRescheduleModal: (state) => {
+      state.isRescheduleModalActive =
+        state.isRescheduleModalActive === false ? true : false;
+    },
+    toggleAddonModal: (state) => {
+      state.isAddonModalActive =
+        state.isAddonModalActive === false ? true : false;
+    },
+    toggleAddRepair: (state) => {
+      state.isAddRepairActive =
+        state.isAddRepairActive === false ? true : false;
+    },
     toggleClearModals: () => initialState,
   },
 });
@@ -105,6 +135,8 @@ const SideBarSlice = createSlice({
 export const {
   toggleFilterSideBar,
   toggleSideBar,
+  toggleTestimonialModal,
+  toggleSlidesModal,
   toggleModal,
   toggleRechargeModal,
   toggleVerifyUserModal,
@@ -123,6 +155,10 @@ export const {
   toggleIdentityModal,
   toggleLicenseModal,
   toggleSelfieModal,
+  toggleRescheduleModal,
+  toggleStationAndVehicleModal,
+  toggleAddonModal,
+  toggleAddRepair,
 } = SideBarSlice.actions;
 
 export default SideBarSlice.reducer;

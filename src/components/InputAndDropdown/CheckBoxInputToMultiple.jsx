@@ -14,13 +14,17 @@ const CheckBoxInputToMultiple = ({ data, unique }) => {
   const dispatch = useDispatch();
   const isHeaderCheckedRef = useRef(null);
 
-  const toggleSelectAll = () => {
+  const toggleSelectAll = (e) => {
+    const isChecked = e.target.checked;
+
     const currentDate = new Date();
     const currentDateAndTime = formatLocalTimeIntoISO(currentDate);
     const userMillis = new Date(currentDateAndTime)?.getTime();
 
-    if (isHeaderCheckedRef.current && isHeaderCheckedRef.current.checked) {
+    // if (isHeaderCheckedRef.current && isHeaderCheckedRef.current.checked) {
+    if (isChecked) {
       if (!data) return;
+
       dispatch(addTempIdsAll(data?.map((item) => item?._id)));
       dispatch(
         addMaintenanceIdsAll(
@@ -53,8 +57,8 @@ const CheckBoxInputToMultiple = ({ data, unique }) => {
       <input
         id={unique}
         type="checkbox"
-        className="w-4 h-4 accent-red-600"
-        onClick={toggleSelectAll}
+        className="w-5 lg:w-4 h-5 lg:h-4 accent-red-600"
+        onChange={toggleSelectAll}
         ref={isHeaderCheckedRef}
       />
     </label>

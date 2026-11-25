@@ -1,24 +1,62 @@
-const StatusChange = ({ item, column }) => {
+const STATUS_STYLES = {
+  active: "emerald",
+  available: "emerald",
+  done: "emerald",
+  paid: "emerald",
+  partially_paid: "emerald",
+  partiallyPay: "emerald",
+  completed: "emerald",
+  extended: "emerald",
+  ongoing: "orange",
+  pending: "orange",
+  refunded: "gray",
+  failed: "red",
+};
+
+const STATUS_COLORS = {
+  emerald: {
+    bg: "bg-emerald-50",
+    border: "border-emerald-100",
+    text: "text-emerald-800",
+    dot: "#059669",
+  },
+  orange: {
+    bg: "bg-orange-50",
+    border: "border-orange-100",
+    text: "text-orange-800",
+    dot: "#FFA500",
+  },
+  gray: {
+    bg: "bg-gray-400/50",
+    border: "border-gray-400/90",
+    text: "text-white",
+    dot: "#808080",
+  },
+  red: {
+    bg: "bg-red-50",
+    border: "border-red-100",
+    text: "text-red-700",
+    dot: "#E23844",
+  },
+};
+
+const StatusChange = ({ item, column, width = "", rawValue }) => {
+  const status = (item && column && item[column]) ?? rawValue;
+  const color = STATUS_COLORS[STATUS_STYLES[status] || "red"];
+
+  const displayStatus =
+    status === "partially_paid"
+      ? status.replace("_", " ")
+      : location.pathname === "/all-bookings" && status === "done"
+        ? "Booked"
+        : location.pathname === "/all-bookings" &&
+            column === "rideStatus" &&
+            status === "pending"
+          ? "Not Started"
+          : status;
   return (
     <div
-      className={`p-1 lg:py-1.5 lg:px-2.5 ${
-        item[column] === "active" ||
-        item[column] === "available" ||
-        item[column] == "done" ||
-        item[column] === "paid" ||
-        item[column] === "partially_paid" ||
-        item[column] === "partiallyPay" ||
-        item[column] === "completed" ||
-        item[column] === "extended"
-          ? "bg-emerald-50"
-          : item[column] === "ongoing" || item[column] === "pending"
-          ? "bg-orange-50"
-          : item[column] === "refunded"
-          ? "bg-gray-400/50"
-          : item[column] === "failed"
-          ? "bg-red-100"
-          : "bg-red-50"
-      } rounded-full flex justify-center w-24 items-center gap-1`}
+      className={`p-1 lg:py-1.5 lg:px-2.5 border ${width} ${color.bg} ${color.border} rounded-md flex justify-center min-w-24 items-center uppercase gap-1`}
     >
       <svg
         width="5"
@@ -27,54 +65,10 @@ const StatusChange = ({ item, column }) => {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <circle
-          cx="2.5"
-          cy="3"
-          r="2.5"
-          fill={`${
-            item[column] === "active" ||
-            item[column] === "available" ||
-            item[column] === "done" ||
-            item[column] === "paid" ||
-            item[column] === "partially_paid" ||
-            item[column] === "partiallyPay" ||
-            item[column] === "completed" ||
-            item[column] === "extended"
-              ? "#059669"
-              : item[column] == "ongoing" || item[column] === "pending"
-              ? "#FFA500"
-              : item[column] === "refunded"
-              ? // ? "#FFC145"
-                "#808080"
-              : item[column] === "failed"
-              ? "#C62300"
-              : "#E23844"
-          }`}
-        ></circle>
+        <circle cx="2.5" cy="3" r="2.5" fill={color.dot}></circle>
       </svg>
-      <span
-        className={`font-medium text-xs ${
-          item[column] === "active" ||
-          item[column] === "available" ||
-          item[column] === "done" ||
-          item[column] === "paid" ||
-          item[column] === "partially_paid" ||
-          item[column] === "partiallyPay" ||
-          item[column] === "completed" ||
-          item[column] === "extended"
-            ? "text-emerald-600"
-            : item[column] === "ongoing" || item[column] === "pending"
-            ? "text-orange-600"
-            : item[column] === "refunded"
-            ? "text-white"
-            : item[column] === "failed"
-            ? "text-red-700"
-            : "text-red-600"
-        }`}
-      >
-        {item[column] === "partially_paid"
-          ? item[column].replace("_", " ")
-          : item[column]}
+      <span className={`font-medium text-sm md:text-xs ${color.text}`}>
+        {displayStatus}
       </span>
     </div>
   );

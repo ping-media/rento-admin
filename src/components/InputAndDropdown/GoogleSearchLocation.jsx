@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { LoadScriptNext, Autocomplete } from "@react-google-maps/api";
 import { camelCaseToSpaceSeparated } from "../../utils/index";
 
-const libraries = ["places"];
+const libraries = Object.freeze(["places"]);
 const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAP_KEY;
 
 const GoogleSearchLocation = ({
@@ -12,6 +12,7 @@ const GoogleSearchLocation = ({
   require = false,
   setLatitude,
   setLongitude,
+  setUrl,
   value,
   customClass = "w-full px-5 py-3",
   bodyWidth = "w-full",
@@ -37,16 +38,24 @@ const GoogleSearchLocation = ({
         if (place && place.geometry && place.geometry.location) {
           const latitude = place.geometry.location.lat();
           const longitude = place.geometry.location.lng();
+          const url = place.url ?? "";
 
-          // Use the most appropriate address component
-          const formattedAddress =
-            place.formatted_address || place.vicinity || place.name || input;
-          setInput(formattedAddress);
+          if (latitude && longitude && url) {
+            // Use the most appropriate address component
+            const formattedAddress =
+              place.formatted_address || place.vicinity || place.name || input;
+            setInput(formattedAddress);
 
-          // Update coordinates only if they're valid
-          if (latitude && longitude) {
+            // Update coordinates only if they're valid
             setLatitude && setLatitude(latitude);
             setLongitude && setLongitude(longitude);
+            setUrl && setUrl(url);
+          } else {
+            // No usable map link: restore old address, clear new values
+            setInput(value || "");
+            setLatitude && setLatitude("");
+            setLongitude && setLongitude("");
+            setUrl && setUrl("");
           }
         }
       } catch (error) {
@@ -62,6 +71,7 @@ const GoogleSearchLocation = ({
     if (e.target.value === "" && (setLatitude || setLongitude)) {
       setLatitude && setLatitude("");
       setLongitude && setLongitude("");
+      setUrl && setUrl("");
     }
   };
 
@@ -113,6 +123,9 @@ const GoogleSearchLocation = ({
                     : ""
                 } disabled:bg-gray-400 disabled:bg-opacity-20`}
                 name={item}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.preventDefault();
+                }}
                 placeholder={`Enter ${camelCaseToSpaceSeparated(item)}`}
                 value={input}
                 onChange={handleInputChange}
@@ -133,6 +146,9 @@ const GoogleSearchLocation = ({
               } disabled:bg-gray-400 disabled:bg-opacity-20`}
               value={input}
               onChange={handleInputChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") e.preventDefault();
+              }}
               disabled={true}
               placeholder={
                 isLoadingError ? "Failed to load Google Maps" : "Loading..."

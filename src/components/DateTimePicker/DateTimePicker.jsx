@@ -1,0 +1,268 @@
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
+import { formatDate } from "../../utils/index";
+import { isValid, parse } from "date-fns";
+import { format } from "date-fns-tz";
+
+const formatIntoISO = (input) => {
+  const normalized = input.replace(/\bSept\b/g, "Sep");
+  const parsedDate = parse(normalized, "dd MMM, yyyy h:mm a", new Date());
+  if (!isValid(parsedDate)) {
+    throw new Error(`Invalid date: ${input}`);
+  }
+  return format(parsedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'", { timeZone: "UTC" });
+};
+
+const to24Hour = (timeStr) => {
+  const [time, period] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+  if (period === "PM" && hours !== 12) hours += 12;
+  else if (period === "AM" && hours === 12) hours = 0;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+};
+
+const formatTimeWithoutSeconds = (timeStr) => {
+  const [time, period] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+
+  // Convert to 24-hour format
+  if (period === "PM" && hours !== 12) {
+    hours += 12;
+  } else if (period === "AM" && hours === 12) {
+    hours = 0;
+  }
+
+  // Round up to next 30-minute slot
+  if (minutes > 0 && minutes <= 30) {
+    minutes = 30;
+  } else if (minutes > 30) {
+    hours = (hours + 1) % 24;
+    minutes = 0;
+  }
+
+  // Convert back to 12-hour format
+  let formattedHour = hours % 12;
+  formattedHour = formattedHour === 0 ? 12 : formattedHour;
+  const formattedMinutes = minutes === 0 ? "00" : "30";
+  const formattedPeriod = hours >= 12 ? "PM" : "AM";
+
+  return `${formattedHour}:${formattedMinutes} ${formattedPeriod}`;
+};
+
+const DatePicker = ({
+  value,
+  name,
+  setValueChanger,
+  timeValue,
+  setTimeValueChanger,
+  setISOValue,
+  setDropTimeValueChanger,
+  timeOnly = false,
+  hourlyOnly = false,
+}) => {
+  const datePickerRef = useRef(null);
+  const timePickerRef = useRef(null);
+  const [calendarVisible, setCalendarVisible] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState("bottom");
+
+  const availableTimes = useMemo(() => {
+    const times = [];
+    for (let hour = 0; hour < 24; hour++) {
+      const steps = hourlyOnly ? [0] : [0, 30]; // <-- only change here
+      for (let minute of steps) {
+        const period = hour < 12 ? "AM" : "PM";
+        const adjustedHour = hour % 12 === 0 ? 12 : hour % 12;
+        const minuteString = minute < 10 ? `0${minute}` : minute;
+        times.push(`${adjustedHour}:${minuteString} ${period}`);
+      }
+    }
+    return times;
+  }, [value, hourlyOnly]);
+
+  const handleDateSelect = (date) => {
+    if (!date) return;
+    setValueChanger(date);
+
+    if (setISOValue) {
+      const combinedDateTime = `${formatDate(date)} ${formatTimeWithoutSeconds(timeValue)}`;
+      const isoValue = formatIntoISO(combinedDateTime);
+      setISOValue(isoValue);
+    }
+  };
+
+  const handleTimeSelect = (time) => {
+    setTimeValueChanger(time);
+
+    if (setISOValue) {
+      const combinedDateTime = `${formatDate(new Date(value))} ${formatTimeWithoutSeconds(time)}`;
+      const isoValue = formatIntoISO(combinedDateTime);
+      setISOValue(isoValue);
+    }
+
+    setDropTimeValueChanger?.(time);
+
+    setCalendarVisible(false);
+  };
+
+  const handleClickOutside = (event) => {
+    if (
+      datePickerRef.current &&
+      !datePickerRef.current.contains(event.target)
+    ) {
+      setCalendarVisible(false);
+    }
+  };
+
+  const checkDropdownPosition = () => {
+    if (datePickerRef.current) {
+      const rect = datePickerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      setDropdownPosition(
+        spaceBelow < 350 && spaceAbove > 350 ? "top" : "bottom",
+      );
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    if (calendarVisible) checkDropdownPosition();
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [calendarVisible]);
+
+  useEffect(() => {
+    if (calendarVisible && timePickerRef.current && timeValue) {
+      const activeButton = timePickerRef.current.querySelector(".active");
+      if (activeButton) {
+        timePickerRef.current.scrollTop =
+          activeButton.offsetTop - timePickerRef.current.offsetTop;
+      }
+    }
+  }, [calendarVisible, timeValue]);
+
+  return (
+    <div className="relative" ref={datePickerRef}>
+      <button
+        type="button"
+        className="flex items-center justify-between px-5 py-3 ring-1 ring-inset ring-gray-400 focus:text-gray-800 outline-none rounded-lg relative w-full"
+        onClick={() => setCalendarVisible(!calendarVisible)}
+      >
+        <div className="w-full flex items-center justify-between gap-0.5">
+          <span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              {timeOnly ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                />
+              )}
+            </svg>
+          </span>
+          <input
+            type="text"
+            className="outline-none w-full cursor-pointer"
+            placeholder={timeOnly ? "Select time" : "Select date & time"}
+            value={
+              timeOnly
+                ? timeValue
+                  ? formatTimeWithoutSeconds(timeValue)
+                  : ""
+                : `${formatDate(new Date(value))} ${formatTimeWithoutSeconds(timeValue)}`
+            }
+            name={!timeOnly ? name : undefined}
+            readOnly
+          />
+          {timeOnly && (
+            <input // hidden input carries 24hr value on form submit
+              type="hidden"
+              name={name}
+              value={
+                timeValue ? to24Hour(formatTimeWithoutSeconds(timeValue)) : ""
+              }
+            />
+          )}
+        </div>
+        <span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className={`w-5 h-5 ${calendarVisible && "rotate-180"}`}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </span>
+      </button>
+
+      {calendarVisible && (
+        <div
+          className={`absolute bg-white shadow-md rounded-md mt-1 z-50 border border-gray-300 w-full lg:w-[28rem] p-2 flex ${
+            dropdownPosition === "top" ? "bottom-full mb-2" : "top-full"
+          }`}
+        >
+          {/* Calendar — hidden in timeOnly mode */}
+          {!timeOnly && (
+            <div className="w-2/3 border-r pr-1">
+              <DayPicker
+                selected={new Date(value)}
+                onSelect={handleDateSelect}
+                // disabled={{ before: new Date(value) }}
+                mode="single"
+                modifiersClassNames={{
+                  selected: "bg-theme text-white rounded-full",
+                  today: "text-red-500",
+                  disabled: "text-gray-400",
+                }}
+                className="w-full overflow-hidden"
+              />
+            </div>
+          )}
+
+          {/* Time Picker */}
+          <div className={timeOnly ? "w-full" : "w-1/3 pl-1"}>
+            <div className="text-center font-semibold">Time</div>
+            <div ref={timePickerRef} className="overflow-y-auto max-h-48">
+              {availableTimes.map((time, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={`block w-full text-left p-2 rounded-md disabled:text-gray-400 ${
+                    timeValue && time === formatTimeWithoutSeconds(timeValue)
+                      ? "bg-red-500 text-white active"
+                      : "hover:bg-red-100"
+                  }`}
+                  onClick={() => handleTimeSelect(time)}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DatePicker;

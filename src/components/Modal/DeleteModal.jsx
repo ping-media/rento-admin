@@ -24,7 +24,7 @@ const DeleteModal = () => {
         const data = vehicleMaster?.data;
         if (data?.length > 0) {
           const selectedData = data.find(
-            (item) => item._id === deletevehicleId
+            (item) => item._id === deletevehicleId,
           );
           result = { ...result, bookingID: selectedData?.bookingId };
         }
@@ -42,7 +42,8 @@ const DeleteModal = () => {
             endPointBasedOnURL[
               (location?.pathname).replace("/", "") + "/delete"
             ]
-          }?_id=${deletevehicleId}`
+          }?_id=${deletevehicleId}`,
+          token,
         );
       } else {
         response = await postData(
@@ -50,7 +51,7 @@ const DeleteModal = () => {
             endPointBasedOnURL[(location?.pathname).replace("/", "") + "/"]
           }?_id=${deletevehicleId}`,
           result,
-          token
+          token,
         );
       }
       if (response?.status != 200) {

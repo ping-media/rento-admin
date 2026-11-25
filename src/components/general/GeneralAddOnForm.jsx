@@ -10,13 +10,15 @@ const GeneralAddOnForm = ({
   addOnModal,
   formLoading,
 }) => {
-  const { extraAddOn, loading } = useSelector((state) => state.general);
+  const { vehicleMaster, loading } = useSelector((state) => state.vehicles);
   const [currenAddOn, setCurrentAddOn] = useState(null);
 
-  useEffect(() => {
-    if (id && id === "" && extraAddOn?.data?.length === 0) return;
+  const extraAddOn = vehicleMaster && vehicleMaster?.[0]?.extraAddOn;
 
-    const current = extraAddOn?.data?.filter((item) => item?._id === id);
+  useEffect(() => {
+    if (id && id === "" && extraAddOn?.length === 0) return;
+
+    const current = extraAddOn?.filter((item) => item?._id === id);
     if (current) {
       setCurrentAddOn(current[0]);
     }
@@ -56,10 +58,32 @@ const GeneralAddOnForm = ({
             type="number"
             value={(id && currenAddOn && currenAddOn?.maxAmount) || 0}
             isModalClose={addOnModal}
-            // require={true}
           />
         </div>
         <div className="w-full lg:w-[49%] mb-2 lg:mb-0">
+          <Input
+            placeholder="GST Percentage"
+            item="gstPercentage"
+            type="number"
+            value={(id && currenAddOn && currenAddOn?.gstPercentage) || 0}
+            isModalClose={addOnModal}
+            require={true}
+          />
+        </div>
+      </div>
+      <div className="flex items-center flex-wrap gap-4 lg:mb-2">
+        <div className="w-full lg:w-[49%] mb-2">
+          <SelectDropDown
+            placeholder="GST Status"
+            item="gstStatus"
+            value={(id && currenAddOn && currenAddOn?.gstStatus) || "inactive"}
+            isModalClose={addOnModal}
+            options={["active", "inactive"]}
+            require={true}
+            isSearchEnable={false}
+          />
+        </div>
+        <div className="w-full lg:w-[49%] mb-2">
           <SelectDropDown
             placeholder="Add-on Status"
             item="status"
@@ -73,7 +97,7 @@ const GeneralAddOnForm = ({
       </div>
       <button
         type="submit"
-        className="bg-theme font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center gap-1 whitespace-nowrap disabled:bg-gray-400"
+        className="bg-theme w-full text-center font-semibold text-gray-100 px-2.5 py-1.5 rounded-md shadow-lg hover:bg-theme-light hover:shadow-md inline-flex items-center justify-center gap-1 whitespace-nowrap disabled:bg-gray-400"
         disabled={formLoading}
       >
         {formLoading ? "Updating" : id === "" ? "Add" : "Update"}

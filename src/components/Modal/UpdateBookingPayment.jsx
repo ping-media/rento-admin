@@ -10,10 +10,12 @@ import {
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
+import TextArea from "../../components/InputAndDropdown/TextArea";
 
 const UpdateBookingPayment = ({ id }) => {
   const { isPaymentUpdateModalActive } = useSelector((state) => state.sideBar);
   const { vehicleMaster } = useSelector((state) => state.vehicles);
+  const { currentUser } = useSelector((state) => state.user);
   const { token } = useSelector((state) => state.user);
   const [formLoading, setFormLoading] = useState(false);
   const [paymentMode, setPaymentMode] = useState("");
@@ -32,8 +34,13 @@ const UpdateBookingPayment = ({ id }) => {
         const paymentRecord = [];
         vehicleMaster[0]?.bookingPrice?.extendAmount?.map((item) => {
           paymentRecord.push({
+            ...item,
             id: item?.id,
             title: item?.title,
+            BookingStartDateAndTime: item?.BookingStartDateAndTime,
+            bookingEndDateAndTime: item?.bookingEndDateAndTime,
+            extendDuration: item?.extendDuration,
+            addOnAmount: item?.addOnAmount,
             amount: item?.amount,
             status: item?.status || "unpaid",
           });
@@ -50,6 +57,7 @@ const UpdateBookingPayment = ({ id }) => {
         const paymentRecord = [];
         vehicleMaster[0]?.bookingPrice?.diffAmount?.map((item) => {
           paymentRecord.push({
+            ...item,
             id: item?.id,
             title: item?.title,
             amount: item?.amount,
@@ -74,6 +82,9 @@ const UpdateBookingPayment = ({ id }) => {
   // for updating the payment for specific booking
   const handlUpdateBookingPaymentRecord = async (event) => {
     event.preventDefault();
+    const response = new FormData(event.target);
+    const result = Object.fromEntries(response.entries());
+
     setFormLoading(true);
     try {
       if (paymentFor === "" && paymentRecordId === 0 && paymentMode === "")
@@ -82,9 +93,10 @@ const UpdateBookingPayment = ({ id }) => {
       // through this we can dynamically change the data in extendAmount or in diffAmount
       const For =
         paymentFor === "extendVehicle" ? "extendAmount" : "diffAmount";
-      const updateData = paymentRecord.find(
-        (item) => item.id === Number(paymentRecordId)
+      let updateData = paymentRecord.find(
+        (item) => item.id === Number(paymentRecordId),
       );
+
       if (updateData) {
         updateData.status = "paid";
         if (!updateData.hasOwnProperty("paymentMethod")) {
@@ -94,33 +106,65 @@ const UpdateBookingPayment = ({ id }) => {
         }
       }
       // creating data for updating the database
-      const data = {
+      let data = {
         bookingPrice: {
           ...vehicleMaster[0].bookingPrice,
           [For]: vehicleMaster[0]?.bookingPrice?.[For]?.map((item) =>
-            item.id === updateData.id ? updateData : item
+            item.id === updateData.id ? updateData : item,
           ) || [updateData],
         },
         _id: id,
       };
 
-      // return console.log(updateData, data);
+      if (result?.note !== "") {
+        data = {
+          ...data,
+          Note: {
+            key: `${currentUser?.firstName} (${currentUser?.userType})`,
+            value: result?.note,
+            noteType: "general",
+            createdAt: Date.now(),
+          },
+        };
+      }
 
-      const isUpdate = await cancelBookingById(id, data, token);
+      let finalData = data;
+      let endpoint = "/createBooking";
+      let paidFor = paymentFor === "extendVehicle" ? "extension" : "change";
+
+      // changing the payload when updating the payment for extend
+      if (paymentFor === "extendVehicle") {
+        const { Note, bookingPrice, _id, ...rest } = data;
+        const newData = bookingPrice?.extendAmount?.find(
+          (e) => e.id === paymentRecordId,
+        );
+        finalData = {
+          ...(Note ? { Note } : {}),
+          data: newData,
+          extendId: paymentRecordId,
+          _id,
+        };
+
+        endpoint = "/confirm-extend-booking";
+      }
+      // return console.log(finalData);
+
+      const isUpdate = await cancelBookingById(id, finalData, token, endpoint);
       if (isUpdate === true) {
         handleAsyncError(
           dispatch,
           "Payment record save successfully",
-          "success"
+          "success",
         );
         // updating the timeline for booking
         const timeLineData = {
           currentBooking_id: id,
           timeLine: [
             {
-              title: "Payment Updated",
+              title: `${paidFor} Payment Updated`,
               date: Date.now(),
               paymentAmount: updateData?.amount,
+              paymentMode: result?.PaymentMode || "",
             },
           ],
         };
@@ -128,10 +172,14 @@ const UpdateBookingPayment = ({ id }) => {
         handleCloseModal();
         // for updating timeline redux data
         dispatch(updateTimeLineData(timeLineData));
-        const { _id, ...dataForRedux } = data;
+        const { _id, Note, ...dataForRedux } = data;
         return dispatch(handleUpdateDateForPayment(dataForRedux));
       }
-      if (isCanceled !== true) return handleAsyncError(dispatch, isCanceled);
+      if (isUpdate !== true)
+        return handleAsyncError(
+          dispatch,
+          "unable to update the booking payment! try again",
+        );
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
     } finally {
@@ -153,10 +201,10 @@ const UpdateBookingPayment = ({ id }) => {
     <div
       className={`fixed ${
         !isPaymentUpdateModalActive ? "hidden" : ""
-      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
+      } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4`}
     >
-      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-md">
-        <div className="flex justify-between p-2">
+      <div className="relative top-10 mx-auto shadow-xl rounded-md bg-white max-w-md">
+        <div className="flex justify-between border-b p-2">
           <h2 className="text-theme font-semibold text-lg uppercase">
             Update Payment Record
           </h2>
@@ -181,7 +229,7 @@ const UpdateBookingPayment = ({ id }) => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
+        <div className="p-6 pt-2 text-center">
           <form onSubmit={handlUpdateBookingPaymentRecord}>
             <div className="text-left mb-2">
               <SelectDropDown
@@ -189,6 +237,7 @@ const UpdateBookingPayment = ({ id }) => {
                 options={["extendVehicle", "vehicleChange"]}
                 setIsLocationSelected={setPaymentFor}
                 require={true}
+                isSearchEnable={false}
               />
             </div>
             {/* {paymentFor !== "CashPayment" && ( */}
@@ -196,25 +245,30 @@ const UpdateBookingPayment = ({ id }) => {
               <SelectDropDown
                 item={"Payment Record Id"}
                 options={paymentRecord?.filter(
-                  (record) => record?.status !== "paid"
+                  (record) => record?.status !== "paid",
                 )}
                 setIsLocationSelected={setPaymentRecordId}
-                // require={paymentFor !== "CashPayment" ? true : false}
+                isSearchEnable={false}
                 require={true}
               />
+            </div>
+            <div className="text-left mb-2">
+              <TextArea item="note" name="note" />
             </div>
             {/* )} */}
             <div className="text-left mb-2">
               <SelectDropDown
                 item={"PaymentMode"}
-                options={["online", "cash"]}
+                value="cash"
+                options={["cash"]}
                 setIsLocationSelected={setPaymentMode}
+                isSearchEnable={false}
                 require={true}
               />
             </div>
             <button
               type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
+              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400 w-full items-center justify-center"
               disabled={formLoading}
             >
               {!formLoading ? (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { fetchUserDataBasedOnQuery } from "../../Data/Function";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -6,10 +6,12 @@ import {
   removeTempVehicleData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
 import { getData } from "../../Data";
-import PreLoader from "../Skeleton/PreLoader";
+import { useNavigate } from "react-router-dom";
+import { Add } from "@mui/icons-material";
 
 const InputSearch = ({
   item,
+  placeholder,
   value = "",
   type = "text",
   disabled = false,
@@ -17,20 +19,28 @@ const InputSearch = ({
   name,
   token,
   setValueChanger,
+  onAddCustomer,
+  selectedUser, // optional: a user object to fill in from outside
+  showUserType = true,
 }) => {
+  const [isSearching, setIsSearching] = useState(false);
   const [userId, setUserId] = useState(value);
   const [inputValue, setInputValue] = useState("");
   const [timeoutId, setTimeoutId] = useState(null);
   const [userLoading, setUserLoading] = useState(false);
   const { tempVehicleData } = useSelector((state) => state.vehicles);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // search user data based on query entered
   const handleSelectUser = async (e) => {
     const value = e.target.value;
+
     setInputValue(value);
+    setIsSearching(true);
     // remove data if there is not search query
     if (value?.length == 0) {
+      setIsSearching(false);
       dispatch(removeTempVehicleData());
     }
     // Clear the previous timeout to prevent immediate API calls
@@ -41,8 +51,8 @@ const InputSearch = ({
     const newTimeoutId = setTimeout(async () => {
       if (value) {
         const data = await fetchUserDataBasedOnQuery(
-          `/getAllUsers?search=${value}`,
-          token
+          `/admin/getAllUsers?search=${encodeURIComponent(value)}`,
+          token,
         );
         dispatch(addTempVehicleData(data));
       }
@@ -55,7 +65,12 @@ const InputSearch = ({
   const handleSelectUserById = (item) => {
     setUserId(item?._id);
     setValueChanger && setValueChanger(item?._id);
-    setInputValue(`${item?.firstName} | ${item?.contact} | ${item?.userType}`);
+    setInputValue(
+      showUserType
+        ? `${item?.firstName} | ${item?.contact} | ${item?.userType}`
+        : `${item?.firstName} | ${item?.contact}`,
+    );
+    setIsSearching(false);
     dispatch(removeTempVehicleData());
   };
 
@@ -64,11 +79,16 @@ const InputSearch = ({
     if (value != "") {
       (async () => {
         setUserLoading(true);
-        const response = await getData(`/getAllUsers?_id=${value}`, token);
+        const response = await getData(
+          `/admin/getAllUsers?_id=${value}`,
+          token,
+        );
         if (response.status == 200) {
           const data = response?.data;
           setInputValue(
-            `${data[0]?.firstName} | ${data[0]?.contact} | ${data[0]?.userType}`
+            showUserType
+              ? `${data[0]?.firstName} | ${data[0]?.contact} | ${data[0]?.userType}`
+              : `${data[0]?.firstName} | ${data[0]?.contact}`,
           );
         }
         setUserLoading(false);
@@ -76,13 +96,35 @@ const InputSearch = ({
     }
   }, [value]);
 
-  return userLoading == false ? (
+  // fill the input when a user is created elsewhere (for example in a modal)
+  useEffect(() => {
+    if (selectedUser?._id) handleSelectUserById(selectedUser);
+  }, [selectedUser?._id]);
+
+  const isStationRoute =
+    location.pathname === "/station-master/add-new" ||
+    location.pathname.includes("/station-master/");
+
+  const filteredUsers = useMemo(() => {
+    if (!Array.isArray(tempVehicleData)) return [];
+
+    return tempVehicleData.filter((item) =>
+      isStationRoute
+        ? item.userType !== "customer"
+        : item.userType !== "admin" && item.userType !== "manager",
+    );
+  }, [tempVehicleData, isStationRoute]);
+
+  if (userLoading) return <InputSearchSkeleton />;
+
+  return (
     <div className="w-full relative">
       <label
         htmlFor={name}
         className="block text-gray-800 font-semibold text-sm capitalize"
       >
-        Enter {item} {require && <span className="text-red-500">*</span>}
+        {placeholder || `Enter ${item}`}{" "}
+        {require && <span className="text-red-500">*</span>}
       </label>
       <div className="mt-2">
         <input type="hidden" name={name} value={userId} />
@@ -100,64 +142,60 @@ const InputSearch = ({
             item == "vehicleNumber" ? inputValue.toUpperCase() : inputValue
           }
           onChange={(e) => handleSelectUser(e)}
-          placeholder={`${item}`}
+          placeholder={`${placeholder || item}`}
           disabled={disabled}
           required={require}
           autoComplete="off"
         />
       </div>
-      {/* {inputValue?.length > 0 && tempVehicleData?.length > 0 && ( */}
-      {inputValue?.length > 0 && inputValue?.length <= 10 && (
-        <div className="absolute top-20 w-full rounded-md px-3 py-2 bg-white border-2 z-30">
-          <ul>
-            {tempVehicleData ? (
-              tempVehicleData.length > 0 ? (
-                tempVehicleData.filter((item) =>
-                  location.pathname == "/station-master/add-new" ||
-                  location.pathname.includes("/station-master/")
-                    ? item.userType !== "customer"
-                    : item.userType !== "admin" && item.userType !== "manager"
-                ).length > 0 ? (
-                  tempVehicleData
-                    .filter((item) =>
-                      location.pathname == "/station-master/add-new" ||
-                      location.pathname.includes("/station-master/")
-                        ? item.userType !== "customer"
-                        : item.userType !== "admin" &&
-                          item.userType !== "manager"
-                    )
-                    .map((item) => (
-                      <li
-                        key={item._id}
-                        className="my-2 cursor-pointer text-gray-500"
-                        onClick={() => handleSelectUserById(item)}
-                      >
-                        {item.firstName} {item.lastName} | {item.contact} |{" "}
-                        {item.userType}
-                      </li>
-                    ))
-                ) : (
-                  <li className="my-2 cursor-pointer italic text-gray-400">
-                    no user found.
-                  </li>
-                )
-              ) : (
-                <li className="my-2 cursor-pointer italic text-gray-400">
-                  no user found.
-                </li>
-              )
-            ) : (
-              <li className="my-2 cursor-pointer italic text-gray-400">
-                loading...
+
+      {isSearching && inputValue?.length > 0 && (
+        <div className="absolute top-20 w-full rounded-md bg-white border-2 z-30 max-h-60 sm:max-h-40 overflow-y-auto">
+          <ul className="px-3 pt-2">
+            {!tempVehicleData && (
+              <li className="my-2 italic text-gray-400">loading...</li>
+            )}
+
+            {filteredUsers.map((item) => (
+              <li
+                key={item._id}
+                className="h-8 sm:h-10 flex items-center cursor-pointer text-gray-500 hover:bg-gray-100 w-full px-1"
+                onClick={() => handleSelectUserById(item)}
+              >
+                <span className="capitalize mr-1">
+                  {item.firstName} {item.lastName}
+                </span>
+                | {item.contact}
+                {showUserType && <> | {item.userType}</>}
+              </li>
+            ))}
+
+            {tempVehicleData && (
+              <li
+                tabIndex="0"
+                role="button"
+                className="sticky bottom-0 bg-white mt-1 py-2 border-t border-gray-200 italic text-gray-500 cursor-pointer hover:text-theme"
+                onClick={() =>
+                  onAddCustomer
+                    ? onAddCustomer()
+                    : navigate("/all-users/add-new")
+                }
+              >
+                <Add className="size-5" /> Add Customer
               </li>
             )}
           </ul>
         </div>
       )}
     </div>
-  ) : (
-    <PreLoader />
   );
 };
 
 export default InputSearch;
+
+const InputSearchSkeleton = () => (
+  <div className="w-full animate-pulse" aria-busy="true">
+    <div className="h-4 w-40 rounded bg-gray-200" />
+    <div className="mt-2 h-12 w-full rounded-md bg-gray-200" />
+  </div>
+);

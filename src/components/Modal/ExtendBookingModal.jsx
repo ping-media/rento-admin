@@ -2,13 +2,14 @@ import Spinner from "../../components/Spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleBookingExtendModal } from "../../Redux/SideBarSlice/SideBarSlice";
 import Input from "../../components/InputAndDropdown/Input";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   addDaysToDate,
   addOneMinute,
-  calculatePriceForExtendBooking,
+  calculateTax,
   calculateTotalAddOnPrice,
   formatFullDateAndTime,
+  formatPrice,
 } from "../../utils/index";
 import { getData, postData } from "../../Data/index";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
@@ -16,40 +17,175 @@ import {
   handleUpdateExtendVehicle,
   updateTimeLineData,
 } from "../../Redux/VehicleSlice/VehicleSlice";
-import { updateTimeLineForPayment } from "../../Data/Function";
 import ChangeTextToInput from "../../components/InputAndDropdown/ChangeTextToInput";
 import PreLoader from "../../components/Skeleton/PreLoader";
+import { debounce } from "lodash";
+// import SelectDropDown from "../../components/InputAndDropdown/SelectDropDown";
+import TextArea from "../../components/InputAndDropdown/TextArea";
+import { handleWhatsappLink } from "../../utils/whatsapp";
+import useVisualViewport from "../../hooks/use-visual-viewport";
 
-const ExtendBookingModal = ({ bookingData }) => {
+const ExtendBookingModal = ({ bookingData, setWhatsappModal }) => {
   const { isBookingExtendModalActive } = useSelector((state) => state.sideBar);
-  const { token } = useSelector((state) => state.user);
+  const { token, loggedInRole, currentUser } = useSelector(
+    (state) => state.user,
+  );
+  const {
+    height: vpHeight,
+    offsetTop,
+    keyboardOpen,
+  } = useVisualViewport(isBookingExtendModalActive);
   const [plan, setPlan] = useState({ data: null, loading: false });
   const [isPlanApplied, setIsPlanApplied] = useState(false);
   const [extensionDays, setExtensionDays] = useState(0);
+  const [addOnPrice, setAddOnPrice] = useState(0);
+  const [addOnTax, setAddOnTax] = useState(0);
+  const [freeVehicle, setFreeVehicle] = useState(null);
   const [extendPrice, setExtendPrice] = useState(0);
+  const [totalExtendPrice, setTotalExtendPrice] = useState(0);
+  const [newFreeLimit, setNewFreeLimit] = useState(0);
+  const [daysBreakdown, setDaysBreakdown] = useState([]);
+  const [selectedPlan, setSelectedPlan] = useState([]);
+  const [appliedPlans, setAppliedPlans] = useState([]);
   const [newDate, setNewDate] = useState("");
+  const [newBookingEndDateAndTime, setNewBookingEndDateAndTime] = useState("");
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [displayTax, setDisplayTax] = useState({
+    tax: 0,
+    addonTax: 0,
+  });
 
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
 
-  // extend bookng function
+  const debouncedCheckRef = useRef(debounce((fn) => fn(), 500));
+
+  if (!bookingData) {
+    return null;
+  }
+
+  const taxStatus =
+    (bookingData && bookingData?.stationData?.isGstActive === "inactive"
+      ? false
+      : true) || false;
+
+  const checkFreeVehicle = async () => {
+    // if same date and time for both return
+    const startDate = addOneMinute(bookingData?.BookingEndDateAndTime).replace(
+      ".000Z",
+      "Z",
+    );
+    if (!bookingData?.vehicleTableId)
+      return handleAsyncError(dispatch, "No Vehicle Assigned yet! try again");
+
+    if (newDate === startDate) return;
+    try {
+      setPriceLoading(true);
+      // `/getAllVehiclesAvailable?_id=${
+      const isVehicleFree = await getData(
+        `/extension/check?_id=${
+          bookingData?.vehicleTableId?._id
+        }&BookingStartDateAndTime=${addOneMinute(
+          bookingData?.BookingEndDateAndTime,
+        ).replace(
+          ".000Z",
+          "Z",
+        )}&BookingEndDateAndTime=${newDate}&excludeBookingId=${bookingData._id}`,
+        token,
+      );
+      if (isVehicleFree?.status === 200) {
+        setFreeVehicle(
+          isVehicleFree?.data?.length > 0 ? isVehicleFree?.data[0] : null,
+        );
+        if (isVehicleFree?.data?.length === 0) {
+          handleAsyncError(dispatch, isVehicleFree?.message);
+          return;
+        }
+      } else {
+        const vehicleData =
+          isVehicleFree?.unavailabilityReasons &&
+          isVehicleFree?.unavailabilityReasons.length > 0
+            ? isVehicleFree.unavailabilityReasons[0]
+            : null;
+
+        const customMessage =
+          vehicleData !== null
+            ? (vehicleData?.reason ?? "Vehicle is not available")
+            : null;
+
+        handleAsyncError(
+          dispatch,
+          customMessage !== null ? customMessage : isVehicleFree?.message,
+        );
+      }
+    } catch (error) {
+      handleAsyncError(dispatch, "Unable to get Vehicle Info! try again");
+    } finally {
+      setPriceLoading(false);
+    }
+  };
+
+  // new extend booking fn
   const handleExtendBooking = async (event) => {
     event.preventDefault();
     if (!newDate) return;
 
-    const finalAmount = calculatePriceForExtendBooking(
-      bookingData?.vehicleTableId?.perDayCost,
-      extensionDays,
-      Number(bookingData?.bookingPrice?.extraAddonPrice)
-    );
+    const formdata = new FormData(event.target);
+    const extensionMode = formdata?.get("extensionMode") || "online";
 
-    const data = {
+    const extensionData = {
+      key: `${currentUser?.firstName} (${currentUser?.userType})`,
+      value: formdata?.get("extensionNote") || "",
+      noteType: "general",
+      createdAt: Date.now(),
+    };
+
+    if (loggedInRole === "admin" && extensionMode === "") {
+      return handleAsyncError(dispatch, "please select valid extension mode!");
+    }
+
+    // const newStartDate = addOneMinute(
+    //   bookingData?.BookingEndDateAndTime,
+    // ).replace(".000Z", "Z");
+
+    const extendAmountList = bookingData?.bookingPrice?.extendAmount || [];
+    const extensionId = extendAmountList.length + 1 || 1;
+
+    // calculating the free km limit
+    const isPackage = appliedPlans?.length > 0 ? appliedPlans : null;
+
+    const daysBreakdowns = daysBreakdown ?? null;
+
+    const freeKmLimitForPlan =
+      isPackage !== null
+        ? isPackage.reduce((sum, plan) => {
+            return sum + plan.kmLimit * plan.count;
+          }, 0)
+        : 0;
+
+    // const freeKmLimitForDays =
+    //   daysBreakdowns !== null
+    //     ? daysBreakdowns?.length * Number(newFreeLimit !== 0 ? newFreeLimit : 1)
+    //     : 0;
+    const freeKmLimitForDays =
+      daysBreakdowns !== null
+        ? daysBreakdowns.reduce(
+            (sum, day) => sum + Number(day.kmLimit || newFreeLimit || 0),
+            0,
+          )
+        : 0;
+
+    const freeLimit = freeKmLimitForPlan + freeKmLimitForDays;
+
+    const finalAddonTax = taxStatus ? Math.round(Number(addOnTax)) || 0 : 0;
+
+    let data = {
       _id: bookingData?._id,
       vehicleTableId: bookingData?.vehicleTableId?._id,
-      BookingStartDateAndTime: addOneMinute(
-        bookingData?.BookingEndDateAndTime
-      ).replace(".000Z", "Z"),
-      BookingEndDateAndTime: newDate,
+      BookingStartDateAndTime: bookingData?.BookingEndDateAndTime,
+      BookingEndDateAndTime: newBookingEndDateAndTime,
+      // BookingStartDateAndTime: newStartDate,
+      // BookingEndDateAndTime: newDate,
       bookingPrice: bookingData?.bookingPrice,
       extendBooking: bookingData?.extendBooking,
       oldBookings: {
@@ -57,48 +193,95 @@ const ExtendBookingModal = ({ bookingData }) => {
         BookingEndDateAndTime: bookingData?.BookingEndDateAndTime,
       },
       extendAmount: {
-        id: bookingData?.bookingPrice?.extendAmount?.length + 1,
+        id: extensionId,
         title: "extended",
-        amount: finalAmount,
+        extendDuration: Number(extensionDays),
+        amount: extendPrice,
+        addOnAmount: Number(addOnPrice),
+        tax: freeVehicle?.tax || 0,
+        addonTax: finalAddonTax,
+        originalBookingEndDateAndTime:
+          bookingData?.BookingEndDateAndTime.replace(".000Z", "Z"),
+        BookingStartDateAndTime: bookingData?.BookingEndDateAndTime,
+        BookingEndDateAndTime: newBookingEndDateAndTime,
+        daysBreakdown: daysBreakdown || [],
+        package: selectedPlan || [],
+        appliedPlans: appliedPlans || [],
+        freeLimit,
+        orderId: "",
+        transactionId: "",
         paymentMethod: "",
         status: "unpaid",
       },
       bookingStatus: "extended",
     };
-    if (!data) return;
+
     try {
       setFormLoading(true);
-      const response = await postData(
-        `/extendBooking?BookingStartDateAndTime=${addOneMinute(
-          bookingData?.BookingEndDateAndTime
-        )}&BookingEndDateAndTime=${newDate}&stationId=${
-          bookingData?.stationId
-        }`,
+      data = {
+        ...data,
+        contact: bookingData?.userId?.contact,
+        firstName: bookingData?.userId?.firstName,
+        managerContact: bookingData?.stationMasterUserId?.contact,
+      };
+      const extensionNote = extensionData?.value !== "" ? extensionData : null;
+
+      const order = await postData(
+        "/initiate-extend-admin-booking",
         {
-          ...data,
-          contact: bookingData?.userId?.contact,
-          firstName: bookingData?.userId?.firstName,
-          managerContact: bookingData?.stationMasterUserId?.contact,
+          _id: bookingData?._id,
+          bookingId: bookingData?.bookingId,
+          amount: totalExtendPrice,
+          extensionMode,
+          extensionNote,
+          data,
         },
-        token
+        token,
       );
-      if (response?.status === 200) {
+      if (order?.success) {
         setExtensionDays(0);
         setNewDate("");
-        dispatch(handleUpdateExtendVehicle(data));
-        // updating the timeline for booking
-        const timeLineData = await updateTimeLineForPayment(
-          data,
-          token,
-          "Booking Extended"
+        setNewBookingEndDateAndTime("");
+        const timeLineData = order?.timeLine || null;
+        if (timeLineData !== null) {
+          dispatch(updateTimeLineData(timeLineData));
+        }
+        if (extensionMode === "cash") {
+          data = {
+            ...data,
+            extendAmount: {
+              ...data.extendAmount,
+              status: "paid",
+            },
+          };
+          const { contact, firstName, managerContact, ...reduxData } = data;
+          if (extensionNote !== null) {
+            // dispatch(
+            //   handleUpdateExtendVehicle({ ...reduxData, notes: extensionNote }),
+            // );
+          } else {
+            dispatch(handleUpdateExtendVehicle(reduxData));
+          }
+        }
+        handleAsyncError(
+          dispatch,
+          extensionMode === "cash"
+            ? "Ride extended successfully"
+            : "Extend Request Placed successfully",
+          "success",
         );
-        // for updating timeline redux data
-        dispatch(updateTimeLineData(timeLineData));
-        // dispatch(toggleBookingExtendModal());
+        handleWhatsappLink(
+          order?.whatsappUrl,
+          extensionMode === "cash"
+            ? "Extension confirmed!"
+            : "Extension payment link ready!",
+          setWhatsappModal,
+        );
         handleCloseModal();
-        return handleAsyncError(dispatch, response?.message, "success");
+        event.target.reset();
+        return;
       } else {
-        return handleAsyncError(dispatch, response?.message);
+        return handleAsyncError(dispatch, order?.message);
       }
     } catch (error) {
       return handleAsyncError(dispatch, error?.message);
@@ -108,17 +291,6 @@ const ExtendBookingModal = ({ bookingData }) => {
   };
 
   useEffect(() => {
-    // (async () => {
-    //   try {
-    //     setPlan((prev) => ({ ...prev, loading: true }));
-    //     const response = await getData("/getPlanData?page=1&limit=50", token);
-    //     if (response.status === 200) {
-    //       setPlan((prev) => ({ ...prev, data: response?.data }));
-    //     }
-    //   } finally {
-    //     setPlan((prev) => ({ ...prev, loading: false }));
-    //   }
-    // })();
     if (
       plan?.data === null &&
       bookingData?.vehicleTableId?.vehiclePlan?.length
@@ -130,52 +302,125 @@ const ExtendBookingModal = ({ bookingData }) => {
     }
   }, [bookingData]);
 
+  useEffect(() => {
+    if (!bookingData || !newDate) return;
+
+    debouncedCheckRef.current(checkFreeVehicle);
+
+    return () => {
+      debouncedCheckRef.current.cancel();
+    };
+  }, [bookingData, newDate]);
+
   // after closing the modal clear all the state to default
   const handleCloseModal = () => {
     setExtensionDays(0);
     setNewDate("");
+    setNewBookingEndDateAndTime("");
     dispatch(toggleBookingExtendModal());
   };
 
-  // for showing extend vehicle price on based on days
+  // main pricing calculation
   useEffect(() => {
-    if (Number(extensionDays) !== 0) {
+    if (Number(extensionDays) !== 0 && freeVehicle !== null) {
       const hasPlan =
         plan?.data?.length > 0
           ? plan?.data?.filter(
-              (plan) => Number(plan?.planDuration) === Number(extensionDays)
+              (plan) => Number(plan?.planDuration) === Number(extensionDays),
             )
           : [];
+
       const planPrice = hasPlan?.length > 0 ? Number(hasPlan[0]?.planPrice) : 0;
-      const extraAddonPrice =
+
+      // FIX: Properly handle the return value from calculateTotalAddOnPrice
+      let totalAddonAmount = 0;
+      let totalAddonTax = 0;
+
+      if (
         bookingData?.bookingPrice?.extraAddonDetails &&
         bookingData?.bookingPrice?.extraAddonDetails?.length > 0
-          ? calculateTotalAddOnPrice(
-              bookingData?.bookingPrice?.extraAddonDetails,
-              extensionDays
-            )
-          : 0;
+      ) {
+        const addonResult = calculateTotalAddOnPrice(
+          bookingData?.bookingPrice?.extraAddonDetails,
+          extensionDays,
+        );
+        totalAddonAmount = addonResult?.totalAddonAmount || 0;
+        totalAddonTax = addonResult?.totalAddonTax || 0;
+      }
+
       if (planPrice > 0) {
         setIsPlanApplied(true);
       } else {
         setIsPlanApplied(false);
       }
-      const price =
-        planPrice > 0
-          ? planPrice
-          : calculatePriceForExtendBooking(
-              rides[0]?.vehicleTableId?.perDayCost,
-              extensionDays,
-              extraAddonPrice
-            );
 
-      if (Number(price) > 0) {
-        setExtendPrice(price);
-      }
+      const price =
+        planPrice > 0 ? planPrice : Number(freeVehicle?.totalRentalCost || 0);
+
+      setExtendPrice(price);
+      setAddOnPrice(totalAddonAmount);
+      setAddOnTax(totalAddonTax);
+
+      setDaysBreakdown(freeVehicle?._daysBreakdown || []);
+      setAppliedPlans(freeVehicle?.appliedPlans || []);
+      setNewFreeLimit(freeVehicle?.freeKms || 0);
+      setSelectedPlan(hasPlan);
     } else {
       setExtendPrice(0);
+      setAddOnPrice(0);
+      setAddOnTax(0);
+      setTotalExtendPrice(0);
+      setDisplayTax({ tax: 0, addonTax: 0 });
     }
-  }, [extensionDays]);
+  }, [extensionDays, freeVehicle]);
+
+  // tax update
+  useEffect(() => {
+    if (!taxStatus) {
+      setDisplayTax({ tax: 0, addonTax: 0 });
+      setTotalExtendPrice(Number(extendPrice) + Number(addOnPrice));
+      return;
+    }
+
+    let tax = 0;
+    let addonTax = 0;
+
+    if (extendPrice > 0) {
+      const taxPercentage = Number(
+        freeVehicle?.vehicleMasterData?.gstPercentage || 0,
+      );
+      tax = calculateTax(Number(extendPrice), taxPercentage);
+    }
+
+    if (addOnPrice > 0) {
+      const addonGstPercentage = Number(
+        freeVehicle?.stationData?.extraAddOn?.[0]?.gstPercentage || 0,
+      );
+      addonTax = calculateTax(Number(addOnPrice), addonGstPercentage);
+    }
+
+    setDisplayTax({ tax: Math.round(tax), addonTax: Math.round(addonTax) });
+
+    const total =
+      Number(extendPrice) + Number(addOnPrice) + Number(tax) + Number(addonTax);
+    setTotalExtendPrice(Math.round(total));
+  }, [extendPrice, addOnPrice, taxStatus, freeVehicle]);
+
+  // through this we are disabling the extension util previous one is completed
+  const isDisabled =
+    loggedInRole === "admin"
+      ? false
+      : (!["paid", "partiallyPay", "partially_paid"].includes(
+            bookingData?.paymentStatus,
+          ) &&
+            true) ||
+          (bookingData?.bookingPrice?.extendAmount &&
+            bookingData?.bookingPrice?.extendAmount?.length > 0 &&
+            bookingData?.bookingPrice?.extendAmount[
+              bookingData?.bookingPrice?.extendAmount?.length - 1
+            ]?.status === "unpaid")
+        ? true
+        : false;
 
   if (plan?.loading) {
     return <PreLoader />;
@@ -183,13 +428,22 @@ const ExtendBookingModal = ({ bookingData }) => {
 
   return (
     <div
+      style={{ top: offsetTop, height: vpHeight }}
+      className={`fixed ${
+        !isBookingExtendModalActive ? "hidden" : ""
+      } z-40 inset-x-0 bg-gray-900 bg-opacity-60 flex items-end sm:items-center justify-center sm:px-4`}
+    >
+      <div className="relative w-full max-w-lg max-h-full overflow-y-auto overscroll-contain rounded-t-2xl sm:rounded-md bg-white shadow-xl">
+        {/* <div
       className={`fixed ${
         !isBookingExtendModalActive ? "hidden" : ""
       } z-40 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4 `}
     >
-      <div className="relative top-20 mx-auto shadow-xl rounded-md bg-white max-w-lg">
-        <div className="flex justify-between p-2">
-          <h2 className="text-theme font-semibold text-lg uppercase">
+      <div className="relative top-20 md:top-14 mx-auto shadow-xl rounded-md bg-white max-w-lg"> */}
+        {/* <div className="flex justify-between border-b p-2">
+          <h2 className="text-theme font-semibold text-lg uppercase"> */}
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white p-3 sm:p-2">
+          <h2 className="text-theme font-semibold text-xl sm:text-lg uppercase">
             Extend Booking
           </h2>
           <button
@@ -213,79 +467,254 @@ const ExtendBookingModal = ({ bookingData }) => {
           </button>
         </div>
 
-        <div className="p-6 pt-0 text-center">
-          <form onSubmit={handleExtendBooking}>
+        <div className="p-4 sm:p-6 pt-3 text-center text-base">
+          {/* <div className="p-6 pt-2 text-center"> */}
+          {isDisabled && (
+            <p className="text-left text-sm text-theme italic mb-2">
+              <span className="font-bold mr-1">Note:</span>
+              update the pending payment in order to extend the ride.
+            </p>
+          )}
+
+          <form
+            onSubmit={handleExtendBooking}
+            onFocusCapture={(e) => {
+              const el = e.target;
+              if (["INPUT", "TEXTAREA"].includes(el.tagName)) {
+                // wait for the keyboard animation, then bring the field into view
+                setTimeout(
+                  () =>
+                    el.scrollIntoView({ block: "center", behavior: "smooth" }),
+                  300,
+                );
+              }
+            }}
+          >
             <div className="mb-2">
-              <p className="text-gray-400 text-left">
-                <span className="font-semibold text-black mr-1">
-                  Current End Date:
+              <p className="text-gray-500 text-left text-base">
+                Current End Date:
+                <span className="font-semibold text-black ml-1">
+                  {bookingData?.BookingEndDateAndTime &&
+                    formatFullDateAndTime(bookingData.BookingEndDateAndTime)}
                 </span>
-                {formatFullDateAndTime(
-                  addOneMinute(bookingData?.BookingEndDateAndTime)
-                )}
               </p>
             </div>
-            <div className="mb-2">
+            <div className="mb-3.5">
               <Input
+                labelClassName="text-base"
                 item={"extension day's"}
                 type="number"
                 setValueChange={setExtensionDays}
                 onChangeFun={addDaysToDate}
                 dateToBeAdd={addOneMinute(bookingData?.BookingEndDateAndTime)}
+                DBDateToBeAdd={bookingData?.BookingEndDateAndTime}
                 setDateChange={setNewDate}
+                setDBDateChange={setNewBookingEndDateAndTime}
                 isModalClose={isBookingExtendModalActive}
               />
             </div>
             <div>
-              {isPlanApplied && (
+              {/* {isPlanApplied && (
                 <div className="mb-2">
                   <p
-                    className={`text-gray-400 text-left text-sm font-semibold italic`}
+                    className={`text-gray-400 text-left text-base font-semibold italic`}
                   >
-                    (Plan Applied)
+                    ({extensionDays} day's package applied)
                   </p>
                 </div>
+              )} */}
+              <div className="mb-2 bg-gray-500/15 rounded-md p-3 sm:p-2 space-y-2">
+                <div className="w-full flex items-center justify-between">
+                  <p>Vehicle Rental Cost:</p>
+                  <p>
+                    {" "}
+                    {priceLoading ? (
+                      "--"
+                    ) : extendPrice >= 0 && extensionDays > 0 ? (
+                      <ChangeTextToInput
+                        value={Number(extendPrice)}
+                        setValue={(e) => setExtendPrice(Number(e.target.value))}
+                        type={"number"}
+                      />
+                    ) : (
+                      "--"
+                    )}
+                  </p>
+                </div>
+                {taxStatus && (
+                  <div className="w-full flex items-center justify-between">
+                    <p>GST:</p>
+                    <p>
+                      {" "}
+                      {priceLoading ? (
+                        "--"
+                      ) : displayTax.tax >= 0 && extensionDays > 0 ? (
+                        <ChangeTextToInput
+                          value={Number(displayTax.tax)}
+                          setValue={(e) =>
+                            setDisplayTax((prev) => ({
+                              ...prev,
+                              tax: Number(e.target.value),
+                            }))
+                          }
+                          type={"number"}
+                        />
+                      ) : (
+                        "--"
+                      )}
+                    </p>
+                  </div>
+                )}
+                <div className="w-full flex items-center justify-between">
+                  <p>Add On Cost:</p>
+                  <p>
+                    {" "}
+                    {priceLoading ? (
+                      "--"
+                    ) : addOnPrice >= 0 && extensionDays > 0 ? (
+                      <ChangeTextToInput
+                        value={Number(addOnPrice)}
+                        setValue={(e) => setAddOnPrice(Number(e.target.value))}
+                        type={"number"}
+                      />
+                    ) : (
+                      "--"
+                    )}
+                  </p>
+                </div>
+                {taxStatus && (
+                  <div className="w-full flex items-center justify-between">
+                    <p>GST:</p>
+                    <p>
+                      {" "}
+                      {priceLoading ? (
+                        "--"
+                      ) : displayTax.addonTax >= 0 && extensionDays > 0 ? (
+                        <ChangeTextToInput
+                          value={Number(displayTax.addonTax)}
+                          setValue={(e) =>
+                            setDisplayTax((prev) => ({
+                              ...prev,
+                              addonTax: Number(e.target.value),
+                            }))
+                          }
+                          type={"number"}
+                        />
+                      ) : (
+                        "--"
+                      )}
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-1 flex items-center justify-between rounded-none border-t-2 border-gray-400 pt-1 text-theme">
+                  <p className="text-base font-bold">Total Amount</p>
+                  {priceLoading ? (
+                    <p className="h-6 w-24 animate-pulse rounded-md bg-gray-300/80" />
+                  ) : (
+                    <p className="text-xl font-bold">
+                      ₹{formatPrice(Number(totalExtendPrice))}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {loggedInRole === "admin" && (
+                <>
+                  <div className="text-left w-full mb-2">
+                    <TextArea
+                      className="text-base"
+                      placeholder={"Extension Note"}
+                      item={"extensionNote"}
+                    />
+                  </div>
+                  <div className="text-left w-full mb-3">
+                    <p className="mb-2 text-base font-semibold text-gray-800">
+                      Payment Mode <span className="text-red-500">*</span>
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {["online", "cash"].map((mode) => (
+                        <label key={mode} className="relative cursor-pointer">
+                          <input
+                            type="radio"
+                            name="extensionMode"
+                            value={mode}
+                            defaultChecked={mode === "online"}
+                            required
+                            className="peer sr-only"
+                          />
+                          <div className="flex min-h-[3.5rem] items-center justify-center rounded-lg border-2 border-gray-300 bg-white px-3 py-3 text-base font-semibold capitalize text-gray-700 transition peer-checked:border-theme peer-checked:bg-theme/10 peer-checked:text-theme peer-focus-visible:ring-2 peer-focus-visible:ring-theme">
+                            {mode}
+                          </div>
+                          <span className="absolute -right-1.5 -top-1.5 hidden h-5 w-5 items-center justify-center rounded-full bg-theme text-xs text-white peer-checked:flex">
+                            ✓
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  {/* <div className="text-left w-full mb-2">
+                    <SelectDropDown
+                      item={"extensionMode"}
+                      options={["cash", "online"]}
+                      value="online"
+                      require={true}
+                      isSearchEnable={false}
+                    />
+                  </div> */}
+                </>
               )}
+
               <div className="mb-2">
                 <p
-                  className={`text-gray-400 text-left ${
+                  className={`text-gray-500 text-left text-base ${
                     newDate === "" ? "italic" : ""
                   }`}
                 >
-                  <span className="font-semibold text-black not-italic mr-1">
-                    New End Date:
+                  New End Date:
+                  <span className="font-semibold text-black ml-1">
+                    {newBookingEndDateAndTime !== ""
+                      ? formatFullDateAndTime(newBookingEndDateAndTime)
+                      : "(Enter number of days to view the new date)"}
                   </span>
-                  {newDate !== ""
-                    ? formatFullDateAndTime(newDate)
-                    : "(Enter number of days to view the new date)"}
                 </p>
               </div>
-              <div className={`mb-2`}>
-                <p className="text-theme text-left flex items-center">
-                  <span className="font-semibold text-black mr-1">
-                    New Amount:
-                  </span>
-
-                  <ChangeTextToInput
-                    value={extendPrice}
-                    setValue={(e) => setExtendPrice(e.target.value)}
-                    type={"number"}
-                  />
-                </p>
-              </div>
+              {/* <div className="mb-2">
+                <div className="flex items-center text-theme text-left">
+                  <p className="font-semibold text-black mr-1">
+                    New Payable Amount:
+                  </p>
+                  {priceLoading ? (
+                    <p className="w-20 h-5 bg-gray-300/80 rounded-md animate-pulse"></p>
+                  ) : (
+                    formatPrice(Number(totalExtendPrice))
+                  )}
+                </div>
+              </div> */}
             </div>
 
-            <button
-              type="submit"
-              className="bg-theme px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-gray-400"
-              disabled={formLoading}
+            <div
+              className={`-mx-4 sm:-mx-6 mt-2 border-t bg-white px-4 sm:px-6 pb-4 pt-3 ${
+                keyboardOpen ? "" : "sticky bottom-0"
+              }`}
             >
-              {!formLoading ? (
-                "Extend Booking"
-              ) : (
-                <Spinner message={"loading..."} />
-              )}
-            </button>
+              <button
+                type="submit"
+                className="bg-theme h-12 px-4 py-3.5 text-base font-semibold text-gray-100 inline-flex gap-2 rounded-lg hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/80 w-full items-center justify-center"
+                // className="bg-theme h-12 px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/80 w-full items-center justify-center"
+                disabled={
+                  isDisabled || extensionDays == 0
+                    ? true
+                    : false || Number(extendPrice) === 0 || formLoading
+                }
+              >
+                {!formLoading ? (
+                  "Extend Booking"
+                ) : (
+                  <Spinner message={"loading..."} />
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

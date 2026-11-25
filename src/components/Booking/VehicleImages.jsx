@@ -1,46 +1,109 @@
-import PhotoView from "../../components/Form/User Components/PhotoView";
-// import { tableIcons } from "../../Data/Icons";
-import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import PhotoView from "../Form/User Components/PhotoView";
+import React, { lazy, Suspense, useState } from "react";
+import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import { postMultipleData } from "../../Data";
+import { patchPickupImageFile } from "../../Redux/VehicleSlice/VehicleSlice";
+const ReplaceImageModal = lazy(() => import("../Modal/ReplaceImageModal"));
 
-const VehicleImages = () => {
-  const { vehiclePickupImage } = useSelector((state) => state.vehicles);
+const VehicleImages = ({
+  pickupImage,
+  type = "pickup",
+  userId = null,
+  bookingId = null,
+  canReplace = false,
+}) => {
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.user);
+  const [replaceTarget, setReplaceTarget] = useState(null);
+
+  const rawFiles =
+    type === "pickup"
+      ? (pickupImage?.files ?? {})
+      : (pickupImage?.endFiles ?? {});
+  const files = Object.entries(rawFiles);
+
+  const handleReplace = async (item, finalFile) => {
+    try {
+      if (!bookingId || !userId) {
+        handleAsyncError(
+          dispatch,
+          "Unable to find required details! try again",
+        );
+        return false;
+      }
+
+      const formData = new FormData();
+      formData.append("image", finalFile);
+      formData.append("userId", userId);
+      formData.append("bookingId", bookingId);
+      formData.append("fileId", item?._id);
+
+      const response = await postMultipleData(
+        "/replace-pickup-image",
+        formData,
+        token,
+      );
+
+      if (!response?.success) {
+        handleAsyncError(
+          dispatch,
+          response?.message || "Unable to replace image!",
+        );
+        return false;
+      }
+
+      dispatch(
+        patchPickupImageFile({
+          bookingId,
+          key: response.data.key,
+          file: response.data.file,
+        }),
+      );
+      handleAsyncError(
+        dispatch,
+        response?.message || "Image Replaced!",
+        "success",
+      );
+      return true;
+    } catch (error) {
+      console.error("Replace image failed:", error);
+      handleAsyncError(dispatch, "Unable to replace image!");
+      return false;
+    }
+  };
+
+  if (!files.length) return null;
+
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      {Object.entries(vehiclePickupImage[0]?.files || {})?.map(
-        ([key, value]) => (
+    <>
+      <div
+        className="flex items-center gap-3 sm:gap-2 flex-wrap"
+        id="vehicle-gallery"
+      >
+        {files?.map(([key, value]) => (
           <PhotoView
             item={value}
-            className="w-20 h-20"
-            uniqueId={key}
+            className="w-14 lg:w-20 h-14 lg:h-20"
+            uniqueId={"vehicle-gallery"}
             key={key}
+            onReplaceClick={
+              canReplace && type === "pickup" ? setReplaceTarget : undefined
+            }
           />
-          // <div
-          //   className={`relative w-auto border-2 rounded-md p-1 h-full`}
-          //   key={key}
-          // >
-          //   <a
-          //     href={value?.imageUrl}
-          //     data-pswp-width="1920"
-          //     data-pswp-height="1080"
-          //     target="_blank"
-          //     rel="noreferrer"
-          //     className="flex items-center gap-1"
-          //   >
-          //     {value?.imageUrl ? (
-          //       <img
-          //         src={value?.imageUrl}
-          //         className="w-16 h-16 object-cover"
-          //         alt={value?.fileName}
-          //       />
-          //     ) : (
-          //       tableIcons?.image
-          //     )}
-          //   </a>
-          // </div>
-        )
+        ))}
+      </div>
+
+      {canReplace && type === "pickup" && (
+        <Suspense fallback={null}>
+          <ReplaceImageModal
+            item={replaceTarget}
+            onClose={() => setReplaceTarget(null)}
+            onConfirm={handleReplace}
+          />
+        </Suspense>
       )}
-    </div>
+    </>
   );
 };
 
