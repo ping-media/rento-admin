@@ -4,6 +4,8 @@ import Spinner from "../Spinner/Spinner";
 import { postData } from "../../Data";
 import { tableIcons } from "../../Data/Icons";
 import { handleAsyncError } from "../../utils/Helper/handleAsyncError";
+import { validatePassword } from "../../utils/Helper/password";
+import PasswordRulesChecklist from "../InputAndDropdown/PasswordRulesChecklist";
 
 const ChangePasswordModal = ({ isActive, setIsActive }) => {
   const { token } = useSelector((state) => state.user);
@@ -13,6 +15,9 @@ const ChangePasswordModal = ({ isActive, setIsActive }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const dispatch = useDispatch();
+
+  const passwordError = validatePassword(newPassword);
+  const isPasswordValid = passwordError === "";
 
   useEffect(() => {
     if (isActive) {
@@ -30,8 +35,8 @@ const ChangePasswordModal = ({ isActive, setIsActive }) => {
       setError("Please fill in all fields");
       return;
     }
-    if (newPassword.length < 8) {
-      setError("New password must be at least 8 characters");
+    if (!isPasswordValid) {
+      setError(passwordError);
       return;
     }
     if (newPassword === currentPassword) {
@@ -117,6 +122,8 @@ const ChangePasswordModal = ({ isActive, setIsActive }) => {
               disabled={loading}
             />
 
+            <PasswordRulesChecklist password={newPassword} className="mt-2" />
+
             <PasswordField
               label="Confirm New Password"
               placeholder="Confirm new password"
@@ -134,8 +141,14 @@ const ChangePasswordModal = ({ isActive, setIsActive }) => {
           <div className="text-center mt-4">
             <button
               onClick={handleSubmit}
-              disabled={loading}
-              className="w-full sm:w-auto bg-theme text-white px-6 py-2 rounded-md disabled:opacity-60"
+              className="w-full bg-theme text-white px-6 py-2 rounded-md disabled:opacity-60"
+              disabled={
+                loading ||
+                !currentPassword ||
+                !isPasswordValid ||
+                !confirmPassword ||
+                newPassword !== confirmPassword
+              }
             >
               {loading ? <Spinner /> : "Change Password"}
             </button>
@@ -182,7 +195,7 @@ const PasswordField = ({
           onClick={() => setShow((prev) => !prev)}
           disabled={disabled}
         >
-          {!show ? tableIcons.eyeOpen : tableIcons.eyeClose}
+          {!show ? tableIcons.eyeClose : tableIcons.eyeOpen}
         </button>
       </div>
     </div>

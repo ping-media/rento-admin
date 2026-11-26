@@ -513,16 +513,21 @@ const ExtendBookingModal = ({ bookingData, setWhatsappModal }) => {
                 isModalClose={isBookingExtendModalActive}
               />
             </div>
+            <div className="mb-2">
+              <p
+                className={`text-gray-500 text-left text-base ${
+                  newDate === "" ? "italic" : ""
+                }`}
+              >
+                New End Date:
+                <span className="font-semibold text-black ml-1">
+                  {newBookingEndDateAndTime !== ""
+                    ? formatFullDateAndTime(newBookingEndDateAndTime)
+                    : "(Enter number of days to view the new date)"}
+                </span>
+              </p>
+            </div>
             <div>
-              {/* {isPlanApplied && (
-                <div className="mb-2">
-                  <p
-                    className={`text-gray-400 text-left text-base font-semibold italic`}
-                  >
-                    ({extensionDays} day's package applied)
-                  </p>
-                </div>
-              )} */}
               <div className="mb-2 bg-gray-500/15 rounded-md p-3 sm:p-2 space-y-2">
                 <div className="w-full flex items-center justify-between">
                   <p>Vehicle Rental Cost:</p>
@@ -653,44 +658,8 @@ const ExtendBookingModal = ({ bookingData, setWhatsappModal }) => {
                       ))}
                     </div>
                   </div>
-                  {/* <div className="text-left w-full mb-2">
-                    <SelectDropDown
-                      item={"extensionMode"}
-                      options={["cash", "online"]}
-                      value="online"
-                      require={true}
-                      isSearchEnable={false}
-                    />
-                  </div> */}
                 </>
               )}
-
-              <div className="mb-2">
-                <p
-                  className={`text-gray-500 text-left text-base ${
-                    newDate === "" ? "italic" : ""
-                  }`}
-                >
-                  New End Date:
-                  <span className="font-semibold text-black ml-1">
-                    {newBookingEndDateAndTime !== ""
-                      ? formatFullDateAndTime(newBookingEndDateAndTime)
-                      : "(Enter number of days to view the new date)"}
-                  </span>
-                </p>
-              </div>
-              {/* <div className="mb-2">
-                <div className="flex items-center text-theme text-left">
-                  <p className="font-semibold text-black mr-1">
-                    New Payable Amount:
-                  </p>
-                  {priceLoading ? (
-                    <p className="w-20 h-5 bg-gray-300/80 rounded-md animate-pulse"></p>
-                  ) : (
-                    formatPrice(Number(totalExtendPrice))
-                  )}
-                </div>
-              </div> */}
             </div>
 
             <div
@@ -701,7 +670,6 @@ const ExtendBookingModal = ({ bookingData, setWhatsappModal }) => {
               <button
                 type="submit"
                 className="bg-theme h-12 px-4 py-3.5 text-base font-semibold text-gray-100 inline-flex gap-2 rounded-lg hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/80 w-full items-center justify-center"
-                // className="bg-theme h-12 px-4 py-2 text-gray-100 inline-flex gap-2 rounded-md hover:bg-theme-dark transition duration-300 ease-in-out shadow-lg hover:shadow-none disabled:bg-theme/80 w-full items-center justify-center"
                 disabled={
                   isDisabled || extensionDays == 0
                     ? true

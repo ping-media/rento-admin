@@ -4,6 +4,33 @@ export const PASSWORD_REGEX =
 export const PASSWORD_RULE_TEXT =
   "8–20 characters with uppercase, lowercase, number and one of @$!%*?&";
 
+export const passwordRules = (password = "") => [
+  {
+    label: "8–20 characters",
+    valid: password.length >= 8 && password.length <= 20,
+  },
+  {
+    label: "At least one lowercase letter",
+    valid: /[a-z]/.test(password),
+  },
+  {
+    label: "At least one uppercase letter",
+    valid: /[A-Z]/.test(password),
+  },
+  {
+    label: "At least one number",
+    valid: /\d/.test(password),
+  },
+  {
+    label: "At least one special character (@$!%*?&)",
+    valid: /[@$!%*?&]/.test(password),
+  },
+  {
+    label: "Only letters, numbers and @$!%*?&",
+    valid: PASSWORD_REGEX.test(password),
+  },
+];
+
 // returns "" when valid, otherwise the first problem found
 export const validatePassword = (value) => {
   if (!value) return "Password is required";

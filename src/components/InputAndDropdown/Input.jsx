@@ -5,8 +5,8 @@ import { tableIcons } from "../../Data/Icons";
 
 const Input = ({
   item,
-  value = "",
-  defaultValue = "",
+  value,
+  defaultValue,
   type = "text",
   disabled = false,
   require = false,
@@ -38,7 +38,7 @@ const Input = ({
   labelClassName = "text-sm",
   ...rest
 }) => {
-  const [inputValue, setInputValue] = useState(value || defaultValue || "");
+  const [inputValue, setInputValue] = useState(value ?? defaultValue ?? "");
   // for debouncing state
   const [isDebounceValue, setIsDebounceValue] = useState("");
   const debouncedDate = useDebounce(isDebounceValue, 500);
@@ -105,7 +105,7 @@ const Input = ({
 
   // for updating the value
   useEffect(() => {
-    if (value !== undefined && value !== "") {
+    if (value !== undefined) {
       setInputValue(value);
     } else if (defaultValue !== undefined) {
       setInputValue(defaultValue);

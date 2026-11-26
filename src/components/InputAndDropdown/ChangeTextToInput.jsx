@@ -13,7 +13,7 @@ const ChangeTextToInput = ({ value, setValue, type }) => {
           {type === "number" ? `₹${formatPrice(Number(value))}` : value}
           <button
             type="button"
-            className="text-black ml-1"
+            className="text-black ml-1.5 sm:ml-1"
             onClick={() => setIsEdit(true)}
           >
             {tableIcons?.pencil}
@@ -22,7 +22,6 @@ const ChangeTextToInput = ({ value, setValue, type }) => {
       ) : (
         <input
           type={type}
-          // value={value === 0 ? "" : value}
           value={defaultValue}
           onChange={setValue}
           onFocus={(e) => e.target.select()}

@@ -1,6 +1,12 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import {
   formatPathNameToTitle,
   handlePreviousPage,
@@ -18,11 +24,15 @@ import {
   toggleForgetPasswordModal,
   toogleKycModalActive,
 } from "../Redux/SideBarSlice/SideBarSlice.js";
+import { useConvertCustomerToManager } from "../hooks/use-convert-customer-to-manager.js";
 const ForgetPasswordModal = lazy(
   () => import("../components/Modal/ForgetPasswordModal.jsx"),
 );
 const UserKycApproveModal = lazy(
   () => import("../components/Modal/UserKycApproveModal.jsx"),
+);
+const ConvertCustomerModal = lazy(
+  () => import("../components/Modal/ConvertCustomerModal.jsx"),
 );
 
 const CreateNewAndUpdateForm = () => {
@@ -35,6 +45,12 @@ const CreateNewAndUpdateForm = () => {
   const { loading, vehicleMaster, tempIds } = useSelector(
     (state) => state.vehicles,
   );
+
+  const redirectFn = (response) => {
+    <Navigate to={`/all-managers/${response?.data?._id}`} />;
+  };
+
+  const convert = useConvertCustomerToManager({ token, onSuccess: redirectFn });
 
   const isId = Boolean(id?.trim());
 
@@ -69,6 +85,10 @@ const CreateNewAndUpdateForm = () => {
 
   const FormComponent = getFormType();
 
+  const isRoleChangeAllowed =
+    location.pathname.includes("/all-users/") && loggedInRole === "admin";
+  const customerUser = vehicleMaster?.[0]?.userId ?? vehicleMaster ?? null;
+
   if (loading) {
     return <PreLoader />;
   }
@@ -94,6 +114,12 @@ const CreateNewAndUpdateForm = () => {
             />
           </Suspense>
         )}
+
+      {isRoleChangeAllowed && (
+        <Suspense fallback={null}>
+          <ConvertCustomerModal convert={convert} />
+        </Suspense>
+      )}
 
       <div className="flex items-center flex-wrap justify-between gap-1 lg:gap-0 mb-5">
         <div className="flex items-center gap-2 min-w-0 max-w-full">
@@ -159,6 +185,15 @@ const CreateNewAndUpdateForm = () => {
                   <>{tableIcons?.unVerify} Not Verified</>
                 )}
               </button>
+
+              {isRoleChangeAllowed && (
+                <button
+                  className="bg-theme flex items-center gap-1 text-white p-2 lg:px-3 lg:py-2.5 rounded-md disabled:bg-gray-400 disabled:uppercase"
+                  onClick={() => convert.start(customerUser)}
+                >
+                  Change to Manager
+                </button>
+              )}
 
               {location.pathname.includes("/all-managers/") &&
                 !location.pathname.includes("/add-new") && (
