@@ -181,7 +181,7 @@ const SelectDropDownVehicle = ({
           {tableIcons.downArrow}
         </div>
         {isOpen && (
-          <div className="absolute z-50 bg-white mt-2 w-full max-h-40 lg:max-h-40 overflow-y-auto rounded-md shadow-md border border-gray-300">
+          <div className="absolute z-[9999] bg-white mt-2 w-full max-h-40 lg:max-h-40 overflow-y-auto rounded-md shadow-md border border-gray-300">
             <input
               type="text"
               ref={searchInputRef}

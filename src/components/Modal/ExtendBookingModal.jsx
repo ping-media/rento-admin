@@ -499,20 +499,6 @@ const ExtendBookingModal = ({ bookingData, setWhatsappModal }) => {
                 </span>
               </p>
             </div>
-            <div className="mb-3.5">
-              <Input
-                labelClassName="text-base"
-                item={"extension day's"}
-                type="number"
-                setValueChange={setExtensionDays}
-                onChangeFun={addDaysToDate}
-                dateToBeAdd={addOneMinute(bookingData?.BookingEndDateAndTime)}
-                DBDateToBeAdd={bookingData?.BookingEndDateAndTime}
-                setDateChange={setNewDate}
-                setDBDateChange={setNewBookingEndDateAndTime}
-                isModalClose={isBookingExtendModalActive}
-              />
-            </div>
             <div className="mb-2">
               <p
                 className={`text-gray-500 text-left text-base ${
@@ -526,6 +512,21 @@ const ExtendBookingModal = ({ bookingData, setWhatsappModal }) => {
                     : "(Enter number of days to view the new date)"}
                 </span>
               </p>
+            </div>
+            <div className="mb-3.5">
+              <Input
+                labelClassName="text-base"
+                item={"extension day's"}
+                type="number"
+                setValueChange={setExtensionDays}
+                onChangeFun={addDaysToDate}
+                dateToBeAdd={addOneMinute(bookingData?.BookingEndDateAndTime)}
+                DBDateToBeAdd={bookingData?.BookingEndDateAndTime}
+                setDateChange={setNewDate}
+                setDBDateChange={setNewBookingEndDateAndTime}
+                isModalClose={isBookingExtendModalActive}
+                isLabel={false}
+              />
             </div>
             <div>
               <div className="mb-2 bg-gray-500/15 rounded-md p-3 sm:p-2 space-y-2">

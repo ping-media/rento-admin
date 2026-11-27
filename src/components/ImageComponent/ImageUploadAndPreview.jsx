@@ -17,7 +17,6 @@ const ImageUploadAndPreview = ({
   setImageMultiChanger,
   setImageUrlMultiChanger,
   name = "image",
-  // isRequired = true,
   isUpload = false,
   isDisableRemove = false,
   isLabel = true,
@@ -141,7 +140,6 @@ const ImageUploadAndPreview = ({
           id={`ImageInput-Camera-${title}`}
           ref={fileInputRef}
           onChange={handleImageChange}
-          // required={isRequired}
         />
 
         {isCompressing ? (
